@@ -9,7 +9,7 @@ from PySGL.python.Colors import *
 from PySGL.python.Window import Window
 from PySGL.python.Colors import COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_GRAY, COLOR_ALPHA
 from PySGL.python.Math import rects_collision
-from ..engine.Tilesets import TileMap
+from PySGL.python.Engine.Tilesets import TileMap
 
 from itertools import chain
 

@@ -1,6 +1,6 @@
-from ..Views import *
-from ..Vectors import *
-from ..Window import Window
+from PySGL.python.Views import *
+from PySGL.python.Vectors import *
+from PySGL.python.Window import Window
 
 class Camera2D:
     def __init__(self, width: int, height: int):

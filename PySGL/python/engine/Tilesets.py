@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from ..Rendering.Sprites import *
-from ..Types import *
+from PySGL.python.Rendering.Sprites import *
+from PySGL.python.Types import *
 
 from enum import Enum, auto
 
