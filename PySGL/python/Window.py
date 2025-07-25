@@ -53,10 +53,10 @@ from .Views import View
 
 from .Vectors import Vector2i, Vector2f
 
-from .rendering.Text import *
-from .rendering.Shapes import *
-from .rendering.Shaders import Shader
-from .rendering.RenderStates import RenderStates
+from .Rendering.Text import *
+from .Rendering.Shapes import *
+from .Rendering.Shaders import Shader
+from .Rendering.RenderStates import RenderStates
 
 from .Inputs import MouseInterface
 

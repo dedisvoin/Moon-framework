@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from PySGL.python.Vectors import Vector2f
 from PySGL.python.Types import *
-from PySGL.python.rendering.Shapes import BaseRectangleShape
+from PySGL.python.Rendering.Shapes import BaseRectangleShape
 from PySGL.python.Colors import *
 from PySGL.python.Window import Window
 from PySGL.python.Colors import COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_GRAY, COLOR_ALPHA

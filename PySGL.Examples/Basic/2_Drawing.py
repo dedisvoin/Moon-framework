@@ -2,7 +2,7 @@ import sys
 sys.path.append("./")
 from PySGL.python.Window import *
 from PySGL.python.Colors import *
-from PySGL.python.rendering.Shapes import *
+from PySGL.python.Rendering.Shapes import *
 
 
 window = Window().set_view_info()

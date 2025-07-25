@@ -1,7 +1,7 @@
 import sys
 sys.path.append("./")
 from PySGL.python.Window import *
-from PySGL.python.rendering.Shapes import *
+from PySGL.python.Rendering.Shapes import *
 from PySGL.python.Math import *
 
 from PySGL.python.Inputs import MouseInterface

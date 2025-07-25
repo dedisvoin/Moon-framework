@@ -4,7 +4,7 @@ sys.path.append("./")
 from PySGL.python.Window import *
 from PySGL.python.Inputs import MouseInterface
 from PySGL.python.Audio import *
-from PySGL.python.rendering.Text import *
+from PySGL.python.Rendering.Text import *
 
 
 window = Window().set_view_info()

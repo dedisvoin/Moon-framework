@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ..rendering.Sprites import *
+from ..Rendering.Sprites import *
 from ..Types import *
 
 from enum import Enum, auto
