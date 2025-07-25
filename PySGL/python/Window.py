@@ -770,7 +770,7 @@ class Window:
 
         self.__actve_text.set_typed_origin(OriginTypes.TOP_RIGHT)
         self.__actve_text.set_position(self.get_size()[0]-8, 0)
-        self.__actve_text.set_text(f"Active: {self.__active}").set_color(COLOR_BLACK).set_size(15)
+        self.__actve_text.set_text(f"Active: {self.__active}").set_size(17)
         self.draw(self.__actve_text)
 
         # График фреймтайма
