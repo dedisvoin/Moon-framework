@@ -998,17 +998,36 @@ class SoundEventListener:
 
 class MultiSound:
     """
-    Класс для одновременного воспроизведения нескольких экземпляров одного звука.
-    Позволяет воспроизводить один звук многократно без перекрытия предыдущих воспроизведений.
+    #### Класс для одновременного воспроизведения нескольких экземпляров одного звука
+    
+    ---
+    
+    :Description:
+    - Позволяет воспроизводить один звук многократно без перекрытия предыдущих воспроизведений
+    - Управляет несколькими копиями звука для плавного многократного воспроизведения
     """
     
     def __init__(self, sound: Sound, number_of_channels: int = 3) -> Self:
         """
-        Инициализирует мультизвук. Позволяет многоканально воспроизводить один звук.
-
-        Аргументы:
-            sound (Sound): Исходный звук для копирования
-            number_of_channels (int): Количество звуковых каналов (по умолчанию 3)
+        #### Инициализирует мультизвук
+        
+        ---
+        
+        :Args:
+        - sound (Sound): Исходный звук для копирования
+        - number_of_channels (int): Количество звуковых каналов (по умолчанию 3)
+        
+        ---
+        
+        :Raises:
+        - ValueError: Если количество каналов меньше 1
+        
+        ---
+        
+        :Example:
+        ```python
+        multi_sound = MultiSound(sound, 5)  # Создаст 5 каналов для воспроизведения
+        ```
         """
         if number_of_channels < 1:
             raise ValueError("Number of channels must be at least 1")
@@ -1021,7 +1040,13 @@ class MultiSound:
 
     def auto_play(self) -> None:
         """
-        Воспроизводит текущий звук.
+        #### Автоматически воспроизводит звук, переключая каналы
+        
+        ---
+        
+        :Note:
+        - Воспроизводит текущий звук и автоматически переключается на следующий канал
+        - Циклически перебирает все доступные каналы
         """
         self.__sounds[self.__current_sound].play()
         self.__current_sound = (self.__current_sound + 1) % self.__number_of_channels
@@ -1029,15 +1054,28 @@ class MultiSound:
     # //////////////////////////////////////////////////////////////////////////////////////////
     # Методы по отдельности для удобства контроля воспроизведения
     # //////////////////////////////////////////////////////////////////////////////////////////
+    
     def play(self) -> None:
         """
-        Воспроизводит текущий звук.
+        #### Воспроизводит текущий звук
+        
+        ---
+        
+        :Note:
+        - Не переключает автоматически на следующий канал
+        - Для автоматического переключения используйте auto_play()
         """
         self.__sounds[self.__current_sound].play()
 
     def next(self) -> None:
         """
-        Переключает на следующий звук.
+        #### Переключает на следующий звуковой канал
+        
+        ---
+        
+        :Note:
+        - Циклически перебирает все доступные каналы
+        - Не воспроизводит звук автоматически
         """
         self.__current_sound = (self.__current_sound + 1) % self.__number_of_channels
 
@@ -1045,42 +1083,83 @@ class MultiSound:
 
     def stop(self) -> None:
         """
-        Останавливает текущий звук.
+        #### Останавливает текущий звук
+        
+        ---
+        
+        :Note:
+        - Воздействует только на активный в данный момент канал
         """
         self.__sounds[self.__current_sound].stop()
 
     def pause(self) -> None:
         """
-        Приостанавливает текущий звук.
+        #### Приостанавливает текущий звук
+        
+        ---
+        
+        :Note:
+        - Воздействует только на активный в данный момент канал
         """
         self.__sounds[self.__current_sound].pause()
 
     def stop_all(self) -> None:
         """
-        Останавливает все звуки.
+        #### Останавливает все звуки во всех каналах
+        
+        ---
+        
+        :Note:
+        - Полностью останавливает воспроизведение на всех каналах
         """
         for sound in self.__sounds:
             sound.stop()
 
     def pause_all(self) -> None:
         """
-        Приостанавливает все звуки.
+        #### Приостанавливает все звуки во всех каналах
+        
+        ---
+        
+        :Note:
+        - Приостанавливает воспроизведение на всех каналах
+        - Можно возобновить с помощью play()
         """
         for sound in self.__sounds:
             sound.pause()
 
     def add_chanel(self) -> None:
         """
-        Добавляет новый канал для воспроизведения.
+        #### Добавляет новый канал для воспроизведения
+        
+        ---
+        
+        :Note:
+        - Создает новую копию оригинального звука
+        - Увеличивает общее количество доступных каналов
         """
         self.__sounds.append(self.__original_sound.copy())
         self.__number_of_channels += 1
 
     def remove_chanel(self, index: int) -> None:
         """
-        Удаляет канал по индексу.
-        Аргументы:
-            index (int): Индекс канала для удаления
+        #### Удаляет канал по указанному индексу
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс канала для удаления (начиная с 0)
+        
+        ---
+        
+        :Raises:
+        - ValueError: Если указан недопустимый индекс
+        
+        ---
+        
+        :Note:
+        - Уменьшает общее количество доступных каналов
+        - Может изменить текущий активный канал, если удаляется канал с меньшим индексом
         """
         if index >= self.__number_of_channels:
             raise ValueError("Invalid channel index")
@@ -1089,7 +1168,20 @@ class MultiSound:
 
     def set_position_all(self, x: float, y: float, z: float) -> None:
         """
-        Устанавливает позицию для всех звуков.
+        #### Устанавливает позицию для всех звуков
+        
+        ---
+        
+        :Args:
+        - x (float): Координата X в 3D пространстве
+        - y (float): Координата Y в 3D пространстве
+        - z (float): Координата Z в 3D пространстве
+        
+        ---
+        
+        :Note:
+        - Обновляет позицию для всех существующих каналов
+        - Запоминает позицию для будущих каналов
         """
         self.__position = (x, y, z)
         for sound in self.__sounds:
@@ -1097,24 +1189,56 @@ class MultiSound:
 
     def get_position_all(self) -> tuple[float, float, float]:
         """
-        Возвращает позицию для всех звуков.
+        #### Возвращает текущую позицию всех звуков
+        
+        ---
+        
+        :Returns:
+        - tuple[float, float, float]: Текущие координаты (x, y, z)
         """
         return self.__position
 
     def set_position_current(self, x: float, y: float, z: float) -> None:
         """
-        Устанавливает позицию текущего звука.
+        #### Устанавливает позицию только для текущего звука
+        
+        ---
+        
+        :Args:
+        - x (float): Координата X
+        - y (float): Координата Y
+        - z (float): Координата Z
+        
+        ---
+        
+        :Note:
+        - Не изменяет позицию для других каналов
+        - Не обновляет общую позицию
         """
         self.__sounds[self.__current_sound].set_position(x, y, z)
 
     def set_position_at(self, index: int, x: float, y: float, z: float) -> None:
         """
-        Устанавливает позицию звука по индексу.
-        Аргументы:
-            index (int): Индекс звука
-            x (float): Координата X
-            y (float): Координата Y
-            z (float): Координата Z
+        #### Устанавливает позицию для конкретного канала
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс канала (начиная с 0)
+        - x (float): Координата X
+        - y (float): Координата Y
+        - z (float): Координата Z
+        
+        ---
+        
+        :Raises:
+        - ValueError: Если указан недопустимый индекс
+        
+        ---
+        
+        :Note:
+        - Не изменяет позицию для других каналов
+        - Не обновляет общую позицию
         """
         if index >= self.__number_of_channels:
             raise ValueError("Invalid channel index")
@@ -1122,23 +1246,41 @@ class MultiSound:
 
     def set_volume_all(self, volume: float) -> None:
         """
-        Устанавливает громкость всех звуков.
+        #### Устанавливает громкость для всех каналов
+        
+        ---
+        
+        :Args:
+        - volume (float): Уровень громкости (0.0 - 1.0)
         """
         for sound in self.__sounds:
             sound.set_volume(volume)
 
     def set_volume_current(self, volume: float) -> None:
         """
-        Устанавливает громкость текущего звука.
+        #### Устанавливает громкость только для текущего канала
+        
+        ---
+        
+        :Args:
+        - volume (float): Уровень громкости (0.0 - 1.0)
         """
         self.__sounds[self.__current_sound].set_volume(volume)
 
     def set_volume_at(self, index: int, volume: float) -> None:
         """
-        Устанавливает громкость звука по индексу.
-        Аргументы:
-            index (int): Индекс звука
-            volume (float): Громкость
+        #### Устанавливает громкость для конкретного канала
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс канала
+        - volume (float): Уровень громкости (0.0 - 1.0)
+        
+        ---
+        
+        :Raises:
+        - ValueError: Если указан недопустимый индекс
         """
         if index >= self.__number_of_channels:
             raise ValueError("Invalid channel index")
@@ -1146,23 +1288,41 @@ class MultiSound:
 
     def set_loop_all(self, loop: bool) -> None:
         """
-        Устанавливает цикличность всех звуков.
+        #### Устанавливает цикличность воспроизведения для всех каналов
+        
+        ---
+        
+        :Args:
+        - loop (bool): Флаг цикличности (True - зациклить)
         """
         for sound in self.__sounds:
             sound.set_loop(loop)
 
     def set_loop_current(self, loop: bool) -> None:
         """
-        Устанавливает цикличность текущего звука.
+        #### Устанавливает цикличность только для текущего канала
+        
+        ---
+        
+        :Args:
+        - loop (bool): Флаг цикличности (True - зациклить)
         """
         self.__sounds[self.__current_sound].set_loop(loop)
 
     def set_loop_at(self, index: int, loop: bool) -> None:
         """
-        Устанавливает цикличность звука по индексу.
-        Аргументы:
-            index (int): Индекс звука
-            loop (bool): Флаг цикличности
+        #### Устанавливает цикличность для конкретного канала
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс канала
+        - loop (bool): Флаг цикличности (True - зациклить)
+        
+        ---
+        
+        :Raises:
+        - ValueError: Если указан недопустимый индекс
         """
         if index >= self.__number_of_channels:
             raise ValueError("Invalid channel index")
@@ -1170,23 +1330,41 @@ class MultiSound:
 
     def set_pitch_all(self, pitch: float) -> None:
         """
-        Устанавливает высоту тона всех звуков.
+        #### Устанавливает высоту тона для всех каналов
+        
+        ---
+        
+        :Args:
+        - pitch (float): Высота тона (1.0 - нормальная)
         """
         for sound in self.__sounds:
             sound.set_pitch(pitch)
 
     def set_pitch_current(self, pitch: float) -> None:
         """
-        Устанавливает высоту тона текущего звука.
+        #### Устанавливает высоту тона только для текущего канала
+        
+        ---
+        
+        :Args:
+        - pitch (float): Высота тона (1.0 - нормальная)
         """
         self.__sounds[self.__current_sound].set_pitch(pitch)
 
     def set_pitch_at(self, index: int, pitch: float) -> None:
         """
-        Устанавливает высоту тона звука по индексу.
-        Аргументы:
-            index (int): Индекс звука
-            pitch (float): Высота тона
+        #### Устанавливает высоту тона для конкретного канала
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс канала
+        - pitch (float): Высота тона (1.0 - нормальная)
+        
+        ---
+        
+        :Raises:
+        - ValueError: Если указан недопустимый индекс
         """
         if index >= self.__number_of_channels:
             raise ValueError("Invalid channel index")
@@ -1194,31 +1372,66 @@ class MultiSound:
 
     def get_current_sound(self) -> Sound:
         """
-        Возвращает текущий звук.
+        #### Возвращает текущий активный звук
+        
+        ---
+        
+        :Returns:
+        - Sound: Текущий активный звуковой объект
         """
         return self.__sounds[self.__current_sound]
     
     def get_current_sound_index(self) -> int:
         """
-        Возвращает индекс текущего звука.
+        #### Возвращает индекс текущего активного звука
+        
+        ---
+        
+        :Returns:
+        - int: Индекс текущего канала (начиная с 0)
         """
         return self.__current_sound
     
     def get_number_of_channels(self) -> int:
         """
-        Возвращает количество каналов.
+        #### Возвращает общее количество каналов
+        
+        ---
+        
+        :Returns:
+        - int: Количество доступных каналов воспроизведения
         """
         return self.__number_of_channels
     
     def get_original_sound(self) -> Sound:
         """
-        Возвращает исходный звук.
+        #### Возвращает исходный звуковой объект
+        
+        ---
+        
+        :Returns:
+        - Sound: Оригинальный звук, используемый для создания каналов
         """
         return self.__original_sound
     
     def get_sound(self, index: int) -> Sound:
         """
-        Возвращает звук по индексу.
+        #### Возвращает звук по указанному индексу
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс канала
+        
+        ---
+        
+        :Returns:
+        - Sound: Звуковой объект по указанному индексу
+        
+        ---
+        
+        :Raises:
+        - ValueError: Если указан недопустимый индекс
         """
         if index >= self.__number_of_channels:
             raise ValueError("Invalid channel index")
@@ -1226,7 +1439,11 @@ class MultiSound:
     
     def get_sounds(self) -> list[Sound]:
         """
-        Возвращает список звуков.
+        #### Возвращает список всех звуковых объектов
+        
+        ---
+        
+        :Returns:
+        - list[Sound]: Список всех звуков (каналов)
         """
         return self.__sounds
-    
