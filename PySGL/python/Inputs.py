@@ -351,6 +351,17 @@ class Mouse:
         """
         return is_mouse_button_pressed(convert_mouse_button(button))
     
+    def in_window(self, window) -> bool:
+        mouse_position = self.get_position()
+        window_pos = window.get_position()
+        window_size = window.get_size()
+
+        if (window_pos.x <= mouse_position.x <= window_pos.x + window_size.x and
+            window_pos.y <= mouse_position.y <= window_pos.y + window_size.y):
+            return True
+        return False
+
+    
     def get_click(self, button: Union[Literal["left", "right", "middle"], MouseButtons]) -> bool:
         """
         #### Проверяет, была ли кнопка только что нажата (в этом кадре)

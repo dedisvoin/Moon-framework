@@ -6,7 +6,7 @@ from PySGL.python.Math import *
 
 from PySGL.python.Inputs import MouseInterface
 
-window = Window().set_view_info().set_wait_fps(FPS_UNLIMIT_CONST)
+window = Window().set_view_info().set_wait_fps(60)
 events = WindowEvents()
 
 
@@ -27,9 +27,11 @@ intersection_circle.set_color(COLOR_RED)
 
 
 
+
 while window.update(events):
+    alpha = 255 * abs(math.sin(window.get_global_timer()))
 
-
+    window.set_alpha(alpha)
     
 
     window.clear()

@@ -1,47 +1,4 @@
 
-"""
-.. automodule:: pysgl.window
-   :platform: Windows
-   :synopsis: Модуль для создания окон, управления их поведением и отрисовки графических примитивов.
-
-Данный модуль предоставляет основной класс `Window`, который является точкой входа для любого графического приложения PySGL. Он включает в себя функционал для:
-
-- Создания и управления жизненным циклом окна (открытие, закрытие, изменение размера).
-- Настройки параметров окна, таких как заголовок, размер, позиция и стиль.
-- Обработки различных типов событий ввода (клавиатура, мышь, изменение окна) через класс `Events`.
-- Управления отображением графической информации, включая вертикальную синхронизацию и отладочную информацию (FPS, время рендеринга).
-- Предоставления методов для отрисовки графических объектов на окне.
-
-Модуль тесно интегрирован с нативной DLL библиотекой PySGL (BUILD.dll) для низкоуровневых операций рендеринга и работы с оконной системой.
-
-Пример использования:
-
-.. code-block:: python
-
-    from pysgl.window import Window, Events
-    from pysgl.colors import COLOR_BLUE
-
-    window = Window(1024, 768, "My PySGL Application")
-    events = Events()
-
-    while window.is_open():
-        while events.poll(window):
-            if events.get_type() == Events.Type.Closed:
-                window.close()
-        
-        window.clear(COLOR_BLUE)
-        # Здесь будет код для отрисовки объектов
-        window.display()
-
-    window.close() # Важно закрыть окно после завершения цикла
-
-Основные классы:
-
-- `Window`: Представляет собой основное окно приложения.
-- `Events`: Обрабатывает и предоставляет доступ к событиям окна.
-
-"""
-
 import ctypes
 import keyboard
 from time import time
@@ -50,13 +7,17 @@ from typing import overload, Final
 from .Colors import *
 from .Time import Clock 
 from .Views import View
-
+from .Types import TwoIntegerList
+from .Inputs import MouseInterface
+from .Math import lerp
 from .Vectors import Vector2i, Vector2f
 
 from .Rendering.Text import *
 from .Rendering.Shapes import *
 from .Rendering.Shaders import Shader
 from .Rendering.RenderStates import RenderStates
+
+
 
 from .Inputs import MouseInterface
 
@@ -100,24 +61,26 @@ try:
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
-def get_screen_resolution():
+def get_screen_resolution() -> TwoIntegerList:
     """
-    Получает разрешение основного монитора с использованием Windows API.
+    #### Получает разрешение основного монитора с использованием Windows API.
 
-    Returns:
-        tuple: Кортеж, содержащий ширину и высоту экрана в пикселях (ширина, высота).
+    ---
+
+    :Returns:
+    - tuple: Кортеж, содержащий ширину и высоту экрана в пикселях (ширина, высота).
     """
     user32 = ctypes.windll.user32
     screen_width = user32.GetSystemMetrics(0)  # SM_CXSCREEN
     screen_height = user32.GetSystemMetrics(1) # SM_CYSCREEN
-    return screen_width, screen_height
+    return [screen_width, screen_height]
 
 
-############################################################
-#                   `C / C++` Bindings                     #
-#   Определение аргументов и возвращаемых типов для функций #
+##################################################################
+#                   `C / C++` Bindings                           #
+#   Определение аргументов и возвращаемых типов для функций      #
 #   из нативной DLL библиотеки PySGL, используемых через ctypes. #
-############################################################
+##################################################################
 
 # Определение сигнатуры для функции createWindow: (int, int, char*, int) -> void*
 LIB_PYSGL.createWindow.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
@@ -218,6 +181,12 @@ LIB_PYSGL.mapPixelToCoordsX.restype = ctypes.c_float
 # Определение сигнатуры для функции mapPixelToCoordsY: (void*, double, double, void*) -> float
 LIB_PYSGL.mapPixelToCoordsY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
 LIB_PYSGL.mapPixelToCoordsY.restype = ctypes.c_float
+
+LIB_PYSGL.mapCoordsToPixelX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
+LIB_PYSGL.mapCoordsToPixelX.restype = ctypes.c_float
+
+LIB_PYSGL.mapCoordsToPixelY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
+LIB_PYSGL.mapCoordsToPixelY.restype = ctypes.c_float
 # Определение сигнатуры для функции drawWindowWithStates: (void*, void*, void*) -> None
 LIB_PYSGL.drawWindowWithStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL.drawWindowWithStates.restype = None
@@ -409,7 +378,10 @@ class Window:
         FullScreenDesktop = 1 << 4   # Окно в полноэкранном режиме, использующее разрешение рабочего стола.
         Default = Titlebar | Resize | Close # Стиль окна по умолчанию (заголовок, изменение размера, кнопка закрытия).
 
-    def __init__(self, width: int = 800, height: int = 600, title: str = "PySGL Window", style: int = Style.Default, vsync: bool = False):
+    def __init__(self, width: int = 800, height: int = 600, 
+                 title: str = "PySGL Window", style: int = Style.Default, 
+                 vsync: bool = False,
+                 alpha: float = 255):
         """
         Инициализирует окно с заданными параметрами.
         
@@ -431,6 +403,11 @@ class Window:
 
         # Создаем окно через нативную библиотеку и сохраняем указатель на него
         self.__window_ptr: WindowPtr = LIB_PYSGL.createWindow(width, height, title.encode('utf-8'), style)
+        self.__title = title
+        self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
+        self.__window_alpha: int = alpha
+
+        self.set_alpha(self.__window_alpha)
         # Получаем стандартную область отображения (View) и сохраняем указатель на нее
         self.__view = self.get_default_view()
         
@@ -506,6 +483,45 @@ class Window:
 
         self.set_vertical_sync(vsync) # Устанавливает вертикальную синхронизацию при инициализации
 
+
+        self.__ghosting: bool = False
+        self.__ghosting_min_value: int = 30
+        self.__ghosting_at_value: int = 255
+        self.__ghosting_interpolation: float = 0.1
+
+        self.__active: bool = True
+        self.__actve_text = Text(self.__info_font)
+
+    def get_active(self) -> float:
+        return self.__active
+
+    def set_ghosting(self, value: bool = True) -> Self:
+        self.__ghosting = value
+        return self
+
+    def get_ghosting(self) -> bool:
+        return self.__ghosting
+    
+    def set_ghosting_min_alpha(self, alpha: int) -> Self:
+        self.__ghosting_min_value = alpha
+        return self
+    
+    def get_ghosting_min_alpha(self) -> int:
+        return self.__ghosting_min_value
+
+    def set_alpha(self, alpha: float):
+        self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
+        self.__window_alpha = alpha
+
+        style = ctypes.windll.user32.GetWindowLongW(self.__window_descriptor, -20)  # GWL_EXSTYLE = -20
+        ctypes.windll.user32.SetWindowLongW(self.__window_descriptor, -20, style | 0x00080000)  # WS_EX_LAYERED = 0x00080000
+        
+        # Установить прозрачность (0 = полностью прозрачное, 255 = полностью непрозрачное)
+        ctypes.windll.user32.SetLayeredWindowAttributes(self.__window_descriptor, 0, int(self.__window_alpha), 2)  # 150 ~ 60% прозрачности
+
+    def get_alpha(self) -> float:
+        return self.__window_alpha
+
     def close(self) -> None:
         """
         Закрывает окно. Рекомендуется вызывать этот метод после того, как цикл приложения прекратился.
@@ -577,6 +593,24 @@ class Window:
         return Vector2f(
             LIB_PYSGL.mapPixelToCoordsX(self.__window_ptr, x, y, view.get_ptr()),
             LIB_PYSGL.mapPixelToCoordsY(self.__window_ptr, x, y, view.get_ptr()),
+        )
+    
+    def convert_view_coords_to_window_coords(self, x: float, y: float, view: View) -> Vector2f:
+        """
+        Преобразует мировые координаты в координаты пикселей (экранные координаты)
+        относительно заданной области просмотра (View).
+        
+        Args:
+            x (float): Координата X в пикселях.
+            y (float): Координата Y в пикселях.
+            view (View): Объект View, определяющий область просмотра для преобразования.
+            
+        Returns:
+            Vector2f: Вектор с преобразованными мировыми координатами (x, y).
+        """
+        return Vector2f(
+            LIB_PYSGL.mapCoordsToPixelX(self.__window_ptr, x, y, view.get_ptr()),
+            LIB_PYSGL.mapCoordsToPixelY(self.__window_ptr, x, y, view.get_ptr()),
         )
 
     def get_default_view(self) -> View:
@@ -732,6 +766,12 @@ class Window:
         # Цвет текста Vsync зависит от ее состояния (красный - выключена, зеленый - включена)
         self.__info_text.set_color(self.__fps_line_color_red if not self.__vsync else self.__fps_line_color_green)
         self.draw(self.__info_text)
+
+
+        self.__actve_text.set_typed_origin(OriginTypes.TOP_RIGHT)
+        self.__actve_text.set_position(self.get_size()[0]-8, 0)
+        self.__actve_text.set_text(f"Active: {self.__active}").set_color(COLOR_BLACK).set_size(15)
+        self.draw(self.__actve_text)
 
         # График фреймтайма
         graph_width = 200
@@ -913,7 +953,18 @@ class Window:
         """
         LIB_PYSGL.setView(self.__window_ptr, view.get_ptr())
         return self
+    
+    def disable(self):
+        self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
+        ctypes.windll.user32.EnableWindow(self.__window_descriptor, False)
+        self.__active = False
             
+    def enable(self):
+        self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
+        ctypes.windll.user32.EnableWindow(self.__window_descriptor, True)
+        self.__active = True
+            
+
     def update(self, events: WindowEvents) -> bool:
         """
         Обновляет состояние окна и обрабатывает события из очереди.
@@ -927,6 +978,14 @@ class Window:
             bool: False, если окно должно быть закрыто (например, пользователь нажал кнопку закрытия
                   или установленную клавишу выхода), иначе True.
         """
+
+        if self.__ghosting:
+            if MouseInterface.in_window(self):
+                self.__ghosting_at_value = 255
+            else:
+                self.__ghosting_at_value = self.__ghosting_min_value
+            self.__window_alpha += (self.__ghosting_at_value - self.__window_alpha) * self.__ghosting_interpolation
+            self.set_alpha(self.__window_alpha)
         
         # Измерение времени рендеринга предыдущего кадра и перезапуск счетчика
         self.__render_time = self.__clock.get_elapsed_time()
@@ -1015,8 +1074,12 @@ class Window:
         Args:
             title (str): Новый заголовок окна.
         """
+        self.__title = title
         LIB_PYSGL.setWindowTitle(self.__window_ptr, title.encode('utf-8'))
         return self
+    
+    def get_title(self) -> str:
+        return self.__title
 
     def set_clear_color(self, color: Color) -> Self:
         """

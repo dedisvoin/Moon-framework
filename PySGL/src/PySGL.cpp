@@ -1016,6 +1016,14 @@ extern "C" {
         return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).y;
     }
 
+    __declspec(dllexport) float mapCoordsToPixelX(WindowPtr window, double x, double y, ViewPtr view) {
+        return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).x;
+    }
+
+    __declspec(dllexport) float mapCoordsToPixelY(WindowPtr window, double x, double y, ViewPtr view) {
+        return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).y;
+    }
+
     __declspec(dllexport) void clearWindow(WindowPtr window, int r, int g, int b, int a) {
         window->clear(sf::Color(r, g, b, a));
     }
