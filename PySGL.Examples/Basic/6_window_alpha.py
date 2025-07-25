@@ -1,5 +1,5 @@
 import sys
-import random
+
 sys.path.append("./")
 from PySGL.python.Window import *
 
