@@ -1159,6 +1159,3 @@ class MultiSound:
         """
         return self.__sounds
     
-
-
-    
