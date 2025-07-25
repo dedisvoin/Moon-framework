@@ -1750,6 +1750,6 @@ def random_color_with_alpha(alpha: int) -> Color:
     """
 
     if alpha < 0 or alpha > 255:
-        raise ValueError()
+        raise ValueError("Alpha must be between 0 and 255")
 
     return Color.random().set_alpha(alpha)
