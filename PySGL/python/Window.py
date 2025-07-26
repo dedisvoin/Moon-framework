@@ -153,151 +153,88 @@ def get_screen_resolution() -> TwoIntegerList:
 #   из нативной DLL библиотеки PySGL, используемых через ctypes. #
 ##################################################################
 
-# Определение сигнатуры для функции createWindow: (int, int, char*, int) -> void*
+
 LIB_PYSGL.createWindow.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
 LIB_PYSGL.createWindow.restype = ctypes.c_void_p
-# Определение сигнатуры для функции destroyWindow: (void*) -> None
 LIB_PYSGL.destroyWindow.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.destroyWindow.restype = None
-# Определение сигнатуры для функции clearWindow: (void*, ubyte, ubyte, ubyte, ubyte) -> None
 LIB_PYSGL.clearWindow.argtypes = [ctypes.c_void_p, ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_ubyte]
 LIB_PYSGL.clearWindow.restype = None
-# Определение сигнатуры для функции displayWindow: (void*) -> None
 LIB_PYSGL.displayWindow.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.displayWindow.restype = None
-# Определение сигнатуры для функции isWindowOpen: (void*) -> bool
 LIB_PYSGL.isWindowOpen.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.isWindowOpen.restype = ctypes.c_bool
-# Определение сигнатуры для функции drawWindow: (void*, void*) -> None
 LIB_PYSGL.drawWindow.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL.drawWindow.restype = None
-# Определение сигнатуры для функции getView: (void*) -> void*
 LIB_PYSGL.getView.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getView.restype = ctypes.c_void_p
-# Определение сигнатуры для функции setWaitFps: (void*, uint) -> None
 LIB_PYSGL.setWaitFps.argtypes = [ctypes.c_void_p, ctypes.c_uint]
 LIB_PYSGL.setWaitFps.restype = None
-# Определение сигнатуры для функции setWindowTitle: (void*, char*) -> None
 LIB_PYSGL.setWindowTitle.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
 LIB_PYSGL.setWindowTitle.restype = None
-# Определение сигнатуры для функции SetVerticalSync: (void*, bool) -> None
 LIB_PYSGL.SetVerticalSync.argtypes = [ctypes.c_void_p, ctypes.c_bool]
 LIB_PYSGL.SetVerticalSync.restype = None
-# Определение сигнатуры для функции createEvent: () -> void*
 LIB_PYSGL.createEvent.argtypes = []
 LIB_PYSGL.createEvent.restype = ctypes.c_void_p
-# Определение сигнатуры для функции destroyEvent: (void*) -> None
 LIB_PYSGL.destroyEvent.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.destroyEvent.restype = None
-# Определение сигнатуры для функции getWindowEvent: (void*, void*) -> int
 LIB_PYSGL.getWindowEvent.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL.getWindowEvent.restype = ctypes.c_int
-# Определение сигнатуры для функции getEventType: (void*) -> int
 LIB_PYSGL.getEventType.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getEventType.restype = ctypes.c_int
-# Определение сигнатуры для функции getEventKey: (void*) -> int
 LIB_PYSGL.getEventKey.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getEventKey.restype = ctypes.c_int
-# Определение сигнатуры для функции getEventMouseButton: (void*) -> int
 LIB_PYSGL.getEventMouseButton.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getEventMouseButton.restype = ctypes.c_int
-# Определение сигнатуры для функции getEventMouseX: (void*) -> int
 LIB_PYSGL.getEventMouseX.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getEventMouseX.restype = ctypes.c_int
-# Определение сигнатуры для функции getEventMouseY: (void*) -> int
 LIB_PYSGL.getEventMouseY.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getEventMouseY.restype = ctypes.c_int
-# Определение сигнатуры для функции getEventSizeWidth: (void*) -> int
 LIB_PYSGL.getEventSizeWidth.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getEventSizeWidth.restype = ctypes.c_int
-# Определение сигнатуры для функции getEventSizeHeight: (void*) -> int
 LIB_PYSGL.getEventSizeHeight.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getEventSizeHeight.restype = ctypes.c_int
-# Определение сигнатуры для функции getEventMouseWheel: (void*) -> int
 LIB_PYSGL.getEventMouseWheel.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getEventMouseWheel.restype = ctypes.c_int
-# Определение сигнатуры для функции setViewCenter: (void*, float, float) -> None
 LIB_PYSGL.setViewCenter.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
 LIB_PYSGL.setViewCenter.restype = None
-# Определение сигнатуры для функции setViewSize: (void*, float, float) -> None
 LIB_PYSGL.setViewSize.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
 LIB_PYSGL.setViewSize.restype = None
-# Определение сигнатуры для функции setView: (void*, void*) -> None
 LIB_PYSGL.setView.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL.setView.restype = None
-# Определение сигнатуры для функции getWindowSizeWidth: (void*) -> int
 LIB_PYSGL.getWindowSizeWidth.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getWindowSizeWidth.restype = ctypes.c_int
-# Определение сигнатуры для функции getWindowSizeHeight: (void*) -> int
 LIB_PYSGL.getWindowSizeHeight.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getWindowSizeHeight.restype = ctypes.c_int
-# Определение сигнатуры для функции getWindowPositionX: (void*) -> int
 LIB_PYSGL.getWindowPositionX.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getWindowPositionX.restype = ctypes.c_int
-# Определение сигнатуры для функции getWindowPositionY: (void*) -> int
 LIB_PYSGL.getWindowPositionY.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getWindowPositionY.restype = ctypes.c_int
-# Определение сигнатуры для функции setWindowPosition: (void*, int, int) -> None
 LIB_PYSGL.setWindowPosition.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
 LIB_PYSGL.setWindowPosition.restype = None
-# Определение сигнатуры для функции setWindowSize: (void*, int, int) -> None
 LIB_PYSGL.setWindowSize.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
 LIB_PYSGL.setWindowSize.restype = None
-# Определение сигнатуры для функции zoomView: (void*, float) -> None
 LIB_PYSGL.zoomView.argtypes = [ctypes.c_void_p, ctypes.c_float]
 LIB_PYSGL.zoomView.restype = None
-# Определение сигнатуры для функции mapPixelToCoordsX: (void*, double, double, void*) -> float
 LIB_PYSGL.mapPixelToCoordsX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
 LIB_PYSGL.mapPixelToCoordsX.restype = ctypes.c_float
-# Определение сигнатуры для функции mapPixelToCoordsY: (void*, double, double, void*) -> float
 LIB_PYSGL.mapPixelToCoordsY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
 LIB_PYSGL.mapPixelToCoordsY.restype = ctypes.c_float
-
 LIB_PYSGL.mapCoordsToPixelX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
 LIB_PYSGL.mapCoordsToPixelX.restype = ctypes.c_float
-
 LIB_PYSGL.mapCoordsToPixelY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
 LIB_PYSGL.mapCoordsToPixelY.restype = ctypes.c_float
-# Определение сигнатуры для функции drawWindowWithStates: (void*, void*, void*) -> None
 LIB_PYSGL.drawWindowWithStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL.drawWindowWithStates.restype = None
-# Определение сигнатуры для функции drawWindowWithShader: (void*, void*, void*) -> None
 LIB_PYSGL.drawWindowWithShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL.drawWindowWithShader.restype = None
-# Определение сигнатуры для функции setMouseCursorVisible: (void*, bool) -> None
 LIB_PYSGL.setMouseCursorVisible.argtypes = [ctypes.c_void_p, ctypes.c_bool]
 LIB_PYSGL.setMouseCursorVisible.restype = None
-# Определение сигнатуры для функции closeWindow: (void*) -> None
 LIB_PYSGL.closeWindow.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.closeWindow.restype = None
-
 LIB_PYSGL.setSystemCursor.argtypes = [ctypes.c_void_p, ctypes.c_int]
 LIB_PYSGL.setSystemCursor.restype = None
-
-class SystemCursors:
-    Arrow =                     0      
-    ArrowWait =                 1         
-    Wait =                      2                 
-    Text =                      3                 
-    Hand =                      4               
-    SizeHorizontal =            5     
-    SizeVertical =              6         
-    SizeTopLeftBottomRight =    7
-    SizeBottomLeftTopRight =    8 
-    SizeLeft =                  9         
-    SizeRight =                 10
-    SizeTop =                   11               
-    SizeBottom =                12          
-    SizeTopLeft =               13            
-    SizeBottomRight =           14      
-    SizeBottomLeft =            15        
-    SizeTopRight =              16        
-    SizeAll =                   17               
-    Cross =                     18                
-    Help =                      19                  
-    NotAllowed =                20         
-
-
+  
 class WindowEvents:
     """
     Класс для работы с событиями окна (клавиатура, мышь, изменение размера и т.д.).
@@ -456,6 +393,33 @@ type WindowPtr = ctypes.c_void_p
 # Константа для обозначения неограниченного FPS
 FPS_UNLIMIT_CONST: Final[float] = 1000000
 
+class SystemCursors:
+    Arrow =                     0      
+    ArrowWait =                 1         
+    Wait =                      2                 
+    Text =                      3                 
+    Hand =                      4               
+    SizeHorizontal =            5     
+    SizeVertical =              6         
+    SizeTopLeftBottomRight =    7
+    SizeBottomLeftTopRight =    8 
+    SizeLeft =                  9         
+    SizeRight =                 10
+    SizeTop =                   11               
+    SizeBottom =                12          
+    SizeTopLeft =               13            
+    SizeBottomRight =           14      
+    SizeBottomLeft =            15        
+    SizeTopRight =              16        
+    SizeAll =                   17               
+    Cross =                     18                
+    Help =                      19                  
+    NotAllowed =                20       
+
+
+DWMWA_WINDOW_CORNER_PREFERENCE = 33
+DWM_API = ctypes.WinDLL("dwmapi")
+
 class Window:
     """
     Класс для работы с окном приложения PySGL.
@@ -574,12 +538,11 @@ class Window:
         self.__end_height = height          # Высота окна в прошлом кадре (для отслеживания изменений)
         self.__resized: bool = False        # Флаг, указывающий, был ли изменен размер окна в текущем кадре
 
-        self.__start_time = time()          # Время открытия окна (для get_global_timer)
+        self.__start_time = time()              # Время открытия окна (для get_global_timer)
 
-        self.__cursor_visibility: bool = True # Флаг видимости курсора мыши
+        self.__cursor_visibility: bool = True   # Флаг видимости курсора мыши
 
-        self.set_vertical_sync(vsync) # Устанавливает вертикальную синхронизацию при инициализации
-
+        self.set_vertical_sync(vsync)           # Устанавливает вертикальную синхронизацию при инициализации
 
         self.__ghosting: bool = False
         self.__ghosting_min_value: int = 30
@@ -588,14 +551,24 @@ class Window:
 
         self.__active: bool = True
         self.__actve_text = Text(self.__info_font)
+        self.__cursor: SystemCursors = SystemCursors.Arrow
+
+    def enable_rounded_corners(self) -> Self:
+        DWM_API.DwmSetWindowAttribute(self.__window_descriptor, 
+                                            DWMWA_WINDOW_CORNER_PREFERENCE,
+                                            ctypes.byref(ctypes.c_int(2)), ctypes.sizeof(ctypes.c_int(2)))
 
     def set_system_cursor(self, cursor: SystemCursors) -> Self:
+        self.__cursor = cursor
         LIB_PYSGL.setSystemCursor(self.__window_ptr, cursor)
+
+    def get_cursor(self) -> SystemCursors:
+        return self.__cursor
 
     def get_active(self) -> float:
         return self.__active
 
-    def set_ghosting(self, value: bool = True) -> Self:
+    def enable_ghosting(self, value: bool = True) -> Self:
         self.__ghosting = value
         return self
 
