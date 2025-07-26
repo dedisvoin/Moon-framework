@@ -88,6 +88,13 @@ class CyclicalProcess(Process):
         self.__sleep = seconds
         return self
     
+    def set_frequency(self, count: int) -> Self:
+        self.__sleep = 1 / count
+        return self
+    
+    def get_frequency(self) -> float:
+        return 1 / self.__sleep
+    
     def get_stoped(self) -> bool:
         return self.__stoped
     

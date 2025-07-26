@@ -1032,6 +1032,12 @@ extern "C" {
         window->display();
     }
 
+    __declspec(dllexport) void setSystemCursor(WindowPtr window, sf::Cursor::Type cursor) {
+        sf::Cursor c = sf::Cursor();
+        c.loadFromSystem(cursor);
+        window->setMouseCursor(c);
+    }
+
     __declspec(dllexport) bool isWindowOpen(WindowPtr window) {
         return window->isOpen();
     }

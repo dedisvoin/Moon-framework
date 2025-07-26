@@ -72,7 +72,7 @@ Copyright (c) 2025 Pavlov Ivan
 import ctypes
 import os
 
-from .Types import *
+from PySGL.python.Types import *
 
 class LibraryLoadError(Exception):
     """Ошибка загрузки нативной библиотеки"""

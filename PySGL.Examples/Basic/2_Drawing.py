@@ -7,17 +7,18 @@ from PySGL.python.Rendering.Shapes import *
 
 window = Window().set_view_info()
 events = WindowEvents()
+window.set_ghosting()
 
 
 rect = BaseRectangleShape(200, 200).set_origin(100, 100).set_color(COLOR_RED)
-rect.set_position(400, 400)
+rect.set_position(Vector2f(300,300))
 rect.set_angle(60)
 
 circle = BaseCircleShape(10).set_origin_radius(60).set_color(COLOR_GREEN).set_outline_thickness(2).set_outline_color(COLOR_RED)
 circle.set_position(300, 200)
 
 
-line = LineShape().set_start_pos(100, 400).set_end_pos(500, 300).set_color(COLOR_BLUE).set_width(30).set_outline_thickness(2).set_outline_color(COLOR_RED)
+line = LineShape().set_start_pos(100, 400).set_end_pos(500, 300).set_color(COLOR_BLUE).set_width(30).set_outline_thickness(5).set_outline_color(COLOR_RED).set_round()
 
 while window.update(events):
     rect.set_angle(rect.get_angle() + 100 * window.get_render_time())
@@ -28,3 +29,4 @@ while window.update(events):
     window.draw(line)
     window.view_info()
     window.display()
+

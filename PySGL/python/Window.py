@@ -271,6 +271,32 @@ LIB_PYSGL.setMouseCursorVisible.restype = None
 LIB_PYSGL.closeWindow.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.closeWindow.restype = None
 
+LIB_PYSGL.setSystemCursor.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_PYSGL.setSystemCursor.restype = None
+
+class SystemCursors:
+    Arrow =                     0      
+    ArrowWait =                 1         
+    Wait =                      2                 
+    Text =                      3                 
+    Hand =                      4               
+    SizeHorizontal =            5     
+    SizeVertical =              6         
+    SizeTopLeftBottomRight =    7
+    SizeBottomLeftTopRight =    8 
+    SizeLeft =                  9         
+    SizeRight =                 10
+    SizeTop =                   11               
+    SizeBottom =                12          
+    SizeTopLeft =               13            
+    SizeBottomRight =           14      
+    SizeBottomLeft =            15        
+    SizeTopRight =              16        
+    SizeAll =                   17               
+    Cross =                     18                
+    Help =                      19                  
+    NotAllowed =                20         
+
 
 class WindowEvents:
     """
@@ -562,6 +588,9 @@ class Window:
 
         self.__active: bool = True
         self.__actve_text = Text(self.__info_font)
+
+    def set_system_cursor(self, cursor: SystemCursors) -> Self:
+        LIB_PYSGL.setSystemCursor(self.__window_ptr, cursor)
 
     def get_active(self) -> float:
         return self.__active

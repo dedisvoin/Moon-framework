@@ -2,14 +2,15 @@ import ctypes
 import os
 from typing import Self, Final, final
 
-from ..Colors import *
-from ..Vectors import Vector2f  
-from .Vertexes import VertexArray, Vertex  
+from PySGL.python.Colors import *
+from PySGL.python.Types import *
+from PySGL.python.Vectors import Vector2f  
+from PySGL.python.Rendering.Vertexes import VertexArray, Vertex  
 
 
-# Псевдоним типа для указателя на объект Rectangle в C++.
-# Это улучшает читаемость и типобезопасность при работе с указателями C void.
+# Псевдоним для типа указателя на шейп прямоугольника == +
 RectanglePtr = ctypes.c_void_p
+# ====================================================== +
 
 class LibraryLoadError(Exception):
     """Ошибка загрузки нативной библиотеки"""
@@ -51,64 +52,33 @@ try:
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
-# --- Привязки C++ функций для прямоугольников ---
-# Эти строки определяют типы аргументов (argtypes) и возвращаемых значений (restype)
-# для функций C++, предоставляемых DLL LIB_PYSGL. Это крайне важно для
-# ctypes, чтобы правильно передавать данные между Python и C++.
 
-# _Rectangle_Create(width: float, height: float) -> RectanglePtr
 LIB_PYSGL._Rectangle_Create.restype = RectanglePtr
 LIB_PYSGL._Rectangle_Create.argtypes = [ctypes.c_float, ctypes.c_float]
-
-# _Rectangle_GetPositionX(rectangle_ptr: RectanglePtr) -> float
 LIB_PYSGL._Rectangle_GetPositionX.restype = ctypes.c_float
 LIB_PYSGL._Rectangle_GetPositionX.argtypes = [RectanglePtr]
-
-# _Rectangle_GetPositionY(rectangle_ptr: RectanglePtr) -> float
 LIB_PYSGL._Rectangle_GetPositionY.restype = ctypes.c_float
 LIB_PYSGL._Rectangle_GetPositionY.argtypes = [RectanglePtr]
-
-# _Rectangle_GetWidth(rectangle_ptr: RectanglePtr) -> float
 LIB_PYSGL._Rectangle_GetWidth.restype = ctypes.c_float
 LIB_PYSGL._Rectangle_GetWidth.argtypes = [RectanglePtr]
-
-# _Rectangle_GetHeight(rectangle_ptr: RectanglePtr) -> float
 LIB_PYSGL._Rectangle_GetHeight.restype = ctypes.c_float
 LIB_PYSGL._Rectangle_GetHeight.argtypes = [RectanglePtr]
-
-# _Rectangle_SetPosition(rectangle_ptr: RectanglePtr, x: float, y: float) -> None
 LIB_PYSGL._Rectangle_SetPosition.restype = None
 LIB_PYSGL._Rectangle_SetPosition.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
-
-# _Rectangle_SetColor(rectangle_ptr: RectanglePtr, r: int, g: int, b: int, a: int) -> None
 LIB_PYSGL._Rectangle_SetColor.restype = None
 LIB_PYSGL._Rectangle_SetColor.argtypes = [RectanglePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-
-# _Rectangle_SetOrigin(rectangle_ptr: RectanglePtr, x: float, y: float) -> None
 LIB_PYSGL._Rectangle_SetOrigin.restype = None
 LIB_PYSGL._Rectangle_SetOrigin.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
-
-# _Rectangle_SetSize(rectangle_ptr: RectanglePtr, width: float, height: float) -> None
 LIB_PYSGL._Rectangle_SetSize.restype = None
 LIB_PYSGL._Rectangle_SetSize.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
-
-# _Rectangle_SetRotation(rectangle_ptr: RectanglePtr, angle: float) -> None
 LIB_PYSGL._Rectangle_SetRotation.restype = None
 LIB_PYSGL._Rectangle_SetRotation.argtypes = [RectanglePtr, ctypes.c_float]
-
-# _Rectangle_SetOutlineThickness(rectangle_ptr: RectanglePtr, thickness: float) -> None
 LIB_PYSGL._Rectangle_SetOutlineThickness.restype = None
 LIB_PYSGL._Rectangle_SetOutlineThickness.argtypes = [RectanglePtr, ctypes.c_float]
-
-# _Rectangle_SetOutlineColor(rectangle_ptr: RectanglePtr, r: int, g: int, b: int, a: int) -> None
 LIB_PYSGL._Rectangle_SetOutlineColor.restype = None
 LIB_PYSGL._Rectangle_SetOutlineColor.argtypes = [RectanglePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-
-# _Rectangle_SetScale(rectangle_ptr: RectanglePtr, scale_x: float, scale_y: float) -> None
 LIB_PYSGL._Rectangle_SetScale.restype = None
 LIB_PYSGL._Rectangle_SetScale.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
-
-# _Rectangle_Delete(rectangle_ptr: RectanglePtr) -> None
 LIB_PYSGL._Rectangle_Delete.restype = None
 LIB_PYSGL._Rectangle_Delete.argtypes = [RectanglePtr]
 
@@ -166,6 +136,7 @@ class BaseRectangleShape:
             LIB_PYSGL._Rectangle_Delete(self._ptr)
             self._ptr = None  # Очищаем указатель, чтобы предотвратить проблемы с двойным освобождением памяти.
     
+    @overload
     def set_position(self, x: float, y: float) -> Self:
         """
         Устанавливает позицию прямоугольника на экране.
@@ -178,8 +149,31 @@ class BaseRectangleShape:
         Returns:
             Self: Экземпляр объекта BaseRectangleShape.
         """
-        LIB_PYSGL._Rectangle_SetPosition(self._ptr, float(x), float(y))
-        return self
+        
+    
+    @overload
+    def set_position(self, vector: Vector2f) -> Self:
+        """
+        Устанавливает позицию прямоугольника на экране.
+        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
+
+        Args:
+            vector: Вектор координат
+
+        Returns:
+            Self: Экземпляр объекта BaseRectangleShape.
+        """
+        ...
+
+    def set_position(self, arg1, arg2 = None) -> Self:
+        if isinstance(arg1, Vector2f) and arg2 is None:
+            LIB_PYSGL._Rectangle_SetPosition(self._ptr, float(arg1.x), float(arg1.y))
+            return self
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            LIB_PYSGL._Rectangle_SetPosition(self._ptr, float(arg1), float(arg2))
+            return self
+        raise ValueError("Invalid arguments")
+
     
     def get_position(self) -> Vector2f:
         """
