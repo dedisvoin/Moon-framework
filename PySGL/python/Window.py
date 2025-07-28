@@ -74,7 +74,7 @@ Copyright (c) 2025 Pavlov Ivan
 import ctypes
 import keyboard
 from time import time
-from typing import overload, Final
+from typing import overload, Final, final
 
 from .Colors import *
 from .Time import Clock 
@@ -88,12 +88,12 @@ from .Rendering.Shapes import *
 from .Rendering.Shaders import Shader
 from .Rendering.RenderStates import RenderStates
 
-
+@final
 class LibraryLoadError(Exception):
     """Ошибка загрузки нативной библиотеки"""
     pass
 
-
+@final
 def _find_library() -> str:
     """
     #### Поиск пути к нативной библиотеке BUILD.dll
@@ -125,10 +125,11 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL = ctypes.CDLL(_find_library())
+    LIB_PYSGL: Final[ctypes.CDLL] = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
+@final
 def get_screen_resolution() -> TwoIntegerList:
     """
     #### Получает разрешение основного монитора с использованием Windows API.
@@ -232,6 +233,7 @@ LIB_PYSGL.closeWindow.restype = None
 LIB_PYSGL.setSystemCursor.argtypes = [ctypes.c_void_p, ctypes.c_int]
 LIB_PYSGL.setSystemCursor.restype = None
   
+@final
 class WindowEvents:
     """
     #### Класс для обработки событий окна
@@ -503,6 +505,7 @@ type WindowPtr = ctypes.c_void_p
 # Константа для обозначения неограниченного FPS (представляется большим числом)
 FPS_UNLIMIT_CONST: Final[float] = 1000000
 
+@final
 class SystemCursors:
     """Класс, представляющий системные курсоры. Каждая константа соответствует определенному типу курсора."""
     
@@ -536,10 +539,11 @@ class SystemCursors:
     NotAllowed = 20               # Курсор "Действие запрещено" (перечеркнутый круг, например при drag-and-drop)
 
 
-DWMWA_WINDOW_CORNER_PREFERENCE = 33
+DWMWA_WINDOW_CORNER_PREFERENCE: Final[int] = 33
 
-DWM_API = ctypes.WinDLL("dwmapi")
+DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")
 
+@final
 class Window:
     """
     #### Класс для создания и управления окном приложения
@@ -559,7 +563,8 @@ class Window:
     - Управление прозрачностью окна
     - Полноэкранные режимы работы
     """
-    
+
+    @final
     class Style:
         """
         #### Перечисление стилей окна
@@ -589,6 +594,7 @@ class Window:
         FullScreenDesktop = 1 << 4    # Полноэкранный режим с разрешением рабочего стола
         Default = Titlebar | Resize | Close  # Стандартный набор стилей окон
 
+    @final
     def __init__(self, width: int = 800, height: int = 600, 
                  title: str = "PySGL Window", style: int = Style.Default, 
                  vsync: bool = False, alpha: float = 255):
@@ -728,7 +734,7 @@ class Window:
         # Флаг который будет реализован в будщем 
         self.__using_custom_window: bool = False
 
-
+    @final
     def enable_rounded_corners(self) -> Self:
         """
         #### Включает скругленные углы для окна (Windows 11+)
@@ -759,6 +765,7 @@ class Window:
             ctypes.sizeof(ctypes.c_int(2)))
         return self
 
+    @final
     def set_system_cursor(self, cursor: SystemCursors) -> Self:
         """
         #### Устанавливает системный курсор для окна
@@ -784,6 +791,7 @@ class Window:
         LIB_PYSGL.setSystemCursor(self.__window_ptr, cursor)
         return self
 
+    @final
     def get_cursor(self) -> SystemCursors:
         """
         #### Возвращает текущий системный курсор окна
@@ -803,6 +811,7 @@ class Window:
         """
         return self.__cursor
 
+    @final
     def get_active(self) -> bool:
         """
         #### Проверяет, является ли окно активным
@@ -829,7 +838,13 @@ class Window:
         ```
         """
         return self.__active
+    
+    @final
+    def enable_vsync(self) -> Self:
+        self.__vsync = True
+        LIB_PYSGL.SetVerticalSync(self.__window_ptr, self.__vsync)
 
+    @final
     def enable_ghosting(self, value: bool = True) -> Self:
         """
         #### Включает/выключает эффект "призрачного" окна
@@ -864,6 +879,7 @@ class Window:
         self.__ghosting = value
         return self
 
+    @final
     def get_ghosting(self) -> bool:
         """
         #### Проверяет, включен ли эффект призрачного окна
@@ -883,6 +899,7 @@ class Window:
         """
         return self.__ghosting
         
+    @final
     def set_ghosting_min_alpha(self, alpha: int) -> Self:
         """
         #### Устанавливает минимальную прозрачность для эффекта призрачного окна
@@ -913,6 +930,7 @@ class Window:
         self.__ghosting_min_value = alpha
         return self
         
+    @final
     def get_ghosting_min_alpha(self) -> int:
         """
         #### Возвращает текущее минимальное значение прозрачности для эффекта призрачного окна
@@ -931,6 +949,7 @@ class Window:
         """
         return self.__ghosting_min_value
 
+    @final
     def set_alpha(self, alpha: int):
         """
         #### Устанавливает глобальную прозрачность окна
@@ -969,6 +988,7 @@ class Window:
             2  # LWA_ALPHA = 2
         )
 
+    @final
     def get_alpha(self) -> float:
         """
         #### Возвращает текущий уровень прозрачности окна
@@ -995,6 +1015,7 @@ class Window:
         """
         return self.__window_alpha
 
+    @final
     def close(self) -> None:
         """
         #### Полностью закрывает окно и освобождает ресурсы
@@ -1022,6 +1043,7 @@ class Window:
         """
         LIB_PYSGL.closeWindow(self.__window_ptr)
 
+    @final
     def hide_cursor(self) -> Self:
         """
         #### Скрывает системный курсор в области окна
@@ -1049,6 +1071,7 @@ class Window:
         self.__cursor_visibility = False
         return self
         
+    @final
     def show_cursor(self) -> Self:
         """
         #### Восстанавливает видимость курсора в области окна
@@ -1076,6 +1099,7 @@ class Window:
         self.__cursor_visibility = True
         return self
 
+    @final
     def get_cursor_visibility(self) -> bool:
         """
         #### Проверяет видимость курсора мыши в окне
@@ -1103,6 +1127,7 @@ class Window:
         """
         return self.__cursor_visibility
 
+    @final
     def set_max_fps_history(self, number: int) -> Self:
         """
         #### Устанавливает глубину истории значений FPS
@@ -1142,6 +1167,7 @@ class Window:
         self.__max_history = number
         return self
 
+    @final
     def get_max_fps_history(self) -> int:
         """
         #### Возвращает текущий размер истории FPS
@@ -1166,6 +1192,7 @@ class Window:
         """
         return self.__max_history
 
+    @final
     def convert_window_coords_to_view_coords(self, x: float, y: float, view: View) -> Vector2f:
         """
         #### Преобразует экранные координаты в мировые относительно камеры
@@ -1203,6 +1230,7 @@ class Window:
             LIB_PYSGL.mapPixelToCoordsY(self.__window_ptr, x, y, view.get_ptr()),
         )
         
+    @final
     def convert_view_coords_to_window_coords(self, x: float, y: float, view: View) -> Vector2f:
         """
         #### Преобразует мировые координаты в экранные относительно камеры
@@ -1240,6 +1268,7 @@ class Window:
             LIB_PYSGL.mapCoordsToPixelY(self.__window_ptr, x, y, view.get_ptr()),
         )
 
+    @final
     def get_default_view(self) -> View:
         """
         #### Возвращает стандартное представление (View) окна
@@ -1267,6 +1296,7 @@ class Window:
         """
         return View.from_view_ptr(LIB_PYSGL.getView(self.__window_ptr))
 
+    @final
     def set_position(self, x: int, y: int) -> Self:
         """
         #### Устанавливает позицию окна на экране
@@ -1299,6 +1329,7 @@ class Window:
         LIB_PYSGL.setWindowPosition(self.__window_ptr, x, y)
         return self
 
+    @final
     def set_size(self, width: int, height: int) -> Self:
         """
         #### Изменяет размер окна
@@ -1339,6 +1370,7 @@ class Window:
         LIB_PYSGL.setWindowSize(self.__window_ptr, width, height)
         return self
 
+    @final
     def get_ptr(self) -> WindowPtr:
         """
         #### Возвращает нативный указатель на окно
@@ -1370,6 +1402,7 @@ class Window:
         """
         return self.__window_ptr
     
+    @final
     def get_size(self) -> Vector2i:
         """
         #### Возвращает текущий размер клиентской области окна
@@ -1399,7 +1432,8 @@ class Window:
             LIB_PYSGL.getWindowSizeWidth(self.__window_ptr),
             LIB_PYSGL.getWindowSizeHeight(self.__window_ptr)
         )
-        
+
+    @final  
     def get_center(self) -> Vector2f:
         """
         #### Возвращает координаты центра окна
@@ -1430,6 +1464,7 @@ class Window:
             size.y / 2
         )
 
+    @final
     def get_position(self) -> Vector2i:
         """
         #### Возвращает позицию окна на экране
@@ -1460,6 +1495,7 @@ class Window:
             LIB_PYSGL.getWindowPositionY(self.__window_ptr)
         )
 
+    @final
     def view_info(self) -> None:
         """
         #### Отображает отладочную информацию о производительности
@@ -1608,6 +1644,7 @@ class Window:
             
             self.draw(self.__fps_line) # Отрисовываем линию
 
+    @final
     def set_vertical_sync(self, value: bool) -> Self:
         """
         #### Управляет вертикальной синхронизацией (VSync)
@@ -1641,6 +1678,7 @@ class Window:
         LIB_PYSGL.SetVerticalSync(self.__window_ptr, value)
         return self
 
+    @final
     def set_exit_key(self, key: str) -> Self:
         """
         #### Устанавливает клавишу для закрытия окна
@@ -1677,6 +1715,7 @@ class Window:
         self.__exit_key = key
         return self
 
+    @final
     def get_exit_key(self) -> str:
         """
         #### Возвращает текущую клавишу для закрытия окна
@@ -1702,6 +1741,7 @@ class Window:
         """
         return self.__exit_key
         
+    @final
     def set_view_info(self, value: bool = True) -> Self:
         """
         #### Управляет отображением отладочной информации
@@ -1737,6 +1777,7 @@ class Window:
         self.__view_info = value
         return self
 
+    @final
     def get_delta(self) -> float:
         """
         #### Возвращает коэффициент дельта-тайм
@@ -1765,6 +1806,7 @@ class Window:
         """
         return self.__delta
 
+    @final
     def set_target_fps(self, fps: int) -> Self:
         """
         #### Устанавливает эталонный FPS для расчетов
@@ -1797,6 +1839,7 @@ class Window:
         self.__target_fps = fps
         return self
 
+    @final
     def get_target_fps(self) -> int:
         """
         #### Возвращает текущий эталонный FPS
@@ -1821,6 +1864,7 @@ class Window:
         """
         return self.__target_fps
 
+    @final
     def set_wait_fps(self, fps: int) -> Self:
         """
         #### Устанавливает ограничение частоты кадров
@@ -1860,6 +1904,7 @@ class Window:
         self.__wait_fps = fps
         return self
 
+    @final
     def get_wait_fps(self) -> int:
         """
         #### Возвращает текущее ограничение FPS
@@ -1884,7 +1929,8 @@ class Window:
         ```
         """
         return self.__wait_fps
-    
+
+    @final
     def get_render_time(self, factor: float = 1) -> float:
         """
         #### Возвращает время рендеринга последнего кадра
@@ -1919,6 +1965,7 @@ class Window:
         """
         return self.__render_time * factor
 
+    @final
     def get_fps(self) -> float:
         """
         #### Возвращает текущую частоту кадров
@@ -1946,6 +1993,7 @@ class Window:
         """
         return self.__fps
 
+    @final
     def get_global_timer(self, factor: float = 1.0) -> float:
         """
         #### Возвращает время работы приложения
@@ -1980,6 +2028,7 @@ class Window:
         """
         return (time() - self.__start_time) * factor
     
+    @final
     def set_view(self, view: View) -> Self:
         """
         #### Устанавливает активную камеру/область просмотра
@@ -2004,6 +2053,7 @@ class Window:
         LIB_PYSGL.setView(self.__window_ptr, view.get_ptr())
         return self
         
+    @final
     def disable(self) -> None:
         """
         #### Деактивирует окно (Windows-only)
@@ -2024,7 +2074,8 @@ class Window:
         self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
         ctypes.windll.user32.EnableWindow(self.__window_descriptor, False)
         self.__active = False
-                
+
+    @final  
     def enable(self) -> None:
         """
         #### Активирует окно (Windows-only)
@@ -2046,7 +2097,7 @@ class Window:
         ctypes.windll.user32.EnableWindow(self.__window_descriptor, True)
         self.__active = True
             
-
+    @final
     def update(self, events: WindowEvents) -> bool:
         """
         #### Основной метод обновления состояния окна
@@ -2193,6 +2244,7 @@ class Window:
         self.__end_height = self.__height
         self.__end_width = self.__width
     
+    @final
     def get_resized(self) -> bool:
         """
         #### Проверяет изменение размера окна в текущем кадре
@@ -2220,6 +2272,7 @@ class Window:
         """
         return self.__resized
         
+    @final
     def clear(self, color: Color | None = None) -> None:
         """
         #### Очищает буфер рисования окна
@@ -2265,6 +2318,7 @@ class Window:
         else:
             raise TypeError(f"Expected Color or None, got {type(color).__name__}")
 
+    @final
     def display(self) -> None:
         """
         #### Отображает нарисованное содержимое
@@ -2293,6 +2347,7 @@ class Window:
         """
         LIB_PYSGL.displayWindow(self.__window_ptr)
 
+    @final
     def set_title(self, title: str) -> Self:
         """
         #### Устанавливает заголовок окна
@@ -2326,6 +2381,7 @@ class Window:
         LIB_PYSGL.setWindowTitle(self.__window_ptr, title.encode('utf-8'))
         return self
     
+    @final
     def get_title(self) -> str:
         """
         #### Возвращает текущий заголовок окна
@@ -2350,6 +2406,7 @@ class Window:
         """
         return self.__title
 
+    @final
     def set_clear_color(self, color: Color) -> Self:
         """
         #### Устанавливает цвет очистки по умолчанию
@@ -2382,6 +2439,7 @@ class Window:
         self.__clear_color = color
         return self
 
+    @final
     def get_clear_color(self) -> Color:
         """
         #### Возвращает текущий цвет очистки
@@ -2408,6 +2466,7 @@ class Window:
         """
         return self.__clear_color
         
+    @final
     def is_open(self) -> bool:
         """
         #### Проверяет состояние окна
@@ -2435,6 +2494,7 @@ class Window:
         """
         return LIB_PYSGL.isWindowOpen(self.__window_ptr)
     
+    @final
     @overload
     def draw(self, shape, render_states: RenderStates) -> None:
         """
@@ -2462,6 +2522,7 @@ class Window:
         """
         ...
 
+    @final
     @overload
     def draw(self, shape, shader: Shader) -> None:
         """
@@ -2489,6 +2550,7 @@ class Window:
         """
         ...
 
+    @final
     @overload 
     def draw(self, shape) -> None:
         """
@@ -2513,7 +2575,8 @@ class Window:
         ```
         """
         ...
-
+        
+    @final
     def draw(self, shape, render_states: RenderStates | Shader | None = None) -> None:
         """
         #### Основной метод отрисовки объектов

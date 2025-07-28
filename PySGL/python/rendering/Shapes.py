@@ -2,21 +2,23 @@ import ctypes
 import os
 from typing import Self, Final, final
 
-from PySGL.python.Colors import *
 from PySGL.python.Types import *
+from PySGL.python.Colors import *
 from PySGL.python.Vectors import Vector2f  
 from PySGL.python.Rendering.Vertexes import VertexArray, Vertex  
 
 
 # Псевдоним для типа указателя на шейп прямоугольника == +
-RectanglePtr = ctypes.c_void_p
+RectanglePtr: Final[ctypes.c_void_p] = ctypes.c_void_p
 # ====================================================== +
 
+@final
 class LibraryLoadError(Exception):
     """Ошибка загрузки нативной библиотеки"""
     pass
 
 
+@final
 def _find_library() -> str:
     """
     #### Поиск пути к нативной библиотеке BUILD.dll
@@ -48,7 +50,7 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL = ctypes.CDLL(_find_library())
+    LIB_PYSGL: Final[ctypes.CDLL] = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
@@ -386,75 +388,41 @@ class BaseRectangleShape:
 # Эти строки определяют типы аргументов (argtypes) и возвращаемых значений (restype)
 # для C++ функций, связанных с кругами.
 
-# _Circle_Create(radius: float, point_count: int) -> void*
+
 LIB_PYSGL._Circle_Create.argtypes = [ctypes.c_float, ctypes.c_int]
 LIB_PYSGL._Circle_Create.restype = ctypes.c_void_p
-
-# _Circle_Delete(circle_ptr: void*) -> None
 LIB_PYSGL._Circle_Delete.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Circle_Delete.restype = None
-
-# _Circle_SetPosition(circle_ptr: void*, x: float, y: float) -> None
 LIB_PYSGL._Circle_SetPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
 LIB_PYSGL._Circle_SetPosition.restype = None
-
-# _Circle_GetPositionX(circle_ptr: void*) -> float
 LIB_PYSGL._Circle_GetPositionX.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Circle_GetPositionX.restype = ctypes.c_float
-
-# _Circle_GetPositionY(circle_ptr: void*) -> float
 LIB_PYSGL._Circle_GetPositionY.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Circle_GetPositionY.restype = ctypes.c_float
-
-# _Circle_SetRadius(circle_ptr: void*, radius: float) -> None
 LIB_PYSGL._Circle_SetRadius.argtypes = [ctypes.c_void_p, ctypes.c_float]
 LIB_PYSGL._Circle_SetRadius.restype = None
-
-# _Circle_GetRadius(circle_ptr: void*) -> float
 LIB_PYSGL._Circle_GetRadius.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Circle_GetRadius.restype = ctypes.c_float
-
-# _Circle_SetRotation(circle_ptr: void*, angle: float) -> None
 LIB_PYSGL._Circle_SetRotation.argtypes = [ctypes.c_void_p, ctypes.c_float]
 LIB_PYSGL._Circle_SetRotation.restype = None
-
-# _Circle_GetRotation(circle_ptr: void*) -> float
 LIB_PYSGL._Circle_GetRotation.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Circle_GetRotation.restype = ctypes.c_float
-
-# _Circle_SetFillColor(circle_ptr: void*, r: int, g: int, b: int, a: int) -> None
 LIB_PYSGL._Circle_SetFillColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
 LIB_PYSGL._Circle_SetFillColor.restype = None
-
-# _Circle_SetOutlineColor(circle_ptr: void*, r: int, g: int, b: int, a: int) -> None
 LIB_PYSGL._Circle_SetOutlineColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
 LIB_PYSGL._Circle_SetOutlineColor.restype = None
-
-# _Circle_SetOutlineThickness(circle_ptr: void*, thickness: float) -> None
 LIB_PYSGL._Circle_SetOutlineThickness.argtypes = [ctypes.c_void_p, ctypes.c_float]
 LIB_PYSGL._Circle_SetOutlineThickness.restype = None
-
-# _Circle_SetScale(circle_ptr: void*, scale_x: float, scale_y: float) -> None
 LIB_PYSGL._Circle_SetScale.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
 LIB_PYSGL._Circle_SetScale.restype = None
-
-# _Circle_GetScaleX(circle_ptr: void*) -> float
 LIB_PYSGL._Circle_GetScaleX.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Circle_GetScaleX.restype = ctypes.c_float
-
-# _Circle_GetScaleY(circle_ptr: void*) -> float
 LIB_PYSGL._Circle_GetScaleY.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Circle_GetScaleY.restype = ctypes.c_float
-
-# _Circle_SetOrigin(circle_ptr: void*, x: float, y: float) -> None
 LIB_PYSGL._Circle_SetOrigin.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
 LIB_PYSGL._Circle_SetOrigin.restype = None
-
-# _Circle_GetOriginX(circle_ptr: void*) -> float
 LIB_PYSGL._Circle_GetOriginX.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Circle_GetOriginX.restype = ctypes.c_float
-
-# _Circle_GetOriginY(circle_ptr: void*) -> float
 LIB_PYSGL._Circle_GetOriginY.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Circle_GetOriginY.restype = ctypes.c_float
 
