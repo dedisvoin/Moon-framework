@@ -7,7 +7,7 @@ from PySGL.python.Rendering.Shapes import *
 
 window = Window().set_view_info()
 events = WindowEvents()
-window.set_ghosting()
+window.enable_ghosting()
 
 
 rect = BaseRectangleShape(200, 200).set_origin(100, 100).set_color(COLOR_RED)
