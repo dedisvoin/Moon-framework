@@ -1965,50 +1965,134 @@ class CircleShape:
         """
         return self.__outline_thickness
 
-    def set_scale_xy(self, scale_x: float, scale_y: float) -> Self:
-        """
-        Масштабирует круг по осям X и Y.
-        Значения масштаба 1.0 означают отсутствие масштабирования.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            scale_x: Коэффициент масштабирования по оси X.
-            scale_y: Коэффициент масштабирования по оси Y.
-
-        Returns:
-            Self: Экземпляр объекта BaseCircleShape.
-        """
-        LIB_PYSGL._Circle_SetScale(self._ptr, scale_x, scale_y)
-        return self
-
+    @overload
     def set_scale(self, scale: float) -> Self:
         """
-        Равномерно масштабирует круг по обеим осям.
-        Эквивалентно вызову `set_scale_xy(scale, scale)`.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            scale: Единый коэффициент масштабирования для обеих осей.
-
-        Returns:
-            Self: Экземпляр объекта BaseCircleShape.
+        #### Равномерно масштабирует круг
+        
+        ---
+        
+        :Description:
+        - Применяет одинаковый масштаб по обеим осям
+        - 1.0 - исходный размер
+        - меньше 1.0 - уменьшение
+        - больше 1.0 - увеличение
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - scale (float): Коэффициент масштабирования (>0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Увеличить в 2 раза
+        circle.set_scale(2.0)
+        
+        # Уменьшить вдвое
+        circle.set_scale(0.5)
+        ```
         """
-        # Обратите внимание: здесь используется `SetCircleScale`, возможно, это опечатка,
-        # если существует `_Circle_SetScale`, как показано выше. Предполагается, что это корректная функция.
-        LIB_PYSGL.SetCircleScale(self._ptr, scale, scale)
+        ...
+
+    @overload
+    def set_scale(self, scale_x: float, scale_y: float) -> Self:
+        """
+        #### Масштабирует круг по осям
+        
+        ---
+        
+        :Description:
+        - Позволяет задать разный масштаб для X и Y
+        - Может вызывать искажение (эллипс)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - scale_x (float): Масштаб по горизонтали (>0)
+        - scale_y (float): Масштаб по вертикали (>0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Растянуть по горизонтали
+        circle.set_scale(2.0, 1.0)
+        
+        # Сжать по вертикали
+        circle.set_scale(1.0, 0.5)
+        ```
+        """
+        ...
+
+    def set_scale(self, arg1: float, arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация масштабирования
+        
+        ---
+        
+        :Raises:
+        - ValueError: При недопустимых значениях масштаба
+        
+        ---
+        
+        :Note:
+        - Масштаб применяется относительно точки отсчета
+        - Отрицательные значения создают зеркальное отражение
+        """
+        if arg2 is None:
+            scale_x = scale_y = float(arg1)
+        else:
+            scale_x, scale_y = float(arg1), float(arg2)
+        
+        if scale_x == 0 or scale_y == 0:
+            raise ValueError("Scale values cannot be zero")
+        
+        LIB_PYSGL._Circle_SetScale(self._ptr, scale_x, scale_y)
         return self
 
     def get_scale(self) -> Vector2f:
         """
-        Извлекает текущие коэффициенты масштабирования круга.
-
-        Returns:
-            Vector2f: 2D-вектор, где x - это масштаб по оси X, а y - это масштаб по оси Y.
+        #### Возвращает текущий масштаб круга
+        
+        ---
+        
+        :Description:
+        - Возвращает отдельные коэффициенты для X и Y
+        - {1,1} означает исходный размер
+        - Значения могут быть отрицательными (отражение)
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Масштаб по осям {x, y}
+        
+        ---
+        
+        :Example:
+        ```python
+        scale = circle.get_scale()
+        if scale.x != scale.y:
+            print("Круг искажен в эллипс")
+        ```
         """
-        x = LIB_PYSGL._Circle_GetScaleX(self._ptr)
-        y = LIB_PYSGL._Circle_GetScaleY(self._ptr)
-        return Vector2f(x, y)
-
+        return Vector2f(
+            LIB_PYSGL._Circle_GetScaleX(self._ptr),
+            LIB_PYSGL._Circle_GetScaleY(self._ptr)
+        )
     def set_origin(self, x: float, y: float) -> Self:
         """
         Устанавливает точку отсчета для преобразований (например, вращения, масштабирования) круга.
