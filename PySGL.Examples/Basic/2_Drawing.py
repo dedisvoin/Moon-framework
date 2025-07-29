@@ -6,7 +6,7 @@ from PySGL.python.Rendering.Shapes import *
 
 
 window = Window().set_view_info()
-window.set_wait_fps(FPS_UNLIMIT_CONST)
+window.set_wait_fps(60)
 events = WindowEvents()
 window.enable_ghosting()
 
@@ -35,6 +35,8 @@ while window.update(events):
     window.draw(rect2)
     window.draw(circle)
     window.draw(line)
+    
+    line.move_end_point(Vector2f(1, 1))
     window.view_info()
     window.display()
 

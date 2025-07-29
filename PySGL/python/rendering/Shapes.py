@@ -698,7 +698,7 @@ class RectangleShape:
                 f"got ({type(arg1).__name__}, {type(arg2).__name__})"
             )
         
-        if width <= 0 or height <= 0:
+        if width < 0 or height < 0:
             raise ValueError("Size values must be positive")
         
         LIB_PYSGL._Rectangle_SetSize(self._ptr, width, height)
@@ -2256,6 +2256,7 @@ class BaseLineShape:
     :Description:
     - Реализует линию как прямоугольник с опциональными скругленными концами
     - Поддерживает настройку толщины, цвета и формы концов
+    - Не поддерживает обводку (Для этого используйте LineShape)
     - Внутренне использует комбинацию RectangleShape и CircleShape
     
     ---
@@ -2967,6 +2968,195 @@ class BaseLineShape:
         - Не предоставляет доступа к нативным C++ объектам
         - Для работы с компонентами используйте специальные методы
         """
+        return self
+    
+    @final
+    @overload
+    def move_start_point(self, vector: Vector2f) -> Self:
+        """
+        #### Перемещает начальную точку линии по вектору
+        
+        ---
+        
+        :Description:
+        - Сдвигает начальную точку на указанный вектор
+        - Автоматически обновляет геометрию
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - vector (Vector2f): Вектор смещения {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Сдвинуть начальную точку на (10, 5)
+        line.move_start_point(Vector2f(10, 5))
+        ```
+        """
+        ...
+
+    @final
+    @overload
+    def move_start_point(self, dx: float, dy: float) -> Self:
+        """
+        #### Перемещает начальную точку линии по координатам
+        
+        ---
+        
+        :Description:
+        - Сдвигает начальную точку на указанные дельты
+        - Автоматически обновляет геометрию
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - dx (float): Смещение по оси X
+        - dy (float): Смещение по оси Y
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Сдвинуть начальную точку на 10px вправо и 5px вниз
+        line.move_start_point(10.0, 5.0)
+        ```
+        """
+        ...
+
+    @final
+    def move_start_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация перемещения начальной точки
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверных типах аргументов
+        
+        ---
+        
+        :Note:
+        - Изменяет только начальную точку, конечная остается на месте
+        - Приводит к изменению длины и направления линии
+        """
+        if isinstance(arg1, Vector2f):
+            dx, dy = arg1.x, arg1.y
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            dx, dy = float(arg1), float(arg2)
+        else:
+            raise TypeError("Invalid argument types for move_start_point")
+        
+        self.__start_pos[0] += dx
+        self.__start_pos[1] += dy
+        return self
+    
+    @final
+    @overload
+    def move_end_point(self, vector: Vector2f) -> Self:
+        """
+        #### Перемещает конечную точку линии по вектору
+        
+        ---
+        
+        :Description:
+        - Сдвигает конечную точку на указанный вектор
+        - Автоматически обновляет геометрию
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - vector (Vector2f): Вектор смещения {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Сдвинуть конечную точку на (-5, 10)
+        line.move_end_point(Vector2f(-5, 10))
+        ```
+        """
+        ...
+
+    @final
+    @overload
+    def move_end_point(self, dx: float, dy: float) -> Self:
+        """
+        #### Перемещает конечную точку линии по координатам
+        
+        ---
+        
+        :Description:
+        - Сдвигает конечную точку на указанные дельты
+        - Автоматически обновляет геометрию
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - dx (float): Смещение по оси X
+        - dy (float): Смещение по оси Y
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Сдвинуть конечную точку на 5px влево и 10px вверх
+        line.move_end_point(-5.0, 10.0)
+        ```
+        """
+        ...
+
+    @final
+    def move_end_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация перемещения конечной точки
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверных типах аргументов
+        
+        ---
+        
+        :Note:
+        - Изменяет только конечную точку, начальная остается на месте
+        - Приводит к изменению длины и направления линии
+        - Для одновременного перемещения всей линии используйте `move()`
+        """
+        if isinstance(arg1, Vector2f):
+            dx, dy = arg1.x, arg1.y
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            dx, dy = float(arg1), float(arg2)
+        else:
+            raise TypeError("Invalid argument types for move_end_point")
+        
+        self.__end_pos[0] += dx
+        self.__end_pos[1] += dy
         return self
 
 @final 
