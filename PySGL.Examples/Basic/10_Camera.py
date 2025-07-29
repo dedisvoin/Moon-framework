@@ -12,7 +12,7 @@ events = WindowEvents()
 window.set_system_cursor(SystemCursors.Hand)
 window.enable_rounded_corners()
 
-rect = BaseRectangleShape(100, 36)
+rect = RectangleShape(100, 36)
 rect.set_color(COLOR_RED)
 rect.set_outline_color(COLOR_BLACK)
 rect.set_outline_thickness(1)

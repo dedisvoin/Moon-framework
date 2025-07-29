@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from PySGL.python.Vectors import Vector2f
 from PySGL.python.Types import *
-from PySGL.python.Rendering.Shapes import BaseRectangleShape
+from PySGL.python.Rendering.Shapes import RectangleShape
 from PySGL.python.Colors import *
 from PySGL.python.Window import Window
 from PySGL.python.Colors import COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_GRAY, COLOR_ALPHA
@@ -268,7 +268,7 @@ class BoxCollider2D(Box2D):
 
 
 # --- Глобальная переменная для отображения коллайдеров ---
-BOX_SHAPE = BaseRectangleShape(1, 1)
+BOX_SHAPE = RectangleShape(1, 1)
 BOX_SHAPE.set_color(COLOR_ALPHA) # Прозрачная заливка
 BOX_SHAPE.set_outline_thickness(1) # Тонкая обводка
 

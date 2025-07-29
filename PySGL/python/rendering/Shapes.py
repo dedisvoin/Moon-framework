@@ -85,305 +85,1082 @@ LIB_PYSGL._Rectangle_Delete.restype = None
 LIB_PYSGL._Rectangle_Delete.argtypes = [RectanglePtr]
 
 @final
-class BaseRectangleShape:
+class RectangleShape:
     """
-    Низкоуровневый класс для создания и управления прямоугольниками с использованием привязок к DLL C++.
-    Этот класс помечен как `@final`, что означает, что от него нельзя наследоваться.
-    Он обеспечивает прямое взаимодействие с базовой графической библиотекой C++ для оптимизированной отрисовки.
+    #### Базовый класс для работы с прямоугольными фигурами
+    
+    ---
+    
+    :Description:
+    - Низкоуровневая обертка для нативного прямоугольника из C++
+    - Оптимизирован для максимальной производительности
+    - Не поддерживает наследование (@final)
+    
+    ---
+    
+    :Features:
+    - Управление размерами и геометрией
+    - Настройка цвета и контура
+    - Преобразования (поворот, масштаб, смещение)
+    - Прямой доступ к нативному объекту
+    
+    ---
+    
+    :Note:
+    - Все графические операции выполняются на стороне C++
+    - Python-атрибуты синхронизируются с нативным объектом при изменениях
     """
 
+    @final
     def __init__(self, width: float, height: float):
         """
-        Инициализирует новый прямоугольник с указанной шириной и высотой.
-        Объект прямоугольника C++ создается в памяти, и указатель на него сохраняется.
-
-        Args:
-            width: Желаемая ширина прямоугольника.
-            height: Желаемая высота прямоугольника.
+        #### Создает новый прямоугольник
+        
+        ---
+        
+        :Description:
+        - Инициализирует нативный объект в памяти C++
+        - Устанавливает начальные параметры фигуры
+        - Создает Python-обертку для управления
+        
+        ---
+        
+        :Args:
+        - width (float): Начальная ширина прямоугольника (>0)
+        - height (float): Начальная высота прямоугольника (>0)
+        
+        ---
+        
+        :Raises:
+        - ValueError: При недопустимых размерах
+        
+        ---
+        
+        :Workflow:
+        1. Создает нативный объект через LIB_PYSGL
+        2. Инициализирует Python-атрибуты
+        3. Устанавливает стандартные значения
+        
+        ---
+        
+        :Example:
+        ```python
+        # Создать прямоугольник 100x50
+        rect = BaseRectangleShape(100.0, 50.0)
+        ```
         """
-        # Вызываем функцию C++ для создания объекта прямоугольника и сохраняем его указатель.
+        # Проверка корректности размеров
+        if width <= 0 or height <= 0:
+            raise ValueError("Dimensions must be positive")
+            
+        # Создание нативного объекта
         self._ptr = LIB_PYSGL._Rectangle_Create(float(width), float(height))
-
-        # Храним дополнительные атрибуты непосредственно в объекте Python.
-        # Эти атрибуты "не являются нативными", так как они управляются в Python, а не напрямую объектом C++.
-        # Это обеспечивает более легкий доступ и согласованность внутри обертки Python.
-        self.__color: Color | None = None
-        self.__outline_color: Color | None = None
-        self.__outline_thickness: float = 0
-        self.__origin: Vector2f = Vector2f(0, 0)
-        self.__angle: float = 0
-        self.__scale: Vector2f = Vector2f.one()
+        
+        # Инициализация Python-атрибутов
+        self.__color: Color | None = None          # Основной цвет (None = прозрачный)
+        self.__outline_color: Color | None = None  # Цвет контура
+        self.__outline_thickness: float = 0        # Толщина контура
+        self.__origin: Vector2f = Vector2f(0, 0)   # Точка преобразований
+        self.__angle: float = 0                    # Угол поворота (градусы)
+        self.__scale: Vector2f = Vector2f.one()    # Масштаб по осям
     
+    @final
     def get_ptr(self) -> int:
         """
-        Извлекает необработанный указатель на объект C++.
-        Этот метод в основном предназначен для внутреннего использования, позволяя другим частям
-        графической системы взаимодействовать напрямую с объектом C++.
-
-        Returns:
-            int: Адрес памяти (указатель) объекта прямоугольника C++.
+        #### Возвращает указатель на нативный объект C++
+        
+        ---
+        
+        :Description:
+        - Предоставляет прямой доступ к низкоуровневому объекту
+        - Используется для интеграции с нативным кодом
+        - Для внутреннего использования в PySGL
+        
+        ---
+        
+        :Returns:
+        - int: Указатель на объект Rectangle в памяти C++
+        
+        ---
+        
+        :Note:
+        - Не изменяйте объект напрямую через указатель
+        - Используйте только для передачи в API PySGL
+        
+        ---
+        
+        :Example:
+        ```python
+        # Передать указатель в нативную функцию
+        native_function(rect.get_ptr())
+        ```
         """
         return self._ptr
+    
+    @final
+    def __str__(self) -> str:
+        """
+        #### Возвращает строковое представление прямоугольника
+        
+        ---
+        
+        :Description:
+        - Формат: BaseRectangleShape(x, y, width, height)
+        - Показывает текущие позицию и размеры
+        - Не включает другие атрибуты (цвет, поворот и т.д.)
+        
+        ---
+        
+        :Returns:
+        - str: Информационная строка о состоянии объекта
+        
+        ---
+        
+        :Example:
+        ```python
+        rect = BaseRectangleShape(100, 50)
+        print(str(rect))  # "BaseRectangleShape(0.0, 0.0, 100.0, 50.0)"
+        ```
+        """
+        pos = self.get_position()
+        size = self.get_size()
+        return f"BaseRectangleShape({pos.x}, {pos.y}, {size.x}, {size.y})"
 
+    @final
+    def __repr__(self) -> str:
+        """
+        #### Возвращает формальное строковое представление
+        
+        ---
+        
+        :Description:
+        - Совпадает с __str__ для удобства
+        - Позволяет eval(repr(obj)) для создания копии
+        - Формат: BaseRectangleShape(x, y, width, height)
+        
+        ---
+        
+        :Returns:
+        - str: Строка, пригодная для воссоздания объекта
+        
+        ---
+        
+        :Example:
+        ```python
+        rect = BaseRectangleShape(100, 50)
+        print(repr(rect))  # "BaseRectangleShape(0.0, 0.0, 100.0, 50.0)"
+        ```
+        """
+        return self.__str__()
+
+    @final
     def __del__(self):
         """
-        Метод деструктора. Он автоматически вызывается сборщиком мусора Python,
-        когда объект BaseRectangleShape больше не имеет ссылок.
-        Он гарантирует, что соответствующий объект C++ правильно освобожден
-        для предотвращения утечек памяти.
-        """
-        # Проверяем, существует ли указатель и не является ли он None (что означает, что объект C++ еще не удален).
-        if hasattr(self, '_ptr') and self._ptr:
-            # Вызываем функцию C++ для удаления объекта прямоугольника из памяти.
-            LIB_PYSGL._Rectangle_Delete(self._ptr)
-            self._ptr = None  # Очищаем указатель, чтобы предотвратить проблемы с двойным освобождением памяти.
-    
-    @overload
-    def set_position(self, x: float, y: float) -> Self:
-        """
-        Устанавливает позицию прямоугольника на экране.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            x: Координата X для новой позиции прямоугольника.
-            y: Координата Y для новой позиции прямоугольника.
-
-        Returns:
-            Self: Экземпляр объекта BaseRectangleShape.
-        """
+        #### Освобождает ресурсы прямоугольника
         
-    
-    @overload
-    def set_position(self, vector: Vector2f) -> Self:
+        ---
+        
+        :Description:
+        - Автоматически вызывается при удалении объекта
+        - Удаляет нативный объект из памяти C++
+        - Предотвращает утечки памяти
+        
+        ---
+        
+        :Safety:
+        - Проверяет существование указателя
+        - Защищает от двойного освобождения
+        - Устанавливает указатель в None после удаления
+        
+        ---
+        
+        :Note:
+        - Не вызывайте явно - использует механизм сборки мусора Python
         """
-        Устанавливает позицию прямоугольника на экране.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
+        if hasattr(self, '_ptr') and self._ptr:
+            LIB_PYSGL._Rectangle_Delete(self._ptr)
+            self._ptr = None
 
-        Args:
-            vector: Вектор координат
-
-        Returns:
-            Self: Экземпляр объекта BaseRectangleShape.
+    @final
+    @overload
+    def set_position(self, x: Number, y: Number) -> Self:
+        """
+        #### Устанавливает позицию прямоугольника через координаты
+        
+        ---
+        
+        :Description:
+        - Позиционирует прямоугольник по абсолютным координатам
+        - Учитывает текущие преобразования (масштаб, поворот, точку отсчета)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - x (float): Горизонтальная координата (в пикселях)
+        - y (float): Вертикальная координата (в пикселях)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Позиционирование по координатам
+        rect.set_position(150.5, 200.0)
+        ```
         """
         ...
 
-    def set_position(self, arg1, arg2 = None) -> Self:
+    @final
+    @overload
+    def set_position(self, vector: Vector2f) -> Self:
+        """
+        #### Устанавливает позицию прямоугольника через вектор
+        
+        ---
+        
+        :Description:
+        - Позиционирует прямоугольник по вектору координат
+        - Эквивалентно set_position(vector.x, vector.y)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - vector (Vector2f): Вектор позиции {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Позиционирование через вектор
+        position = Vector2f(150.5, 200.0)
+        rect.set_position(position)
+        ```
+        """
+        ...
+
+    @final
+    def set_position(self, arg1: Union[float, Vector2f], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация установки позиции
+        
+        ---
+        
+        :Description:
+        - Обрабатывает оба варианта вызова (координаты или вектор)
+        - Преобразует аргументы в нативный формат
+        - Вызывает соответствующий метод C++
+        
+        ---
+        
+        :Raises:
+        - ValueError: При недопустимых аргументах
+        
+        ---
+        
+        :Note:
+        - Внутренний метод - используйте перегруженные версии
+        """
         if isinstance(arg1, Vector2f) and arg2 is None:
             LIB_PYSGL._Rectangle_SetPosition(self._ptr, float(arg1.x), float(arg1.y))
-            return self
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             LIB_PYSGL._Rectangle_SetPosition(self._ptr, float(arg1), float(arg2))
-            return self
-        raise ValueError("Invalid arguments")
+        else:
+            raise ValueError(
+                "Invalid arguments. "
+                "Expected either (x: float, y: float) or (vector: Vector2f), "
+                f"got ({type(arg1).__name__}, {type(arg2).__name__})"
+            )
+        return self
 
-    
+    @final
     def get_position(self) -> Vector2f:
         """
-        Извлекает текущую позицию прямоугольника.
-
-        Returns:
-            Vector2f: 2D-вектор, представляющий координаты (X, Y) прямоугольника.
+        #### Возвращает текущую позицию прямоугольника
+        
+        ---
+        
+        :Description:
+        - Возвращает абсолютные координаты верхнего левого угла
+        - Учитывает все примененные преобразования
+        - Координаты в пикселях относительно окна
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор позиции {x, y}
+        
+        ---
+        
+        :Example:
+        ```python
+        pos = rect.get_position()
+        print(f"Прямоугольник находится в ({pos.x}, {pos.y})")
+        ```
         """
         x = LIB_PYSGL._Rectangle_GetPositionX(self._ptr)
         y = LIB_PYSGL._Rectangle_GetPositionY(self._ptr)
         return Vector2f(x, y)
-    
+
+    @final
     def set_color(self, color: Color) -> Self:
         """
-        Устанавливает цвет заливки прямоугольника.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            color: Объект Color, определяющий значения RGBA (Красный, Зеленый, Синий, Альфа).
-
-        Returns:
-            Self: Экземпляр объекта BaseRectangleShape.
+        #### Устанавливает цвет заливки прямоугольника
+        
+        ---
+        
+        :Description:
+        - Определяет основной цвет отрисовки
+        - Поддерживает прозрачность через альфа-канал
+        - Автоматически обновляет нативный объект
+        
+        ---
+        
+        :Args:
+        - color (Color): Цвет в формате RGBA
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Установить синий полупрозрачный цвет
+        rect.set_color(Color(0, 0, 255, 128))
+        ```
         """
         LIB_PYSGL._Rectangle_SetColor(self._ptr, color.r, color.g, color.b, color.a)
-        self.__color = color  # Храним цвет локально в объекте Python.
+        self.__color = color
         return self
-    
+
+    @final
     def get_color(self) -> Color:
         """
-        Извлекает текущий цвет заливки прямоугольника.
-
-        Returns:
-            Color: Объект Color, представляющий цвет заливки прямоугольника.
+        #### Возвращает текущий цвет заливки
+        
+        ---
+        
+        :Description:
+        - Возвращает последний установленный цвет
+        - None означает отсутствие заливки
+        
+        ---
+        
+        :Returns:
+        - Color: Текущий цвет или None
+        
+        ---
+        
+        :Example:
+        ```python
+        if rect.get_color() == Color.RED:
+            print("Прямоугольник красный")
+        ```
         """
         return self.__color
     
+    @final
+    @overload
     def set_origin(self, x: float, y: float) -> Self:
         """
-        Устанавливает точку отсчета для преобразований (например, вращения, масштабирования).
-        Начало координат относительно верхнего левого угла прямоугольника.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            x: Координата X точки отсчета.
-            y: Координата Y точки отсчета.
-
-        Returns:
-            Self: Экземпляр объекта BaseRectangleShape.
+        #### Устанавливает точку отсчета через координаты
+        
+        ---
+        
+        :Description:
+        - Определяет центр преобразований (поворот/масштаб)
+        - Относительно левого верхнего угла прямоугольника
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - x (float): Горизонтальное смещение точки отсчета
+        - y (float): Вертикальное смещение точки отсчета
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Установить центр в середине прямоугольника
+        rect.set_origin(width/2, height/2)
+        ```
         """
-        LIB_PYSGL._Rectangle_SetOrigin(self._ptr, float(x), float(y))
-        self.__origin.x = x  # Обновляем локальный атрибут origin.
+        ...
+
+    @final
+    @overload
+    def set_origin(self, vector: Vector2f) -> Self:
+        """
+        #### Устанавливает точку отсчета через вектор
+        
+        ---
+        
+        :Description:
+        - Определяет центр преобразований (поворот/масштаб)
+        - Эквивалентно set_origin(vector.x, vector.y)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - vector (Vector2f): Вектор смещения {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Центр преобразований через вектор
+        origin = Vector2f(50, 50)
+        rect.set_origin(origin)
+        ```
+        """
+        ...
+
+    @final
+    def set_origin(self, arg1: Union[float, Vector2f], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация установки точки отсчета
+        
+        ---
+        
+        :Description:
+        - Обрабатывает оба варианта вызова (координаты или вектор)
+        - Синхронизирует состояние с нативным объектом
+        - Обновляет локальный атрибут origin
+        
+        ---
+        
+        :Raises:
+        - ValueError: При недопустимых аргументах
+        
+        ---
+        
+        :Note:
+        - Координаты относительно левого верхнего угла фигуры
+        """
+        if isinstance(arg1, Vector2f) and arg2 is None:
+            x, y = float(arg1.x), float(arg1.y)
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            x, y = float(arg1), float(arg2)
+        else:
+            raise ValueError(
+                "Invalid arguments. "
+                "Expected either (x: float, y: float) or (vector: Vector2f), "
+                f"got ({type(arg1).__name__}, {type(arg2).__name__})"
+            )
+        
+        LIB_PYSGL._Rectangle_SetOrigin(self._ptr, x, y)
+        self.__origin.x = x
         self.__origin.y = y
         return self
     
+    @final
     def get_origin(self) -> Vector2f:
         """
-        Извлекает текущую точку отсчета прямоугольника.
-
-        Returns:
-            Vector2f: 2D-вектор, представляющий начало координат прямоугольника.
+        #### Возвращает текущую точку отсчета
+        
+        ---
+        
+        :Description:
+        - Возвращает точку, относительно которой применяются преобразования
+        - Координаты относительно левого верхнего угла прямоугольника
+        - Возвращает копию для безопасности данных
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Точка отсчета {x, y}
+        
+        ---
+        
+        :Example:
+        ```python
+        origin = rect.get_origin()
+        print(f"Точка отсчета: ({origin.x}, {origin.y})")
+        ```
         """
-        # Возвращаем копию, чтобы предотвратить внешнее изменение внутреннего начала координат.
         return self.__origin.copy()
-    
+
+    @final
+    @overload
     def set_size(self, width: float, height: float) -> Self:
         """
-        Изменяет размер (ширину и высоту) прямоугольника.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            width: Новая ширина прямоугольника.
-            height: Новая высота прямоугольника.
-
-        Returns:
-            Self: Экземпляр объекта BaseRectangleShape.
+        #### Устанавливает размер прямоугольника через параметры
+        
+        ---
+        
+        :Description:
+        - Изменяет геометрические размеры фигуры
+        - Не влияет на текущие преобразования
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - width (float): Новая ширина (>0)
+        - height (float): Новая высота (>0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Установить размер 200x100
+        rect.set_size(200.0, 100.0)
+        ```
         """
-        LIB_PYSGL._Rectangle_SetSize(self._ptr, float(width), float(height))
+        ...
+
+    @final
+    @overload
+    def set_size(self, size: Vector2f) -> Self:
+        """
+        #### Устанавливает размер прямоугольника через вектор
+        
+        ---
+        
+        :Description:
+        - Изменяет геометрические размеры фигуры
+        - Эквивалентно set_size(size.x, size.y)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - size (Vector2f): Новые размеры {width, height}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Установить размер через вектор
+        rect.set_size(Vector2f(200.0, 100.0))
+        ```
+        """
+        ...
+
+    @final
+    def set_size(self, arg1: Union[float, Vector2f], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация изменения размера
+        
+        ---
+        
+        :Raises:
+        - ValueError: При недопустимых размерах
+        
+        ---
+        
+        :Note:
+        - Минимальный размер 1x1 пиксель
+        """
+        if isinstance(arg1, Vector2f) and arg2 is None:
+            width, height = float(arg1.x), float(arg1.y)
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            width, height = float(arg1), float(arg2)
+        else:
+            raise ValueError(
+                "Invalid arguments. "
+                "Expected either (width: float, height: float) or (size: Vector2f), "
+                f"got ({type(arg1).__name__}, {type(arg2).__name__})"
+            )
+        
+        if width <= 0 or height <= 0:
+            raise ValueError("Size values must be positive")
+        
+        LIB_PYSGL._Rectangle_SetSize(self._ptr, width, height)
         return self
-    
+
+    @final
     def get_size(self) -> Vector2f:
         """
-        Извлекает текущий размер (ширину и высоту) прямоугольника.
-
-        Returns:
-            Vector2f: 2D-вектор, где x - это ширина, а y - это высота.
+        #### Возвращает текущие размеры прямоугольника
+        
+        ---
+        
+        :Description:
+        - Возвращает фактические размеры в пикселях
+        - Не включает масштабирование
+        - Ширина = x, Высота = y
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Размеры {width, height}
+        
+        ---
+        
+        :Example:
+        ```python
+        size = rect.get_size()
+        print(f"Ширина: {size.x}, Высота: {size.y}")
+        ```
         """
         width = LIB_PYSGL._Rectangle_GetWidth(self._ptr)
         height = LIB_PYSGL._Rectangle_GetHeight(self._ptr)
         return Vector2f(width, height)
     
+    @final
     def set_angle(self, angle: float) -> Self:
         """
-        Устанавливает угол поворота прямоугольника в градусах.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            angle: Угол поворота в градусах.
-
-        Returns:
-            Self: Экземпляр объекта BaseRectangleShape.
+        #### Устанавливает угол поворота прямоугольника
+        
+        ---
+        
+        :Description:
+        - Поворачивает прямоугольник относительно текущей точки отсчета
+        - Угол задается в градусах (0-360)
+        - Положительные значения - по часовой стрелке
+        - Поддерживает fluent-interface
+        
+        ---
+        
+        :Args:
+        - angle (float): Угол поворота в градусах
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Повернуть на 45 градусов
+        rect.set_angle(45.0)
+        
+        # Комбинирование с другими методами
+        rect.set_origin(50, 50).set_angle(30.0)
+        ```
         """
-        LIB_PYSGL._Rectangle_SetRotation(self._ptr, float(angle))
-        self.__angle = angle  # Храним угол локально.
+        angle = float(angle)
+        LIB_PYSGL._Rectangle_SetRotation(self._ptr, angle)
+        self.__angle = angle % 360  # Нормализуем угол
         return self
-    
+
+    @final
     def get_angle(self) -> float:
         """
-        Извлекает текущий угол поворота прямоугольника в градусах.
-
-        Returns:
-            float: Угол поворота в градусах.
+        #### Возвращает текущий угол поворота
+        
+        ---
+        
+        :Description:
+        - Возвращает значение в градусах (0-360)
+        - Учитывает последний вызов set_angle()
+        - Не зависит от системы координат
+        
+        ---
+        
+        :Returns:
+        - float: Текущий угол поворота
+        
+        ---
+        
+        :Example:
+        ```python
+        # Анимация вращения
+        rect.set_angle(rect.get_angle() + 1)
+        ```
         """
         return self.__angle
     
+    @final
     def set_outline_thickness(self, thickness: float) -> Self:
         """
-        Устанавливает толщину контура прямоугольника.
-        Толщина 0 означает отсутствие контура.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            thickness: Желаемая толщина контура.
-
-        Returns:
-            Self: Экземпляр объекта BaseRectangleShape.
+        #### Устанавливает толщину границы прямоугольника
+        
+        ---
+        
+        :Description:
+        - Определяет толщину отображаемой границы
+        - 0 = граница не отображается
+        - Отрисовывается внутрь от контура фигуры
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - thickness (float): Толщина в пикселях (≥0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Тонкая граница
+        rect.set_outline_thickness(1.5)
+        
+        # Толстая граница
+        rect.set_outline_thickness(5.0)
+        ```
         """
-        LIB_PYSGL._Rectangle_SetOutlineThickness(self._ptr, float(thickness))
-        self.__outline_thickness = thickness  # Храним толщину контура локально.
+        thickness = max(0.0, float(thickness))  # Гарантируем неотрицательное значение
+        LIB_PYSGL._Rectangle_SetOutlineThickness(self._ptr, thickness)
+        self.__outline_thickness = thickness
         return self
-    
+
+    @final
     def get_outline_thickness(self) -> float:
         """
-        Извлекает текущую толщину контура прямоугольника.
-
-        Returns:
-            float: Толщина контура.
+        #### Возвращает текущую толщину границы
+        
+        ---
+        
+        :Description:
+        - Возвращает последнее установленное значение
+        - 0 означает отсутствие границы
+        
+        ---
+        
+        :Returns:
+        - float: Текущая толщина в пикселях
+        
+        ---
+        
+        :Example:
+        ```python
+        if rect.get_outline_thickness() > 0:
+            print("Прямоугольник имеет границу")
+        ```
         """
         return self.__outline_thickness
-    
+
+    @final
     def set_outline_color(self, color: Color) -> Self:
         """
-        Устанавливает цвет контура прямоугольника.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            color: Объект Color, определяющий RGBA значения для контура.
-
-        Returns:
-            Self: Экземпляр объекта BaseRectangleShape.
+        #### Устанавливает цвет границы прямоугольника
+        
+        ---
+        
+        :Description:
+        - Определяет RGBA-цвет отображаемой границы
+        - Полностью прозрачный цвет скроет границу
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - color (Color): Цвет границы
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Красная граница
+        rect.set_outline_color(Color.RED)
+        
+        # Полупрозрачная синяя граница
+        rect.set_outline_color(Color(0, 0, 255, 128))
+        ```
         """
         LIB_PYSGL._Rectangle_SetOutlineColor(self._ptr, color.r, color.g, color.b, color.a)
-        self.__outline_color = color  # Храним цвет контура локально.
+        self.__outline_color = color
         return self
-    
+
+    @final
     def get_outline_color(self) -> Color:
         """
-        Извлекает текущий цвет контура прямоугольника.
-
-        Returns:
-            Color: Объект Color, представляющий цвет контура.
+        #### Возвращает текущий цвет границы
+        
+        ---
+        
+        :Description:
+        - Возвращает последний установленный цвет
+        - None означает отсутствие границы
+        
+        ---
+        
+        :Returns:
+        - Color: Текущий цвет границы или None
+        
+        ---
+        
+        :Example:
+        ```python
+        border_color = rect.get_outline_color()
+        if border_color == Color.BLACK:
+            print("Граница черного цвета")
+        ```
         """
         return self.__outline_color
     
-    def set_scale_xy(self, scale_x: float, scale_y: float) -> Self:
-        """
-        Масштабирует прямоугольник по осям X и Y.
-        Значения масштаба 1.0 означают отсутствие масштабирования.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            scale_x: Коэффициент масштабирования по оси X.
-            scale_y: Коэффициент масштабирования по оси Y.
-
-        Returns:
-            Self: Экземпляр объекта BaseRectangleShape.
-        """
-        LIB_PYSGL._Rectangle_SetScale(self._ptr, float(scale_x), float(scale_y))
-        self.__scale.x = scale_x  # Обновляем локальный атрибут масштаба.
-        self.__scale.y = scale_y
-        return self
-    
+    @final
+    @overload
     def set_scale(self, scale: float) -> Self:
         """
-        Равномерно масштабирует прямоугольник по обеим осям.
-        Эквивалентно вызову `set_scale_xy(scale, scale)`.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            scale: Единый коэффициент масштабирования для обеих осей.
-
-        Returns:
-            Self: Экземпляр объекта BaseRectangleShape.
+        #### Равномерно масштабирует прямоугольник
+        
+        ---
+        
+        :Description:
+        - Применяет одинаковый масштаб по обеим осям
+        - 1.0 - исходный размер
+        - <1.0 - уменьшение
+        - >1.0 - увеличение
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - scale (float): Коэффициент масштабирования (>0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Увеличить в 2 раза
+        rect.set_scale(2.0)
+        
+        # Уменьшить вдвое
+        rect.set_scale(0.5)
+        ```
         """
-        LIB_PYSGL._Rectangle_SetScale(self._ptr, float(scale), float(scale))
-        self.__scale.x = scale  # Обновляем локальный атрибут масштаба.
-        self.__scale.y = scale
+        ...
+
+    @final
+    @overload
+    def set_scale(self, scale_x: float, scale_y: float) -> Self:
+        """
+        #### Масштабирует прямоугольник по осям
+        
+        ---
+        
+        :Description:
+        - Позволяет задать разный масштаб для X и Y
+        - Может вызывать искажение пропорций
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - scale_x (float): Масштаб по горизонтали (>0)
+        - scale_y (float): Масштаб по вертикали (>0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Растянуть по горизонтали
+        rect.set_scale(2.0, 1.0)
+        
+        # Сжать по вертикали
+        rect.set_scale(1.0, 0.5)
+        ```
+        """
+        ...
+
+    @final
+    def set_scale(self, arg1: float, arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация масштабирования
+        
+        ---
+        
+        :Raises:
+        - ValueError: При недопустимых значениях масштаба
+        
+        ---
+        
+        :Note:
+        - Масштаб применяется относительно точки отсчета
+        - Отрицательные значения инвертируют изображение
+        """
+        if arg2 is None:
+            scale_x = scale_y = float(arg1)
+        else:
+            scale_x, scale_y = float(arg1), float(arg2)
+        
+        if scale_x == 0 or scale_y == 0:
+            raise ValueError("Scale values cannot be zero")
+        
+        LIB_PYSGL._Rectangle_SetScale(self._ptr, scale_x, scale_y)
+        self.__scale.x = scale_x
+        self.__scale.y = scale_y
         return self
-    
+
+    @final
     def get_scale(self) -> Vector2f:
         """
-        Извлекает текущие коэффициенты масштабирования прямоугольника.
-
-        Returns:
-            Vector2f: 2D-вектор, где x - это масштаб по оси X, а y - это масштаб по оси Y.
+        #### Возвращает текущий масштаб прямоугольника
+        
+        ---
+        
+        :Description:
+        - Возвращает отдельные коэффициенты для X и Y
+        - {1,1} означает исходный размер
+        - Значения могут быть отрицательными (отражение)
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Масштаб по осям {x, y}
+        
+        ---
+        
+        :Example:
+        ```python
+        scale = rect.get_scale()
+        print(f"Горизонтальный масштаб: {scale.x}, Вертикальный: {scale.y}")
+        ```
         """
-        return self.__scale
+        return self.__scale.copy()  # Возвращаем копию для безопасности
     
+    @final
+    def move(self, offset: Vector2f) -> Self:
+        """
+        #### Перемещает прямоугольник на заданный вектор
+        
+        ---
+        
+        :Description:
+        - Добавляет вектор смещения к текущей позиции
+        - Учитывает все текущие преобразования
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - offset (Vector2f): Вектор смещения {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Сместить на 10 пикселей вправо и 5 вниз
+        rect.move(Vector2f(10, 5))
+        
+        # Комбинирование с другими методами
+        rect.move(Vector2f(10, 0)).set_angle(45)
+        ```
+        """
+        new_pos = self.get_position() + offset
+        self.set_position(new_pos)
+        return self
     
+    def copy(self) -> "RectangleShape":
+        """
+        #### Создает полную копию прямоугольника
+        
+        ---
+        
+        :Description:
+        - Создает новый объект с теми же параметрами
+        - Копирует все атрибуты:
+        - Размеры
+        - Цвет и контур
+        - Преобразования (позиция, поворот, масштаб)
+        - Точку отсчета
+        
+        ---
+        
+        :Returns:
+        - RectangleShape: Независимая копия прямоугольника
+        
+        ---
+        
+        :Example:
+        ```python
+        original = RectangleShape(100, 50)
+        original.set_color(Color.RED)
+        
+        # Создание копии
+        duplicate = original.copy()
+        
+        # Изменение копии не влияет на оригинал
+        duplicate.set_color(Color.BLUE)
+        ```
+        
+        :Note:
+        - Копия является полностью независимым объектом
+        - Изменения в копии не затрагивают оригинал
+        - Все нативные ресурсы дублируются
+        """
+        # Создаем новый прямоугольник с теми же размерами
+        _c = RectangleShape(*self.get_size().xy)
+        
+        # Копируем все визуальные атрибуты
+        
+        if self.get_outline_color() is not None:
+            _c.set_outline_color(self.get_outline_color())
+
+        _c.set_outline_thickness(self.get_outline_thickness())
+        
+        # Копируем все преобразования
+        _c.set_origin(*self.get_origin().xy)
+        _c.set_angle(self.get_angle())
+        _c.set_scale(*self.get_scale().xy)
+        _c.set_position(*self.get_position().xy)
+        
+        # Копируем основной цвет, если задан
+        if self.get_color() is not None:
+            _c.set_color(self.get_color())
+        
+        return _c
+
+
+
+
+
+
 # --- Привязки C++ функций для кругов ---
 # Эти строки определяют типы аргументов (argtypes) и возвращаемых значений (restype)
 # для C++ функций, связанных с кругами.
@@ -427,127 +1204,428 @@ LIB_PYSGL._Circle_GetOriginY.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Circle_GetOriginY.restype = ctypes.c_float
 
 @final
-class BaseCircleShape:
+class CircleShape:
     """
-    Низкоуровневый класс для создания и управления кругами с использованием привязок к DLL C++.
-    Этот класс помечен как `@final`, что означает, что от него нельзя наследоваться.
-    Он обеспечивает прямое взаимодействие с базовой графической библиотекой C++ для оптимизированной отрисовки.
+    #### Базовый класс для работы с круговыми фигурами
+    
+    ---
+    
+    :Description:
+    - Низкоуровневая обертка для нативного круга из C++
+    - Оптимизирован для максимальной производительности
+    - Не поддерживает наследование (@final)
+    
+    ---
+    
+    :Features:
+    - Управление радиусом и гладкостью
+    - Настройка цвета и контура
+    - Преобразования (поворот, масштаб, смещение)
+    - Прямой доступ к нативному объекту
+    
+    ---
+    
+    :Initial State:
+    - Начальный радиус: 100 пикселей
+    - Центр преобразований: середина круга
+    - Цвет: не задан (прозрачный)
+    - Контур: толщина 1 пиксель, цвет не задан
     """
 
-    def __init__(self, points_count: int = 30):
+    def __init__(self, approximation: int = 30):
         """
-        Создает круг. Обратите внимание, что начальный радиус устанавливается в 100,
-        а количество точек аппроксимации определяет, насколько гладким будет круг (больше точек = более гладкий круг).
-
-        Args:
-            points_count: Количество точек, используемых для аппроксимации круга.
-                          Больше точек делает круг более гладким, но может потреблять больше ресурсов.
-        """
+        #### Создает новый круг
         
-        self.__points_count = points_count
-        # Создаем C++ объект круга с начальным радиусом 100 и указанным количеством точек.
-        self._ptr = LIB_PYSGL._Circle_Create(100, points_count)
-        # Устанавливаем точку отсчета в центр, что упрощает масштабирование и вращение.
-        self.set_origin(100, 100)
-
-        # Локальные (не нативные C++) атрибуты для хранения состояния круга в Python.
+        ---
+        
+        :Description:
+        - Инициализирует нативный объект в памяти C++
+        - Устанавливает стандартные параметры фигуры
+        - Центрирует точку отсчета
+        
+        ---
+        
+        :Args:
+        - approximation (int): Количество точек аппроксимации (≥3)
+        
+        ---
+        
+        :Raises:
+        - ValueError: При approximation < 3
+        
+        ---
+        
+        :Note:
+        - Больше точек = более гладкий круг, но выше нагрузка
+        - Рекомендуемые значения: 30-100 для баланса качества/производительности
+        
+        ---
+        
+        :Example:
+        ```python
+        # Круг с 50 точками аппроксимации
+        circle = BaseCircleShape(50)
+        ```
+        """
+        if approximation < 3:
+            raise ValueError("Circle must have at least 3 points")
+            
+        self.__approximation = approximation
+        self._ptr = LIB_PYSGL._Circle_Create(100, approximation)
+        self.set_origin(100, 100)  # Центрируем точку отсчета
+        
+        # Инициализация атрибутов
         self.__outline_color: Color | None = None
         self.__outline_thickness: float = 1
         self.__color: Color | None = None
 
 
-    # ////////////////////////////////////////////////////////////////////////////////////////
-    # **ВАЖНОЕ ПРЕДУПРЕЖДЕНИЕ О УПРАВЛЕНИИ ПАМЯТЬЮ**
-    # **Не рекомендуется вручную вызывать данный метод для очистки памяти.**
-    # `del circle` <- {НЕ ДЕЛАЙТЕ ТАК!}
-    # При самостоятельной очистке могут возникнуть ошибки доступа к уже освобожденной памяти!
-    # Интерпретатор Python сам будет очищать память, не рискуйте!
-    # #########################################################################################
+
     def __del__(self):
         """
-        Метод деструктора. Он автоматически вызывается сборщиком мусора Python
-        при удалении объекта BaseCircleShape.
-        Он гарантирует, что соответствующий объект C++ будет корректно удален из памяти,
-        что предотвращает утечки памяти.
+        #### Освобождает ресурсы круга
+        
+        ---
+        
+        :Description:
+        - Автоматически вызывается при удалении объекта
+        - Удаляет нативный объект из памяти C++
+        - Предотвращает утечки памяти
+        
+        ---
+        
+        :Safety:
+        - Проверяет существование указателя
+        - Защищает от двойного освобождения
+        - Устанавливает указатель в None после удаления
+        
+        ---
+        
+        :Note:
+        - Не вызывайте явно - использует механизм сборки мусора Python
+        - Гарантирует корректное освобождение ресурсов C++
+        
+        ---
+        
+        :Workflow:
+        1. Проверяет наличие указателя
+        2. Вызывает нативное удаление объекта
+        3. Обнуляет указатель
+        
+        ---
+        
+        :Example:
+        ```python
+        # Обычно не вызывается явно
+        circle = BaseCircleShape()
+        del circle  # Вызовет __del__ автоматически
+        ```
         """
-        # Проверяем, существует ли указатель и не равен ли он None (это означает, что C++ объект еще не был удален).
         if hasattr(self, '_ptr') and self._ptr:
-            # Вызываем функцию C++ для удаления объекта круга из памяти.
             LIB_PYSGL._Circle_Delete(self._ptr)
-            self._ptr = None  # Очищаем указатель, чтобы предотвратить проблемы с двойным освобождением памяти.
-    # #########################################################################################
+            self._ptr = None  # Защита от повторного удаления
+
     
+    def get_approximation(self) -> int:
+        """
+        #### Возвращает количество точек аппроксимации круга
+        
+        ---
+        
+        :Description:
+        - Определяет гладкость отображения круга
+        - Больше точек = более плавный контур
+        - Меньше точек = лучшая производительность
+        
+        ---
+        
+        :Returns:
+        - int: Текущее количество точек контура
+        
+        ---
+        
+        :Note:
+        - Устанавливается при создании объекта
+        - Для изменения нужно создать новый круг
+        
+        ---
+        
+        :Example:
+        ```python
+        circle = BaseCircleShape(50)
+        print(circle.get_point_count())  # 50
+        
+        # Типичные значения:
+        # - 30: базовое качество
+        # - 100: высокое качество
+        # - 10: низкое качество (многоугольник)
+        ```
+        """
+        return self.__approximation
 
-    # ////////////////////////////////////////////////////////////////////////////////////////
-    # **Специальные методы, упрощающие работу с кругом.**
-    # #########################################################################################
-    def get_point_count(self) -> int:
+    def copy(self) -> "CircleShape":
         """
-        Возвращает количество точек, используемых для аппроксимации круга.
+        #### Создает полную независимую копию круга
+        
+        ---
+        
+        :Description:
+        - Создает новый объект CircleShape с идентичными параметрами
+        - Глубоко копирует все атрибуты:
+        * Точность аппроксимации
+        * Визуальные свойства (цвет, контур)
+        * Геометрические преобразования
+        * Состояние отображения
+        
+        ---
+        
+        :Returns:
+        - CircleShape: Новая независимая копия круга
+        
+        ---
+        
+        :Example:
+        ```python
+        original = CircleShape(30)
+        original.set_color(Color.RED)
+        
+        # Создание копии
+        duplicate = original.copy()
+        
+        # Модификация копии
+        duplicate.set_color(Color.BLUE)  # Не влияет на оригинал
+        ```
+        
+        :Workflow:
+        1. Создает новый круг с тем же количеством точек
+        2. Копирует все визуальные атрибуты
+        3. Применяет одинаковые преобразования
+        4. Возвращает готовую копию
+        
+        :Note:
+        - Копия использует собственные нативные ресурсы
+        - Изменения копии не затрагивают оригинал
+        - Для сложных объектов предпочтительнее copy() над созданием вручную
         """
-        return self.__points_count
-
-    def copy(self):
-        """
-        Возвращает новую копию этого круга с теми же характеристиками
-        (радиус, количество точек аппроксимации и точка отсчета).
-
-        Returns:
-            BaseCircleShape: Новый экземпляр BaseCircleShape, являющийся копией текущего.
-        """
-        circle = BaseCircleShape(self.get_point_count())
-        circle.set_origin_radius(self.get_radius())
-        return circle
+        # Создаем базовую копию с одинаковым уровнем детализации
+        _c = CircleShape(self.get_approximation())
+        
+        # Копирование стилей отображения
+        if (outline_color := self.get_outline_color()) is not None:
+            _c.set_outline_color(outline_color)
+        _c.set_outline_thickness(self.get_outline_thickness())
+        
+        # Копирование геометрических преобразований    
+        _c.set_origin(*self.get_origin().xy)
+        _c.set_angle(self.get_angle())
+        _c.set_scale(*self.get_scale().xy)
+        _c.set_position(*self.get_position().xy)
+        
+        # Копирование основного цвета с проверкой
+        if (fill_color := self.get_color()) is not None:
+            _c.set_color(fill_color)
+        
+        return _c
     
     def set_origin_radius(self, radius: float) -> Self:
         """
-        Устанавливает радиус круга и автоматически настраивает его точку отсчета
-        так, чтобы она находилась в центре круга (x = radius, y = radius).
-        Это удобно для преобразований, центрированных по кругу.
-
-        Args:
-            radius: Новый радиус круга.
-
-        Returns:
-            Self: Экземпляр объекта BaseCircleShape (для цепочки вызовов).
+        #### Устанавливает радиус с автоматической центровкой
+        
+        ---
+        
+        :Description:
+        - Устанавливает новый радиус круга
+        - Автоматически центрирует точку отсчета
+        - Оптимизировано для преобразований (вращение/масштаб)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - radius (float): Новый радиус (>0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Круг радиусом 50 с центром в середине
+        circle.set_origin_radius(50)
+        
+        # Комбинирование с другими методами
+        circle.set_origin_radius(100).set_angle(45)
+        ```
+        
+        :Note:
+        - Эквивалентно последовательному вызову set_radius() и set_origin()
+        - Центровка упрощает работу с преобразованиями
         """
+        radius = float(radius)
+        if radius <= 0:
+            raise ValueError("Radius must be positive")
+        
         self.set_radius(radius)
         self.set_origin(radius, radius)
         return self
-    # #########################################################################################
-
 
     def get_ptr(self) -> int:
         """
-        Извлекает необработанный указатель на объект C++.
-        Этот метод в основном предназначен для внутреннего использования.
-
-        Returns:
-            int: Адрес памяти (указатель) объекта круга C++.
+        #### Возвращает указатель на нативный объект C++
+        
+        ---
+        
+        :Description:
+        - Предоставляет доступ к низкоуровневому объекту
+        - Для внутреннего использования в PySGL
+        - Не изменяйте объект напрямую
+        
+        ---
+        
+        :Returns:
+        - int: Указатель на объект Circle в памяти C++
+        
+        ---
+        
+        :Example:
+        ```python
+        # Для передачи в нативные функции
+        native_function(circle.get_ptr())
+        ```
+        
+        :Warning:
+        - Избегайте прямых манипуляций с указателем
+        - Используйте только для интеграции с API PySGL
         """
         return self._ptr
 
+    @overload
     def set_position(self, x: float, y: float) -> Self:
         """
-        Устанавливает позицию круга на экране.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            x: Координата X для новой позиции круга.
-            y: Координата Y для новой позиции круга.
-
-        Returns:
-            Self: Экземпляр объекта BaseCircleShape.
+        #### Устанавливает позицию центра круга через координаты
+        
+        ---
+        
+        :Description:
+        - Позиционирует круг по абсолютным координатам
+        - Учитывает текущие преобразования (масштаб, поворот)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - x (float): Горизонтальная координата центра
+        - y (float): Вертикальная координата центра
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Позиционирование по координатам
+        circle.set_position(150.5, 200.0)
+        
+        # Комбинирование методов
+        circle.set_position(100, 100).set_angle(45)
+        ```
         """
+        ...
+
+    @overload
+    def set_position(self, position: Vector2f) -> Self:
+        """
+        #### Устанавливает позицию центра круга через вектор
+        
+        ---
+        
+        :Description:
+        - Позиционирует круг по вектору координат
+        - Эквивалентно set_position(position.x, position.y)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - position (Vector2f): Вектор позиции {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Позиционирование через вектор
+        pos = Vector2f(150.5, 200.0)
+        circle.set_position(pos)
+        ```
+        """
+        ...
+
+    def set_position(self, arg1: Union[float, Vector2f], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация установки позиции
+        
+        ---
+        
+        :Raises:
+        - ValueError: При недопустимых аргументах
+        
+        ---
+        
+        :Note:
+        - Координаты относятся к центру круга
+        - Учитывает текущую точку отсчета
+        """
+        if isinstance(arg1, Vector2f) and arg2 is None:
+            x, y = float(arg1.x), float(arg1.y)
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            x, y = float(arg1), float(arg2)
+        else:
+            raise ValueError(
+                "Invalid arguments. "
+                "Expected either (x: float, y: float) or (position: Vector2f), "
+                f"got ({type(arg1).__name__}, {type(arg2).__name__})"
+            )
+        
         LIB_PYSGL._Circle_SetPosition(self._ptr, x, y)
         return self
     
     def get_position(self) -> Vector2f:
         """
-        Извлекает текущую позицию круга.
-
-        Returns:
-            Vector2f: 2D-вектор, представляющий координаты (X, Y) круга.
+        #### Возвращает текущую позицию центра круга
+        
+        ---
+        
+        :Description:
+        - Возвращает абсолютные координаты центра
+        - Учитывает все примененные преобразования
+        - Координаты в пикселях относительно окна
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор позиции {x, y}
+        
+        ---
+        
+        :Example:
+        ```python
+        pos = circle.get_position()
+        print(f"Круг находится в ({pos.x:.1f}, {pos.y:.1f})")
+        
+        # Использование в расчетах
+        distance = (circle.get_position() - target.get_position()).length()
+        ```
         """
         x = LIB_PYSGL._Circle_GetPositionX(self._ptr)
         y = LIB_PYSGL._Circle_GetPositionY(self._ptr)
@@ -555,120 +1633,335 @@ class BaseCircleShape:
 
     def set_radius(self, radius: float) -> Self:
         """
-        Устанавливает радиус круга.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            radius: Новый радиус круга.
-
-        Returns:
-            Self: Экземпляр объекта BaseCircleShape.
+        #### Устанавливает новый радиус круга
+        
+        ---
+        
+        :Description:
+        - Изменяет геометрический размер круга
+        - Автоматически обновляет отображение
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - radius (float): Новый радиус (>0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Установить радиус 50 пикселей
+        circle.set_radius(50.0)
+        
+        # Анимация увеличения
+        circle.set_radius(circle.get_radius() + 0.5)
+        ```
+        
+        :Note:
+        - Для изменения точки отсчета используйте set_origin_radius()
         """
+        if radius < 0:
+            raise ValueError("Radius must be positive")
+        
         LIB_PYSGL._Circle_SetRadius(self._ptr, radius)
         return self
     
     def get_radius(self) -> float:
         """
-        Извлекает текущий радиус круга.
-
-        Returns:
-            float: Текущий радиус круга.
+        #### Возвращает текущий радиус круга
+        
+        ---
+        
+        :Description:
+        - Возвращает фактический радиус в пикселях
+        - Не включает масштабирование
+        - Значение всегда положительное
+        
+        ---
+        
+        :Returns:
+        - float: Текущий радиус (>0)
+        
+        ---
+        
+        :Example:
+        ```python
+        # Проверить размер круга
+        if circle.get_radius() > 100:
+            print("Круг слишком большой")
+        
+        # Расчет площади
+        area = math.pi * circle.get_radius() ** 2
+        ```
         """
         return LIB_PYSGL._Circle_GetRadius(self._ptr)
 
     def set_angle(self, angle: float) -> Self:
         """
-        Устанавливает угол поворота круга в градусах.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            angle: Угол поворота в градусах.
-
-        Returns:
-            Self: Экземпляр объекта BaseCircleShape.
+        #### Устанавливает угол поворота круга
+        
+        ---
+        
+        :Description:
+        - Поворачивает круг относительно точки отсчета
+        - Угол в градусах (0-360)
+        - Положительные значения - по часовой стрелке
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - angle (float): Угол поворота в градусах
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Поворот на 45 градусов
+        circle.set_angle(45.0)
+        
+        # Плавное вращение
+        circle.set_angle(circle.get_angle() + 0.5)
+        ```
         """
+        angle = float(angle) % 360  # Нормализация угла
         LIB_PYSGL._Circle_SetRotation(self._ptr, angle)
         return self
 
     def get_angle(self) -> float:
         """
-        Извлекает текущий угол поворота круга в градусах.
-
-        Returns:
-            float: Угол поворота в градусах.
+        #### Возвращает текущий угол поворота
+        
+        ---
+        
+        :Description:
+        - Возвращает значение в градусах (0-360)
+        - Учитывает последний вызов set_angle()
+        - Не зависит от системы координат
+        
+        ---
+        
+        :Returns:
+        - float: Текущий угол поворота
+        
+        ---
+        
+        :Example:
+        ```python
+        # Проверка ориентации
+        if 90 < circle.get_angle() < 270:
+            print("Круг перевернут")
+        ```
         """
         return LIB_PYSGL._Circle_GetRotation(self._ptr)
 
     def set_color(self, color: Color) -> Self:
         """
-        Устанавливает цвет заливки круга.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            color: Объект Color, определяющий RGBA значения для заливки.
-
-        Returns:
-            Self: Экземпляр объекта BaseCircleShape.
+        #### Устанавливает основной цвет круга
+        
+        ---
+        
+        :Description:
+        - Определяет цвет заливки круга
+        - Поддерживает прозрачность (альфа-канал)
+        - Автоматически обновляет отображение
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - color (Color): Цвет в формате RGBA
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Сплошной красный цвет
+        circle.set_color(Color.RED)
+        
+        # Полупрозрачный синий
+        circle.set_color(Color(0, 0, 255, 128))
+        ```
+        
+        :Note:
+        - None отключает заливку (полная прозрачность)
+        - Цвет кэшируется в Python-объекте
         """
         LIB_PYSGL._Circle_SetFillColor(self._ptr, color.r, color.g, color.b, color.a)
-        self.__color = color  # Храним цвет заливки локально.
+        self.__color = color
         return self
-    
+
     def get_color(self) -> Color:
         """
-        Извлекает текущий цвет заливки круга.
-
-        Returns:
-            Color: Объект Color, представляющий цвет заливки.
+        #### Возвращает текущий цвет заливки
+        
+        ---
+        
+        :Description:
+        - Возвращает последний установленный цвет
+        - None означает отсутствие заливки
+        
+        ---
+        
+        :Returns:
+        - Color: Текущий цвет или None
+        
+        ---
+        
+        :Example:
+        ```python
+        # Проверка цвета
+        if circle.get_color() == Color.GREEN:
+            print("Круг зеленый")
+        ```
         """
         return self.__color
 
     def set_outline_color(self, color: Color) -> Self:
         """
-        Устанавливает цвет контура круга.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            color: Объект Color, определяющий RGBA значения для контура.
-
-        Returns:
-            Self: Экземпляр объекта BaseCircleShape.
+        #### Устанавливает цвет границы круга
+        
+        ---
+        
+        :Description:
+        - Определяет цвет контурной линии
+        - Работает только при толщине > 0
+        - Поддерживает прозрачность
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - color (Color): Цвет в формате RGBA
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Черная граница
+        circle.set_outline_color(Color.BLACK)
+        
+        # Полупрозрачная граница
+        circle.set_outline_color(Color(255, 255, 255, 128))
+        ```
         """
         LIB_PYSGL._Circle_SetOutlineColor(self._ptr, color.r, color.g, color.b, color.a)
-        self.__outline_color = color  # Храним цвет контура локально.
+        self.__outline_color = color
         return self
-    
+
     def get_outline_color(self) -> Color:
         """
-        Извлекает текущий цвет контура круга.
-
-        Returns:
-            Color: Объект Color, представляющий цвет контура.
+        #### Возвращает текущий цвет границы
+        
+        ---
+        
+        :Description:
+        - Возвращает последний установленный цвет
+        - None означает отсутствие границы
+        
+        ---
+        
+        :Returns:
+        - Color: Текущий цвет или None
+        
+        ---
+        
+        :Example:
+        ```python
+        # Проверка цвета границы
+        if circle.get_outline_color() is None:
+            print("Граница отключена")
+        ```
         """
         return self.__outline_color
 
     def set_outline_thickness(self, thickness: float) -> Self:
         """
-        Устанавливает толщину контура круга.
-        Толщина 0 означает отсутствие контура.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            thickness: Желаемая толщина контура.
-
-        Returns:
-            Self: Экземпляр объекта BaseCircleShape.
+        #### Устанавливает толщину границы круга
+        
+        ---
+        
+        :Description:
+        - Определяет толщину отображаемой границы
+        - 0 = граница не отображается
+        - Отрисовывается внутрь от контура фигуры
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - thickness (float): Толщина в пикселях (≥0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Тонкая граница
+        circle.set_outline_thickness(1.5)
+        
+        # Толстая граница (максимум 1/2 радиуса)
+        circle.set_outline_thickness(min(10, circle.get_radius()/2))
+        ```
+        
+        :Note:
+        - Рекомендуемая толщина < 1/2 радиуса
+        - При thickness > radius граница может отображаться некорректно
         """
+        thickness = max(0.0, float(thickness))  # Гарантируем неотрицательное значение
         LIB_PYSGL._Circle_SetOutlineThickness(self._ptr, thickness)
-        self.__outline_thickness = thickness  # Храним толщину контура локально.
+        self.__outline_thickness = thickness
         return self
-    
+
     def get_outline_thickness(self) -> float:
         """
-        Извлекает текущую толщину контура круга.
-
-        Returns:
-            float: Толщина контура.
+        #### Возвращает текущую толщину границы
+        
+        ---
+        
+        :Description:
+        - Возвращает последнее установленное значение
+        - 0 означает отсутствие границы
+        
+        ---
+        
+        :Returns:
+        - float: Текущая толщина в пикселях
+        
+        ---
+        
+        :Example:
+        ```python
+        # Адаптивное изменение толщины
+        current = circle.get_outline_thickness()
+        if current > 0:
+            circle.set_outline_thickness(current * 1.1)
+        ```
         """
         return self.__outline_thickness
 
@@ -763,13 +2056,13 @@ class BaseLineShape:
         self.__width = 1           # Толщина линии.
 
         # Внутренний прямоугольник, который фактически отрисовывает тело линии.
-        self.__rectangle_shape = BaseRectangleShape(10, 10)
+        self.__rectangle_shape = RectangleShape(10, 10)
         self.__rectangle_shape.set_color(COLOR_BLACK) # Начальный цвет прямоугольника.
 
         self.__rounded_corners: bool = False  # Флаг, определяющий, должны ли концы линии быть скругленными.
 
         # Два внутренних круга для отрисовки скругленных концов линии, если __rounded_corners = True.
-        self.__round_circles = BaseCircleShape(15) # Круги аппроксимируются 15 точками.
+        self.__round_circles = CircleShape(15) # Круги аппроксимируются 15 точками.
         self.__round_circles.set_color(COLOR_BLACK) # Начальный цвет кругов.
         self.__round_circles.set_origin(12, 12) # Устанавливаем центр кругов для правильного позиционирования.
 
@@ -1237,8 +2530,8 @@ class LineThin:
 # Глобальные константы для часто используемых фигур.
 # Использование Final гарантирует, что эти переменные не будут переназначены.
 # Это удобно для стандартных, преднастроенных форм, которые можно переиспользовать.
-CIRCLE_SHAPE: Final[BaseCircleShape] = BaseCircleShape(30)       # Стандартный круг с 30 точками.
-RECTANGLE_SHAPE: Final[BaseRectangleShape] = BaseRectangleShape(100, 100) # Стандартный прямоугольник 100x100.
+CIRCLE_SHAPE: Final[CircleShape] = CircleShape(30)       # Стандартный круг с 30 точками.
+RECTANGLE_SHAPE: Final[RectangleShape] = RectangleShape(100, 100) # Стандартный прямоугольник 100x100.
 LINE_SHAPE: Final[LineShape] = LineShape()                       # Стандартная линия с контуром.
 LINE_THIN: Final[LineThin] = LineThin()                         # Стандартная тонкая линия.
 

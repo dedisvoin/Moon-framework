@@ -687,7 +687,7 @@ class Window:
 
         # Настройка фонового прямоугольника и линий для графика FPS
         self.__info_bg_color = Color(200, 200, 220, 100)
-        self.__info_bg = BaseRectangleShape(100, 200)
+        self.__info_bg = RectangleShape(100, 200)
         self.__info_line_color = Color(200, 200, 250, 100)
         self.__info_line = LineThin()
         self.__fps_line_color_red = Color(200, 0, 0, 100)

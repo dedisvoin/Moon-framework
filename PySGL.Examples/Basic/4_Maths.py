@@ -21,7 +21,7 @@ LINE_THIN.set_end_pos(*line_1_points[1])
 vector_position = Vector2f(400, 200)
 vector = Vector2f(0, 300)
 vector_line = LineThin()
-intersection_circle = BaseCircleShape(10)
+intersection_circle = CircleShape(10)
 intersection_circle.set_origin_radius(8)
 intersection_circle.set_color(COLOR_RED)
 
