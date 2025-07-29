@@ -3194,7 +3194,8 @@ class LineShape(BaseLineShape):
         self.__thickness = value
         # Толщина вспомогательной линии (контура) должна быть равна
         # толщине основной линии плюс толщина контура.
-        self.__thickness_shape.set_width(value * 2 + self.get_width())
+        
+        
         return self
     
     def set_outline_color(self, color: Color) -> Self:
@@ -3240,6 +3241,7 @@ class LineShape(BaseLineShape):
         
         # Если углы не скруглены, необходимо скорректировать положение контура,
         # чтобы он равномерно облегал основную линию.
+        self.__thickness_shape.set_width(self.__thickness * 2 + self.get_width())
         if not self._BaseLineShape__rounded_corners:
             # Вычисляем нормализованный вектор линии.
             n = Vector2f.from_two_point(self._BaseLineShape__start_pos, self._BaseLineShape__end_pos)
