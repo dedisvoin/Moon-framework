@@ -34,19 +34,19 @@ def uppend_rect(count):
         rects.append(p)
         
         
-line = BaseLineShape()
-line.set_width(10)
+line = LineShape()
 line.set_rounded()
-line.set_color(COLOR_BLACK)
+line.set_color(COLOR_LIGHT_GRAY)
+
         
 def render():
     for rect in rects:
         
         
         for rect2 in rects:
-            if rect2.id != rect.id and distance(rect.pos, rect2.pos) <= 200:
+            if rect2.id != rect.id and distance(rect.pos, rect2.pos) <= 100:
                 line.set_points(rect.pos, rect2.pos)
-                line.set_width((1 - distance(rect.pos, rect2.pos) / 200) * 10)
+                line.set_width((1 - distance(rect.pos, rect2.pos) / 100) * 10)
                 window.draw(line)
                 break
             
@@ -83,7 +83,7 @@ def update():
 uppend_rect(200)
 while window.update(events):
 
-    window.clear()
+    window.clear(COLOR_DARK_GRAY)
     
     render()
     update()
