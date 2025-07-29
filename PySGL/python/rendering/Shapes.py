@@ -939,8 +939,8 @@ class RectangleShape:
         :Description:
         - Применяет одинаковый масштаб по обеим осям
         - 1.0 - исходный размер
-        - <1.0 - уменьшение
-        - >1.0 - увеличение
+        - меньше 1.0шение
+        - больше величение
         - Поддерживает fluent-интерфейс
         
         ---
@@ -2093,28 +2093,117 @@ class CircleShape:
             LIB_PYSGL._Circle_GetScaleX(self._ptr),
             LIB_PYSGL._Circle_GetScaleY(self._ptr)
         )
+    
+    @overload
+    def set_origin(self, origin: Vector2f) -> Self:
+        """
+        #### Устанавливает точку отсчета через вектор
+        
+        ---
+        
+        :Description:
+        - Принимает готовый 2D-вектор
+        - Удобно для передачи предварительно созданных координат
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - origin (Vector2f): Вектор с координатами {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        circle.set_origin(Vector2f(10, 20))
+        ```
+        """
+        ...
+    
+    @overload
     def set_origin(self, x: float, y: float) -> Self:
         """
-        Устанавливает точку отсчета для преобразований (например, вращения, масштабирования) круга.
-        Точка отсчета определяет, вокруг какой точки происходят эти преобразования.
-        Использует fluent-интерфейс, возвращая `self` для цепочки вызовов методов.
-
-        Args:
-            x: Координата X точки отсчета.
-            y: Координата Y точки отсчета.
-
-        Returns:
-            Self: Экземпляр объекта BaseCircleShape.
+        #### Устанавливает точку отсчета через координаты
+        
+        ---
+        
+        :Description:
+        - Принимает отдельные координаты X и Y
+        - Подходит для прямого указания значений
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - x (float): Координата X точки отсчета
+        - y (float): Координата Y точки отсчета
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        circle.set_origin(10.5, 15.0)
+        ```
         """
+        ...
+    
+    def set_origin(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация установки точки отсчета
+        
+        ---
+        
+        :Note:
+        - Координаты интерпретируются относительно локальной системы
+        - Отрицательные значения допустимы
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверном типе аргументов
+        """
+        if isinstance(arg1, Vector2f):
+            x, y = arg1.x, arg1.y
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            x, y = float(arg1), float(arg2)
+        else:
+            raise TypeError("Invalid argument types for set_origin")
+        
         LIB_PYSGL._Circle_SetOrigin(self._ptr, x, y)
         return self
 
     def get_origin(self) -> Vector2f:
         """
-        Извлекает текущую точку отсчета круга.
-
-        Returns:
-            Vector2f: 2D-вектор, представляющий начало координат круга.
+        #### Возвращает текущую точку отсчета
+        
+        ---
+        
+        :Description:
+        - Возвращает координаты относительно локальной системы
+        - Может отличаться от геометрического центра
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор с координатами {x, y}
+        
+        ---
+        
+        :Example:
+        ```python
+        origin = circle.get_origin()
+        print(f"Точка отсчета: ({origin.x}, {origin.y})")
+        ```
         """
         x = LIB_PYSGL._Circle_GetOriginX(self._ptr)
         y = LIB_PYSGL._Circle_GetOriginY(self._ptr)
