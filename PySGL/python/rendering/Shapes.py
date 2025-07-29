@@ -2355,7 +2355,6 @@ class BaseLineShape:
         else:
             raise TypeError("Invalid argument types for set_points")
         
-        self.__update_geometry()
         return self
 
     def set_rounded(self, round: bool = True) -> Self:
@@ -2392,7 +2391,6 @@ class BaseLineShape:
         ```
         """
         self.__rounded_corners = round
-        self.__update_geometry()
         return self
     
     def get_rounded(self) -> bool:
@@ -2503,8 +2501,7 @@ class BaseLineShape:
             self.__start_pos = [float(arg1), float(arg2)]
         else:
             raise TypeError("Invalid argument types for set_start_point")
-        
-        self.__update_geometry()
+
         return self
 
     @overload
@@ -2591,7 +2588,6 @@ class BaseLineShape:
         else:
             raise TypeError("Invalid argument types for set_end_point")
         
-        self.__update_geometry()
         return self
     
     def set_color(self, color: Color) -> Self:
@@ -2794,7 +2790,7 @@ class LineShape(BaseLineShape):
         """
         super().update() # Обновляем геометрию основной линии.
         
-        self.__thickness_shape.set_round(super().get_round()) # Синхронизируем скругление концов с основной линией.
+        self.__thickness_shape.set_rounded(super().get_rounded()) # Синхронизируем скругление концов с основной линией.
         
         # Если углы не скруглены, необходимо скорректировать положение контура,
         # чтобы он равномерно облегал основную линию.
