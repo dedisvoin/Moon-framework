@@ -6,7 +6,7 @@ from PySGL.python.Rendering.Shapes import *
 
 
 window = Window().set_view_info()
-window.set_wait_fps(60)
+window.set_wait_fps(6000)
 events = WindowEvents()
 window.enable_ghosting()
 
@@ -35,7 +35,6 @@ line.set_width(20)
 
 
 
-line_thin = LineThin()
 
 while window.update(events):
     rect.set_angle(rect.get_angle() + 100 * window.get_render_time())
@@ -45,7 +44,7 @@ while window.update(events):
     window.draw(rect2)
     window.draw(circle)
     window.draw(line)
-    window.draw(line_thin)    
+
 
     window.view_info()
     window.display()

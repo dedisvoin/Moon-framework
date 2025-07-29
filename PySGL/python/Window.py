@@ -689,10 +689,10 @@ class Window:
         self.__info_bg_color = Color(200, 200, 220, 100)
         self.__info_bg = RectangleShape(100, 200)
         self.__info_line_color = Color(200, 200, 250, 100)
-        self.__info_line = LineThin()
+        self.__info_line = LineThinShape()
         self.__fps_line_color_red = Color(200, 0, 0, 100)
         self.__fps_line_color_green = Color(0, 200, 0, 100)
-        self.__fps_line = LinesThin()
+        self.__fps_line = LinesThinShape()
         self.__info_text_fps_color = Color(0, 0, 0, 180)
         self.__info_text_fps = BaseText(self.__info_font)
         
@@ -1617,8 +1617,8 @@ class Window:
         max_fps = max(self.__fps_history) if self.__fps_history else self.__wait_fps
         for i in range(5): # Рисуем 5 горизонтальных линий сетки
             y_pos = graph_y + i * (graph_height / 4)
-            self.__info_line.set_start_pos(graph_x, y_pos)
-            self.__info_line.set_end_pos(graph_x + graph_width, y_pos)
+            self.__info_line.set_start_point(graph_x, y_pos)
+            self.__info_line.set_end_point(graph_x + graph_width, y_pos)
             self.__info_line.set_color(self.__info_line_color)
             self.draw(self.__info_line)
             

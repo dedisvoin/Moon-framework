@@ -4,7 +4,7 @@ from typing import Self, Final, final
 
 from PySGL.python.Types import *
 from PySGL.python.Colors import *
-from PySGL.python.Vectors import Vector2f  
+from PySGL.python.Vectors import Vector2f, Vector2i  
 from PySGL.python.Rendering.Vertexes import VertexArray, Vertex  
 
 
@@ -3455,7 +3455,7 @@ class LineShape(BaseLineShape):
         super().special_draw(window)
 
 @final
-class LineThin:
+class LineThinShape:
     """
     #### Класс для высокопроизводительной отрисовки тонких линий
     
@@ -3514,6 +3514,10 @@ class LineThin:
         self.__vertex_array.set_primitive_type(VertexArray.PrimitiveType.LINE_STRIP)
         self.__vertex_array.append(Vertex(Vector2f(0, 0), COLOR_BLACK))
         self.__vertex_array.append(Vertex(Vector2f(0, 0), COLOR_BLACK))
+
+    def __del__(self) -> None:
+        del self.__vertex_array
+
 
     def get_ptr(self) -> VertexArray:
         """
@@ -3621,7 +3625,7 @@ class LineThin:
 
     @final
     def set_points(self, arg1: Union[Vector2f, float], arg2: Union[Vector2f, float], 
-                  arg3: Optional[float] = None, arg4: Optional[float] = None) -> Self:
+                  arg3: Optional[float | int] = None, arg4: Optional[float | int] = None) -> Self:
         """
         #### Основная реализация установки точек линии
         
@@ -3637,10 +3641,10 @@ class LineThin:
         """
         if isinstance(arg1, Vector2f) and isinstance(arg2, Vector2f):
             self.__vertex_array.set_vertex_position(0, arg1.x, arg1.y)
-            self.__vertex_array.set_vertex_position(0, arg2.x, arg2.y)
+            self.__vertex_array.set_vertex_position(1, arg2.x, arg2.y)
         elif all(isinstance(x, (int, float)) for x in [arg1, arg2, arg3, arg4]):
             self.__vertex_array.set_vertex_position(0, arg1, arg2)
-            self.__vertex_array.set_vertex_position(0, arg3, arg4)
+            self.__vertex_array.set_vertex_position(1, arg3, arg4)
         else:
             raise TypeError("Invalid argument types for set_points")
         
@@ -4078,223 +4082,830 @@ class LineThin:
         if index not in (0, 1):
             raise IndexError("LineThin only has vertices with indices 0 and 1")
         return self.__vertex_array.get_vertex(index)
+    
 
-
-# Глобальные константы для часто используемых фигур.
-# Использование Final гарантирует, что эти переменные не будут переназначены.
-# Это удобно для стандартных, преднастроенных форм, которые можно переиспользовать.
-CIRCLE_SHAPE:    Final[CircleShape]    = CircleShape(30)      
-RECTANGLE_SHAPE: Final[RectangleShape] = RectangleShape(100, 100) 
-BASE_LINE_SHAPE: Final[BaseLineShape]  = BaseLineShape()
-LINE_SHAPE:      Final[LineShape]      = LineShape()                      
-LINE_THIN:       Final[LineThin]       = LineThin()                       
-
-
-# Указатель на объект LinesThin в C++ (это псевдоним, используется для VertexArrayPtr).
+# Указатель на объект LinesThin ===== +
 LinesThinPtr = ctypes.c_void_p
-# 
+# =================================== +
 
-class LinesThin:
+class LinesThinShape:
     """
-    Класс для работы с ломаными, тонкими линиями (полилиниями) на основе вершинных массивов.
-    Позволяет создавать сложные линии, состоящие из множества соединенных сегментов.
+    #### Класс для работы с полилиниями (ломаными линиями)
+    
+    ---
+    
+    :Description:
+    - Оптимизирован для отрисовки сложных ломаных линий
+    - Использует вершинные массивы для высокой производительности
+    - Поддерживает индивидуальные цвета для каждого сегмента
+    - Позволяет динамически изменять геометрию
+    
+    ---
+    
+    :Features:
+    - Произвольное количество точек
+    - Минимальные накладные расходы
+    - Поддержка цветных сегментов
+    - Гибкое управление геометрией
+    
+    ---
+    
+    :Example:
+    ```python
+    polyline = LinesThin()
+    polyline.add_point(Vector2f(0, 0))
+        .add_point(Vector2f(100, 50))
+        .add_point(Vector2f(200, 0))
+        .set_color(COLOR_RED)
+    ```
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
-        Инициализация объекта ломаной линии.
-        """
-        self.__colors: list[Color] = []       # Список объектов Color, по одному для каждой точки.
-        self.__points: list[Vector2f] = []    # Список 2D-векторов Vector2f, представляющих координаты точек.
+        #### Инициализирует пустую полилинию
         
-        # Вершинный массив для отрисовки линии.
+        ---
+        
+        :Description:
+        - Создает вершинный массив типа LINE_STRIP
+        - Инициализирует пустые списки точек и цветов
+        - Готов к постепенному добавлению точек
+        
+        ---
+        
+        :Members:
+        - __vertex_array: VertexArray для хранения вершин
+        - __points: Список точек линии (Vector2f)
+        - __colors: Список цветов точек (Color)
+        
+        ---
+        
+        :Technical:
+        - Примитив LINE_STRIP соединяет точки последовательно
+        - Изначально не содержит вершин
+        - Точки и цвета добавляются отдельными методами
+        """
+        self.__colors: list[Color] = []
+        self.__points: list[Vector2f] = []
         self.__vertex_array = VertexArray()
-        # Устанавливаем тип примитива как LINE_STRIP, что означает,
-        # что точки будут соединяться последовательно, образуя ломаную линию.
         self.__vertex_array.set_primitive_type(VertexArray.PrimitiveType.LINE_STRIP)
-
-    def clear(self) -> "LinesThin":
-        """
-        Очищает ломаную линию, удаляя все точки и их цвета.
-        Это приводит линию в исходное пустое состояние.
-
-        Returns:
-            Self: Возвращает сам объект для цепочки вызовов (fluent interface).
-        """
-        self.__colors.clear()
-        self.__points.clear()
-        self.__vertex_array.clear() # Очищаем базовый вершинный массив C++.
-        return self
-
-    def update_vertex_array(self):
-        """
-        Полностью перестраивает внутренний вершинный массив C++
-        на основе текущих списков точек и цветов, хранящихся в Python.
-        Этот метод эффективен, когда необходимо изменить несколько точек сразу,
-        так как он очищает и заново заполняет весь массив.
-        """
-        self.__vertex_array.clear() # Очищаем текущий вершинный массив.
-        # Пересоздаем вершинный массив из текущих данных Python.
-        for point, point_color in zip(self.__points, self.__colors):
-            self.__vertex_array.append(Vertex(point, point_color))
 
     def __len__(self) -> int:
         """
-        Возвращает количество точек в ломаной линии.
-        Это позволяет использовать функцию `len()` с объектами LinesThin.
-
-        Returns:
-            int: Количество точек, составляющих линию.
+        #### Возвращает количество точек в полилинии
+        
+        ---
+        
+        :Description:
+        - Позволяет использовать стандартную функцию len()
+        - Возвращает текущее количество точек линии
+        - Не изменяет состояние объекта
+        
+        ---
+        
+        :Returns:
+        - int: Количество точек (вершин) в линии
+        
+        ---
+        
+        :Example:
+        ```python
+        points_count = len(polyline)
+        print(f"Линия содержит {points_count} точек")
+        
+        # Проверка на пустую линию
+        if not len(polyline):
+            print("Линия не содержит точек")
+        ```
+        
+        :Note:
+        - Для добавления точек используйте add_point()
+        - Для очистки - метод clear()
         """
         return len(self.__points)
+
+    def clear(self) -> Self:
+        """
+        #### Полностью очищает полилинию
+        
+        ---
+        
+        :Description:
+        - Удаляет все точки и цвета
+        - Возвращает линию в исходное состояние
+        - Очищает как Python-коллекции, так и нативный вершинный массив
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Очистка и повторное использование
+        polyline.clear().add_point(Vector2f(0, 0))
+        
+        # Сброс перед построением новой линии
+        if condition:
+            polyline.clear()
+        ```
+        
+        :Technical:
+        - Очищает три структуры:
+          1. Список точек (__points)
+          2. Список цветов (__colors)
+          3. Нативный вершинный массив
+        """
+        self.__colors.clear()
+        self.__points.clear()
+        self.__vertex_array.clear()
+        return self
+
+    def recreate_vertex_array(self) -> None:
+        """
+        #### Полностью пересоздает вершинный массив
+        
+        ---
+        
+        :Description:
+        - Синхронизирует нативный вершинный массив с Python-данными
+        - Эффективен при массовом изменении геометрии
+        - Гарантирует согласованность данных
+        
+        ---
+        
+        :When to use:
+        - После изменения нескольких точек через прямой доступ к __points
+        - После массового обновления цветов
+        - При ручной модификации внутренних данных
+        
+        ---
+        
+        :Algorithm:
+        1. Полная очистка существующего вершинного массива
+        2. Последовательное добавление всех вершин:
+           - Позиция из __points
+           - Цвет из __colors
+        
+        ---
+        
+        :Example:
+        ```python
+        # Прямое изменение точек (опасно!)
+        polyline._LinesThin__points[1] = Vector2f(50, 50)
+        
+        # Принудительная синхронизация
+        polyline.recreate_vertex_array()
+        ```
+        
+        :Performance:
+        - O(n) сложность, где n - количество точек
+        - Для единичных изменений предпочтительнее update_vertex()
+        
+        :Warning:
+        - Требует строгого соответствия __points и __colors
+        - Не использовать в циклах - вызывает переаллокацию
+        """
+        self.__vertex_array.clear()
+        for point, point_color in zip(self.__points, self.__colors):
+            self.__vertex_array.append(Vertex(point, point_color))
     
-    def remove_last_point(self) -> "LinesThin":
+    def remove_last_point(self) -> Self:
         """
-        Удаляет последнюю точку из ломаной линии.
-        Обновляет внутренние списки Python и перестраивает вершинный массив C++.
-
-        Returns:
-            Self: Возвращает сам объект для цепочки вызовов.
+        #### Удаляет последнюю точку полилинии
+        
+        ---
+        
+        :Description:
+        - Удаляет конечную точку и связанный с ней цвет
+        - Автоматически перестраивает вершинный массив
+        - Поддерживает fluent-интерфейс
+        - Сохраняет целостность данных
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Удаление последней точки
+        polyline.remove_last_point()
+        
+        # В цепочке вызовов
+        polyline.add_point(Vector2f(10, 10))
+            .add_point(Vector2f(20, 20))
+            .remove_last_point()
+        ```
+        
+        :Behavior:
+        - Если линия пуста, не выполняет действий
+        - Уменьшает длину линии на 1 точку
+        - Сохраняет порядок оставшихся точек
+        
+        :Technical:
+        - Использует срезы для удаления последнего элемента
+        - Вызывает recreate_vertex_array() для синхронизации
+        - Не изменяет существующие точки
+        
+        :Raises:
+        - None: Безопасен для пустой линии
         """
-        # Удаляем последний элемент из списков точек и цветов.
-        self.__colors = self.__colors[:-1]
-        self.__points = self.__points[:-1]
-        self.update_vertex_array() # Полностью обновляем вершинный массив.
+        if len(self.__points) > 0:
+            self.__colors = self.__colors[:-1]
+            self.__points = self.__points[:-1]
+            self.recreate_vertex_array()
         return self
 
-    def remove_first_point(self) -> "LinesThin":
+    def remove_first_point(self) -> Self:
         """
-        Удаляет первую точку из ломаной линии.
-        Обновляет внутренние списки Python и перестраивает вершинный массив C++.
-
-        Returns:
-            Self: Возвращает сам объект для цепочки вызовов.
+        #### Удаляет начальную точку полилинии
+        
+        ---
+        
+        :Description:
+        - Удаляет первую точку и связанный с ней цвет
+        - Автоматически перестраивает вершинный массив
+        - Поддерживает fluent-интерфейс
+        - Сохраняет целостность оставшихся данных
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Удаление первой точки
+        polyline.remove_first_point()
+        
+        # В цепочке вызовов
+        polyline.add_point(Vector2f(10, 10))
+            .add_point(Vector2f(20, 20))
+            .remove_first_point()
+        ```
+        
+        :Behavior:
+        - Если линия пуста, не выполняет действий
+        - Уменьшает длину линии на 1 точку
+        - Сдвигает индексы оставшихся точек
+        - Сохраняет порядок следования точек
+        
+        :Performance:
+        - O(n) операция из-за необходимости сдвига элементов
+        - Для частых операций предпочтительнее deque (в будущем возможна переделка)
+        
+        :Technical:
+        - Использует срезы для удаления первого элемента
+        - Вызывает recreate_vertex_array() для синхронизации
+        - Не изменяет относительное положение оставшихся точек
+        
+        :Raises:
+        - None: Безопасен для пустой линии
         """
-        # Удаляем первый элемент из списков точек и цветов.
-        self.__colors = self.__colors[1:]
-        self.__points = self.__points[1:]
-        self.update_vertex_array() # Полностью обновляем вершинный массив.
+        if len(self.__points) > 0:
+            self.__colors = self.__colors[1:]
+            self.__points = self.__points[1:]
+            self.recreate_vertex_array()
         return self
 
-    def append_point_to_end(self, x: float, y: float, color: Color = COLOR_BLACK):
+    @overload
+    def append_point_to_end(self, point: Vector2f, color: Color = COLOR_BLACK) -> Self:
         """
-        Добавляет новую точку в конец ломаной линии.
-        Это наиболее эффективный способ добавления точек, так как он
-        напрямую добавляет вершину в вершинный массив C++ без полной его перестройки.
+        #### Добавляет точку в конец полилинии (векторный вариант)
+        
+        ---
+        
+        :Description:
+        - Оптимальный способ добавления точек
+        - Поддерживает fluent-интерфейс
+        - Добавляет вершину напрямую в вершинный массив
+        
+        ---
+        
+        :Args:
+        - point (Vector2f): Координаты новой точки
+        - color (Color): Цвет точки (по умолчанию BLACK)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        polyline.append_point_to_end(Vector2f(100, 50), COLOR_RED)
+        ```
+        
+        :Performance:
+        - O(1) операция
+        - Не требует перестройки вершинного массива
+        """
+        ...
 
-        Args:
-            x: Координата X новой точки.
-            y: Координата Y новой точки.
-            color: Цвет новой точки (по умолчанию черный).
+    @overload
+    def append_point_to_end(self, x: float, y: float, color: Color = COLOR_BLACK) -> Self:
         """
-        self.__colors.append(color)          # Добавляем цвет в список цветов.
-        self.__points.append(Vector2f(x, y)) # Добавляем точку в список точек.
-        # Оптимизация: добавляем только новую вершину в C++ массив,
-        # вместо полной его перестройки, что быстрее.
-        self.__vertex_array.append(Vertex(Vector2f(x, y), color))
+        #### Добавляет точку в конец полилинии (координатный вариант)
+        
+        ---
+        
+        :Description:
+        - Оптимальный способ добавления точек
+        - Поддерживает fluent-интерфейс
+        - Добавляет вершину напрямую в вершинный массив
+        
+        ---
+        
+        :Args:
+        - x (float): Координата X
+        - y (float): Координата Y
+        - color (Color): Цвет точки (по умолчанию BLACK)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        polyline.append_point_to_end(100.5, 50.2, COLOR_RED)
+        ```
+        
+        :Technical:
+        - Создает новый Vector2f из координат
+        - Добавляет вершину в конец массива
+        """
+        ...
 
-    def append_point_to_begin(self, x: float, y: float, color: Color = COLOR_BLACK) -> "LinesThin":
+    def append_point_to_end(self, arg1: Union[Vector2f, float], arg2: Union[Color, float, None] = None, 
+                          arg3: Optional[Color] = None) -> Self:
         """
-        Добавляет новую точку в начало ломаной линии.
-        Этот метод менее эффективен, чем `append_point_to_end`,
-        так как он требует полной перестройки вершинного массива C++.
+        #### Основная реализация добавления точки в конец
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверных типах аргументов
+        """
+        if isinstance(arg1, (Vector2f, Vector2i)):
+            point, color = arg1, arg2 if arg2 is not None else COLOR_BLACK
+        else:
+            point, color = Vector2f(float(arg1), float(arg2)), arg3 if arg3 is not None else COLOR_BLACK
+        
+        self.__colors.append(color)
+        self.__points.append(point)
+        self.__vertex_array.append(Vertex(point, color))
+        return self
 
-        Args:
-            x: Координата X новой точки.
-            y: Координата Y новой точки.
-            color: Цвет новой точки (по умолчанию черный).
-            
-        Returns:
-            Self: Возвращает сам объект для цепочки вызовов.
+    @overload
+    def append_point_to_begin(self, point: Vector2f, color: Color = COLOR_BLACK) -> Self:
         """
-        self.__colors.insert(0, color)          # Вставляем цвет в начало списка цветов.
-        self.__points.insert(0, Vector2f(x, y)) # Вставляем точку в начало списка точек.
-        # Поскольку точка вставляется в начало, требуется полная перестройка вершинного массива.
-        self.update_vertex_array()
+        #### Добавляет точку в начало полилинии (векторный вариант)
+        
+        ---
+        
+        :Description:
+        - Менее эффективен чем append_point_to_end
+        - Поддерживает fluent-интерфейс
+        - Требует полной перестройки вершинного массива
+        
+        ---
+        
+        :Args:
+        - point (Vector2f): Координаты новой точки
+        - color (Color): Цвет точки (по умолчанию BLACK)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        polyline.append_point_to_begin(Vector2f(0, 0), COLOR_BLUE)
+        ```
+        
+        :Performance:
+        - O(n) операция из-за необходимости перестройки
+        """
+        ...
+
+    @overload
+    def append_point_to_begin(self, x: float, y: float, color: Color = COLOR_BLACK) -> Self:
+        """
+        #### Добавляет точку в начало полилинии (координатный вариант)
+        
+        ---
+        
+        :Description:
+        - Менее эффективен чем append_point_to_end
+        - Поддерживает fluent-интерфейс
+        - Требует полной перестройки вершинного массива
+        
+        ---
+        
+        :Args:
+        - x (float): Координата X
+        - y (float): Координата Y
+        - color (Color): Цвет точки (по умолчанию BLACK)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        polyline.append_point_to_begin(0.0, 0.0, COLOR_BLUE)
+        ```
+        
+        :Technical:
+        - Создает новый Vector2f из координат
+        - Вызывает recreate_vertex_array()
+        """
+        ...
+
+    def append_point_to_begin(self, arg1: Union[Vector2f, float], arg2: Union[Color, float, None] = None, 
+                            arg3: Optional[Color] = None) -> Self:
+        """
+        #### Основная реализация добавления точки в начало
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверных типах аргументов
+        """
+        if isinstance(arg1, (Vector2f, Vector2i)):
+            point, color = arg1, arg2 if arg2 is not None else COLOR_BLACK
+        else:
+            point, color = Vector2f(float(arg1), float(arg2)), arg3 if arg3 is not None else COLOR_BLACK
+        
+        self.__colors.insert(0, color)
+        self.__points.insert(0, point)
+        self.recreate_vertex_array()
         return self
         
-    def set_point_color(self, index: int, color: Color) -> "LinesThin":
+    def set_point_color(self, index: int, color: Color) -> Self:
         """
-        Устанавливает цвет точки по указанному индексу.
-
-        Args:
-            index: Индекс точки, цвет которой нужно изменить.
-            color: Новый объект Color для этой точки.
+        #### Устанавливает цвет конкретной точки полилинии
+        
+        ---
+        
+        :Description:
+        - Изменяет цвет точки по указанному индексу
+        - Обновляет как Python-коллекцию, так и нативный вершинный массив
+        - Поддерживает fluent-интерфейс
+        - Позволяет создавать сложные цветовые переходы
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс точки (0-based)
+        - color (Color): Новый цвет в формате RGBA
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Сделать первую точку красной
+        polyline.set_point_color(0, COLOR_RED)
+        
+        # Градиент от синего к черному
+        for i in range(len(polyline)):
+            polyline.set_point_color(i, Color(0, 0, 255 - i*10, 255))
+        ```
+        
+        :Technical:
+        - Модифицирует список __colors
+        - Вызывает native set_vertex_color()
+        - Изменения применяются мгновенно
+        
+        :Raises:
+        - IndexError: Если индекс вне допустимого диапазона
+        
+        :Note:
+        - Для массового изменения цветов используйте recreate_vertex_array()
+        - Индексация начинается с 0
+        """
+        if not 0 <= index < len(self.__points):
+            raise IndexError(f"Index {index} out of range for line with {len(self.__points)} points")
             
-        Returns:
-            Self: Возвращает сам объект для цепочки вызовов.
-        """
-        self.__colors[index] = color # Обновляем цвет в списке Python.
-        self.__vertex_array.set_vertex_color(index, color) # Обновляем цвет в вершинном массиве C++.
+        self.__colors[index] = color
+        self.__vertex_array.set_vertex_color(index, color)
         return self
 
-    def set_point_position(self, index: int, position: Vector2f) -> "LinesThin":
+    @overload
+    def set_point_position(self, index: int, position: Vector2f) -> Self:
         """
-        Устанавливает новую позицию для точки по указанному индексу.
+        #### Устанавливает новую позицию точки (векторный вариант)
+        
+        ---
+        
+        :Description:
+        - Изменяет координаты существующей точки
+        - Поддерживает fluent-интерфейс
+        - Обновляет данные в реальном времени
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс изменяемой точки (0-based)
+        - position (Vector2f): Новые координаты {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Переместить первую точку в (10, 20)
+        polyline.set_point_position(0, Vector2f(10, 20))
+        ```
+        """
+        ...
 
-        Args:
-            index: Индекс точки, позицию которой нужно изменить.
-            position: Новый 2D-вектор Vector2f, представляющий координаты точки.
-            
-        Returns:
-            Self: Возвращает сам объект для цепочки вызовов.
+    @overload
+    def set_point_position(self, index: int, x: float, y: float) -> Self:
         """
-        self.__points[index] = position # Обновляем позицию в списке Python.
-        self.__vertex_array.set_vertex_position(index, *position.xy) # Обновляем позицию в вершинном массиве C++.
+        #### Устанавливает новую позицию точки (координатный вариант)
+        
+        ---
+        
+        :Description:
+        - Изменяет координаты существующей точки
+        - Поддерживает fluent-интерфейс
+        - Обновляет данные в реальном времени
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс изменяемой точки (0-based)
+        - x (float): Новая координата X
+        - y (float): Новая координата Y
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Переместить вторую точку в (30.5, 40.5)
+        polyline.set_point_position(1, 30.5, 40.5)
+        ```
+        """
+        ...
+
+    def set_point_position(self, index: int, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация изменения позиции точки
+        
+        ---
+        
+        :Description:
+        - Обновляет позицию точки в обеих структурах данных:
+          1. Python-списке __points
+          2. Нативном вершинном массиве
+        
+        ---
+        
+        :Raises:
+        - IndexError: При недопустимом индексе
+        - TypeError: При неверных типах аргументов
+        
+        ---
+        
+        :Technical:
+        - Для Vector2f: использует напрямую
+        - Для координат: создает временный Vector2f
+        - Вызывает native set_vertex_position()
+        """
+        if not 0 <= index < len(self.__points):
+            raise IndexError(f"Index {index} out of range [0, {len(self.__points)-1}]")
+        
+        if isinstance(arg1, Vector2f):
+            position = arg1
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            position = Vector2f(float(arg1), float(arg2))
+        else:
+            raise TypeError("Invalid argument types - expected Vector2f or x,y coordinates")
+        
+        self.__points[index] = position
+        self.__vertex_array.set_vertex_position(index, position.x, position.y)
         return self
 
-    def move_point(self, index: int, vector: Vector2f) -> "LinesThin":
+    def move_point(self, index: int, vector: Vector2f) -> Self:
         """
-        Сдвигает (перемещает) точку по указанному индексу на заданный вектор смещения.
-
-        Args:
-            index: Индекс точки, которую нужно сдвинуть.
-            vector: 2D-вектор Vector2f, представляющий смещение по осям X и Y.
-            
-        Returns:
-            Self: Возвращает сам объект для цепочки вызовов.
+        #### Сдвигает точку на заданный вектор
+        
+        ---
+        
+        :Description:
+        - Перемещает существующую точку на указанное смещение
+        - Сохраняет все свойства точки (цвет и др.)
+        - Поддерживает fluent-интерфейс
+        - Обновляет данные в реальном времени
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс перемещаемой точки (0-based)
+        - vector (Vector2f): Вектор смещения {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Сдвинуть третью точку на (5, -10)
+        polyline.move_point(2, Vector2f(5, -10))
+        
+        # Сдвинуть все точки вправо
+        for i in range(len(polyline)):
+            polyline.move_point(i, Vector2f(10, 0))
+        ```
+        
+        :Raises:
+        - IndexError: Если индекс вне допустимого диапазона
+        - TypeError: Если вектор не является Vector2f
+        
+        :Technical:
+        - Выполняет векторное сложение текущей позиции и смещения
+        - Обновляет обе структуры данных:
+          1. Python-список __points
+          2. Нативный вершинный массив
+        
+        :Note:
+        - Для абсолютного позиционирования используйте set_point_position()
+        - Не изменяет соседние точки
         """
-        self.__points[index] = self.__points[index] + vector # Добавляем вектор смещения к текущей позиции.
-        self.__vertex_array.set_vertex_position(index, *self.__points[index].xy) # Обновляем позицию в C++ массиве.
+        if not 0 <= index < len(self.__points):
+            raise IndexError(f"Index {index} out of range [0, {len(self.__points)-1}]")
+        if not isinstance(vector, Vector2f):
+            raise TypeError("Vector must be of type Vector2f")
+        
+        self.__points[index] += vector
+        self.__vertex_array.set_vertex_position(index, *self.__points[index].xy)
         return self
-
+    
     def get_vertex_array(self) -> VertexArray:
         """
-        Возвращает внутренний объект `VertexArray`, который используется для отрисовки линии.
-        Полезно для прямого взаимодействия с вершинным массивом, если это необходимо.
-
-        Returns:
-            VertexArray: Объект вершинного массива, используемый для отрисовки линии.
+        #### Возвращает вершинный массив для отрисовки
+        
+        ---
+        
+        :Description:
+        - Предоставляет прямой доступ к внутреннему VertexArray
+        - Позволяет кастомизировать отрисовку
+        - Не требует копирования данных
+        
+        ---
+        
+        :Returns:
+        - VertexArray: Объект вершинного массива
+        
+        ---
+        
+        :Example:
+        ```python
+        va = polyline.get_vertex_array()
+        ...
+        ```
+        
+        :Warning:
+        - Прямая модификация может нарушить целостность данных
+        - Изменения не синхронизируются с Python-списками
+        
+        :Note:
+        - Для стандартного использования предпочтительнее методы класса
+        - Основное применение - кастомный рендеринг или кастомная логика
         """
         return self.__vertex_array
     
     def get_ptr(self) -> LinesThinPtr:
         """
-        Возвращает указатель на базовый C++ вершинный массив.
-        Этот метод используется для передачи объекта в низкоуровневые функции отрисовки.
-
-        Returns:
-            LinesThinPtr: Указатель на C++ объект (фактически, указатель на VertexArray).
+        #### Возвращает нативный указатель на вершинный массив
+        
+        ---
+        
+        :Description:
+        - Предоставляет низкоуровневый доступ к C++ объекту
+        - Используется для интеграции с системой рендеринга
+        - Позволяет обойти Python API для оптимизации
+        
+        ---
+        
+        :Returns:
+        - LinesThinPtr: Указатель на нативный VertexArray
+        
+        ---
+        
+        :Example:
+        ```python
+        ptr = polyline.get_ptr()
+        native_renderer.submit(ptr)
+        ```
+        
+        :Warning:
+        - Требует осторожного использования
+        - Может вызвать неопределенное поведение при неправильном применении
+        - Изменения не контролируются Python-объектом
+        
+        :Technical:
+        - Фактически возвращает VertexArray*
+        - Соответствует LinesThinPtr в C++ коде
         """
         return self.__vertex_array.get_ptr()
     
     def __getitem__(self, index: int) -> tuple[Vector2f, Color]:
         """
-        Позволяет получить точку и ее цвет по индексу, используя синтаксис `line[index]`.
-
-        Args:
-            index: Индекс точки, которую нужно получить.
-            
-        Returns:
-            tuple: Кортеж, содержащий 2D-вектор (координаты точки) и объект Color (цвет точки).
-            
-        Raises:
-            IndexError: Если индекс выходит за пределы диапазона доступных точек.
+        #### Получает точку и ее цвет по индексу (оператор [])
+        
+        ---
+        
+        :Description:
+        - Позволяет использовать синтаксис индексирования line[index]
+        - Возвращает позицию и цвет точки
+        - Поддерживает стандартный интерфейс последовательностей Python
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс точки (0-based)
+        
+        ---
+        
+        :Returns:
+        - tuple[Vector2f, Color]: Пара (позиция, цвет)
+        
+        ---
+        
+        :Example:
+        ```python
+        # Получить первую точку
+        pos, color = polyline[0]
+        
+        # Итерация по всем точкам
+        for point_data in polyline:
+            position, color = point_data
+            print(f"Точка {position} имеет цвет {color}")
+        ```
+        
+        :Raises:
+        - IndexError: При выходе за границы списка точек
+        
+        :Technical:
+        - Реализует протокол последовательностей Python
+        - Возвращает view на внутренние данные
+        - Не создает копий объектов
+        
+        :Note:
+        - Для изменения используйте set_point_position()/set_point_color()
+        - Поддерживает отрицательную индексацию (как в списках Python)
         """
+        if not -len(self.__points) <= index < len(self.__points):
+            raise IndexError(f"Line index {index} out of range")
         return (self.__points[index], self.__colors[index])
-    
-# Глобальная константа для стандартного объекта LinesThin.
-# Это позволяет легко использовать одну и ту же ломаную линию в разных местах кода,
-# если она не требует отдельного экземпляра.
-LINES_THIN: Final[LinesThin] = LinesThin()
+
+
+# Глобальные константы для часто используемых фигур.
+# Использование Final гарантирует, что эти переменные не будут переназначены.
+# Это удобно для стандартных, преднастроенных форм, которые можно переиспользовать.
+CIRCLE_SHAPE:           Final[CircleShape]      = CircleShape(30)      
+RECTANGLE_SHAPE:        Final[RectangleShape]   = RectangleShape(100, 100) 
+BASE_LINE_SHAPE:        Final[BaseLineShape]    = BaseLineShape()
+LINE_SHAPE:             Final[LineShape]        = LineShape()                      
+LINE_THIN_SHAPE:        Final[LineThinShape]    = LineThinShape()                       
+LINES_THIN_SHAPE:       Final[LinesThinShape]        = LinesThinShape()
+
 
