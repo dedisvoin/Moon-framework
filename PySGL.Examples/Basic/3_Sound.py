@@ -10,7 +10,7 @@ from PySGL.python.Rendering.Text import *
 window = Window().set_view_info()
 events = WindowEvents()
 window.set_wait_fps(FPS_UNLIMIT_CONST)
-sound = MultiSound(Sound(SoundBuffer("PySGL.Examples\data\mixkit-game-ball-tap-2073.wav")))
+sound = MultiSound(Sound(SoundBuffer("PySGL.Examples\data\mixkit-game-ball-tap-2073.wav")), 70)
 
 class KickObject:
     def __init__(self, volume: int, position, color):

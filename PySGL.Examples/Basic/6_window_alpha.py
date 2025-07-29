@@ -11,7 +11,7 @@ from PySGL.python.Inputs import MouseInterface
 window = Window(style=Window.Style.No).set_view_info()
 events = WindowEvents()
 window.set_wait_fps(60)
-window.set_ghosting().set_ghosting_min_alpha(70)
+window.enable_ghosting().set_ghosting_min_alpha(70)
 while window.update(events):
 
     window.clear()

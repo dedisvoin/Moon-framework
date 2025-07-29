@@ -25,7 +25,7 @@ circle = CircleShape(10).set_origin_radius(60).set_color(COLOR_GREEN).set_outlin
 circle.set_position(300, 200)
 
 
-line = LineShape().set_start_pos(100, 400).set_end_pos(500, 300).set_color(COLOR_BLUE).set_width(10).set_outline_thickness(10).set_outline_color(COLOR_BLACK).set_round()
+line = LineShape().set_start_point(100, 400).set_end_point(500, 300).set_color(COLOR_BLUE).set_width(10).set_outline_thickness(10).set_outline_color(COLOR_BLACK).set_round()
 
 while window.update(events):
     rect.set_angle(rect.get_angle() + 100 * window.get_render_time())

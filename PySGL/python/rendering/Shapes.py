@@ -2212,97 +2212,386 @@ class CircleShape:
 @final
 class BaseLineShape:
     """
-    Базовый класс для работы с толстыми линиями.
-    Он реализует линию как прямоугольник с возможностью добавления скругленных концов (кругов).
+    #### Базовый класс для работы с толстыми линиями
+    
+    ---
+    
+    :Description:
+    - Реализует линию как прямоугольник с опциональными скругленными концами
+    - Поддерживает настройку толщины, цвета и формы концов
+    - Внутренне использует комбинацию RectangleShape и CircleShape
+    
+    ---
+    
+    :Example:
+    ```python
+    line = BaseLineShape(COLOR_RED)
+    line.set_points(0, 0, 100, 100).set_width(5).enable_rounded_corners()
+    ```
     """
 
-    def __init__(self, color: Color = COLOR_GRAY):
+    def __init__(self, color: Color = COLOR_GRAY) -> None:
         """
-        Инициализирует новую линию.
-
-        Args:
-            color: Начальный цвет линии (по умолчанию серый).
+        #### Инициализирует новую линию
+        
+        ---
+        
+        :Description:
+        - Создает линию с параметрами по умолчанию
+        - Начальная и конечная позиции: (0, 0)
+        - Толщина: 1 пиксель
+        - Квадратные концы (без скругления)
+        
+        ---
+        
+        :Args:
+        - color (Color): Начальный цвет линии (по умолчанию COLOR_GRAY)
+        
+        ---
+        
+        :Members:
+        - __rectangle_shape: Внутренний прямоугольник для тела линии
+        - __round_circles: Круги для скругленных концов (если включены)
         """
-        self.__start_pos = [0, 0]   # Начальная позиция линии в виде списка [x, y].
-        self.__end_pos = [0, 0]    # Конечная позиция линии в виде списка [x, y].
-        self.__color = color       # Цвет заливки линии.
-        self.__width = 1           # Толщина линии.
+        self.__start_pos = [0, 0]
+        self.__end_pos = [0, 0]
+        self.__color = color
+        self.__width = 1
 
-        # Внутренний прямоугольник, который фактически отрисовывает тело линии.
         self.__rectangle_shape = RectangleShape(10, 10)
-        self.__rectangle_shape.set_color(COLOR_BLACK) # Начальный цвет прямоугольника.
+        self.__rectangle_shape.set_color(COLOR_BLACK)
+        
+        self.__rounded_corners = False
+        self.__round_circles = CircleShape(15)
+        self.__round_circles.set_color(COLOR_BLACK)
 
-        self.__rounded_corners: bool = False  # Флаг, определяющий, должны ли концы линии быть скругленными.
-
-        # Два внутренних круга для отрисовки скругленных концов линии, если __rounded_corners = True.
-        self.__round_circles = CircleShape(15) # Круги аппроксимируются 15 точками.
-        self.__round_circles.set_color(COLOR_BLACK) # Начальный цвет кругов.
-        self.__round_circles.set_origin(12, 12) # Устанавливаем центр кругов для правильного позиционирования.
-
-    def set_round(self, round: bool = True) -> Self:
+    @overload
+    def set_points(self, start: Vector2f, end: Vector2f) -> Self:
         """
-        Устанавливает, будут ли концы линии скругленными.
+        #### Устанавливает точки линии через векторы
+        
+        ---
+        
+        :Description:
+        - Принимает готовые 2D-векторы для начальной и конечной точек
+        - Автоматически обновляет геометрию линии
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - start (Vector2f): Вектор начальной точки {x, y}
+        - end (Vector2f): Вектор конечной точки {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_points(Vector2f(10, 10), Vector2f(100, 50))
+        ```
+        """
+        ...
 
-        Args:
-            round: Если True, концы линии будут скругленными; иначе - прямыми.
+    @overload
+    def set_points(self, x1: float, y1: float, x2: float, y2: float) -> Self:
+        """
+        #### Устанавливает точки линии через координаты
+        
+        ---
+        
+        :Description:
+        - Принимает отдельные координаты для начальной и конечной точек
+        - Подходит для прямого указания значений
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - x1 (float): Начальная X-координата
+        - y1 (float): Начальная Y-координата
+        - x2 (float): Конечная X-координата
+        - y2 (float): Конечная Y-координата
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_points(0, 0, 150, 75)
+        ```
+        """
+        ...
 
-        Returns:
-            Self: Экземпляр объекта BaseLineShape (для цепочки вызовов).
+    def set_points(self, arg1: Union[Vector2f, float], arg2: Union[Vector2f, float], 
+                  arg3: Optional[float] = None, arg4: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация установки точек линии
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверной комбинации аргументов
+        
+        ---
+        
+        :Note:
+        - Автоматически пересчитывает геометрию при изменении точек
+        """
+        if isinstance(arg1, Vector2f) and isinstance(arg2, Vector2f):
+            self.__start_pos = [arg1.x, arg1.y]
+            self.__end_pos = [arg2.x, arg2.y]
+        elif all(isinstance(x, (int, float)) for x in [arg1, arg2, arg3, arg4]):
+            self.__start_pos = [float(arg1), float(arg2)]
+            self.__end_pos = [float(arg3), float(arg4)]
+        else:
+            raise TypeError("Invalid argument types for set_points")
+        
+        self.__update_geometry()
+        return self
+
+    def set_rounded(self, round: bool = True) -> Self:
+        """
+        #### Устанавливает скругление концов линии
+        
+        ---
+        
+        :Description:
+        - Включает/выключает визуальное скругление концов линии
+        - При активации добавляет полукруги на концах
+        - При деактивации оставляет прямоугольные концы
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - round (bool): Флаг скругления (по умолчанию True)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Включить скругленные концы
+        line.set_rounded()
+        
+        # Выключить скругленные концы
+        line.set_rounded(False)
+        ```
         """
         self.__rounded_corners = round
+        self.__update_geometry()
         return self
     
-    def get_round(self) -> bool:
+    def get_rounded(self) -> bool:
         """
-        Возвращает текущее состояние флага скругления концов линии.
-
-        Returns:
-            bool: True, если концы скруглены, False в противном случае.
+        #### Проверяет статус скругления концов
+        
+        ---
+        
+        :Description:
+        - Возвращает текущее состояние флага скругления
+        - Не изменяет состояние объекта
+        
+        ---
+        
+        :Returns:
+        - bool: True если концы скруглены, False если прямые
+        
+        ---
+        
+        :Example:
+        ```python
+        if line.get_rounded():
+            print("Линия имеет скругленные концы")
+        ```
         """
         return self.__rounded_corners
-    
-    def set_poses(self, x1: float, y1: float, x2: float, y2: float) -> Self:
+
+    @overload
+    def set_start_point(self, point: Vector2f) -> Self:
         """
-        Устанавливает начальную и конечную позиции линии.
-
-        Args:
-            x1: X-координата начальной точки линии.
-            y1: Y-координата начальной точки линии.
-            x2: X-координата конечной точки линии.
-            y2: Y-координата конечной точки линии.
-
-        Returns:
-            Self: Возвращает сам объект для цепочки вызовов (fluent interface).
+        #### Устанавливает начальную точку линии через вектор
+        
+        ---
+        
+        :Description:
+        - Принимает готовый 2D-вектор координат
+        - Автоматически обновляет геометрию линии
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - point (Vector2f): Вектор с координатами {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_start_point(Vector2f(10, 20))
+        ```
         """
-        self.set_start_pos(x1, y1) # Устанавливаем начальную позицию с x1 и y1.
-        self.set_end_pos(x2, y2)   # Устанавливаем конечную позицию с x2 и y2.
+        ...
 
-    def set_start_pos(self, x: float, y: float) -> Self:
+    @overload
+    def set_start_point(self, x: float, y: float) -> Self:
         """
-        Устанавливает начальную позицию линии.
-
-        Args:
-            x: Координата X начальной точки.
-            y: Координата Y начальной точки.
-
-        Returns:
-            Self: Экземпляр объекта BaseLineShape (для цепочки вызовов).
+        #### Устанавливает начальную точку линии через координаты
+        
+        ---
+        
+        :Description:
+        - Принимает отдельные координаты X и Y
+        - Подходит для прямого указания значений
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - x (float): Координата X начальной точки
+        - y (float): Координата Y начальной точки
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_start_point(15.5, 25.0)
+        ```
         """
-        self.__start_pos = [x, y]
+        ...
+
+    def set_start_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация установки начальной точки
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверной комбинации аргументов
+        
+        ---
+        
+        :Note:
+        - Автоматически пересчитывает геометрию линии
+        """
+        if isinstance(arg1, Vector2f):
+            self.__start_pos = [arg1.x, arg1.y]
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            self.__start_pos = [float(arg1), float(arg2)]
+        else:
+            raise TypeError("Invalid argument types for set_start_point")
+        
+        self.__update_geometry()
         return self
-    
-    def set_end_pos(self, x: float, y: float) -> Self:
-        """
-        Устанавливает конечную позицию линии.
 
-        Args:
-            x: Координата X конечной точки.
-            y: Координата Y конечной точки.
-
-        Returns:
-            Self: Экземпляр объекта BaseLineShape (для цепочки вызовов).
+    @overload
+    def set_end_point(self, point: Vector2f) -> Self:
         """
-        self.__end_pos = [x, y]
+        #### Устанавливает конечную точку линии через вектор
+        
+        ---
+        
+        :Description:
+        - Принимает готовый 2D-вектор координат
+        - Автоматически обновляет геометрию линии
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - point (Vector2f): Вектор с координатами {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_end_point(Vector2f(100, 200))
+        ```
+        """
+        ...
+
+    @overload
+    def set_end_point(self, x: float, y: float) -> Self:
+        """
+        #### Устанавливает конечную точку линии через координаты
+        
+        ---
+        
+        :Description:
+        - Принимает отдельные координаты X и Y
+        - Подходит для прямого указания значений
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - x (float): Координата X конечной точки
+        - y (float): Координата Y конечной точки
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_end_point(150.0, 250.5)
+        ```
+        """
+        ...
+
+    def set_end_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация установки конечной точки
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверной комбинации аргументов
+        
+        ---
+        
+        :Note:
+        - Автоматически пересчитывает геометрию линии
+        """
+        if isinstance(arg1, Vector2f):
+            self.__end_pos = [arg1.x, arg1.y]
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            self.__end_pos = [float(arg1), float(arg2)]
+        else:
+            raise TypeError("Invalid argument types for set_end_point")
+        
+        self.__update_geometry()
         return self
     
     def set_color(self, color: Color) -> Self:
@@ -2519,13 +2808,13 @@ class LineShape(BaseLineShape):
             # Смещаем начальную и конечную точки контура для создания эффекта обводки.
             # Половина толщины контура добавляется к начальной точке и вычитается из конечной
             # для создания симметричного контура вокруг основной линии.
-            self.__thickness_shape.set_start_pos(self.get_start_pos()[0] + n.x / 2, self.get_start_pos()[1] + n.y / 2) 
-            self.__thickness_shape.set_end_pos(self.get_end_pos()[0] - n.x / 2, self.get_end_pos()[1] - n.y / 2)
+            self.__thickness_shape.set_start_point(self.get_start_pos()[0] + n.x / 2, self.get_start_pos()[1] + n.y / 2) 
+            self.__thickness_shape.set_end_point(self.get_end_pos()[0] - n.x / 2, self.get_end_pos()[1] - n.y / 2)
         else:
             # Если углы скруглены, контур просто использует те же начальную и конечную точки,
             # но с увеличенной толщиной, чтобы круги контура были больше.
-            self.__thickness_shape.set_start_pos(*self.get_start_pos())
-            self.__thickness_shape.set_end_pos(*self.get_end_pos())
+            self.__thickness_shape.set_start_point(*self.get_start_pos())
+            self.__thickness_shape.set_end_point(*self.get_end_pos())
         
     def special_draw(self, window):
         """
