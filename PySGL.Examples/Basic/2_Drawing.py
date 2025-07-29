@@ -6,6 +6,7 @@ from PySGL.python.Rendering.Shapes import *
 
 
 window = Window().set_view_info()
+window.set_wait_fps(FPS_UNLIMIT_CONST)
 events = WindowEvents()
 window.enable_ghosting()
 

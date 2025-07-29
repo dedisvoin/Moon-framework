@@ -2135,7 +2135,7 @@ class Window:
             # Прозрачность зависит от нахождения курсора в окне
             target_alpha = 255 if MouseInterface.in_window(self) else self.__ghosting_min_value
             # Плавное изменение прозрачности
-            self.__window_alpha += (target_alpha - self.__window_alpha) * self.__ghosting_interpolation
+            self.__window_alpha += (target_alpha - self.__window_alpha) * self.__ghosting_interpolation * self.__render_time * 100
             self.set_alpha(self.__window_alpha)
         
         # =============================================
