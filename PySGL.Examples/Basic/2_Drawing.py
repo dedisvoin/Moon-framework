@@ -33,6 +33,10 @@ line = LineShape().set_start_point(100, 400).set_end_point(500, 300)\
 
 line.set_width(20)
 
+
+
+line_thin = LineThin()
+
 while window.update(events):
     rect.set_angle(rect.get_angle() + 100 * window.get_render_time())
     circle.set_angle(circle.get_angle() - 300 * window.get_render_time())
@@ -41,8 +45,8 @@ while window.update(events):
     window.draw(rect2)
     window.draw(circle)
     window.draw(line)
-    
-    line.move_end_point(Vector2f(1, 1))
+    window.draw(line_thin)    
+
     window.view_info()
     window.display()
 

@@ -2254,6 +2254,7 @@ class BaseLineShape:
     ---
     
     :Description:
+    - Не рекомендуется использовать цвета с alpha каналом (будут артефакты отрисовки)
     - Реализует линию как прямоугольник с опциональными скругленными концами
     - Поддерживает настройку толщины, цвета и формы концов
     - Не поддерживает обводку (Для этого используйте LineShape)
@@ -3159,295 +3160,943 @@ class BaseLineShape:
         self.__end_pos[1] += dy
         return self
 
-@final 
+@final
 class LineShape(BaseLineShape):
     """
-    Класс для работы с линиями, которые могут иметь контур (обводку).
-    Наследует функциональность от `BaseLineShape` и добавляет возможность настройки контура.
+    #### Класс линии с поддержкой контурной обводки
+    
+    ---
+    
+    :Description:
+    - Не рекомендуется использовать цвета с alpha каналом (будут артефакты отрисовки)
+    - Расширяет функциональность BaseLineShape, добавляя контур
+    - Реализует двухслойную отрисовку (основная линия + контур)
+    - Поддерживает все базовые операции с линией плюс настройки обводки
+    
+    ---
+    
+    :Inheritance:
+    - BaseLineShape: Базовая функциональность линии
+    
+    ---
+    
+    :Example:
+    ```python
+    line = LineShape()
+    line.set_points(0, 0, 100, 100)
+        .set_width(5)
+        .set_color(COLOR_RED)
+        .set_outline_thickness(2)
+        .set_outline_color(COLOR_BLUE)
+    ```
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
-        Инициализирует объект `LineShape`.
-        Вызывает конструктор родительского класса и настраивает атрибуты контура.
+        #### Инициализирует линию с поддержкой контура
+        
+        ---
+        
+        :Description:
+        - Наследует базовую функциональность от BaseLineShape
+        - Инициализирует параметры контура по умолчанию:
+          * Толщина: 0 (нет контура)
+          * Цвет: COLOR_BLACK
+        
+        ---
+        
+        :Members:
+        - __thickness_shape: Внутренняя линия для отрисовки контура
         """
         super().__init__()
-
-        self.__thickness = 0                   # Толщина контура (обводки) вокруг основной линии.
-        self.__thickness_color = COLOR_BLACK   # Цвет контура.
-
-        # Дополнительная линия, используемая для отрисовки самого контура.
-        # Она будет толще основной линии и будет отрисовываться под ней.
+        self.__thickness = 0
+        self.__thickness_color = COLOR_BLACK
         self.__thickness_shape = BaseLineShape()
 
     def set_outline_thickness(self, value: float) -> Self:
         """
-        Устанавливает толщину контура (обводки) линии.
-        Положительное значение увеличит контур наружу, отрицательное значение вызовет ошибку.
-
-        Args:
-            value: Желаемая толщина контура.
-
-        Returns:
-            Self: Экземпляр объекта LineShape (для цепочки вызовов).
+        #### Устанавливает толщину контурной обводки
+        
+        ---
+        
+        :Description:
+        - Контур рисуется вокруг основной линии
+        - Положительные значения расширяют линию наружу
+        - Нулевое значение отключает контур
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - value (float): Толщина контура (>=0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Raises:
+        - ValueError: При отрицательном значении толщины
+        
+        ---
+        
+        :Example:
+        ```python
+        # Тонкая обводка
+        line.set_outline_thickness(1.5)
+        
+        # Отключить обводку
+        line.set_outline_thickness(0)
+        ```
         """
-        self.__thickness = value
-        # Толщина вспомогательной линии (контура) должна быть равна
-        # толщине основной линии плюс толщина контура.
-        
-        
+        if value < 0:
+            raise ValueError("Outline thickness cannot be negative")
+        self.__thickness = float(value)
         return self
-    
+
     def set_outline_color(self, color: Color) -> Self:
         """
-        Устанавливает цвет контура (обводки) линии.
-
-        Args:
-            color: Объект Color, определяющий RGBA значения для контура.
-
-        Returns:
-            Self: Экземпляр объекта LineShape (для цепочки вызовов).
+        #### Устанавливает цвет контурной обводки
+        
+        ---
+        
+        :Description:
+        - Применяет цвет к контурной линии
+        - Не влияет на цвет основной линии
+        - Поддерживает прозрачность (альфа-канал)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - color (Color): Цвет в формате RGBA
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Синяя обводка
+        line.set_outline_color(Color(0, 0, 255))
+        
+        # Полупрозрачная черная
+        line.set_outline_color(Color(0, 0, 0, 128))
+        ```
         """
         self.__thickness_color = color
-        self.__thickness_shape.set_color(color) # Устанавливаем цвет вспомогательной линии.
+        self.__thickness_shape.set_color(color)
         return self
-    
+
     def get_outline_thickness(self) -> float:
         """
-        Возвращает текущую толщину контура линии.
-
-        Returns:
-            float: Толщина контура.
+        #### Возвращает текущую толщину контура
+        
+        ---
+        
+        :Description:
+        - Возвращает установленное значение толщины
+        - 0 означает отсутствие контура
+        
+        ---
+        
+        :Returns:
+        - float: Текущая толщина контура (>=0)
+        
+        ---
+        
+        :Example:
+        ```python
+        thickness = line.get_outline_thickness()
+        print(f"Толщина контура: {thickness}px")
+        ```
         """
         return self.__thickness
-    
+
     def get_outline_color(self) -> Color:
         """
-        Возвращает текущий цвет контура линии.
-
-        Returns:
-            Color: Объект Color, представляющий цвет контура.
+        #### Возвращает текущий цвет контура
+        
+        ---
+        
+        :Description:
+        - Возвращает объект Color контурной линии
+        - Не изменяет состояние объекта
+        
+        ---
+        
+        :Returns:
+        - Color: Текущий цвет контура
+        
+        ---
+        
+        :Example:
+        ```python
+        if line.get_outline_color() == COLOR_BLACK:
+            print("Контур черного цвета")
+        ```
         """
         return self.__thickness_color
     
-    def update(self):
+    def update(self) -> None:
         """
-        Обновляет геометрию основной линии и ее контура.
-        Этот метод должен вызываться перед отрисовкой, если параметры линии или контура изменились.
+        #### Обновляет геометрию линии и контура
+        
+        ---
+        
+        :Description:
+        - Синхронизирует параметры основной линии и контура
+        - Автоматически корректирует позиционирование контура
+        - Обрабатывает два режима:
+          1. Для линий со скругленными концами
+          2. Для линий с прямыми концами
+        
+        ---
+        
+        :Algorithm:
+        1. Обновляет базовую геометрию (через super().update())
+        2. Настраивает толщину контурной линии:
+           - Ширина = толщина_контура * 2 + ширина_линии
+        3. Для прямых концов:
+           - Вычисляет вектор смещения
+           - Корректирует позиции контура
+        4. Для скругленных концов:
+           - Использует те же точки, что и основная линия
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_outline_thickness(2)
+        line.update()  # Применяет изменения геометрии
+        ```
+        
+        :Note:
+        - Автоматически вызывается в special_draw()
+        - Для ручного обновления после изменения параметров
         """
-        super().update() # Обновляем геометрию основной линии.
+        super().update()
+        self.__thickness_shape.set_rounded(super().get_rounded())
         
-        self.__thickness_shape.set_rounded(super().get_rounded()) # Синхронизируем скругление концов с основной линией.
-        
-        # Если углы не скруглены, необходимо скорректировать положение контура,
-        # чтобы он равномерно облегал основную линию.
+        # Устанавливаем общую толщину (основная линия + контур с обеих сторон)
         self.__thickness_shape.set_width(self.__thickness * 2 + self.get_width())
+        
         if not self._BaseLineShape__rounded_corners:
-            # Вычисляем нормализованный вектор линии.
-            n = Vector2f.from_two_point(self._BaseLineShape__start_pos, self._BaseLineShape__end_pos)
-            n.normalize()
-            # Умножаем его на половину толщины контура для смещения.
-            n *= self.__thickness * 2
+            n = Vector2f.from_two_point(
+                self._BaseLineShape__start_pos,
+                self._BaseLineShape__end_pos
+            ).normalized() * self.__thickness
             
-            # Смещаем начальную и конечную точки контура для создания эффекта обводки.
-            # Половина толщины контура добавляется к начальной точке и вычитается из конечной
-            # для создания симметричного контура вокруг основной линии.
-            self.__thickness_shape.set_start_point(self.get_start_pos()[0] + n.x / 2, self.get_start_pos()[1] + n.y / 2) 
-            self.__thickness_shape.set_end_point(self.get_end_pos()[0] - n.x / 2, self.get_end_pos()[1] - n.y / 2)
+            self.__thickness_shape.set_start_point(
+                self.get_start_pos()[0] + n.x,
+                self.get_start_pos()[1] + n.y
+            )
+            self.__thickness_shape.set_end_point(
+                self.get_end_pos()[0] - n.x,
+                self.get_end_pos()[1] - n.y
+            )
         else:
-            # Если углы скруглены, контур просто использует те же начальную и конечную точки,
-            # но с увеличенной толщиной, чтобы круги контура были больше.
             self.__thickness_shape.set_start_point(*self.get_start_pos())
             self.__thickness_shape.set_end_point(*self.get_end_pos())
+
+    def special_draw(self, window) -> None:
+        """
+        #### Отрисовывает линию с контуром
         
-    def special_draw(self, window):
+        ---
+        
+        :Description:
+        - Выполняет двухэтапную отрисовку:
+          1. Контур (если толщина > 0)
+          2. Основная линия
+        - Автоматически обновляет геометрию перед отрисовкой
+        
+        ---
+        
+        :Args:
+        - window (RenderWindow): Целевое окно для отрисовки
+        
+        ---
+        
+        :Rendering Process:
+        1. Проверка валидности толщины контура
+        2. Отрисовка контурной линии (если нужно)
+        3. Отрисовка основной линии
+        
+        ---
+        
+        :Raises:
+        - ValueError: При отрицательной толщине контура
+        
+        ---
+        
+        :Example:
+        ```python
+        window = RenderWindow()
+        line = LineShape()
+        # ... настройка линии ...
+        line.special_draw(window)
+        ```
         """
-        Специальный метод для отрисовки линии с контуром.
-        Сначала отрисовывает контур (если он есть), затем основную линию.
-
-        Args:
-            window: Объект окна, который предоставляет метод `draw()` для отрисовки фигур.
-        """
-        self.update() # Обновляем геометрию перед отрисовкой.
-
-        # Отрисовываем контур, только если его толщина больше нуля.
+        self.update()
+        
         if self.__thickness > 0:
             window.draw(self.__thickness_shape)
         elif self.__thickness < 0:
-            # Выбрасываем ошибку, если толщина контура отрицательная, так как это нелогично.
-            raise TypeError(f'Недопустимая толщина ({self.__thickness}). Толщина контура не может быть отрицательной.')
+            raise ValueError(
+                f"Ivalid thickness {self.__thickness}"
+            )
         
-        super().special_draw(window) # Отрисовываем основную линию (вызываем метод родительского класса).
+        super().special_draw(window)
 
-@final 
+@final
 class LineThin:
     """
-    Класс для работы с тонкими линиями.
-    Эти линии отрисовываются напрямую с использованием вершинных массивов, что обеспечивает
-    высокую производительность для простых, однопиксельных или очень тонких линий,
-    без дополнительной геометрии прямоугольников и кругов.
+    #### Класс для высокопроизводительной отрисовки тонких линий
+    
+    ---
+    
+    :Description:
+    - Оптимизирован для отрисовки однопиксельных и тонких линий
+    - Использует вершинные массивы для максимальной производительности
+    - Не создает дополнительных геометрических объектов
+    - Подходит для массовой отрисовки простых линий
+    
+    ---
+    
+    :Features:
+    - Минимальные накладные расходы
+    - Прямая отрисовка через графический API
+    - Поддержка цветных линий
+    
+    ---
+    
+    :Example:
+    ```python
+    grid_lines = [LineThin() for _ in range(100)]
+    # Быстрая отрисовка сетки
+    ```
+    
+    :Note:
+    - Не поддерживает:
+      * Скругленные концы
+      * Толстые линии (>1px)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
-        Инициализирует объект `LineThin`.
-        Создает вершинный массив с двумя начальными вершинами, формирующими линию.
+        #### Инициализирует тонкую линию
+        
+        ---
+        
+        :Description:
+        - Создает вершинный массив типа LINE_STRIP
+        - Инициализирует линию с нулевой длиной
+        - Устанавливает базовый цвет (черный)
+        
+        ---
+        
+        :Members:
+        - __vertex_array: VertexArray для хранения вершин линии
+        
+        ---
+        
+        :Technical:
+        - Примитив LINE_STRIP соединяет вершины последовательно
+        - Изначально содержит 2 идентичные вершины
         """
-        # Вершинный массив для отрисовки линии.
         self.__vertex_array = VertexArray()
-        # Устанавливаем тип примитива как LINE_STRIP, что означает,
-        # что вершины будут соединены последовательно, образуя линию.
         self.__vertex_array.set_primitive_type(VertexArray.PrimitiveType.LINE_STRIP)
-        # Добавляем две начальные вершины (точки) линии.
         self.__vertex_array.append(Vertex(Vector2f(0, 0), COLOR_BLACK))
         self.__vertex_array.append(Vertex(Vector2f(0, 0), COLOR_BLACK))
 
-    def get_ptr(self):
+    def get_ptr(self) -> VertexArray:
         """
-        Возвращает указатель на базовый C++ вершинный массив.
-        Этот метод используется для передачи объекта в низкоуровневые функции отрисовки.
-
-        Returns:
-            Указатель: Указатель на объект вершинного массива в C++.
+        #### Возвращает указатель на нативный вершинный массив
+        
+        ---
+        
+        :Description:
+        - Предоставляет доступ к низкоуровневому C++ объекту
+        - Используется для интеграции с системой отрисовки
+        - Позволяет передать линию в нативные функции рендеринга
+        
+        ---
+        
+        :Returns:
+        - Any: Указатель на C++ объект VertexArray
+        
+        ---
+        
+        :Example:
+        ```python
+        # Использование в низкоуровневом рендеринге
+        native_ptr = thin_line.get_ptr()
+        low_level_draw(native_ptr)
+        ```
+        
+        :Warning:
+        - Требует осторожности при использовании
+        - Не изменяйте объект через указатель в обход Python API
+        - Может привести к неопределенному поведению при неправильном использовании
+        
+        :Note:
+        - Основное применение - для внутренних механизмов движка
+        - В обычном коде предпочтительно использовать стандартные методы
         """
         return self.__vertex_array.get_ptr()
-
-    def set_start_pos(self, x: float, y: float) -> Self:
+    
+    @final
+    @overload
+    def set_points(self, start: Vector2f, end: Vector2f) -> Self:
         """
-        Устанавливает начальную позицию линии.
-
-        Args:
-            x: Координата X начальной точки.
-            y: Координата Y начальной точки.
-
-        Returns:
-            Self: Экземпляр объекта LineThin (для цепочки вызовов).
+        #### Устанавливает точки линии через векторы
+        
+        ---
+        
+        :Description:
+        - Принимает готовые 2D-векторы для начальной и конечной точек
+        - Автоматически обновляет геометрию линии
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - start (Vector2f): Вектор начальной точки {x, y}
+        - end (Vector2f): Вектор конечной точки {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_points(Vector2f(10, 10), Vector2f(100, 50))
+        ```
         """
-        # Обновляем позицию первой вершины в вершинном массиве.
+        ...
+
+    @final
+    @overload
+    def set_points(self, x1: float, y1: float, x2: float, y2: float) -> Self:
+        """
+        #### Устанавливает точки линии через координаты
+        
+        ---
+        
+        :Description:
+        - Принимает отдельные координаты для начальной и конечной точек
+        - Подходит для прямого указания значений
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - x1 (float): Начальная X-координата
+        - y1 (float): Начальная Y-координата
+        - x2 (float): Конечная X-координата
+        - y2 (float): Конечная Y-координата
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_points(0, 0, 150, 75)
+        ```
+        """
+        ...
+
+    @final
+    def set_points(self, arg1: Union[Vector2f, float], arg2: Union[Vector2f, float], 
+                  arg3: Optional[float] = None, arg4: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация установки точек линии
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверной комбинации аргументов
+        
+        ---
+        
+        :Note:
+        - Автоматически пересчитывает геометрию при изменении точек
+        """
+        if isinstance(arg1, Vector2f) and isinstance(arg2, Vector2f):
+            self.__vertex_array.set_vertex_position(0, arg1.x, arg1.y)
+            self.__vertex_array.set_vertex_position(0, arg2.x, arg2.y)
+        elif all(isinstance(x, (int, float)) for x in [arg1, arg2, arg3, arg4]):
+            self.__vertex_array.set_vertex_position(0, arg1, arg2)
+            self.__vertex_array.set_vertex_position(0, arg3, arg4)
+        else:
+            raise TypeError("Invalid argument types for set_points")
+        
+        return self
+
+    @overload
+    def set_start_point(self, point: Vector2f) -> Self:
+        """
+        #### Устанавливает начальную точку линии через вектор
+        
+        ---
+        
+        :Description:
+        - Обновляет позицию первой вершины вершинного массива
+        - Оптимизировано для работы с векторными типами
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - point (Vector2f): Вектор с координатами {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_start_point(Vector2f(10.5, 20.3))
+        ```
+        """
+        ...
+
+    @overload
+    def set_start_point(self, x: float, y: float) -> Self:
+        """
+        #### Устанавливает начальную точку линии через координаты
+        
+        ---
+        
+        :Description:
+        - Обновляет позицию первой вершины вершинного массива
+        - Подходит для прямого указания координат
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - x (float): Координата X начальной точки
+        - y (float): Координата Y начальной точки
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_start_point(10.5, 20.3)
+        ```
+        """
+        ...
+
+    def set_start_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация установки начальной точки
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверных типах аргументов
+        
+        ---
+        
+        :Technical:
+        - Модифицирует вершину с индексом 0 в вершинном массиве
+        - Не вызывает перерасчет геометрии (линия обновляется мгновенно)
+        """
+        if isinstance(arg1, Vector2f):
+            x, y = arg1.x, arg1.y
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            x, y = float(arg1), float(arg2)
+        else:
+            raise TypeError("Invalid argument types for set_start_point")
+        
         self.__vertex_array.set_vertex_position(0, x, y)
         return self
-    
-    def set_end_pos(self, x: float, y: float) -> Self:
-        """
-        Устанавливает конечную позицию линии.
 
-        Args:
-            x: Координата X конечной точки.
-            y: Координата Y конечной точки.
-
-        Returns:
-            Self: Экземпляр объекта LineThin (для цепочки вызовов).
+    @overload
+    def set_end_point(self, point: Vector2f) -> Self:
         """
-        # Обновляем позицию второй вершины в вершинном массиве.
+        #### Устанавливает конечную точку линии через вектор
+        
+        ---
+        
+        :Description:
+        - Обновляет позицию последней вершины вершинного массива
+        - Оптимизировано для работы с векторными типами
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - point (Vector2f): Вектор с координатами {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_end_point(Vector2f(100.0, 150.5))
+        ```
+        """
+        ...
+
+    @overload
+    def set_end_point(self, x: float, y: float) -> Self:
+        """
+        #### Устанавливает конечную точку линии через координаты
+        
+        ---
+        
+        :Description:
+        - Обновляет позицию последней вершины вершинного массива
+        - Подходит для прямого указания координат
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - x (float): Координата X конечной точки
+        - y (float): Координата Y конечной точки
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        line.set_end_point(100.0, 150.5)
+        ```
+        """
+        ...
+
+    def set_end_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
+        """
+        #### Основная реализация установки конечной точки
+        
+        ---
+        
+        :Raises:
+        - TypeError: При неверных типах аргументов
+        
+        ---
+        
+        :Technical:
+        - Модифицирует вершину с индексом 1 в вершинном массиве
+        - Не вызывает перерасчет геометрии (линия обновляется мгновенно)
+        """
+        if isinstance(arg1, Vector2f):
+            x, y = arg1.x, arg1.y
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
+            x, y = float(arg1), float(arg2)
+        else:
+            raise TypeError("Invalid argument types for set_end_point")
+        
         self.__vertex_array.set_vertex_position(1, x, y)
         return self
     
     def set_color(self, color: Color) -> Self:
         """
-        Устанавливает один и тот же цвет для всей линии (обеих вершин).
-
-        Args:
-            color: Объект Color, определяющий RGBA значения для линии.
-
-        Returns:
-            Self: Экземпляр объекта LineThin (для цепочки вызовов).
+        #### Устанавливает цвет для всей линии
+        
+        ---
+        
+        :Description:
+        - Применяет указанный цвет к обоим концам линии
+        - Поддерживает прозрачность (альфа-канал)
+        - Мгновенно обновляет вершинный буфер
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - color (Color): Цвет в формате RGBA
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Установить красный цвет
+        line.set_color(Color(255, 0, 0))
+        
+        # Полупрозрачный синий
+        line.set_color(Color(0, 0, 255, 128))
+        ```
+        
+        :Technical:
+        - Модифицирует цветовые атрибуты вершин 0 и 1
         """
-        # Устанавливаем один и тот же цвет для обеих вершин.
         self.__vertex_array.set_vertex_color(0, color)
         self.__vertex_array.set_vertex_color(1, color)
         return self
     
     def set_start_color(self, color: Color) -> Self:
         """
-        Устанавливает цвет только для начальной точки линии.
-        Это позволяет создавать линии с градиентным переходом цвета.
-
-        Args:
-            color: Объект Color, определяющий RGBA значения для начальной точки.
-
-        Returns:
-            Self: Экземпляр объекта LineThin (для цепочки вызовов).
+        #### Устанавливает цвет начальной точки линии
+        
+        ---
+        
+        :Description:
+        - Задает цвет только для первой вершины линии
+        - Позволяет создавать градиентные переходы цвета
+        - Поддерживает прозрачность (альфа-канал)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - color (Color): Цвет в формате RGBA
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Градиент от красного к синему
+        line.set_start_color(Color(255, 0, 0))
+            .set_end_color(Color(0, 0, 255))
+        ```
+        
+        :Technical:
+        - Модифицирует только вершину с индексом 0
+        - Изменения применяются мгновенно
+        - Не влияет на цвет конечной точки
         """
-        # Устанавливаем цвет для первой вершины.
         self.__vertex_array.set_vertex_color(0, color)
         return self
     
     def set_end_color(self, color: Color) -> Self:
         """
-        Устанавливает цвет только для конечной точки линии.
-        Это позволяет создавать линии с градиентным переходом цвета.
-
-        Args:
-            color: Объект Color, определяющий RGBA значения для конечной точки.
-
-        Returns:
-            Self: Экземпляр объекта LineThin (для цепочки вызовов).
+        #### Устанавливает цвет конечной точки линии
+        
+        ---
+        
+        :Description:
+        - Задает цвет только для последней вершины линии
+        - Позволяет создавать градиентные переходы цвета
+        - Поддерживает прозрачность (альфа-канал)
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - color (Color): Цвет в формате RGBA
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Градиент от желтого к зеленому
+        line.set_start_color(Color(255, 255, 0))
+            .set_end_color(Color(0, 255, 0))
+        ```
+        
+        :Technical:
+        - Модифицирует только вершину с индексом 1
+        - Изменения применяются мгновенно
+        - Не влияет на цвет начальной точки
         """
-        # Устанавливаем цвет для второй вершины.
         self.__vertex_array.set_vertex_color(1, color)
         return self
 
-    def get_start_pos(self) -> tuple[float, float]:
+    def get_start_pos(self) -> Vector2f:
         """
-        Возвращает начальную позицию линии.
-
-        Returns:
-            tuple[float, float]: Кортеж (x, y) начальной точки.
+        #### Возвращает начальную позицию линии
+        
+        ---
+        
+        :Description:
+        - Получает координаты первой вершины линии
+        - Возвращает результат как 2D-вектор
+        - Не изменяет состояние объекта
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор начальной позиции {x, y}
+        
+        ---
+        
+        :Example:
+        ```python
+        start_pos = line.get_start_pos()
+        print(f"Линия начинается в ({start_pos.x}, {start_pos.y})")
+        ```
+        
+        :Technical:
+        - Доступ к вершине с индексом 0
         """
-        # Извлекаем позицию первой вершины из вершинного массива.
-        return self.__vertex_array.get_vertex(0).get_position().xy
+        return self.__vertex_array.get_vertex(0).get_position()
     
-    def get_end_pos(self) -> tuple[float, float]:
+    def get_end_pos(self) -> Vector2f:
         """
-        Возвращает конечную позицию линии.
-
-        Returns:
-            tuple[float, float]: Кортеж (x, y) конечной точки.
+        #### Возвращает конечную позицию линии
+        
+        ---
+        
+        :Description:
+        - Получает координаты последней вершины линии
+        - Возвращает результат как 2D-вектор
+        - Не изменяет состояние объекта
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор конечной позиции {x, y}
+        
+        ---
+        
+        :Example:
+        ```python
+        end_pos = line.get_end_pos()
+        print(f"Линия заканчивается в {end_pos}")
+        ```
+        
+        :Technical:
+        - Доступ к вершине с индексом 1
         """
-        # Извлекаем позицию второй вершины из вершинного массива.
-        return self.__vertex_array.get_vertex(1).get_position().xy
+        return self.__vertex_array.get_vertex(1).get_position()
     
     def get_colors(self) -> tuple[Color, Color]:
         """
-        Возвращает цвета начальной и конечной точек линии.
-
-        Returns:
-            tuple[Color, Color]: Кортеж из двух объектов Color (цвет начальной, цвет конечной).
+        #### Возвращает цвета обеих точек линии
+        
+        ---
+        
+        :Description:
+        - Получает цветовые значения обеих вершин линии
+        - Возвращает кортеж в формате (начальный_цвет, конечный_цвет)
+        - Полезно для анализа градиентных переходов
+        
+        ---
+        
+        :Returns:
+        - tuple[Color, Color]: Пара цветов в формате:
+          1. Цвет начальной точки (индекс 0)
+          2. Цвет конечной точки (индекс 1)
+        
+        ---
+        
+        :Example:
+        ```python
+        start_color, end_color = line.get_colors()
+        if start_color != end_color:
+            print("Линия имеет градиентный переход")
+        ```
+        
+        :Note:
+        - Для изменения цветов используйте:
+          * set_color() - для единого цвета
+          * set_start_color()/set_end_color() - для градиента
         """
         return (
-            self.__vertex_array.get_vertex(0).get_color(), # Цвет первой вершины.
-            self.__vertex_array.get_vertex(1).get_color()  # Цвет второй вершины.
+            self.__vertex_array.get_vertex(0).get_color(),
+            self.__vertex_array.get_vertex(1).get_color()
         )
     
     def get_vertex(self, index: int) -> Vertex:
         """
-        Возвращает объект Vertex по указанному индексу.
-        Полезно для прямого доступа и модификации отдельных вершин.
-
-        Args:
-            index: Индекс вершины (0 для начальной, 1 для конечной).
-
-        Returns:
-            Vertex: Объект Vertex.
+        #### Возвращает вершину линии по индексу
+        
+        ---
+        
+        :Description:
+        - Предоставляет прямой доступ к объектам вершин
+        - Позволяет получать полную информацию о вершине:
+          * Позиция
+          * Цвет
+          * Текстурные координаты (`! еще не реализовано !`)
+        
+        ---
+        
+        :Args:
+        - index (int): Индекс вершины:
+          * 0 - начальная точка
+          * 1 - конечная точка
+        
+        ---
+        
+        :Returns:
+        - Vertex: Объект вершины с геометрическими и цветовыми атрибутами
+        
+        ---
+        
+        :Example:
+        ```python
+        vertex = line.get_vertex(0)
+        print(f"Начальная точка: {vertex.get_position()}, цвет: {vertex.get_color()}")
+        ```
+        
+        :Warning:
+        - Прямая модификация вершины может вызвать неожиданные эффекты
+        - Для изменений предпочтительнее использовать методы класса
+        
+        :Raises:
+        - IndexError: При указании индекса вне диапазона [0, 1]
         """
+        if index not in (0, 1):
+            raise IndexError("LineThin only has vertices with indices 0 and 1")
         return self.__vertex_array.get_vertex(index)
 
 
 # Глобальные константы для часто используемых фигур.
 # Использование Final гарантирует, что эти переменные не будут переназначены.
 # Это удобно для стандартных, преднастроенных форм, которые можно переиспользовать.
-CIRCLE_SHAPE: Final[CircleShape] = CircleShape(30)       # Стандартный круг с 30 точками.
-RECTANGLE_SHAPE: Final[RectangleShape] = RectangleShape(100, 100) # Стандартный прямоугольник 100x100.
-LINE_SHAPE: Final[LineShape] = LineShape()                       # Стандартная линия с контуром.
-LINE_THIN: Final[LineThin] = LineThin()                         # Стандартная тонкая линия.
+CIRCLE_SHAPE:    Final[CircleShape]    = CircleShape(30)      
+RECTANGLE_SHAPE: Final[RectangleShape] = RectangleShape(100, 100) 
+BASE_LINE_SHAPE: Final[BaseLineShape]  = BaseLineShape()
+LINE_SHAPE:      Final[LineShape]      = LineShape()                      
+LINE_THIN:       Final[LineThin]       = LineThin()                       
 
 
 # Указатель на объект LinesThin в C++ (это псевдоним, используется для VertexArrayPtr).
 LinesThinPtr = ctypes.c_void_p
+# 
 
 class LinesThin:
     """
-    Класс для работы с ломаными линиями (полилиниями) на основе вершинных массивов.
+    Класс для работы с ломаными, тонкими линиями (полилиниями) на основе вершинных массивов.
     Позволяет создавать сложные линии, состоящие из множества соединенных сегментов.
     """
 
