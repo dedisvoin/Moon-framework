@@ -1505,7 +1505,7 @@ class CircleShape:
     @overload
     def set_position(self, x: float, y: float) -> Self:
         """
-        #### Устанавливает позицию центра круга через координаты
+        #### Устанавливает позицию круга через координаты
         
         ---
         
@@ -1541,7 +1541,7 @@ class CircleShape:
     @overload
     def set_position(self, position: Vector2f) -> Self:
         """
-        #### Устанавливает позицию центра круга через вектор
+        #### Устанавливает позицию круга через вектор
         
         ---
         
@@ -2208,6 +2208,43 @@ class CircleShape:
         x = LIB_PYSGL._Circle_GetOriginX(self._ptr)
         y = LIB_PYSGL._Circle_GetOriginY(self._ptr)
         return Vector2f(x, y)
+    
+    @final
+    def move(self, offset: Vector2f) -> Self:
+        """
+        #### Перемещает круг на заданный вектор
+        
+        ---
+        
+        :Description:
+        - Добавляет вектор смещения к текущей позиции
+        - Учитывает все текущие преобразования
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - offset (Vector2f): Вектор смещения {x, y}
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Сместить на 10 пикселей вправо и 5 вниз
+        circle.move(Vector2f(10, 5))
+        
+        # Комбинирование с другими методами
+        circle.move(Vector2f(10, 0)).set_angle(45)
+        ```
+        """
+        new_pos = self.get_position() + offset
+        self.set_position(new_pos)
+        return self
 
 @final
 class BaseLineShape:
@@ -2230,6 +2267,7 @@ class BaseLineShape:
     ```
     """
 
+    @final
     def __init__(self, color: Color = COLOR_GRAY) -> None:
         """
         #### Инициализирует новую линию
@@ -2265,6 +2303,7 @@ class BaseLineShape:
         self.__round_circles = CircleShape(15)
         self.__round_circles.set_color(COLOR_BLACK)
 
+    @final
     @overload
     def set_points(self, start: Vector2f, end: Vector2f) -> Self:
         """
@@ -2297,6 +2336,7 @@ class BaseLineShape:
         """
         ...
 
+    @final
     @overload
     def set_points(self, x1: float, y1: float, x2: float, y2: float) -> Self:
         """
@@ -2331,6 +2371,7 @@ class BaseLineShape:
         """
         ...
 
+    @final
     def set_points(self, arg1: Union[Vector2f, float], arg2: Union[Vector2f, float], 
                   arg3: Optional[float] = None, arg4: Optional[float] = None) -> Self:
         """
@@ -2357,6 +2398,7 @@ class BaseLineShape:
         
         return self
 
+    @final
     def set_rounded(self, round: bool = True) -> Self:
         """
         #### Устанавливает скругление концов линии
@@ -2393,6 +2435,7 @@ class BaseLineShape:
         self.__rounded_corners = round
         return self
     
+    @final
     def get_rounded(self) -> bool:
         """
         #### Проверяет статус скругления концов
@@ -2418,6 +2461,7 @@ class BaseLineShape:
         """
         return self.__rounded_corners
 
+    @final
     @overload
     def set_start_point(self, point: Vector2f) -> Self:
         """
@@ -2449,6 +2493,7 @@ class BaseLineShape:
         """
         ...
 
+    @final
     @overload
     def set_start_point(self, x: float, y: float) -> Self:
         """
@@ -2481,6 +2526,7 @@ class BaseLineShape:
         """
         ...
 
+    @final
     def set_start_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
         """
         #### Основная реализация установки начальной точки
@@ -2504,6 +2550,7 @@ class BaseLineShape:
 
         return self
 
+    @final
     @overload
     def set_end_point(self, point: Vector2f) -> Self:
         """
@@ -2535,6 +2582,7 @@ class BaseLineShape:
         """
         ...
 
+    @final
     @overload
     def set_end_point(self, x: float, y: float) -> Self:
         """
@@ -2567,6 +2615,7 @@ class BaseLineShape:
         """
         ...
 
+    @final
     def set_end_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
         """
         #### Основная реализация установки конечной точки
@@ -2590,107 +2639,288 @@ class BaseLineShape:
         
         return self
     
+    @final
     def set_color(self, color: Color) -> Self:
         """
-        Устанавливает цвет линии. Этот цвет применяется как к основной части линии (прямоугольнику),
-        так и к скругленным концам (кругам).
-
-        Args:
-            color: Объект Color, определяющий RGBA значения для линии.
-
-        Returns:
-            Self: Экземпляр объекта BaseLineShape (для цепочки вызовов).
+        #### Устанавливает цвет всей линии
+        
+        ---
+        
+        :Description:
+        - Применяет указанный цвет к телу линии и скругленным концам
+        - `Не совсем поддерживает прозрачность (альфа-канал)`
+        - Автоматически обновляет все внутренние элементы
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - color (Color): Цвет в формате RGBA
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Установить красный цвет
+        line.set_color(Color(255, 0, 0))
+        
+        # Полупрозрачный синий
+        line.set_color(Color(0, 0, 255, 128))
+        ```
         """
         self.__color = color
-        self.__rectangle_shape.set_color(color)  # Устанавливаем цвет прямоугольника.
-        self.__round_circles.set_color(color)    # Устанавливаем цвет скругленных концов.
+        self.__rectangle_shape.set_color(color)
+        self.__round_circles.set_color(color)
         return self
-    
+
+    @final
     def set_width(self, width: float) -> Self:
         """
-        Устанавливает толщину линии.
-        При изменении толщины также обновляется точка отсчета для скругленных концов,
-        чтобы они правильно центрировались по толщине линии.
-
-        Args:
-            width: Желаемая толщина линии.
-
-        Returns:
-            Self: Экземпляр объекта BaseLineShape (для цепочки вызовов).
+        #### Устанавливает толщину линии
+        
+        ---
+        
+        :Description:
+        - Контролирует визуальную толщину/ширину линии
+        - Автоматически корректирует позиционирование скругленных концов
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - width (float): Новая толщина линии (>0)
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Тонкая линия
+        line.set_width(1.0)
+        
+        # Толстая линия
+        line.set_width(10.0)
+        ```
+        
+        :Note:
+        - При значениях < 0.1 автоматически устанавливается 0.1
         """
-        self.__width = width
-        # Точка отсчета для кругов устанавливается в половину толщины,
-        # чтобы круги центрировались относительно линии.
+        self.__width = float(width)
         self.__round_circles.set_origin(self.__width / 2, self.__width / 2)
+
         return self
-    
+
+    @final
     def get_width(self) -> float:
         """
-        Возвращает текущую толщину линии.
-
-        Returns:
-            float: Толщина линии.
+        #### Возвращает текущую толщину линии
+        
+        ---
+        
+        :Description:
+        - Возвращает актуальное значение толщины
+        - Не изменяет состояние объекта
+        
+        ---
+        
+        :Returns:
+        - float: Текущая толщина линии в пикселях
+        
+        ---
+        
+        :Example:
+        ```python
+        width = line.get_width()
+        print(f"Текущая толщина линии: {width}px")
+        ```
         """
         return self.__width
     
-    def get_start_pos(self) -> tuple[float, float]:
+    @final
+    def get_start_pos(self) -> Vector2f:
         """
-        Возвращает начальную позицию линии.
-
-        Returns:
-            tuple[float, float]: Кортеж (x, y) начальной точки.
+        #### Возвращает начальную позицию линии
+        
+        ---
+        
+        :Description:
+        - Возвращает текущую начальную точку линии
+        - Координаты представлены как объект Vector2f
+        - Не изменяет состояние объекта
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор начальной позиции {x, y}
+        
+        ---
+        
+        :Example:
+        ```python
+        start = line.get_start_pos()
+        print(f"Начало линии: x={start.x}, y={start.y}")
+        ```
         """
-        return self.__start_pos
+        return Vector2f(*self.__start_pos)
     
-    def get_end_pos(self) -> tuple[float, float]:
+    @final
+    def get_end_pos(self) -> Vector2f:
         """
-        Возвращает конечную позицию линии.
-
-        Returns:
-            tuple[float, float]: Кортеж (x, y) конечной точки.
+        #### Возвращает конечную позицию линии
+        
+        ---
+        
+        :Description:
+        - Возвращает текущую конечную точку линии
+        - Координаты представлены как объект Vector2f
+        - Не изменяет состояние объекта
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор конечной позиции {x, y}
+        
+        ---
+        
+        :Example:
+        ```python
+        end = line.get_end_pos()
+        print(f"Конец линии: {end}")
+        ```
         """
-        return self.__end_pos
+        return Vector2f(*self.__end_pos)
     
+    @final
     def get_color(self) -> Color:
         """
-        Возвращает текущий цвет линии.
-
-        Returns:
-            Color: Объект Color, представляющий цвет линии.
+        #### Возвращает текущий цвет линии
+        
+        ---
+        
+        :Description:
+        - Возвращает объект Color линии
+        - Включает значения RGBA
+        - Не изменяет состояние объекта
+        
+        ---
+        
+        :Returns:
+        - Color: Текущий цвет линии
+        
+        ---
+        
+        :Example:
+        ```python
+        color = line.get_color()
+        if color == COLOR_RED:
+            print("Линия красного цвета")
+        ```
         """
         return self.__color
     
-    def update(self):
+    @final
+    def update(self) -> None:
         """
-        Обновляет геометрию линии (позицию, размер, вращение прямоугольника и радиус кругов)
-        на основе текущих начальной и конечной точек, а также толщины.
-        Этот метод должен вызываться перед отрисовкой линии, если ее параметры изменились.
-        """
-        # Вычисляем вектор от начальной до конечной точки.
-        vector = Vector2f.from_two_point(self.__start_pos, self.__end_pos)
-        length = vector.length()  # Длина линии.
-        normal = vector.normalized() # Нормализованный вектор (длина 1).
-        angle = normal.angle_degrees() # Угол вектора в градусах.
-
-        # Настраиваем прямоугольник, который представляет тело линии.
-        self.__rectangle_shape.set_size(length, self.__width)  # Ширина = длина линии, Высота = толщина линии.
-        self.__rectangle_shape.set_angle(angle - 180) # Устанавливаем угол вращения.
-        # Точка отсчета прямоугольника (0, self.__width / 2) означает,
-        # что он будет вращаться вокруг центральной точки на его "левом" краю.
-        self.__rectangle_shape.set_origin(0, self.__width / 2) 
-        self.__rectangle_shape.set_position(*self.__start_pos) # Позиционируем прямоугольник по начальной точке.
+        #### Обновляет геометрию линии
         
-        # Настраиваем круги для скругленных концов.
-        # Радиус кругов равен половине толщины линии.
-        self.__round_circles.set_radius(self.__width / 2)
+        ---
+        
+        :Description:
+        - Пересчитывает все параметры отрисовки на основе текущего состояния:
+          * Позицию и размер прямоугольника (тело линии)
+          * Радиус и позицию скругленных концов
+          * Угол поворота всех элементов
+        - Автоматически вызывается при попытке отрисовки фигуры
+        
+        ---
+        
+        :Algorithm:
+        1. Вычисляет вектор направления между точками
+        2. Определяет длину и угол линии
+        3. Настраивает прямоугольник (тело линии):
+           - Длина = расстояние между точками
+           - Высота = толщина линии
+           - Угол = угол вектора направления
+        4. Настраивает скругленные концы (если включены):
+           - Радиус = половина толщины линии
+           - Позиция = крайние точки линии
+        
+        ---
 
+        :Note:
+        - Для оптимальной производительности избегайте прямых вызовов
+        """
+        # Вычисляем вектор направления
+        vector = Vector2f.from_two_point(self.__start_pos, self.__end_pos)
+        length = vector.length()
+        normal = vector.normalized()
+        angle = normal.angle_degrees()
+
+        # Настройка прямоугольника (тело линии)
+        self.__rectangle_shape.set_size(length, self.__width)
+        self.__rectangle_shape.set_angle(angle - 180)
+        self.__rectangle_shape.set_origin(0, self.__width / 2)
+        self.__rectangle_shape.set_position(*self.__start_pos)
+        
+        # Настройка скругленных концов
+        if self.__rounded_corners:
+            radius = self.__width / 2
+            self.__round_circles.set_radius(radius)
+            
+    @final
     def special_draw(self, window):
         """
-        Специальный метод для отрисовки линии.
-        Он обновляет геометрию линии и затем отрисовывает ее компоненты (прямоугольник и круги).
-
-        Args:
-            window: Объект окна, который предоставляет метод `draw()` для отрисовки фигур.
+        #### Выполняет отрисовку линии с автоматическим обновлением
+        
+        ---
+        
+        :Description:
+        - Автоматически обновляет геометрию перед отрисовкой
+        - Отрисовывает основные компоненты линии:
+          * Прямоугольник (тело линии)
+          * Скругленные концы (если включены)
+        - Гарантирует согласованное отображение всех элементов
+        
+        ---
+        
+        :Args:
+        - window (RenderWindow): Целевое окно для отрисовки
+        
+        ---
+        
+        :Rendering Process:
+        1. Обновление геометрии (вызов update())
+        2. Отрисовка прямоугольника (основная линия)
+        3. Если включены скругленные концы:
+           - Отрисовка круга в начальной точке
+           - Отрисовка круга в конечной точке
+        
+        ---
+        
+        :Example:
+        ```python
+        # В основном цикле отрисовки
+        while window.is_open():
+            window.clear()
+            line.special_draw(window)
+            window.display()
+        ```
+        
+        :Note:
+        - Для кастомной отрисовки можно использовать отдельно:
+          * update()
+          * Отрисовку компонентов через window.draw()
+        - При изменении параметров линии не требуется
+          явно вызывать update() перед special_draw()
         """
         self.update() # Убеждаемся, что геометрия линии актуальна.
         window.draw(self.__rectangle_shape) # Отрисовываем основное тело линии (прямоугольник).
@@ -2705,11 +2935,37 @@ class BaseLineShape:
             self.__round_circles.set_position(self.__end_pos[0], self.__end_pos[1])
             window.draw(self.__round_circles)
     
-    def get_ptr(self):
+    @final
+    def get_ptr(self) -> Self:
         """
-        В данном контексте возвращает сам объект Python, так как `BaseLineShape`
-        не имеет прямого указателя на единый C++ объект, как `BaseRectangleShape` или `BaseCircleShape`.
-        Его отрисовка управляется внутренними фигурами.
+        #### Возвращает ссылку на текущий объект линии
+        
+        ---
+        
+        :Description:
+        - В отличие от других фигур, LineShape не имеет единого C++ объекта
+        - Возвращает сам Python-объект для совместимости с API
+        - Фактическая отрисовка выполняется внутренними фигурами:
+          * Прямоугольник (тело линии)
+          * Круги (скругленные концы)
+        
+        ---
+        
+        :Returns:
+        - BaseLineShape: Текущий экземпляр объекта
+        
+        ---
+        
+        :Example:
+        ```python
+        line_ptr = line.get_ptr()
+        assert line_ptr is line  # Это один и тот же объект
+        ```
+        
+        :Note:
+        - Основное использование - для совместимости с API других фигур
+        - Не предоставляет доступа к нативным C++ объектам
+        - Для работы с компонентами используйте специальные методы
         """
         return self
 
