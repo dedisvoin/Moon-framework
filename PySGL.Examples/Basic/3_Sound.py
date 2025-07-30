@@ -38,7 +38,7 @@ KickObjectsPool = []
 
 class Ball:
     def __init__(self):
-        self.__color = Color.random().set_alpha_float(0.7)
+        self.__color = Color.random().set_alpha_float(1)
         self.__position = window.get_center()
         self.__speed = Vector2f(random.randint(-1000, 1000), random.randint(-1000, 1000))
         self.__radius = random.randint(20, 100)

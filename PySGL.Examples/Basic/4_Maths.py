@@ -15,8 +15,8 @@ line_1_points = [
     [300, 300], [700, 400]
 ]
 
-LINE_THIN_SHAPE.set_start_pos(*line_1_points[0])
-LINE_THIN_SHAPE.set_end_pos(*line_1_points[1])
+LINE_THIN_SHAPE.set_start_point(*line_1_points[0])
+LINE_THIN_SHAPE.set_end_point(*line_1_points[1])
 
 vector_position = Vector2f(400, 200)
 vector = Vector2f(0, 300)
@@ -43,8 +43,8 @@ while window.update(events):
         window.draw(intersection_circle)
 
     vector.rotate(math.radians(50 * window.get_render_time()))
-    vector_line.set_start_pos(*vector_position.xy)
-    vector_line.set_end_pos(*(vector_position + vector))
+    vector_line.set_start_point(*vector_position.xy)
+    vector_line.set_end_point(*(vector_position + vector))
     window.draw(vector_line) 
     if pos:=line_intersection(*line_1_points[0], *line_1_points[1], *vector_position.xy, *(vector_position + vector)):
         intersection_circle.set_color(COLOR_RED)

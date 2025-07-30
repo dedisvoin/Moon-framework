@@ -96,6 +96,24 @@ extern "C" __declspec(dllexport) float _Circle_GetOriginY(CirclePtr circle) {
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 
+typedef sf::Clock* ClockPtr;
+
+extern "C" {
+    __declspec(dllexport) ClockPtr createClock() {
+        return new sf::Clock();
+    }
+
+    __declspec(dllexport) void clockRestart(ClockPtr clock) {
+        clock->restart();
+    }
+
+    __declspec(dllexport) double getClockElapsedTime(ClockPtr clock) {
+        return clock->getElapsedTime().asSeconds();
+    }
+}
+#include "SFML/Graphics.hpp"
+#include "SFML/Window.hpp"
+
 // BUILTED_SGL_INPUTS.cpp =========================================================================
 extern "C" {
     __declspec(dllexport) bool IsKeyPressed(int key) {
@@ -966,20 +984,7 @@ extern "C" {
 typedef sf::RenderWindow* WindowPtr;
 typedef sf::Event* EventPtr;
 typedef sf::View* ViewPtr;
-typedef sf::Clock* ClockPtr;
-extern "C" {
-    __declspec(dllexport) ClockPtr createClock() {
-        return new sf::Clock();
-    }
 
-    __declspec(dllexport) void clockRestart(ClockPtr clock) {
-        clock->restart();
-    }
-
-    __declspec(dllexport) double getClockElapsedTime(ClockPtr clock) {
-        return clock->getElapsedTime().asSeconds();
-    }
-}
 
 extern "C" {
     typedef sf::ContextSettings* ContextSettingsPtr;
