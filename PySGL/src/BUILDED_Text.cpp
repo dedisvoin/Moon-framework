@@ -1,6 +1,12 @@
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
+#ifndef SFML_WINDOW_HPP
 #include "SFML/Window.hpp"
+#endif
+#ifndef SFML_SYSTEM_HPP
 #include "SFML/System.hpp"
+#endif
 
 // BUILTED_SGL_TEXT.cpp =========================================================================
 
@@ -77,7 +83,4 @@ extern "C" {
         text->setFont(*font);
     }
 }
-
-
-
 // BUILTED_SGL_TEXT.cpp =========================================================================

@@ -11,7 +11,9 @@
 // - Get current shape parameters
 // ===============================================================================
 
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
 
 typedef sf::RectangleShape* RectanglePtr;
 

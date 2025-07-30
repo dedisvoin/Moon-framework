@@ -104,12 +104,12 @@ def build():
     DLLS_FILES_PATH = properties["DLLS_FILES_PATH"]
 
     print(f"{Fore.BLUE}Building{Fore.RESET}: Generating builded file...")
-    file = open(BUILD_FILES_PATH+"/PySGL.cpp", 'w')
+    file = open(BUILD_FILES_PATH+"/PySGL.cpp", 'w', encoding="utf-8")
     for bf in builded_files:
         
             fp = BUILD_FILES_PATH + "/" + bf
             print(fp)
-            bff = open(fr"{fp}", 'r')
+            bff = open(fr"{fp}", 'r', encoding="utf-8")
             file.write(bff.read())
             bff.close()
         

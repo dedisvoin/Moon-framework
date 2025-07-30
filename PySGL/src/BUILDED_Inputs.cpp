@@ -1,5 +1,9 @@
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
+#ifndef SFML_WINDOW_HPP
 #include "SFML/Window.hpp"
+#endif
 
 // BUILTED_SGL_INPUTS.cpp =========================================================================
 extern "C" {

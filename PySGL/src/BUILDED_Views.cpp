@@ -1,4 +1,6 @@
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
 
 
 extern "C" {
@@ -108,5 +110,4 @@ extern "C" {
     __declspec(dllexport) void _View_Zoom(ViewPtr view, float zoom) {
         view->zoom(zoom);
     }
-
 }

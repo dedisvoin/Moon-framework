@@ -167,6 +167,8 @@ LIB_PYSGL._Window_Draw.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL._Window_Draw.restype = None
 LIB_PYSGL._Window_GetDefaultView.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._Window_GetDefaultView.restype = ctypes.c_void_p
+LIB_PYSGL._Window_SetView.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_PYSGL._Window_SetView.restype = None
 LIB_PYSGL._Window_SetWaitFps.argtypes = [ctypes.c_void_p, ctypes.c_uint]
 LIB_PYSGL._Window_SetWaitFps.restype = None
 LIB_PYSGL._Window_SetTitle.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
@@ -206,35 +208,28 @@ LIB_PYSGL._Window_SetSize.restype = None
 LIB_PYSGL._Window_GetCurrentEventType.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL._Window_GetCurrentEventType.restype = ctypes.c_int
 
-LIB_PYSGL.createEvent.argtypes = []
-LIB_PYSGL.createEvent.restype = ctypes.c_void_p
-LIB_PYSGL.destroyEvent.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.destroyEvent.restype = None
+LIB_PYSGL._Events_Create.argtypes = []
+LIB_PYSGL._Events_Create.restype = ctypes.c_void_p
+LIB_PYSGL._Events_Destroy.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Events_Destroy.restype = None
 
-LIB_PYSGL.getEventType.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getEventType.restype = ctypes.c_int
-LIB_PYSGL.getEventKey.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getEventKey.restype = ctypes.c_int
-LIB_PYSGL.getEventMouseButton.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getEventMouseButton.restype = ctypes.c_int
-LIB_PYSGL.getEventMouseX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getEventMouseX.restype = ctypes.c_int
-LIB_PYSGL.getEventMouseY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getEventMouseY.restype = ctypes.c_int
-LIB_PYSGL.getEventSizeWidth.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getEventSizeWidth.restype = ctypes.c_int
-LIB_PYSGL.getEventSizeHeight.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getEventSizeHeight.restype = ctypes.c_int
-LIB_PYSGL.getEventMouseWheel.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getEventMouseWheel.restype = ctypes.c_int
-LIB_PYSGL.setViewCenter.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL.setViewCenter.restype = None
-LIB_PYSGL.setViewSize.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL.setViewSize.restype = None
-LIB_PYSGL.setView.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL.setView.restype = None
-LIB_PYSGL.zoomView.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL.zoomView.restype = None
+LIB_PYSGL._Events_GetType.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Events_GetType.restype = ctypes.c_int
+LIB_PYSGL._Events_GetKey.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Events_GetKey.restype = ctypes.c_int
+LIB_PYSGL._Events_GetMouseButton.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Events_GetMouseButton.restype = ctypes.c_int
+LIB_PYSGL._Events_GetMouseX.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Events_GetMouseX.restype = ctypes.c_int
+LIB_PYSGL._Events_GetMouseY.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Events_GetMouseY.restype = ctypes.c_int
+LIB_PYSGL._Events_GetSizeWidth.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Events_GetSizeWidth.restype = ctypes.c_int
+LIB_PYSGL._Events_GetSizeHeight.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Events_GetSizeHeight.restype = ctypes.c_int
+LIB_PYSGL._Events_GetMouseWheel.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Events_GetMouseWheel.restype = ctypes.c_int
+
 
   
 @final
@@ -316,7 +311,7 @@ class WindowEvents:
         :Raises:
         - RuntimeError: При ошибке создания нативного объекта
         """
-        self.__event_ptr = LIB_PYSGL.createEvent()
+        self.__event_ptr = LIB_PYSGL._Events_Create()
 
     def __del__(self):
         """
@@ -328,7 +323,7 @@ class WindowEvents:
         - Удаляет нативный объект событий
         - Гарантирует корректное завершение работы
         """
-        LIB_PYSGL.destroyEvent(self.__event_ptr)
+        LIB_PYSGL._Events_Destroy(self.__event_ptr)
 
     def get_ptr(self) -> ctypes.c_void_p:
         """
@@ -387,7 +382,7 @@ class WindowEvents:
             handle_key_press()
         ```
         """
-        return LIB_PYSGL.getEventType(self.__event_ptr)
+        return LIB_PYSGL._Events_GetType(self.__event_ptr)
 
     def get_key(self) -> int:
         """
@@ -403,7 +398,7 @@ class WindowEvents:
         :Note:
         - Только для KeyPressed/KeyReleased событий
         """
-        return LIB_PYSGL.getEventKey(self.__event_ptr)
+        return LIB_PYSGL._Events_GetKey(self.__event_ptr)
 
     def get_mouse_button(self) -> int:
         """
@@ -419,7 +414,7 @@ class WindowEvents:
         :Note:
         - Для MouseButtonPressed/MouseButtonReleased
         """
-        return LIB_PYSGL.getEventMouseButton(self.__event_ptr)
+        return LIB_PYSGL._Events_GetMouseButton(self.__event_ptr)
     
     def get_mouse_wheel(self) -> int:
         """
@@ -435,7 +430,7 @@ class WindowEvents:
         :Note:
         - Для MouseWheelMoved/MouseWheelScrolled
         """
-        return LIB_PYSGL.getEventMouseWheel(self.__event_ptr)
+        return LIB_PYSGL._Events_GetMouseWheel(self.__event_ptr)
 
     def get_mouse_x(self) -> int:
         """
@@ -451,7 +446,7 @@ class WindowEvents:
         :Note:
         - Для событий связанных с положением мыши
         """
-        return LIB_PYSGL.getEventMouseX(self.__event_ptr)
+        return LIB_PYSGL._Events_GetMouseX(self.__event_ptr)
 
     def get_mouse_y(self) -> int:
         """
@@ -467,7 +462,7 @@ class WindowEvents:
         :Note:
         - Для событий связанных с положением мыши
         """
-        return LIB_PYSGL.getEventMouseY(self.__event_ptr)
+        return LIB_PYSGL._Events_GetMouseY(self.__event_ptr)
     
     def get_size_width(self) -> int:
         """
@@ -483,7 +478,7 @@ class WindowEvents:
         :Note:
         - Только для Resized события
         """
-        return LIB_PYSGL.getEventSizeWidth(self.__event_ptr)
+        return LIB_PYSGL._Events_GetSizeWidth(self.__event_ptr)
     
     def get_size_height(self) -> int:
         """
@@ -499,7 +494,7 @@ class WindowEvents:
         :Note:
         - Только для Resized события
         """
-        return LIB_PYSGL.getEventSizeHeight(self.__event_ptr)
+        return LIB_PYSGL._Events_GetSizeHeight(self.__event_ptr)
 
 
 # Тип для хранения указателя на объект окна ===== +
@@ -2263,7 +2258,7 @@ class Window:
         :Returns:
         - Self: Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL.setView(self.__window_ptr, view.get_ptr())
+        LIB_PYSGL._Window_SetView(self.__window_ptr, view.get_ptr())
         return self
         
     @final

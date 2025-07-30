@@ -1,6 +1,12 @@
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
+#ifndef STRING_H
 #include "string"
+#endif
+#ifndef IOSTREAM_H
 #include "iostream"
+#endif
 
 using std::endl, std::cout;
 

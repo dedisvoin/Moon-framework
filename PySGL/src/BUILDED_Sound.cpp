@@ -1,5 +1,9 @@
+#ifndef SFML_AUDIO_HPP
 #include "SFML/Audio.hpp"
+#endif
+#ifndef IOSTREAM_H
 #include <iostream>
+#endif
 
 using std::cout, std::endl;
 extern "C" {

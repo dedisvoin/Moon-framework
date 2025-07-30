@@ -1,4 +1,6 @@
-#include "SFML/Graphics.hpp" 
+#ifndef SFML_GRAPHICS_HPP
+#include "SFML/Graphics.hpp"
+#endif 
 
 extern "C" {
 

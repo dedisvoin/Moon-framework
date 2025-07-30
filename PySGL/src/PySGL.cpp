@@ -11,7 +11,9 @@
 // - Get current shape parameters
 // ===============================================================================
 
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
 
 typedef sf::CircleShape* CirclePtr;
 // Create/delete circle shape
@@ -111,8 +113,12 @@ extern "C" {
         return clock->getElapsedTime().asSeconds();
     }
 }
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
+#ifndef SFML_WINDOW_HPP
 #include "SFML/Window.hpp"
+#endif
 
 // BUILTED_SGL_INPUTS.cpp =========================================================================
 extern "C" {
@@ -158,7 +164,9 @@ extern "C" {
 // - Get current shape parameters
 // ===============================================================================
 
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
 
 typedef sf::RectangleShape* RectanglePtr;
 
@@ -219,9 +227,16 @@ extern "C" {
         delete rectangle;
     }
 }
-// ===============================================================================#include "SFML/Graphics.hpp"
+// ===============================================================================
+#ifndef SFML_GRAPHICS_HPP
+#include "SFML/Graphics.hpp"
+#endif
+#ifndef STRING_H
 #include "string"
+#endif
+#ifndef IOSTREAM_H
 #include "iostream"
+#endif
 
 using std::endl, std::cout;
 
@@ -330,8 +345,12 @@ extern "C" {
         return &sf::Shader::CurrentTexture;
     }
 }
+#ifndef SFML_AUDIO_HPP
 #include "SFML/Audio.hpp"
+#endif
+#ifndef IOSTREAM_H
 #include <iostream>
+#endif
 
 using std::cout, std::endl;
 extern "C" {
@@ -456,9 +475,15 @@ extern "C" {
         music->setAttenuation(attenuation);
     }
 }
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
+#ifndef SFML_WINDOW_HPP
 #include "SFML/Window.hpp"
+#endif
+#ifndef SFML_SYSTEM_HPP
 #include "SFML/System.hpp"
+#endif
 
 // BUILTED_SGL_TEXT.cpp =========================================================================
 
@@ -535,10 +560,10 @@ extern "C" {
         text->setFont(*font);
     }
 }
-
-
-
-// BUILTED_SGL_TEXT.cpp =========================================================================#include "SFML/Graphics.hpp"
+// BUILTED_SGL_TEXT.cpp =========================================================================
+#ifndef SFML_GRAPHICS_HPP
+#include "SFML/Graphics.hpp"
+#endif
 
 extern "C" {
 
@@ -776,7 +801,9 @@ extern "C" {
         return sprite->getScale().y;
     }
 }
-#include "SFML/Graphics.hpp" 
+#ifndef SFML_GRAPHICS_HPP
+#include "SFML/Graphics.hpp"
+#endif 
 
 extern "C" {
 
@@ -865,7 +892,9 @@ extern "C" {
         return static_cast<int>(vertexArray->getPrimitiveType());
     }
 }
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
 
 
 extern "C" {
@@ -975,236 +1004,402 @@ extern "C" {
     __declspec(dllexport) void _View_Zoom(ViewPtr view, float zoom) {
         view->zoom(zoom);
     }
+}
+// ================================================================================
+//                           BUILDED_SGL_WINDOW.cpp
+//                    Биндинги для работы с окнами в PySGL
+// ================================================================================
+//
+// Этот файл содержит C++ функции для работы с окнами SFML,
+// которые экспортируются в Python через ctypes.
+//
+// Основные компоненты:
+// - Управление окнами (создание, настройка, отрисовка)
+// - Обработка событий (клавиатура, мышь, изменение размера)
+// - Работа с видами (View) и координатными системами
+// - Настройки контекста OpenGL
+// - Утилиты для работы со временем
+//
+// ================================================================================
 
-}// BUILTED_SGL_WINDOW.cpp =========================================================================
-
+#ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
+#endif
+#ifndef SFML_WINDOW_HPP
 #include "SFML/Window.hpp"
+#endif
 
-typedef sf::RenderWindow* WindowPtr;
-typedef sf::Event* EventPtr;
-typedef sf::View* ViewPtr;
+// ================================================================================
+//                              ОПРЕДЕЛЕНИЯ ТИПОВ
+// ================================================================================
 
+typedef sf::RenderWindow* WindowPtr;        // Указатель на окно рендеринга
+typedef sf::Event* EventPtr;                // Указатель на событие
+typedef sf::View* ViewPtr;                  // Указатель на вид (камеру)
+
+
+// ================================================================================
+//                        НАСТРОЙКИ КОНТЕКСТА OPENGL
+// ================================================================================
+// Функции для управления настройками OpenGL контекста:
+// - Антиалиасинг (сглаживание)
+// - Буферы глубины и трафарета
+// - Версия OpenGL
+// - sRGB поддержка
+// ================================================================================
 
 extern "C" {
     typedef sf::ContextSettings* ContextSettingsPtr;
 
+    // Создание нового объекта настроек контекста
     __declspec(dllexport) ContextSettingsPtr _WindowContextSettings_Create() {
         return new sf::ContextSettings();
     }
 
+    // Установка флагов атрибутов контекста
     __declspec(dllexport) void _WindowContextSettings_SetAttributeFlags(ContextSettingsPtr contextSettings, int flags) {
         contextSettings->attributeFlags = flags;
     }
 
+    // Установка уровня антиалиасинга (0, 2, 4, 8, 16)
     __declspec(dllexport) void _WindowContextSettings_SetAntialiasingLevel(ContextSettingsPtr contextSettings, int level) {
         contextSettings->antialiasingLevel = level;
     }
 
+    // Установка количества бит для буфера глубины
     __declspec(dllexport) void _WindowContextSettings_SetDepthBits(ContextSettingsPtr contextSettings, int bits) {
         contextSettings->depthBits = bits;
     }
 
+    // Установка основной версии OpenGL
     __declspec(dllexport) void _WindowContextSettings_SetMajorVersion(ContextSettingsPtr contextSettings, int version) {
         contextSettings->majorVersion = version;
     }
 
+    // Установка дополнительной версии OpenGL
     __declspec(dllexport) void _WindowContextSettings_SetMinorVersion(ContextSettingsPtr contextSettings, int version) {
         contextSettings->minorVersion = version;
     }
 
+    // Установка количества бит для буфера трафарета
     __declspec(dllexport) void _WindowContextSettings_SetStencilBits(ContextSettingsPtr contextSettings, int bits) {
         contextSettings->stencilBits = bits;
     }
 
+    // Включение/выключение поддержки sRGB цветового пространства
     __declspec(dllexport) void _WindowContextSettings_SetSrgbCapable(ContextSettingsPtr contextSettings, bool capable) {
         contextSettings->sRgbCapable = capable;
     }
 
+    // Удаление объекта настроек контекста
     __declspec(dllexport) void _WindowContextSettings_Delete(ContextSettingsPtr contextSettings) {
         delete contextSettings;
     }
 }
 
+// ================================================================================
+//                           УПРАВЛЕНИЕ ОКНОМ
+// ================================================================================
+// Основные функции для работы с окнами:
+// - Создание и удаление окон
+// - Настройка свойств (заголовок, размер, позиция)
+// - Отрисовка и очистка
+// - Проверка состояния
+// ================================================================================
 
 extern "C" {
+    // Создание нового окна с указанными параметрами
     __declspec(dllexport) WindowPtr _Window_Create(const int width, const int height, 
         const char* title, int style, ContextSettingsPtr settings) {
         return new sf::RenderWindow(sf::VideoMode(width, height), title, style, *settings);
     }
 
+    // Закрытие окна (окно становится недоступным для взаимодействия)
     __declspec(dllexport) void _Window_Close(WindowPtr window) {
         window->close();
     }
 
+    // Управление видимостью курсора мыши
     __declspec(dllexport) void _Window_SetCursorVisibility(WindowPtr window, bool value) {
         window->setMouseCursorVisible(value);
     }
 
+    // Установка заголовка окна
     __declspec(dllexport) void _Window_SetTitle(WindowPtr window, const char* title) {
         window->setTitle(title);
     }
 
+    // Включение/выключение вертикальной синхронизации
     __declspec(dllexport) void _Window_SetVsync(WindowPtr window, bool enable) {
         window->setVerticalSyncEnabled(enable);
     }
 
-    __declspec(dllexport) void _Window_Delete(WindowPtr window) {
-        window->close();
-        delete window;
-    }
-
-    // Methods to get the size of the window ===============================
-    __declspec(dllexport) int _Window_GetSizeWidth(WindowPtr window) {     //|
-        return window->getSize().x;                                      //|
-    }                                                                    //|
-                                                                         //|
-    __declspec(dllexport) int _Window_GetSizeHeight(WindowPtr window) {    //|
-        return window->getSize().y;                                      //|
-    }                                                                    //|
-    // Methods to get the size of the window ===============================
-
-
-
-    // Methods to get the position of the window ===========================
-    __declspec(dllexport) int _Window_GetPositionX(WindowPtr window) {     //|
-        return window->getPosition().x;                                  //|
-    }                                                                    //|
-                                                                         //|      
-    __declspec(dllexport) int _Window_GetPositionY(WindowPtr window) {     //|
-        return window->getPosition().y;                                  //|
-    }                                                                    //|
-    // Methods to get the position of the window ===========================
-
-
-    __declspec(dllexport) void _Window_SetPosition(WindowPtr window, int x, int y) {
-        window->setPosition(sf::Vector2i(x, y));
-    }
-
-    __declspec(dllexport) void _Window_SetSize(WindowPtr window, int width, int height) {
-        window->setSize(sf::Vector2u(width, height));
-    }
-
-    __declspec(dllexport) float _Window_MapPixelToCoordsX(WindowPtr window, double x, double y, ViewPtr view) {
-        return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).x;
-    }
-
-    __declspec(dllexport) float _Window_MapPixelToCoordsY(WindowPtr window, double x, double y, ViewPtr view) {
-        return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).y;
-    }
-
-    __declspec(dllexport) float _Window_MapCoordsToPixelX(WindowPtr window, double x, double y, ViewPtr view) {
-        return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).x;
-    }
-
-    __declspec(dllexport) float _Window_MapCoordsToPixelY(WindowPtr window, double x, double y, ViewPtr view) {
-        return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).y;
-    }
-
-    __declspec(dllexport) void _Window_Clear(WindowPtr window, int r, int g, int b, int a) {
-        window->clear(sf::Color(r, g, b, a));
-    }
-
-    __declspec(dllexport) void _Window_Display(WindowPtr window) {
-        window->display();
-    }
-
+    // Установка системного курсора для окна
     __declspec(dllexport) void _Window_SetSystemCursor(WindowPtr window, sf::Cursor::Type cursor) {
         sf::Cursor c = sf::Cursor();
         c.loadFromSystem(cursor);
         window->setMouseCursor(c);
     }
 
+    // Проверка, открыто ли окно и доступно ли для взаимодействия
     __declspec(dllexport) bool _Window_IsOpen(WindowPtr window) {
         return window->isOpen();
     }
 
+    // Полное удаление окна и освобождение памяти
+    __declspec(dllexport) void _Window_Delete(WindowPtr window) {
+        window->close();
+        delete window;
+    }
+
+    // ================================================================================
+    //                    ПОЛУЧЕНИЕ РАЗМЕРА ОКНА
+    // ================================================================================
+    
+    // Получение ширины окна в пикселях
+    __declspec(dllexport) int _Window_GetSizeWidth(WindowPtr window) {
+        return window->getSize().x;
+    }
+    
+    // Получение высоты окна в пикселях
+    __declspec(dllexport) int _Window_GetSizeHeight(WindowPtr window) {
+        return window->getSize().y;
+    }
+
+    // ================================================================================
+    //                    ПОЛУЧЕНИЕ ПОЗИЦИИ ОКНА
+    // ================================================================================
+    
+    // Получение X-координаты окна на экране
+    __declspec(dllexport) int _Window_GetPositionX(WindowPtr window) {
+        return window->getPosition().x;
+    }
+    
+    // Получение Y-координаты окна на экране
+    __declspec(dllexport) int _Window_GetPositionY(WindowPtr window) {
+        return window->getPosition().y;
+    }
+
+    // ================================================================================
+    //              УСТАНОВКА ПОЗИЦИИ И РАЗМЕРА ОКНА
+    // ================================================================================
+    
+    // Установка позиции окна на экране
+    __declspec(dllexport) void _Window_SetPosition(WindowPtr window, int x, int y) {
+        window->setPosition(sf::Vector2i(x, y));
+    }
+
+    // Установка размера окна
+    __declspec(dllexport) void _Window_SetSize(WindowPtr window, int width, int height) {
+        window->setSize(sf::Vector2u(width, height));
+    }
+
+    // ================================================================================
+    //                  ПРЕОБРАЗОВАНИЕ КООРДИНАТ
+    // ================================================================================
+    // Преобразование между экранными пикселями и мировыми координатами
+    
+    // Преобразование пикселей в мировые координаты (X)
+    __declspec(dllexport) float _Window_MapPixelToCoordsX(WindowPtr window, double x, double y, ViewPtr view) {
+        return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).x;
+    }
+
+    // Преобразование пикселей в мировые координаты (Y)
+    __declspec(dllexport) float _Window_MapPixelToCoordsY(WindowPtr window, double x, double y, ViewPtr view) {
+        return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).y;
+    }
+
+    // Преобразование мировых координат в пиксели (X)
+    __declspec(dllexport) float _Window_MapCoordsToPixelX(WindowPtr window, double x, double y, ViewPtr view) {
+        return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).x;
+    }
+
+    // Преобразование мировых координат в пиксели (Y)
+    __declspec(dllexport) float _Window_MapCoordsToPixelY(WindowPtr window, double x, double y, ViewPtr view) {
+        return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).y;
+    }
+
+    // ================================================================================
+    //                            РЕНДЕРИНГ
+    // ================================================================================
+    // Основные функции для отрисовки графики
+    
+    // Очистка окна указанным цветом
+    __declspec(dllexport) void _Window_Clear(WindowPtr window, int r, int g, int b, int a) {
+        window->clear(sf::Color(r, g, b, a));
+    }
+
+    // Отображение всех нарисованных объектов на экране
+    __declspec(dllexport) void _Window_Display(WindowPtr window) {
+        window->display();
+    }
+
+    // Отрисовка объекта с настройками по умолчанию
     __declspec(dllexport) void _Window_Draw(WindowPtr window, sf::Drawable* drawable) {
         window->draw(*drawable);
     }
 
+    // Отрисовка объекта с пользовательскими настройками рендеринга
     __declspec(dllexport) void _Window_DrawWithRenderStates(WindowPtr window, sf::RenderStates* render_states, sf::Drawable* drawable)  {
         window->draw(*drawable, *render_states);
     }
 
+    // Отрисовка объекта с применением шейдера
     __declspec(dllexport) void _Window_DrawWithShader(WindowPtr window, sf::Shader* shader, sf::Drawable* drawable) {
         window->draw(*drawable, shader);
     }
 
+    // ================================================================================
+    //                      УПРАВЛЕНИЕ ВИДОМ (VIEW/КАМЕРОЙ)
+    // ================================================================================
+    // Функции для управления камерой и областью просмотра
+    
+    // Применение вида к окну (установка активной камеры)
+    __declspec(dllexport) void _Window_SetView(WindowPtr window, ViewPtr view) {
+        window->setView(*view);
+    }
+
+    // Получение стандартного вида (камеры) окна
     __declspec(dllexport) ViewPtr _Window_GetDefaultView(WindowPtr window) {
         return new sf::View(window->getDefaultView());
     }
 
+    // ================================================================================
+    //                      НАСТРОЙКИ ПРОИЗВОДИТЕЛЬНОСТИ
+    // ================================================================================
+    
+    // Установка ограничения кадров в секунду (FPS)
     __declspec(dllexport) void _Window_SetWaitFps(WindowPtr window, unsigned int fps) {
         window->setFramerateLimit(fps);
     }
 
+    // ================================================================================
+    //                        ОБРАБОТКА СОБЫТИЙ
+    // ================================================================================
+    // Функции для работы с событиями окна (клавиатура, мышь, изменение размера)
+    
+    // Получение следующего события из очереди
     __declspec(dllexport) int _Window_GetCurrentEventType(WindowPtr window, sf::Event* event) {
         if (window->pollEvent(*event)) {
             return event->type;
         }
-        return -1;
+        return -1;  // Нет событий в очереди
     }
 
-    __declspec(dllexport) int getEventType(sf::Event* event) {
-        return event->type;
-    }
+}
 
-    __declspec(dllexport) int getEventKey(sf::Event* event) {
-        return event->key.code;
-    }
+// ================================================================================
+//                              КОНЕЦ ФАЙЛА
+// ================================================================================
+// Все функции для работы с окнами PySGL определены.
+// Они предоставляют полный интерфейс для создания и управления
+// графическими окнами в Python приложениях.
+// ================================================================================
+// ================================================================================
+//                         BUILDED_WINDOWEVENTS.cpp
+//                    Биндинги для работы с событиями окон в PySGL
+// ================================================================================
+//
+// Этот файл содержит C++ функции для работы с событиями SFML,
+// которые экспортируются в Python через ctypes.
+//
+// Основные компоненты:
+// - Создание и управление объектами событий
+// - Получение информации о событиях клавиатуры
+// - Обработка событий мыши (кнопки, координаты, колесо)
+// - События изменения размера окна
+// - Типизация и классификация событий
+//
+// ================================================================================
 
-    __declspec(dllexport) sf::Event* createEvent() {
+#ifndef SFML_GRAPHICS_HPP
+#include "SFML/Graphics.hpp"
+#endif
+#ifndef SFML_WINDOW_HPP
+#include "SFML/Window.hpp"
+#endif
+
+// ================================================================================
+//                        УПРАВЛЕНИЕ ОБЪЕКТАМИ СОБЫТИЙ
+// ================================================================================
+// Функции для создания, удаления и базовой работы с событиями:
+// - Создание новых объектов событий
+// - Освобождение памяти
+// - Получение типа события
+// ================================================================================
+
+extern "C" {
+    // Создание нового объекта события для хранения данных
+    __declspec(dllexport) sf::Event* _Events_Create() {
         return new sf::Event();
     }
 
-    __declspec(dllexport) void destroyEvent(sf::Event* event) {
+    // Удаление объекта события и освобождение памяти
+    __declspec(dllexport) void _Events_Destroy(sf::Event* event) {
         delete event;
     }
 
-    __declspec(dllexport) int getEventMouseButton(sf::Event* event) {
+    // Получение типа текущего события (Closed, KeyPressed, MouseMoved и т.д.)
+    __declspec(dllexport) int _Events_GetType(sf::Event* event) {
+        return event->type;
+    }
+
+    // ================================================================================
+    //                          СОБЫТИЯ КЛАВИАТУРЫ
+    // ================================================================================
+    // Функции для обработки событий клавиатуры
+    
+    // Получение кода нажатой/отпущенной клавиши
+    __declspec(dllexport) int _Events_GetKey(sf::Event* event) {
+        return event->key.code;
+    }
+
+    // ================================================================================
+    //                            СОБЫТИЯ МЫШИ
+    // ================================================================================
+    // Функции для обработки всех типов событий мыши
+    
+    // Получение кода нажатой кнопки мыши (0-левая, 1-правая, 2-средняя)
+    __declspec(dllexport) int _Events_GetMouseButton(sf::Event* event) {
         return event->mouseButton.button;
     }
 
-    __declspec(dllexport) int getEventMouseX(sf::Event* event) {
+    // Получение X-координаты курсора мыши в момент события
+    __declspec(dllexport) int _Events_GetMouseX(sf::Event* event) {
         return event->mouseButton.x;
     }
 
-    __declspec(dllexport) int getEventMouseY(sf::Event* event) {
+    // Получение Y-координаты курсора мыши в момент события
+    __declspec(dllexport) int _Events_GetMouseY(sf::Event* event) {
         return event->mouseButton.y;
     }
 
-
-    __declspec(dllexport) int getEventSizeWidth(sf::Event* event) {
-        return event->size.width;
-    }
-
-    __declspec(dllexport) int getEventSizeHeight(sf::Event* event) {
-        return event->size.height;
-    }
-
-    __declspec(dllexport) int getEventMouseWheel(sf::Event* event) {
+    // Получение значения прокрутки колеса мыши (положительное - вверх, отрицательное - вниз)
+    __declspec(dllexport) int _Events_GetMouseWheel(sf::Event* event) {
         return event->mouseWheel.delta;
     }
 
-    __declspec(dllexport) void setViewCenter(ViewPtr view, float x, float y) {
-        view->setCenter(x, y);
+    // ================================================================================
+    //                      СОБЫТИЯ ИЗМЕНЕНИЯ РАЗМЕРА ОКНА
+    // ================================================================================
+    // Функции для получения новых размеров окна при событии Resized
+    
+    // Получение новой ширины окна после изменения размера (в пикселях)
+    __declspec(dllexport) int _Events_GetSizeWidth(sf::Event* event) {
+        return event->size.width;
     }
 
-    __declspec(dllexport) void setViewSize(ViewPtr view, float width, float height) {
-        view->setSize(width, height);
-    }   
-
-    __declspec(dllexport) void setView(WindowPtr window, ViewPtr view) {
-        window->setView(*view);
+    // Получение новой высоты окна после изменения размера (в пикселях)
+    __declspec(dllexport) int _Events_GetSizeHeight(sf::Event* event) {
+        return event->size.height;
     }
 
 }
 
-
-extern "C" {
-    __declspec(dllexport) void zoomView(ViewPtr view, float zoom) {
-        return view->zoom(zoom);
-    }
-}
-// BUILTED_SGL_WINDOW.cpp =========================================================================
+// ================================================================================
+//                              КОНЕЦ ФАЙЛА
+// ================================================================================
+// Все функции для работы с событиями PySGL определены.
+// Они предоставляют полный интерфейс для обработки пользовательского ввода
+// и системных событий в Python приложениях.
+// ================================================================================
