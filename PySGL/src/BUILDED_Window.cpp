@@ -21,88 +21,160 @@ extern "C" {
     }
 }
 
-
 extern "C" {
-    __declspec(dllexport) WindowPtr createWindow(const int width, const int height, const char* title, int style) {
-        return new sf::RenderWindow(sf::VideoMode(width, height), title, style);
+    typedef sf::ContextSettings* ContextSettingsPtr;
+
+    __declspec(dllexport) ContextSettingsPtr _WindowContextSettings_Create() {
+        return new sf::ContextSettings();
     }
 
-    __declspec(dllexport) void closeWindow(WindowPtr window) {
+    __declspec(dllexport) void _WindowContextSettings_SetAttributeFlags(ContextSettingsPtr contextSettings, int flags) {
+        contextSettings->attributeFlags = flags;
+    }
+
+    __declspec(dllexport) void _WindowContextSettings_SetAntialiasingLevel(ContextSettingsPtr contextSettings, int level) {
+        contextSettings->antialiasingLevel = level;
+    }
+
+    __declspec(dllexport) void _WindowContextSettings_SetDepthBits(ContextSettingsPtr contextSettings, int bits) {
+        contextSettings->depthBits = bits;
+    }
+
+    __declspec(dllexport) void _WindowContextSettings_SetMajorVersion(ContextSettingsPtr contextSettings, int version) {
+        contextSettings->majorVersion = version;
+    }
+
+    __declspec(dllexport) void _WindowContextSettings_SetMinorVersion(ContextSettingsPtr contextSettings, int version) {
+        contextSettings->minorVersion = version;
+    }
+
+    __declspec(dllexport) void _WindowContextSettings_SetStencilBits(ContextSettingsPtr contextSettings, int bits) {
+        contextSettings->stencilBits = bits;
+    }
+
+    __declspec(dllexport) void _WindowContextSettings_SetSrgbCapable(ContextSettingsPtr contextSettings, bool capable) {
+        contextSettings->sRgbCapable = capable;
+    }
+
+    __declspec(dllexport) void _WindowContextSettings_Delete(ContextSettingsPtr contextSettings) {
+        delete contextSettings;
+    }
+}
+
+
+extern "C" {
+    __declspec(dllexport) WindowPtr _Window_Create(const int width, const int height, 
+        const char* title, int style, ContextSettingsPtr settings) {
+        return new sf::RenderWindow(sf::VideoMode(width, height), title, style, *settings);
+    }
+
+    __declspec(dllexport) void _Window_Close(WindowPtr window) {
         window->close();
     }
 
-    __declspec(dllexport) void setMouseCursorVisible(WindowPtr window, bool value) {
+    __declspec(dllexport) void _Window_SetCursorVisibility(WindowPtr window, bool value) {
         window->setMouseCursorVisible(value);
     }
 
-    __declspec(dllexport) void setWindowTitle(WindowPtr window, const char* title) {
+    __declspec(dllexport) void _Window_SetTitle(WindowPtr window, const char* title) {
         window->setTitle(title);
     }
 
-    __declspec(dllexport) void SetVerticalSync(WindowPtr window, bool enable) {
+    __declspec(dllexport) void _Window_SetVsync(WindowPtr window, bool enable) {
         window->setVerticalSyncEnabled(enable);
     }
 
-    __declspec(dllexport) void destroyWindow(WindowPtr window) {
+    __declspec(dllexport) void _Window_Delete(WindowPtr window) {
         window->close();
         delete window;
     }
 
-    __declspec(dllexport) float mapPixelToCoordsX(WindowPtr window, double x, double y, ViewPtr view) {
+    // Methods to get the size of the window ===============================
+    __declspec(dllexport) int _Window_GetSizeWidth(WindowPtr window) {     //|
+        return window->getSize().x;                                      //|
+    }                                                                    //|
+                                                                         //|
+    __declspec(dllexport) int _Window_GetSizeHeight(WindowPtr window) {    //|
+        return window->getSize().y;                                      //|
+    }                                                                    //|
+    // Methods to get the size of the window ===============================
+
+
+
+    // Methods to get the position of the window ===========================
+    __declspec(dllexport) int _Window_GetPositionX(WindowPtr window) {     //|
+        return window->getPosition().x;                                  //|
+    }                                                                    //|
+                                                                         //|      
+    __declspec(dllexport) int _Window_GetPositionY(WindowPtr window) {     //|
+        return window->getPosition().y;                                  //|
+    }                                                                    //|
+    // Methods to get the position of the window ===========================
+
+
+    __declspec(dllexport) void _Window_SetPosition(WindowPtr window, int x, int y) {
+        window->setPosition(sf::Vector2i(x, y));
+    }
+
+    __declspec(dllexport) void _Window_SetSize(WindowPtr window, int width, int height) {
+        window->setSize(sf::Vector2u(width, height));
+    }
+
+    __declspec(dllexport) float _Window_MapPixelToCoordsX(WindowPtr window, double x, double y, ViewPtr view) {
         return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).x;
     }
 
-    __declspec(dllexport) float mapPixelToCoordsY(WindowPtr window, double x, double y, ViewPtr view) {
+    __declspec(dllexport) float _Window_MapPixelToCoordsY(WindowPtr window, double x, double y, ViewPtr view) {
         return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).y;
     }
 
-    __declspec(dllexport) float mapCoordsToPixelX(WindowPtr window, double x, double y, ViewPtr view) {
+    __declspec(dllexport) float _Window_MapCoordsToPixelX(WindowPtr window, double x, double y, ViewPtr view) {
         return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).x;
     }
 
-    __declspec(dllexport) float mapCoordsToPixelY(WindowPtr window, double x, double y, ViewPtr view) {
+    __declspec(dllexport) float _Window_MapCoordsToPixelY(WindowPtr window, double x, double y, ViewPtr view) {
         return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).y;
     }
 
-    __declspec(dllexport) void clearWindow(WindowPtr window, int r, int g, int b, int a) {
+    __declspec(dllexport) void _Window_Clear(WindowPtr window, int r, int g, int b, int a) {
         window->clear(sf::Color(r, g, b, a));
     }
 
-    __declspec(dllexport) void displayWindow(WindowPtr window) {
+    __declspec(dllexport) void _Window_Display(WindowPtr window) {
         window->display();
     }
 
-    __declspec(dllexport) void setSystemCursor(WindowPtr window, sf::Cursor::Type cursor) {
+    __declspec(dllexport) void _Window_SetSystemCursor(WindowPtr window, sf::Cursor::Type cursor) {
         sf::Cursor c = sf::Cursor();
         c.loadFromSystem(cursor);
         window->setMouseCursor(c);
     }
 
-    __declspec(dllexport) bool isWindowOpen(WindowPtr window) {
+    __declspec(dllexport) bool _Window_IsOpen(WindowPtr window) {
         return window->isOpen();
     }
 
-    __declspec(dllexport) void drawWindow(WindowPtr window, sf::Drawable* drawable) {
+    __declspec(dllexport) void _Window_Draw(WindowPtr window, sf::Drawable* drawable) {
         window->draw(*drawable);
     }
 
-    __declspec(dllexport) void drawWindowWithStates(WindowPtr window, sf::RenderStates* render_states, sf::Drawable* drawable)  {
+    __declspec(dllexport) void _Window_DrawWithRenderStates(WindowPtr window, sf::RenderStates* render_states, sf::Drawable* drawable)  {
         window->draw(*drawable, *render_states);
     }
 
-    __declspec(dllexport) void drawWindowWithShader(WindowPtr window, sf::Shader* shader, sf::Drawable* drawable) {
+    __declspec(dllexport) void _Window_DrawWithShader(WindowPtr window, sf::Shader* shader, sf::Drawable* drawable) {
         window->draw(*drawable, shader);
     }
 
-    __declspec(dllexport) ViewPtr getView(WindowPtr window) {
+    __declspec(dllexport) ViewPtr _Window_GetDefaultView(WindowPtr window) {
         return new sf::View(window->getDefaultView());
     }
 
-    __declspec(dllexport) void setWaitFps(WindowPtr window, unsigned int fps) {
+    __declspec(dllexport) void _Window_SetWaitFps(WindowPtr window, unsigned int fps) {
         window->setFramerateLimit(fps);
     }
 
-    __declspec(dllexport) int getWindowEvent(WindowPtr window, sf::Event* event) {
+    __declspec(dllexport) int _Window_GetCurrentEventType(WindowPtr window, sf::Event* event) {
         if (window->pollEvent(*event)) {
             return event->type;
         }
@@ -162,36 +234,6 @@ extern "C" {
         window->setView(*view);
     }
 
-    // Methods to get the size of the window ===============================
-    __declspec(dllexport) int getWindowSizeWidth(WindowPtr window) {     //|
-        return window->getSize().x;                                      //|
-    }                                                                    //|
-                                                                         //|
-    __declspec(dllexport) int getWindowSizeHeight(WindowPtr window) {    //|
-        return window->getSize().y;                                      //|
-    }                                                                    //|
-    // Methods to get the size of the window ===============================
-
-
-
-    // Methods to get the position of the window ===========================
-    __declspec(dllexport) int getWindowPositionX(WindowPtr window) {     //|
-        return window->getPosition().x;                                  //|
-    }                                                                    //|
-                                                                         //|      
-    __declspec(dllexport) int getWindowPositionY(WindowPtr window) {     //|
-        return window->getPosition().y;                                  //|
-    }                                                                    //|
-    // Methods to get the position of the window ===========================
-
-
-    __declspec(dllexport) void setWindowPosition(WindowPtr window, int x, int y) {
-        window->setPosition(sf::Vector2i(x, y));
-    }
-
-    __declspec(dllexport) void setWindowSize(WindowPtr window, int width, int height) {
-        window->setSize(sf::Vector2u(width, height));
-    }
 }
 
 

@@ -346,6 +346,8 @@ class Text(BaseText):
                 self.set_origin((width + self.__origin_padding.x) / self.get_scale()[0],        (height + self.__origin_padding.y) / self.get_scale()[1])
             case _:
                 raise TypeError("Invalid origin type!")
+            
+        return self
 
 
 

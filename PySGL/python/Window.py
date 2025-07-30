@@ -71,10 +71,11 @@ Copyright (c) 2025 Pavlov Ivan
 """
 
 
+import os
 import ctypes
 import keyboard
 from time import time
-from typing import overload, Final, final
+from typing import overload, Final, final, Self
 
 from .Colors import *
 from .Time import Clock 
@@ -152,32 +153,64 @@ def get_screen_resolution() -> TwoIntegerList:
 ##################################################################
 
 
-LIB_PYSGL.createWindow.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
-LIB_PYSGL.createWindow.restype = ctypes.c_void_p
-LIB_PYSGL.destroyWindow.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.destroyWindow.restype = None
-LIB_PYSGL.clearWindow.argtypes = [ctypes.c_void_p, ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_ubyte]
-LIB_PYSGL.clearWindow.restype = None
-LIB_PYSGL.displayWindow.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.displayWindow.restype = None
-LIB_PYSGL.isWindowOpen.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.isWindowOpen.restype = ctypes.c_bool
-LIB_PYSGL.drawWindow.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL.drawWindow.restype = None
-LIB_PYSGL.getView.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getView.restype = ctypes.c_void_p
-LIB_PYSGL.setWaitFps.argtypes = [ctypes.c_void_p, ctypes.c_uint]
-LIB_PYSGL.setWaitFps.restype = None
-LIB_PYSGL.setWindowTitle.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
-LIB_PYSGL.setWindowTitle.restype = None
-LIB_PYSGL.SetVerticalSync.argtypes = [ctypes.c_void_p, ctypes.c_bool]
-LIB_PYSGL.SetVerticalSync.restype = None
+LIB_PYSGL._Window_Create.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_void_p]
+LIB_PYSGL._Window_Create.restype = ctypes.c_void_p
+LIB_PYSGL._Window_Delete.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Window_Delete.restype = None
+LIB_PYSGL._Window_Clear.argtypes = [ctypes.c_void_p, ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_ubyte]
+LIB_PYSGL._Window_Clear.restype = None
+LIB_PYSGL._Window_Display.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Window_Display.restype = None
+LIB_PYSGL._Window_IsOpen.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Window_IsOpen.restype = ctypes.c_bool
+LIB_PYSGL._Window_Draw.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_PYSGL._Window_Draw.restype = None
+LIB_PYSGL._Window_GetDefaultView.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Window_GetDefaultView.restype = ctypes.c_void_p
+LIB_PYSGL._Window_SetWaitFps.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+LIB_PYSGL._Window_SetWaitFps.restype = None
+LIB_PYSGL._Window_SetTitle.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+LIB_PYSGL._Window_SetTitle.restype = None
+LIB_PYSGL._Window_SetVsync.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+LIB_PYSGL._Window_SetVsync.restype = None
+LIB_PYSGL._Window_MapPixelToCoordsX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
+LIB_PYSGL._Window_MapPixelToCoordsX.restype = ctypes.c_float
+LIB_PYSGL._Window_MapPixelToCoordsY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
+LIB_PYSGL._Window_MapPixelToCoordsY.restype = ctypes.c_float
+LIB_PYSGL._Window_MapCoordsToPixelX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
+LIB_PYSGL._Window_MapCoordsToPixelX.restype = ctypes.c_float
+LIB_PYSGL._Window_MapCoordsToPixelY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
+LIB_PYSGL._Window_MapCoordsToPixelY.restype = ctypes.c_float
+LIB_PYSGL._Window_DrawWithRenderStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+LIB_PYSGL._Window_DrawWithRenderStates.restype = None
+LIB_PYSGL._Window_DrawWithShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+LIB_PYSGL._Window_DrawWithShader.restype = None
+LIB_PYSGL._Window_SetCursorVisibility.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+LIB_PYSGL._Window_SetCursorVisibility.restype = None
+LIB_PYSGL._Window_Close.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Window_Close.restype = None
+LIB_PYSGL._Window_SetSystemCursor.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_PYSGL._Window_SetSystemCursor.restype = None
+LIB_PYSGL._Window_GetSizeWidth.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Window_GetSizeWidth.restype = ctypes.c_int
+LIB_PYSGL._Window_GetSizeHeight.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Window_GetSizeHeight.restype = ctypes.c_int
+LIB_PYSGL._Window_GetPositionX.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Window_GetPositionX.restype = ctypes.c_int
+LIB_PYSGL._Window_GetPositionY.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._Window_GetPositionY.restype = ctypes.c_int
+LIB_PYSGL._Window_SetPosition.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+LIB_PYSGL._Window_SetPosition.restype = None
+LIB_PYSGL._Window_SetSize.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+LIB_PYSGL._Window_SetSize.restype = None
+LIB_PYSGL._Window_GetCurrentEventType.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_PYSGL._Window_GetCurrentEventType.restype = ctypes.c_int
+
 LIB_PYSGL.createEvent.argtypes = []
 LIB_PYSGL.createEvent.restype = ctypes.c_void_p
 LIB_PYSGL.destroyEvent.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.destroyEvent.restype = None
-LIB_PYSGL.getWindowEvent.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL.getWindowEvent.restype = ctypes.c_int
+
 LIB_PYSGL.getEventType.argtypes = [ctypes.c_void_p]
 LIB_PYSGL.getEventType.restype = ctypes.c_int
 LIB_PYSGL.getEventKey.argtypes = [ctypes.c_void_p]
@@ -200,38 +233,9 @@ LIB_PYSGL.setViewSize.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_floa
 LIB_PYSGL.setViewSize.restype = None
 LIB_PYSGL.setView.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL.setView.restype = None
-LIB_PYSGL.getWindowSizeWidth.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getWindowSizeWidth.restype = ctypes.c_int
-LIB_PYSGL.getWindowSizeHeight.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getWindowSizeHeight.restype = ctypes.c_int
-LIB_PYSGL.getWindowPositionX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getWindowPositionX.restype = ctypes.c_int
-LIB_PYSGL.getWindowPositionY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getWindowPositionY.restype = ctypes.c_int
-LIB_PYSGL.setWindowPosition.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL.setWindowPosition.restype = None
-LIB_PYSGL.setWindowSize.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL.setWindowSize.restype = None
 LIB_PYSGL.zoomView.argtypes = [ctypes.c_void_p, ctypes.c_float]
 LIB_PYSGL.zoomView.restype = None
-LIB_PYSGL.mapPixelToCoordsX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
-LIB_PYSGL.mapPixelToCoordsX.restype = ctypes.c_float
-LIB_PYSGL.mapPixelToCoordsY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
-LIB_PYSGL.mapPixelToCoordsY.restype = ctypes.c_float
-LIB_PYSGL.mapCoordsToPixelX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
-LIB_PYSGL.mapCoordsToPixelX.restype = ctypes.c_float
-LIB_PYSGL.mapCoordsToPixelY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
-LIB_PYSGL.mapCoordsToPixelY.restype = ctypes.c_float
-LIB_PYSGL.drawWindowWithStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL.drawWindowWithStates.restype = None
-LIB_PYSGL.drawWindowWithShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL.drawWindowWithShader.restype = None
-LIB_PYSGL.setMouseCursorVisible.argtypes = [ctypes.c_void_p, ctypes.c_bool]
-LIB_PYSGL.setMouseCursorVisible.restype = None
-LIB_PYSGL.closeWindow.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.closeWindow.restype = None
-LIB_PYSGL.setSystemCursor.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL.setSystemCursor.restype = None
+
   
 @final
 class WindowEvents:
@@ -364,7 +368,7 @@ class WindowEvents:
             handle_event(events)
         ```
         """
-        return LIB_PYSGL.getWindowEvent(window.get_ptr(), self.__event_ptr)
+        return LIB_PYSGL._Window_GetCurrentEventType(window.get_ptr(), self.__event_ptr)
 
     def get_type(self) -> int:
         """
@@ -543,6 +547,203 @@ DWMWA_WINDOW_CORNER_PREFERENCE: Final[int] = 33
 
 DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")
 
+
+LIB_PYSGL._WindowContextSettings_Create.restype = ctypes.c_void_p
+LIB_PYSGL._WindowContextSettings_Delete.argtypes = [ctypes.c_void_p]
+LIB_PYSGL._WindowContextSettings_Delete.restype = None
+LIB_PYSGL._WindowContextSettings_SetAttributeFlags.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_PYSGL._WindowContextSettings_SetAttributeFlags.restype = None
+LIB_PYSGL._WindowContextSettings_SetAntialiasingLevel.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_PYSGL._WindowContextSettings_SetAntialiasingLevel.restype = None
+LIB_PYSGL._WindowContextSettings_SetDepthBits.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_PYSGL._WindowContextSettings_SetDepthBits.restype = None
+LIB_PYSGL._WindowContextSettings_SetMajorVersion.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_PYSGL._WindowContextSettings_SetMajorVersion.restype = None
+LIB_PYSGL._WindowContextSettings_SetMinorVersion.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_PYSGL._WindowContextSettings_SetMinorVersion.restype = None
+LIB_PYSGL._WindowContextSettings_SetStencilBits.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_PYSGL._WindowContextSettings_SetStencilBits.restype = None
+LIB_PYSGL._WindowContextSettings_SetSrgbCapable.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+LIB_PYSGL._WindowContextSettings_SetSrgbCapable.restype = None
+
+@final
+class ContextSettings:
+    """
+    #### Класс для настройки параметров графического контекста OpenGL
+    
+    ---
+    
+    :Description:
+    - Управляет настройками OpenGL контекста для окна
+    - Позволяет настроить антиалиасинг, буферы глубины и версию OpenGL
+    - Используется при создании окна для оптимизации рендеринга
+    
+    ---
+    
+    :Features:
+    - Настройка уровня антиалиасинга
+    - Управление буферами глубины и трафарета
+    - Выбор версии OpenGL
+    - Поддержка sRGB цветового пространства
+    """
+    
+    def __init__(self):
+        """
+        #### Инициализация настроек контекста с параметрами по умолчанию
+        
+        ---
+        
+        :Description:
+        - Создает объект с базовыми настройками OpenGL
+        - Все параметры устанавливаются в значения по умолчанию
+        """
+        self.__context_ptr = LIB_PYSGL._WindowContextSettings_Create()
+    
+    def __del__(self):
+        """
+        #### Освобождение ресурсов настроек контекста
+        
+        ---
+        
+        :Description:
+        - Автоматически вызывается при удалении объекта
+        - Освобождает нативные ресурсы
+        """
+        if hasattr(self, '_ContextSettings__context_ptr'):
+            LIB_PYSGL._WindowContextSettings_Delete(self.__context_ptr)
+    
+    def get_ptr(self) -> ctypes.c_void_p:
+        """
+        #### Возвращает указатель на нативный объект настроек
+        
+        ---
+        
+        :Returns:
+        - ctypes.c_void_p: Указатель для использования в C++ коде
+        """
+        return self.__context_ptr
+    
+    def set_antialiasing_level(self, level: int) -> Self:
+        """
+        #### Устанавливает уровень антиалиасинга
+        
+        ---
+        
+        :Args:
+        - level (int): Уровень сглаживания (0 = выключен, 2, 4, 8, 16)
+        
+        ---
+        
+        :Returns:
+        - ContextSettings: Возвращает self для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        settings = ContextSettings().set_antialiasing_level(4)
+        ```
+        """
+        LIB_PYSGL._WindowContextSettings_SetAntialiasingLevel(self.__context_ptr, level)
+        return self
+    
+    def set_depth_bits(self, bits: int) -> Self:
+        """
+        #### Устанавливает количество бит для буфера глубины
+        
+        ---
+        
+        :Args:
+        - bits (int): Количество бит (обычно 24 или 32)
+        
+        ---
+        
+        :Returns:
+        - ContextSettings: Возвращает self для цепочки вызовов
+        """
+        LIB_PYSGL._WindowContextSettings_SetDepthBits(self.__context_ptr, bits)
+        return self
+    
+    def set_stencil_bits(self, bits: int) -> Self:
+        """
+        #### Устанавливает количество бит для буфера трафарета
+        
+        ---
+        
+        :Args:
+        - bits (int): Количество бит (обычно 8)
+        
+        ---
+        
+        :Returns:
+        - ContextSettings: Возвращает self для цепочки вызовов
+        """
+        LIB_PYSGL._WindowContextSettings_SetStencilBits(self.__context_ptr, bits)
+        return self
+    
+    def set_opengl_version(self, major: int, minor: int) -> Self:
+        """
+        #### Устанавливает версию OpenGL
+        
+        ---
+        
+        :Args:
+        - major (int): Основная версия (например, 3 для OpenGL 3.3)
+        - minor (int): Дополнительная версия (например, 3 для OpenGL 3.3)
+        
+        ---
+        
+        :Returns:
+        - ContextSettings: Возвращает self для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Запросить OpenGL 3.3
+        settings.set_opengl_version(3, 3)
+        ```
+        """
+        LIB_PYSGL._WindowContextSettings_SetMajorVersion(self.__context_ptr, major)
+        LIB_PYSGL._WindowContextSettings_SetMinorVersion(self.__context_ptr, minor)
+        return self
+    
+    def set_srgb_capable(self, capable: bool) -> Self:
+        """
+        #### Включает поддержку sRGB цветового пространства
+        
+        ---
+        
+        :Args:
+        - capable (bool): True для включения sRGB поддержки
+        
+        ---
+        
+        :Returns:
+        - ContextSettings: Возвращает self для цепочки вызовов
+        """
+        LIB_PYSGL._WindowContextSettings_SetSrgbCapable(self.__context_ptr, capable)
+        return self
+    
+    def set_attribute_flags(self, flags: int) -> Self:
+        """
+        #### Устанавливает флаги атрибутов контекста
+        
+        ---
+        
+        :Args:
+        - flags (int): Битовая маска флагов контекста
+        
+        ---
+        
+        :Returns:
+        - ContextSettings: Возвращает self для цепочки вызовов
+        """
+        LIB_PYSGL._WindowContextSettings_SetAttributeFlags(self.__context_ptr, flags)
+        return self
+
+
+
 @final
 class Window:
     """
@@ -597,7 +798,8 @@ class Window:
     @final
     def __init__(self, width: int = 800, height: int = 600, 
                  title: str = "PySGL Window", style: int = Style.Default, 
-                 vsync: bool = False, alpha: float = 255):
+                 vsync: bool = False, alpha: float = 255, 
+                 context_settings: ContextSettings | None = None):
         """
         #### Инициализация нового окна приложения
         
@@ -610,6 +812,7 @@ class Window:
         - style (int): Комбинация стилей из Window.Style (по умолчанию Style.Default)
         - vsync (bool): Включение вертикальной синхронизации (по умолчанию False)
         - alpha (float): Уровень прозрачности окна (0-255, по умолчанию 255 - непрозрачное)
+        - context_settings (ContextSettings | None): Настройки OpenGL контекста (по умолчанию None - стандартные настройки)
         
         ---
         
@@ -640,8 +843,21 @@ class Window:
             width, height = get_screen_resolution() # Получаем максимальное разрешение экрана монитора
             style = Window.Style.No # Переключаем на режим без ничего
 
+        # Используем переданные настройки или создаем новые по умолчанию
+        if context_settings is None:
+            temp_context_settings = LIB_PYSGL._WindowContextSettings_Create()
+            context_ptr = temp_context_settings
+            should_delete_context = True
+        else:
+            context_ptr = context_settings.get_ptr()
+            should_delete_context = False
+        
         # Создаем окно через нативную библиотеку и сохраняем указатель на него
-        self.__window_ptr: WindowPtr = LIB_PYSGL.createWindow(width, height, title.encode('utf-8'), style)
+        self.__window_ptr: WindowPtr = LIB_PYSGL._Window_Create(width, height, title.encode('utf-8'), style, context_ptr)
+        
+        # Освобождаем временные настройки контекста (только если мы их создали)
+        if should_delete_context:
+            LIB_PYSGL._WindowContextSettings_Delete(temp_context_settings)
         self.__title = title
         self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
         self.__window_alpha: int = alpha
@@ -650,7 +866,7 @@ class Window:
         # Получаем стандартную область отображения (View) и сохраняем указатель на нее
         self.__view = self.get_default_view()
         
-        # __wait_fps - ожидание кадров в секунду (максимальное число кадров в секунду, установленное пользователем)
+        # __wait_fps - ожидание кадров в секунду (максимальное число кадров в секунду, установленное пользователем)становленное пользователем)
         self.__wait_fps = 60 
 
         # __target_fps - целевое число кадров в секунду (используется для вычисления delta-time)
@@ -666,7 +882,7 @@ class Window:
         # Инициализация переменных для отслеживания FPS (максимальное и минимальное значения)
         self.__min_fps_in_fps_history: float = 0
         self.__max_fps_in_fps_history: float = 0
-        LIB_PYSGL.setWaitFps(self.__window_ptr, int(self.__wait_fps))
+        LIB_PYSGL._Window_SetWaitFps(self.__window_ptr, int(self.__wait_fps))
 
         #////////////////////////////////////////////////////////////////////////////////
         # (             Переменные, необходимые для генерации графика фрейм-тайма            )
@@ -728,7 +944,6 @@ class Window:
         self.__ghosting_interpolation: float = 0.1
 
         self.__active: bool = True
-        self.__actve_text = Text(self.__info_font)
         self.__cursor: SystemCursors = SystemCursors.Arrow
 
         # Флаг который будет реализован в будщем 
@@ -788,7 +1003,7 @@ class Window:
         ```
         """
         self.__cursor = cursor
-        LIB_PYSGL.setSystemCursor(self.__window_ptr, cursor)
+        LIB_PYSGL._Window_SetSystemCursor(self.__window_ptr, cursor)
         return self
 
     @final
@@ -842,7 +1057,7 @@ class Window:
     @final
     def enable_vsync(self) -> Self:
         self.__vsync = True
-        LIB_PYSGL.SetVerticalSync(self.__window_ptr, self.__vsync)
+        LIB_PYSGL._Window_SetVsync(self.__window_ptr, self.__vsync)
 
     @final
     def enable_ghosting(self, value: bool = True) -> Self:
@@ -1041,7 +1256,7 @@ class Window:
         window.close()
         ```
         """
-        LIB_PYSGL.closeWindow(self.__window_ptr)
+        LIB_PYSGL._Window_Close(self.__window_ptr)
 
     @final
     def hide_cursor(self) -> Self:
@@ -1067,7 +1282,7 @@ class Window:
         window.hide_cursor().set_fullscreen(True)
         ```
         """
-        LIB_PYSGL.setMouseCursorVisible(self.__window_ptr, False)
+        LIB_PYSGL._Window_SetCursorVisibility(self.__window_ptr, False)
         self.__cursor_visibility = False
         return self
         
@@ -1095,7 +1310,7 @@ class Window:
         window.show_cursor().set_fullscreen(False)
         ```
         """
-        LIB_PYSGL.setMouseCursorVisible(self.__window_ptr, True)
+        LIB_PYSGL._Window_SetCursorVisibility(self.__window_ptr, True)
         self.__cursor_visibility = True
         return self
 
@@ -1226,8 +1441,8 @@ class Window:
         ```
         """
         return Vector2f(
-            LIB_PYSGL.mapPixelToCoordsX(self.__window_ptr, x, y, view.get_ptr()),
-            LIB_PYSGL.mapPixelToCoordsY(self.__window_ptr, x, y, view.get_ptr()),
+            LIB_PYSGL._Window_MapPixelToCoordsX(self.__window_ptr, x, y, view.get_ptr()),
+            LIB_PYSGL._Window_MapPixelToCoordsY(self.__window_ptr, x, y, view.get_ptr()),
         )
         
     @final
@@ -1264,8 +1479,8 @@ class Window:
         ```
         """
         return Vector2f(
-            LIB_PYSGL.mapCoordsToPixelX(self.__window_ptr, x, y, view.get_ptr()),
-            LIB_PYSGL.mapCoordsToPixelY(self.__window_ptr, x, y, view.get_ptr()),
+            LIB_PYSGL._Window_MapCoordsToPixelX(self.__window_ptr, x, y, view.get_ptr()),
+            LIB_PYSGL._Window_MapCoordsToPixelY(self.__window_ptr, x, y, view.get_ptr()),
         )
 
     @final
@@ -1294,7 +1509,7 @@ class Window:
         camera = window.get_default_view()
         ```
         """
-        return View.from_view_ptr(LIB_PYSGL.getView(self.__window_ptr))
+        return View.from_view_ptr(LIB_PYSGL._Window_GetDefaultView(self.__window_ptr))
 
     @final
     def set_position(self, x: int, y: int) -> Self:
@@ -1326,7 +1541,7 @@ class Window:
         window.set_position(100, 200)
         ```
         """
-        LIB_PYSGL.setWindowPosition(self.__window_ptr, x, y)
+        LIB_PYSGL._Window_SetPosition(self.__window_ptr, x, y)
         return self
 
     @final
@@ -1367,7 +1582,7 @@ class Window:
         """
         if width <= 0 or height <= 0:
             raise ValueError("Window dimensions must be positive")
-        LIB_PYSGL.setWindowSize(self.__window_ptr, width, height)
+        LIB_PYSGL._Window_SetSize(self.__window_ptr, width, height)
         return self
 
     @final
@@ -1429,8 +1644,8 @@ class Window:
         ```
         """
         return Vector2i(
-            LIB_PYSGL.getWindowSizeWidth(self.__window_ptr),
-            LIB_PYSGL.getWindowSizeHeight(self.__window_ptr)
+            LIB_PYSGL._Window_GetSizeWidth(self.__window_ptr),
+            LIB_PYSGL._Window_GetSizeHeight(self.__window_ptr)
         )
 
     @final  
@@ -1491,8 +1706,8 @@ class Window:
         ```
         """
         return Vector2i(
-            LIB_PYSGL.getWindowPositionX(self.__window_ptr),
-            LIB_PYSGL.getWindowPositionY(self.__window_ptr)
+            LIB_PYSGL._Window_GetPositionX(self.__window_ptr),
+            LIB_PYSGL._Window_GetPositionY(self.__window_ptr)
         )
 
     @final
@@ -1594,11 +1809,9 @@ class Window:
         self.__info_text.set_color(self.__fps_line_color_red if not self.__vsync else self.__fps_line_color_green)
         self.draw(self.__info_text)
 
-
-        self.__actve_text.set_typed_origin(OriginTypes.TOP_RIGHT)
-        self.__actve_text.set_position(self.get_size()[0]-8, 0)
-        self.__actve_text.set_text(f"Active: {self.__active}").set_size(17)
-        self.draw(self.__actve_text)
+        self.__info_text.set_position(10, 75 + 125)
+        self.__info_text.set_text(f"Active: {self.__active}")
+        self.draw(self.__info_text)
 
         # График фреймтайма
         graph_width = 200
@@ -1675,7 +1888,7 @@ class Window:
         ```
         """
         self.__vsync = value
-        LIB_PYSGL.SetVerticalSync(self.__window_ptr, value)
+        LIB_PYSGL._Window_SetVsync(self.__window_ptr, value)
         return self
 
     @final
@@ -1900,7 +2113,7 @@ class Window:
         window.set_wait_fps(FPS_UNLIMIT_CONST)
         ```
         """
-        LIB_PYSGL.setWaitFps(self.__window_ptr, int(fps))
+        LIB_PYSGL._Window_SetWaitFps(self.__window_ptr, int(fps))
         self.__wait_fps = fps
         return self
 
@@ -2306,9 +2519,9 @@ class Window:
         ```
         """
         if isinstance(color, Color):
-            LIB_PYSGL.clearWindow(self.__window_ptr, color.r, color.g, color.b, color.a)
+            LIB_PYSGL._Window_Clear(self.__window_ptr, color.r, color.g, color.b, color.a)
         elif color is None:
-            LIB_PYSGL.clearWindow(
+            LIB_PYSGL._Window_Clear(
                 self.__window_ptr, 
                 self.__clear_color.r, 
                 self.__clear_color.g, 
@@ -2345,7 +2558,7 @@ class Window:
         window.display()
         ```
         """
-        LIB_PYSGL.displayWindow(self.__window_ptr)
+        LIB_PYSGL._Window_Display(self.__window_ptr)
 
     @final
     def set_title(self, title: str) -> Self:
@@ -2378,7 +2591,7 @@ class Window:
         ```
         """
         self.__title = title
-        LIB_PYSGL.setWindowTitle(self.__window_ptr, title.encode('utf-8'))
+        LIB_PYSGL._Window_SetTitle(self.__window_ptr, title.encode('utf-8'))
         return self
     
     @final
@@ -2492,7 +2705,7 @@ class Window:
             ... 
         ```
         """
-        return LIB_PYSGL.isWindowOpen(self.__window_ptr)
+        return LIB_PYSGL._Window_IsOpen(self.__window_ptr)
     
     @final
     @overload
@@ -2625,15 +2838,15 @@ class Window:
         else:
             # Стандартные объекты
             if render_states is None:
-                LIB_PYSGL.drawWindow(self.__window_ptr, shape.get_ptr())
+                LIB_PYSGL._Window_Draw(self.__window_ptr, shape.get_ptr())
             elif isinstance(render_states, RenderStates):
-                LIB_PYSGL.drawWindowWithStates(
+                LIB_PYSGL._Window_DrawWithRenderStates(
                     self.__window_ptr, 
                     render_states.get_ptr(), 
                     shape.get_ptr()
                 )
             elif isinstance(render_states, Shader):
-                LIB_PYSGL.drawWindowWithShader(
+                LIB_PYSGL._Window_DrawWithShader(
                     self.__window_ptr,
                     render_states.get_ptr(),
                     shape.get_ptr()

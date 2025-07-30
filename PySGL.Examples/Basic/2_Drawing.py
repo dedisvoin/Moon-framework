@@ -5,10 +5,12 @@ from PySGL.python.Colors import *
 from PySGL.python.Rendering.Shapes import *
 
 
-window = Window().set_view_info()
+window = Window(context_settings=ContextSettings().set_antialiasing_level(16).set_srgb_capable(True)).set_view_info()
 window.set_wait_fps(6000)
 events = WindowEvents()
 window.enable_ghosting()
+
+
 
 
 rect = RectangleShape(200, 200).set_origin(100, 100).set_color(COLOR_RED)
