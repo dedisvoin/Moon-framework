@@ -242,7 +242,28 @@ using std::endl, std::cout;
 
 using std::string;
 
-extern  "C" {
+
+extern "C" {
+    typedef sf::BlendMode* BlendModePtr;
+
+    __declspec(dllexport) BlendModePtr _BlendMode_CreateFull(
+                                                sf::BlendMode::Factor ColorSourceFactor, 
+                                                sf::BlendMode::Factor ColorDestinationFactor,
+                                                sf::BlendMode::Equation ColorBlendEquation,
+                                                sf::BlendMode::Factor AlphaSourceFactor, 
+                                                sf::BlendMode::Factor AlphaDestinationFactor,
+                                                sf::BlendMode::Equation AlphaBlendEquation
+                                            ) {
+        return new sf::BlendMode(ColorSourceFactor, ColorDestinationFactor, ColorBlendEquation, 
+                                 AlphaSourceFactor, AlphaDestinationFactor, AlphaBlendEquation);
+    }
+
+    __declspec(dllexport) void _BlendMode_Delete(BlendModePtr blend_mode) {
+        delete blend_mode;
+    }
+}
+
+extern "C" {
     typedef sf::RenderStates* RenderStatesPtr;
 
     __declspec(dllexport) RenderStatesPtr _RenderStates_Create() {
@@ -256,6 +277,10 @@ extern  "C" {
 
     __declspec(dllexport) void _RenderStates_SetShader(RenderStatesPtr render_states, sf::Shader* shader) {
         render_states->shader = shader;
+    }
+
+    __declspec(dllexport) void _RenderStates_SetBlendMode(RenderStatesPtr render_states, BlendModePtr blend_mode) {
+        render_states->blendMode = *blend_mode;
     }
 }
 

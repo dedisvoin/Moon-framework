@@ -1586,7 +1586,7 @@ class CircleShape:
         - Координаты относятся к центру круга
         - Учитывает текущую точку отсчета
         """
-        if isinstance(arg1, Vector2f) and arg2 is None:
+        if isinstance(arg1, (Vector2f, Vector2i)) and arg2 is None:
             x, y = float(arg1.x), float(arg1.y)
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             x, y = float(arg1), float(arg2)
