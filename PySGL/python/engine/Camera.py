@@ -114,7 +114,7 @@ class Camera2D:
         size = self.__view.get_float_rect().get_size()
         return Vector2f(*size) * self.__zoom
     
-    def get_postion(self) -> Vector2f:
+    def get_position(self) -> Vector2f:
         return self.current_center 
 
     def update(self, delta: float = 1) -> None:
@@ -187,7 +187,7 @@ class CameraMachine2D(Camera2D):
         self.__position += Vector2f(x, y)
         return self
 
-    def get_postion(self) -> Vector2f:
+    def get_position(self) -> Vector2f:
         return self.__position 
     
     def set_position(self, position: Vector2f) -> Self:

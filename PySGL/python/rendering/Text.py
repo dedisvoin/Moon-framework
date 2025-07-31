@@ -183,7 +183,7 @@ class BaseText:
         
     def set_text(self, text: str) -> Self:
         self.__text = text
-        LIB_PYSGL.setText(self.__text_ptr, text.encode('utf-8'))
+        LIB_PYSGL.setText(self.__text_ptr, text.encode())
         return self
     
     def set_text_scale_xy(self, x: float | None = None, y: float | None = None) -> Self:
