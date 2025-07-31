@@ -4898,6 +4898,132 @@ class LinesThinShape:
         return (self.__points[index], self.__colors[index])
 
 
+import tripy
+
+class PolygoneShape:
+    def __init__(self, points: list[Vector2f], color: Color = COLOR_WHITE):
+        """
+        #### Инициализация полигона
+
+        ---
+
+        :Description:
+        - Создает объект полигона с заданными точками и цветом
+        - Поддерживает fluent-интерфейс
+
+        ---
+
+        :Args:
+        - points (list[Vector2f]): Список точек полигона
+        - color (Color, optional): Цвет полигона. По умолчанию белый.
+
+        ---
+
+        :Example:
+        ```python
+        # Создать треугольник с вершинами (0,0), (100,0), (50,100)
+        triangle = PolygoneShape([Vector2f(0, 0), Vector2f(100, 0), Vector2f(50, 100)])
+        ```
+
+        :Technical:
+        - Использует VertexArray для хранения данных
+        - Преобразует список точек в вершинный массив
+        - Вызывает native create_vertex_array()
+        """
+        self.__points = points
+        self.__vertex_array = VertexArray()
+        self.__color = color
+        self.__vertex_array.set_primitive_type(VertexArray.PrimitiveType.TRIANGLES)
+        self._triangulate()
+
+    def set_color(self, color: Color) -> Self:
+        """
+        #### Устанавливает цвет полигона
+
+        ---
+
+        :Description:
+        - Изменяет цвет всех вершин полигона
+        - Поддерживает fluent-интерфейс
+        - Обновляет данные в реальном времени
+
+        ---
+
+        :Args:
+        - color (Color): Новый цвет полигона
+
+        ---
+
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+
+        ---
+
+        :Example:
+        ```python
+        # Установить цвет полигона красным
+        triangle.set_color(COLOR_RED)
+        ```
+
+        :Note:
+        - Для массового изменения цветов используйте recreate_vertex_array()
+        """
+        self.__color = color
+        self._triangulate()
+        return self
+    
+    def get_color(self) -> Color:
+        """
+        #### Возвращает цвет полигона
+
+        ---
+
+        :Description:
+        - Возвращает текущий цвет полигона
+        - Не требует копирования данных
+
+        ---
+
+        :Returns:
+        - Color: Текущий цвет полигона
+
+        ---
+
+        :Example:
+        ```python
+        current_color = triangle.get_color()
+        ```
+
+        :Note:
+        - Для массового получения цветов используйте native get_vertex_color()
+        """
+        return self.__color
+        
+    def _triangulate(self):
+        triangles = tripy.earclip([(p.x, p.y) for p in self.__points])
+        self.__vertex_array.clear()
+        for triangle in triangles:
+            for i in range(3):
+                self.__vertex_array.append(Vertex(Vector2f(triangle[i][0], triangle[i][1]), self.__color))
+
+    def append_point_to_end(self, point: Vector2f) -> Self:
+        self.__points.append(point)
+        self._triangulate()
+        return self
+
+    def append_point_to_begin(self, point: Vector2f) -> Self:
+        self.__points.insert(0, point)
+        self._triangulate()
+        return self
+
+    def clear(self) -> Self:
+        self.__points.clear()
+        self._triangulate()
+        return self
+
+    def get_ptr(self) -> ctypes.c_void_p:
+        return self.__vertex_array.get_ptr()
+
 # Глобальные константы для часто используемых фигур.
 # Использование Final гарантирует, что эти переменные не будут переназначены.
 # Это удобно для стандартных, преднастроенных форм, которые можно переиспользовать.
@@ -4906,6 +5032,5 @@ RECTANGLE_SHAPE:        Final[RectangleShape]   = RectangleShape(100, 100)
 BASE_LINE_SHAPE:        Final[BaseLineShape]    = BaseLineShape()
 LINE_SHAPE:             Final[LineShape]        = LineShape()                      
 LINE_THIN_SHAPE:        Final[LineThinShape]    = LineThinShape()                       
-LINES_THIN_SHAPE:       Final[LinesThinShape]        = LinesThinShape()
-
+LINES_THIN_SHAPE:       Final[LinesThinShape]   = LinesThinShape()
 

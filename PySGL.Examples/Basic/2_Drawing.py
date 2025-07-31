@@ -3,7 +3,7 @@ sys.path.append("./")
 from PySGL.python.Window import *
 from PySGL.python.Colors import *
 from PySGL.python.Rendering.Shapes import *
-
+from PySGL.python.Inputs import MouseInterface
 
 window = Window(context_settings=ContextSettings().set_antialiasing_level(16).set_srgb_capable(True)).set_view_info()
 window.set_wait_fps(6000)
@@ -27,6 +27,7 @@ circle = CircleShape(10).set_origin_radius(60).set_color(COLOR_GREEN).set_outlin
 circle.set_position(300, 200)
 
 
+
 line = LineShape().set_start_point(100, 400).set_end_point(500, 300)\
     .set_color(COLOR_BLUE)\
     .set_outline_thickness(10)\
@@ -42,6 +43,8 @@ while window.update(events):
     rect.set_angle(rect.get_angle() + 100 * window.get_render_time())
     circle.set_angle(circle.get_angle() - 300 * window.get_render_time())
     window.clear()
+
+
     window.draw(rect)
     window.draw(rect2)
     window.draw(circle)
