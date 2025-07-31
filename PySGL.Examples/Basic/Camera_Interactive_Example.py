@@ -7,13 +7,13 @@ import sys
 sys.path.append("./")
 
 try:
-    from PySGL.python.Window import Window, WindowEvents
+    from PySGL.python.Window import Window, WindowEvents, ContextSettings
     from PySGL.python.Views import FloatRect, View
     from PySGL.python.Engine.Camera import Camera2D
     from PySGL.python.Vectors import Vector2f
     from PySGL.python.Rendering.Shapes import RectangleShape
     from PySGL.python.Colors import *
-    from PySGL.python.Inputs import *
+    from PySGL.python.Inputs import KeyBoardInterface
     
     def main():
         print("=== Интерактивный пример камеры ===")
@@ -26,7 +26,7 @@ try:
         print("  ESC - выход")
         
         # Создание окна
-        window = Window(1024, 768, "Camera Example")
+        window = Window(1024, 768, "Camera Example", context_settings=ContextSettings().set_antialiasing_level(20))
         window.set_wait_fps(60)
         events = WindowEvents()
         
@@ -39,6 +39,7 @@ try:
         
         # Создание игрока
         player = RectangleShape(40, 40)
+        player.set_origin(20, 20)
         player.set_color(COLOR_BLUE)
         player.set_outline_color(COLOR_WHITE)
         player.set_outline_thickness(2)
@@ -59,47 +60,47 @@ try:
                 break
                 
             # Управление игроком
-            speed = 200 * (1/60)  # Скорость в пикселях за кадр
+            speed = 10 # Скорость в пикселях за кадр
             
-            if is_key_pressed(Keys.W):
+            if KeyBoardInterface.get_press("w"):
                 player_pos.y -= speed
-            if is_key_pressed(Keys.S):
+            if KeyBoardInterface.get_press("s"):
                 player_pos.y += speed
-            if is_key_pressed(Keys.A):
+            if KeyBoardInterface.get_press("a"):
                 player_pos.x -= speed
-            if is_key_pressed(Keys.D):
+            if KeyBoardInterface.get_press("d"):
                 player_pos.x += speed
             
             # Ручное управление камерой
-            if is_key_pressed(Keys.Up):
+            if KeyBoardInterface.get_press("up"):
                 camera.get_view().move(0, -5)
-            if is_key_pressed(Keys.Down):
+            if KeyBoardInterface.get_press("down"):
                 camera.get_view().move(0, 5)
-            if is_key_pressed(Keys.Left):
+            if KeyBoardInterface.get_press("left"):
                 camera.get_view().move(-5, 0)
-            if is_key_pressed(Keys.Right):
+            if KeyBoardInterface.get_press("right"):
                 camera.get_view().move(5, 0)
             
             # Поворот камеры
-            if is_key_pressed(Keys.Q):
+            if KeyBoardInterface.get_press("q"):
                 current_angle = camera.get_view().get_angle()
-                camera.set_target_angle(current_angle - 1)
-            if is_key_pressed(Keys.E):
+                camera.set_target_angle(current_angle - 10)
+            if KeyBoardInterface.get_press("e"):
                 current_angle = camera.get_view().get_angle()
-                camera.set_target_angle(current_angle + 1)
+                camera.set_target_angle(current_angle + 10)
             
             # Зум камеры
-            if is_key_pressed(Keys.Z):
-                camera.set_target_zoom(camera.get_zoom() * 1.02)
-            if is_key_pressed(Keys.X):
-                camera.set_target_zoom(camera.get_zoom() * 0.98)
+            if KeyBoardInterface.get_press("z"):
+                camera.set_target_zoom(camera.get_zoom() + 0.4)
+            if KeyBoardInterface.get_press("x"):
+                camera.set_target_zoom(camera.get_zoom() - 0.4)
             
             # Тряска камеры
-            if is_key_pressed(Keys.Space):
+            if KeyBoardInterface.get_press("space"):
                 camera.shake(8)
             
             # Выход
-            if is_key_pressed(Keys.Escape):
+            if KeyBoardInterface.get_press("esc"):
                 break
             
             # Обновление камеры
