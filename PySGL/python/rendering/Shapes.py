@@ -5007,21 +5007,164 @@ class PolygoneShape:
                 self.__vertex_array.append(Vertex(Vector2f(triangle[i][0], triangle[i][1]), self.__color))
 
     def append_point_to_end(self, point: Vector2f) -> Self:
+        """
+        #### Добавляет точку в конец полигона
+        
+        ---
+        
+        :Description:
+        - Добавляет новую точку в конец списка вершин
+        - Автоматически перетриангулирует полигон
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - point (Vector2f): Новая точка для добавления
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Добавить точку в конец треугольника
+        triangle.append_point_to_end(Vector2f(200, 50))
+        ```
+        
+        :Technical:
+        - Вызывает _triangulate() для обновления вершинного массива
+        - Изменяет топологию полигона
+        
+        :Note:
+        - Может изменить форму полигона непредсказуемым образом
+        - Для вставки в определенную позицию используйте другие методы
+        """
         self.__points.append(point)
         self._triangulate()
         return self
 
     def append_point_to_begin(self, point: Vector2f) -> Self:
+        """
+        #### Добавляет точку в начало полигона
+        
+        ---
+        
+        :Description:
+        - Вставляет новую точку в начало списка вершин
+        - Автоматически перетриангулирует полигон
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Args:
+        - point (Vector2f): Новая точка для добавления
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Добавить точку в начало треугольника
+        triangle.append_point_to_begin(Vector2f(0, 200))
+        ```
+        
+        :Technical:
+        - Использует insert(0, point) для добавления в начало
+        - Вызывает _triangulate() для обновления вершинного массива
+        
+        :Note:
+        - Может существенно изменить внешний вид полигона
+        - Все существующие индексы точек сдвигаются на +1
+        """
         self.__points.insert(0, point)
         self._triangulate()
         return self
 
     def clear(self) -> Self:
+        """
+        #### Очищает все точки полигона
+        
+        ---
+        
+        :Description:
+        - Удаляет все вершины полигона
+        - Очищает вершинный массив
+        - Поддерживает fluent-интерфейс
+        
+        ---
+        
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        # Очистить полигон и начать заново
+        triangle.clear().append_point_to_end(Vector2f(0, 0))
+        ```
+        
+        :Technical:
+        - Вызывает clear() на списке точек
+        - Перетриангулирует пустой массив
+        
+        :Warning:
+        - После очистки полигон становится невидимым
+        - Необходимо добавить минимум 3 точки для корректного отображения
+        
+        :Note:
+        - Цвет полигона сохраняется
+        - Для полного сброса создайте новый объект
+        """
         self.__points.clear()
         self._triangulate()
         return self
 
     def get_ptr(self) -> ctypes.c_void_p:
+        """
+        #### Возвращает нативный указатель на вершинный массив
+        
+        ---
+        
+        :Description:
+        - Предоставляет низкоуровневый доступ к C++ объекту
+        - Используется для интеграции с системой рендеринга
+        - Позволяет обойти Python API для оптимизации
+        
+        ---
+        
+        :Returns:
+        - ctypes.c_void_p: Указатель на нативный VertexArray
+        
+        ---
+        
+        :Example:
+        ```python
+        ptr = triangle.get_ptr()
+        native_renderer.submit(ptr)
+        ```
+        
+        :Warning:
+        - Требует осторожного использования
+        - Может вызвать неопределенное поведение при неправильном применении
+        - Изменения не контролируются Python-объектом
+        
+        :Technical:
+        - Фактически возвращает VertexArray*
+        - Используется для передачи в нативные функции рендеринга
+        
+        :Note:
+        - Основное применение - интеграция с C++ рендерером
+        - Для стандартного использования предпочтительнее методы класса
+        """
         return self.__vertex_array.get_ptr()
 
 # Глобальные константы для часто используемых фигур.
@@ -5033,4 +5176,4 @@ BASE_LINE_SHAPE:        Final[BaseLineShape]    = BaseLineShape()
 LINE_SHAPE:             Final[LineShape]        = LineShape()                      
 LINE_THIN_SHAPE:        Final[LineThinShape]    = LineThinShape()                       
 LINES_THIN_SHAPE:       Final[LinesThinShape]   = LinesThinShape()
-
+POLYGONE_SHAPE:         Final[PolygoneShape]    = PolygoneShape([], COLOR_RED)
