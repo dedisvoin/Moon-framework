@@ -1270,8 +1270,8 @@ class CircleShape:
         if approximation < 3:
             raise ValueError("Circle must have at least 3 points")
             
-        self.__approximation = approximation
-        self._ptr = LIB_PYSGL._Circle_Create(100, approximation)
+        self.__approximation = int(approximation)
+        self._ptr = LIB_PYSGL._Circle_Create(100, int(approximation))
         self.set_origin(100, 100)  # Центрируем точку отсчета
         
         # Инициализация атрибутов
@@ -2862,14 +2862,14 @@ class BaseLineShape:
         - Для оптимальной производительности избегайте прямых вызовов
         """
         # Вычисляем вектор направления
-        vector = Vector2f.from_two_point(self.__start_pos, self.__end_pos)
-        length = vector.length()
-        normal = vector.normalized()
-        angle = normal.angle_degrees()
+        vector = Vector2f.normal(self.__start_pos, self.__end_pos)
+        length = vector.get_lenght()
+        normal = vector.normalize()
+        angle = normal.get_angle()
 
         # Настройка прямоугольника (тело линии)
         self.__rectangle_shape.set_size(length, self.__width)
-        self.__rectangle_shape.set_angle(angle - 180)
+        self.__rectangle_shape.set_angle(-angle)
         self.__rectangle_shape.set_origin(0, self.__width / 2)
         self.__rectangle_shape.set_position(*self.__start_pos)
         

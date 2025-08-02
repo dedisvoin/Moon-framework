@@ -42,7 +42,7 @@ while window.update(events):
         intersection_circle.set_position(*MouseInterface.get_position_in_window(window).xy)
         window.draw(intersection_circle)
 
-    vector.rotate(math.radians(50 * window.get_render_time()))
+    vector.rotate_at(50 * window.get_render_time())
     vector_line.set_start_point(*vector_position.xy)
     vector_line.set_end_point(*(vector_position + vector))
     window.draw(vector_line) 

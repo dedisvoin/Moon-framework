@@ -122,12 +122,7 @@ while window.update(events):
             highlight.set_outline_thickness(2).set_outline_color(COLOR_YELLOW)
             highlight.set_position(bg_rect.get_position().x - 2, bg_rect.get_position().y - 2)
             window.draw(highlight)
-    
-    # Инструкции
-    instructions = BaseText(font).set_size(14).set_color(Color(150, 150, 150))
-    instructions.set_position(50, 750)
-    instructions.set_text("Arrow keys - switch modes | Space - toggle labels")
-    window.draw(instructions)
+
     
     window.view_info()
     window.display()

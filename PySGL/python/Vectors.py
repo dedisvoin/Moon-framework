@@ -1,50 +1,42 @@
 """
-#### *Модуль векторной математики PySGL*
+#### *Модуль работы с векторами в PySGL*
 
 ---
 
-##### Версия: 1.0.1
+##### Версия: 1.0.0
 
 *Автор: Павлов Иван (Pavlov Ivan)*
 
 *Лицензия: MIT*
-##### Реализованно на 100% 
+##### Реализованно на 100%
 
 ---
 
-✓ Полноценная 2D векторная математика:
-  - Базовые операции (сложение, вычитание, умножение)
-  - Скалярное и векторное произведения
-  - Нормализация и расчет длин
-  - Повороты и отражения
+✓ Двумерные векторы с плавающей точкой (Vector2f):
+  - Математические операции (сложение, вычитание, умножение, деление)
+  - Нормализация и вычисление длины
+  - Поворот и работа с углами
+  - Преобразование типов
 
-✓ Два специализированных класса векторов:
-  - Vector2f - для точных вычислений с плавающей точкой
-  - Vector2i - для дискретных целочисленных операций
+✓ Двумерные целочисленные векторы (Vector2i):
+  - Все основные математические операции
+  - Преобразование в Vector2f
+  - Оптимизированная работа с целыми числами
 
-✓ Оптимизированные алгоритмы:
-  - Минимальные накладные расходы
-  - Быстрые геометрические расчеты
-  - Эффективное использование памяти (__slots__)
-
-✓ Готовые интерфейсы:
-  - Базовые векторы (BaseVector2)
-  - Фабричные методы для создания стандартных векторов
-  - Поддержка всех основных математических операций
+✓ Утилиты для работы с векторами:
+  - Проверка параллельности и перпендикулярности
+  - Вычисление углов между векторами
+  - Скалярное и векторное произведение
 
 ---
 
 :Requires:
 
-• Python 3.10+
+• Python 3.8+
 
-• Стандартная библиотека math
+• Модуль math (стандартная библиотека)
 
-• Стандартная библиотека random
-
-• Стандартная библиотека typing
-
-• Стандартная библиотека copy
+• typing.Self для type hints
 
 ---
 
@@ -72,933 +64,853 @@ Copyright (c) 2025 Pavlov Ivan
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
-from typing import Generator, Tuple, List, Union, TypeVar
-from random import uniform, randint
-from copy import copy
 import math
+from typing import Self
 
-# Типы для аннотаций
-T = TypeVar('T', float, int)                               # Обобщенный тип для координат (float или int)
-Position = Union[Tuple[T, T], List[T]]                     # Тип для позиции (кортеж или список)
-VectorType = TypeVar('VectorType', bound='BaseVector2')    # Тип для наследников BaseVector2
 
-class BaseVector2:
+type Vector2f = Vector2f
+type Vector2i = Vector2i
+type VectorType = Vector2f | Vector2i
+
+class Vector2f:
     """
-    Базовый класс для 2D векторов с общими математическими операциями.
+    #### Класс двумерного вектора с плавающей точкой
     
-    Атрибуты:
-        x (T): Координата X вектора
-        y (T): Координата Y вектора
+    ---
+    
+    :Description:
+    - Представляет точку или направление в 2D пространстве
+    - Поддерживает все основные математические операции
+    - Оптимизирован для работы с графикой и физикой
+    
+    ---
+    
+    :Features:
+    - Математические операции (+, -, *, /, +=, -=, *=, /=)
+    - Нормализация и работа с длиной вектора
+    - Поворот на произвольный угол
+    - Преобразование в целочисленный вектор
     """
 
-    # Константы для сравнения чисел с плавающей точкой
-    EPSILON = 1e-9  # Погрешность для сравнения float
-    EPSILON_SQ = 1e-18  # Квадрат EPSILON для сравнения квадратов длин
-    
-    __slots__ = ('x', 'y')  # Оптимизация памяти - уменьшает объем памяти для хранения объекта
-    
-    def __init__(self, x: T, y: T):
-        """
-        Инициализация вектора.
-        
-        Аргументы:
-            x (T): Координата X
-            y (T): Координата Y
-        """
-        self.x = x
-        self.y = y
-    
-    # ============== Фабричные методы (методы класса) ==============
-    @classmethod
-    def zero(cls) -> VectorType:
-        """Возвращает нулевой вектор (0, 0)"""
-        return cls(0, 0)
-    
-    @classmethod
-    def one(cls) -> VectorType:
-        """Возвращает вектор (1, 1)"""
-        return cls(1, 1)
-    
-    @classmethod
-    def up(cls) -> VectorType:
-        """Возвращает единичный вектор направления вверх (0, 1)"""
-        return cls(0, 1)
-    
-    @classmethod
-    def down(cls) -> VectorType:
-        """Возвращает единичный вектор направления вниз (0, -1)"""
-        return cls(0, -1)
-    
-    @classmethod
-    def left(cls) -> VectorType:
-        """Возвращает единичный вектор направления влево (-1, 0)"""
-        return cls(-1, 0)
-    
-    @classmethod
-    def right(cls) -> VectorType:
-        """Возвращает единичный вектор направления вправо (1, 0)"""
-        return cls(1, 0)
-    
-    # ============== Основные операции ==============
-    def copy(self) -> VectorType:
-        """Возвращает полную копию вектора"""
-        return self.__class__(copy(self.x), copy(self.y))
-    
-    def __eq__(self, other: object) -> bool:
-        """
-        Проверка на равенство с другим вектором (с учетом погрешности EPSILON).
-        
-        Аргументы:
-            other (object): Объект для сравнения
-            
-        Возвращает:
-            bool: True если векторы равны (с учетом погрешности)
-        """
-        if not isinstance(other, BaseVector2):
-            return False
-        return (abs(self.x - other.x) < self.EPSILON and 
-                abs(self.y - other.y) < self.EPSILON)
-    
-    def approx_equal(self, other: 'BaseVector2', epsilon: float | None = None) -> bool:
-        """
-        Сравнение векторов с заданной точностью.
-        
-        Аргументы:
-            other (BaseVector2): Вектор для сравнения
-            epsilon (float, optional): Погрешность сравнения. По умолчанию self.EPSILON
-            
-        Возвращает:
-            bool: True если векторы равны с заданной точностью
-        """
-        if epsilon is None:
-            epsilon = self.EPSILON
-        return (abs(self.x - other.x) < epsilon and 
-                abs(self.y - other.y) < epsilon)
-    
-    def approx_zero(self, epsilon: float | None = None) -> bool:
-        """
-        Проверка, является ли вектор приблизительно нулевым.
-        
-        Аргументы:
-            epsilon (float, optional): Погрешность сравнения. По умолчанию self.EPSILON
-            
-        Возвращает:
-            bool: True если обе координаты близки к нулю
-        """
-        if epsilon is None:
-            epsilon = self.EPSILON
-        return abs(self.x) < epsilon and abs(self.y) < epsilon
-    
-    def __ne__(self, other: object) -> bool:
-        """Проверка на неравенство векторов"""
-        return not (self == other)
-    
-    def __add__(self, other: VectorType) -> VectorType:
-        """Сложение двух векторов (поэлементно)"""
-        return self.__class__(self.x + other.x, self.y + other.y)
-    
-    def __sub__(self, other: VectorType) -> VectorType:
-        """Вычитание векторов (поэлементно)"""
-        return self.__class__(self.x - other.x, self.y - other.y)
-    
-    def __mul__(self, other: Union[T, VectorType]) -> VectorType:
-        """
-        Умножение вектора на скаляр или поэлементное умножение на другой вектор.
-        
-        Аргументы:
-            other (T | VectorType): Число или вектор для умножения
-            
-        Возвращает:
-            VectorType: Новый вектор-результат
-        """
-        if isinstance(other, BaseVector2):
-            return self.__class__(self.x * other.x, self.y * other.y)
-        return self.__class__(self.x * other, self.y * other)
-    
-    def __rmul__(self, other: Union[T, VectorType]) -> VectorType:
-        """Умножение справа (аналогично __mul__)"""
-        return self.__mul__(other)
-    
-    def __imul__(self, other: Union[T, VectorType]) -> VectorType:
-        """
-        Комбинированное умножение с присваиванием (in-place).
-        
-        Аргументы:
-            other (T | VectorType): Число или вектор для умножения
-            
-        Возвращает:
-            VectorType: Измененный текущий вектор
-        """
-        if isinstance(other, BaseVector2):
-            self.x *= other.x
-            self.y *= other.y
-        else:
-            self.x *= other
-            self.y *= other
-        return self
-    
-    def __truediv__(self, scalar: float) -> 'Vector2f':
-        """Деление вектора на скаляр (возвращает Vector2f)"""
-        return Vector2f(self.x / scalar, self.y / scalar)
-    
-    def __floordiv__(self, scalar: int) -> 'Vector2i':
-        """Целочисленное деление вектора на скаляр (возвращает Vector2i)"""
-        return Vector2i(self.x // scalar, self.y // scalar)
-    
-    def __neg__(self) -> VectorType:
-        """Возвращает вектор с противоположным направлением"""
-        return self.__class__(-self.x, -self.y)
-    
-    def __abs__(self) -> float:
-        """Возвращает длину (модуль) вектора"""
-        return math.hypot(self.x, self.y)
-    
-    def __iter__(self) -> Generator[T, T]:
-        """Итератор по координатам вектора (позволяет распаковывать как x, y = vector)"""
-        yield self.x
-        yield self.y
+    __slots__ = ("x", "y")
 
-    def __getitem__(self, index: int) -> T:
+    @classmethod
+    def one(self) -> Vector2f:
         """
-        Доступ к координатам по индексу (0 = x, 1 = y).
+        #### Создает единичный вектор (1, 1)
         
-        Аргументы:
-            index (int): Индекс координаты (0 или 1)
-            
-        Возвращает:
-            T: Значение координаты
-            
-        Выбрасывает:
-            IndexError: Если индекс не 0 или 1
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор с координатами (1, 1)
+        
+        ---
+        
+        :Example:
+        ```python
+        unit = Vector2f.one()
+        print(unit)  # Vector2f(1.0, 1.0)
+        ```
         """
-        if index == 0: return self.x
-        elif index == 1: return self.y
-        else: raise IndexError("Vector index out of range")
+        return Vector2f(1, 1)
     
-    # ============== Векторные операции ==============
-    def project(self, other: 'Vector2f') -> 'Vector2f':
+    @classmethod
+    def zero(self) -> Vector2f:
         """
-        Проекция этого вектора на другой вектор.
+        #### Создает нулевой вектор (0, 0)
         
-        Аргументы:
-            other (Vector2f): Вектор, на который производится проекция
-            
-        Возвращает:
-            Vector2f: Вектор проекции
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор с координатами (0, 0)
+        
+        ---
+        
+        :Example:
+        ```python
+        origin = Vector2f.zero()
+        print(origin)  # Vector2f(0.0, 0.0)
+        ```
         """
-        return (self.dot(other) / other.length_squared()) * other
+        return Vector2f(0, 0)
+    
+    @classmethod
+    def normal(self, point1: list[int | float] | tuple[int | float, int | float], 
+                             point2: list[int | float] | tuple[int | float, int | float]):
+        """
+        #### Создает вектор направления между двумя точками
+        
+        ---
+        
+        :Args:
+        - point1: Начальная точка [x, y] или (x, y)
+        - point2: Конечная точка [x, y] или (x, y)
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор от point1 к point2
+        
+        ---
+        
+        :Example:
+        ```python
+        direction = Vector2f.normal([0, 0], [3, 4])
+        print(direction)  # Vector2f(3.0, 4.0)
+        ```
+        """
+        return Vector2f(point2[0] - point1[0], point2[1] - point1[1])
 
-    def dot(self, other: VectorType) -> T:
+    def __init__(self, x: float | int, y: float | int) -> Self:
         """
-        Скалярное произведение векторов.
+        #### Инициализация вектора с координатами
         
-        Аргументы:
-            other (VectorType): Второй вектор
-            
-        Возвращает:
-            T: Результат скалярного произведения
-        """
-        return self.x * other.x + self.y * other.y
-    
-    def cross(self, other: VectorType) -> T:
-        """
-        Векторное произведение (2D псевдоскаляр).
+        ---
         
-        Аргументы:
-            other (VectorType): Второй вектор
-            
-        Возвращает:
-            T: Псевдоскалярное значение (x1*y2 - y1*x2)
-        """
-        return self.x * other.y - self.y * other.x
-    
-    def angle_to(self, other: VectorType) -> float:
-        """
-        Угол между векторами в радианах (с учетом направления).
+        :Args:
+        - x (float | int): X координата
+        - y (float | int): Y координата
         
-        Аргументы:
-            other (VectorType): Второй вектор
-            
-        Возвращает:
-            float: Угол в радианах от -π до π
-        """
-        return math.atan2(self.cross(other), self.dot(other))
-    
-    def distance_to(self, other: VectorType) -> float:
-        """
-        Евклидово расстояние между точками.
+        ---
         
-        Аргументы:
-            other (VectorType): Вторая точка
-            
-        Возвращает:
-            float: Расстояние между точками
+        :Example:
+        ```python
+        vec = Vector2f(3.5, -2.1)
+        ```
         """
-        return math.hypot(self.x - other.x, self.y - other.y)
-    
-    def lerp(self, other: VectorType, t: float) -> 'Vector2f':
+        self.x = float(x)
+        self.y = float(y)
+
+    def to_int(self) -> Vector2i:
         """
-        Линейная интерполяция между векторами.
+        #### Преобразует в целочисленный вектор
         
-        Аргументы:
-            other (VectorType): Конечный вектор интерполяции
-            t (float): Параметр интерполяции (0 = текущий вектор, 1 = other)
-            
-        Возвращает:
-            Vector2f: Интерполированный вектор
+        ---
+        
+        :Returns:
+        - Vector2i: Вектор с целочисленными координатами
+        
+        ---
+        
+        :Note:
+        - Дробная часть отбрасывается (truncation)
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2f(3.7, -2.3)
+        int_vec = vec.to_int()  # Vector2i(3, -2)
+        ```
         """
-        return Vector2f(
-            self.x + (other.x - self.x) * t,
-            self.y + (other.y - self.y) * t
-        )
-    
-    # ============== Утилиты ==============
-    def as_tuple(self) -> Tuple[T, T]:
-        """Возвращает координаты в виде кортежа (x, y)"""
+        return Vector2i(int(self.x), int(self.y))
+
+    @property
+    def xy(self) -> tuple[float, float]:
+        """
+        #### Возвращает координаты как кортеж
+        
+        ---
+        
+        :Returns:
+        - tuple[float, float]: Кортеж (x, y)
+        """
         return (self.x, self.y)
     
-    def as_list(self) -> List[T]:
-        """Возвращает координаты в виде списка [x, y]"""
-        return [self.x, self.y]
-    
-    def __repr__(self) -> str:
-        """Официальное строковое представление вектора (для отладки)"""
-        return f"{self.__class__.__name__}({self.x}, {self.y})"
-    
-    def __str__(self) -> str:
-        """Неформальное строковое представление вектора (для пользователя)"""
-        return f"({self.x}, {self.y})"
-    
-    @property
-    def xy(self) -> Tuple[T, T]:
-        """Свойство для доступа к координатам как к кортежу (x, y)"""
-        return self.as_list()
-    
     @xy.setter
-    def xy(self, array: list[T] | Tuple[T, T]) -> None:
+    def xy(self, value: tuple[float, float]) -> None:
         """
-        Установка координат через список или кортеж.
+        #### Устанавливает координаты из кортежа
         
-        Аргументы:
-            array (list[T] | Tuple[T, T]): Новые координаты (должны быть 2 элемента)
+        ---
+        
+        :Args:
+        - value: Кортеж (x, y) с новыми координатами
         """
-        self.x = array[0]
-        self.y = array[1]
+        self.x = float(value[0])
+        self.y = float(value[1])
 
-
-class Vector2f(BaseVector2):
-    """
-    Вектор с координатами типа float.
-    
-    Реализует все математические операции с высокой точностью.
-    Подходит для физических расчетов, геометрии и других точных вычислений.
-    """
-    EPSILON = 1e-7  # Более подходящее значение для float операций
-    
-    def __init__(self, x: float, y: float):
+    def copy(self) -> Vector2f:
         """
-        Инициализация вектора с координатами типа float.
+        #### Создает копию вектора
         
-        Аргументы:
-            x (float): Координата X
-            y (float): Координата Y
-        """
-        super().__init__(float(x), float(y))
-    
-    # ============== Фабричные методы ==============
-    @classmethod
-    def random(cls, min_val: float = 0, max_val: float = 1) -> 'Vector2f':
-        """
-        Создает вектор со случайными координатами в заданном диапазоне.
+        ---
         
-        Аргументы:
-            min_val (float, optional): Минимальное значение координат. По умолчанию 0
-            max_val (float, optional): Максимальное значение координат. По умолчанию 1
-            
-        Возвращает:
-            Vector2f: Вектор со случайными координатами
-        """
-        return cls(uniform(min_val, max_val), uniform(min_val, max_val))
-    
-    @classmethod
-    def random_unit(cls) -> 'Vector2f':
-        """
-        Создает единичный вектор со случайным направлением.
+        :Returns:
+        - Vector2f: Новый вектор с теми же координатами
         
-        Возвращает:
-            Vector2f: Единичный вектор (длина = 1) со случайным направлением
-        """
-        angle = uniform(0, 2 * math.pi)
-        return cls(math.cos(angle), math.sin(angle))
-    
-    @classmethod
-    def from_angle(cls, angle: float, length: float = 1.0) -> 'Vector2f':
-        """
-        Создает вектор из угла и длины.
+        ---
         
-        Аргументы:
-            angle (float): Угол в радианах
-            length (float, optional): Длина вектора. По умолчанию 1.0
-            
-        Возвращает:
-            Vector2f: Вектор с заданным направлением и длиной
+        :Example:
+        ```python
+        original = Vector2f(1, 2)
+        copy = original.copy()
+        ```
         """
-        return cls(math.cos(angle) * length, math.sin(angle) * length)
+        return Vector2f(self.x, self.y)
     
-    @classmethod
-    def from_two_point(cls, point_1: tuple[int | float, int | float], point_2: tuple[int | float, int | float]) -> 'Vector2f':
-        dx = point_1[0] - point_2[0]
-        dy = point_1[1] - point_2[1]
-        return Vector2f(dx, dy)
-    
-    # ============== Математические операции ==============
-    def __truediv__(self, scalar: float) -> 'Vector2f':
-        """Деление вектора на скаляр (возвращает новый Vector2f)"""
-        return Vector2f(self.x / scalar, self.y / scalar)
-    
-    def __pow__(self, power: float) -> 'Vector2f':
+    def get_lenght(self) -> float:
         """
-        Возводит компоненты вектора в степень.
+        #### Вычисляет длину (модуль) вектора
         
-        Аргументы:
-            power (float): Степень возведения
-            
-        Возвращает:
-            Vector2f: Новый вектор с возведенными в степень компонентами
-        """
-        return Vector2f(self.x ** power, self.y ** power)
-    
-    def pow(self, power: float) -> 'Vector2f':
-        """Аналог оператора ** - возводит компоненты вектора в степень"""
-        return self ** power
-    
-    def sqrt(self) -> 'Vector2f':
-        """Возвращает вектор с квадратными корнями компонентов"""
-        return Vector2f(math.sqrt(self.x), math.sqrt(self.y))
-    
-    def exp(self) -> 'Vector2f':
-        """Возвращает вектор с экспонентами компонентов"""
-        return Vector2f(math.exp(self.x), math.exp(self.y))
-    
-    def log(self, base: float = math.e) -> 'Vector2f':
-        """
-        Возвращает вектор с логарифмами компонентов.
+        ---
         
-        Аргументы:
-            base (float, optional): Основание логарифма. По умолчанию e
-            
-        Возвращает:
-            Vector2f: Вектор с логарифмами компонентов
-        """
-        if base == math.e:
-            return Vector2f(math.log(self.x), math.log(self.y))
-        return Vector2f(math.log(self.x, base), math.log(self.y, base))
-    
-    # ============== Геометрические операции ==============
-    def angle(self) -> float:
-        """
-        Возвращает угол вектора в радианах.
+        :Returns:
+        - float: Длина вектора (√(x² + y²))
         
-        Возвращает:
-            float: Угол в радианах от -π до π
-        """
-        return math.atan2(self.y, self.x)
-    
-    def angle_degrees(self) -> float:
-        """
-        Возвращает угол вектора в градусах.
+        ---
         
-        Возвращает:
-            float: Угол в градусах от -180 до 180
+        :Example:
+        ```python
+        vec = Vector2f(3, 4)
+        length = vec.get_lenght()  # 5.0
+        ```
         """
-        return math.degrees(self.angle())
+        return math.sqrt(self.x * self.x + self.y * self.y)
     
-    def set_angle(self, angle: float) -> None:
+    def normalize_at(self) -> Self:
         """
-        Устанавливает направление вектора, сохраняя длину.
+        #### Нормализует вектор на месте (изменяет текущий)
         
-        Аргументы:
-            angle (float): Новый угол в радианах
-        """
-        length = abs(self)
-        self.x = math.cos(angle) * length
-        self.y = math.sin(angle) * length
-    
-    def set_length(self, length: float) -> None:
-        """
-        Устанавливает длину вектора, сохраняя направление.
+        ---
         
-        Аргументы:
-            length (float): Новая длина вектора
-        """
-        angle = self.angle()
-        self.x = math.cos(angle) * length
-        self.y = math.sin(angle) * length
-    
-    def length(self) -> float:
-        """
-        Возвращает длину (модуль) вектора.
+        :Description:
+        - Приводит длину вектора к 1, сохраняя направление
+        - Изменяет текущий объект
         
-        Возвращает:
-            float: Длина вектора
-        """
-        return abs(self)
-    
-    def length_squared(self) -> float:
-        """
-        Возвращает квадрат длины вектора (оптимизация для сравнений).
+        ---
         
-        Возвращает:
-            float: Квадрат длины вектора
-        """
-        return self.x * self.x + self.y * self.y
-    
-    def normalized(self) -> 'Vector2f':
-        """
-        Возвращает нормализованный вектор (длина = 1).
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
         
-        Возвращает:
-            Vector2f: Нормализованный вектор
-            
-        Примечание:
-            Для нулевого вектора возвращает (0, 0)
-        """
-        length = self.length()
-        if length == 0:
-            return Vector2f(0, 0)
-        return Vector2f(self.x / length, self.y / length)
-    
-    def normalize(self) -> None:
-        """
-        Нормализует текущий вектор (делает длину = 1).
+        ---
         
-        Примечание:
-            Не изменяет нулевой вектор
+        :Example:
+        ```python
+        vec = Vector2f(3, 4)
+        vec.normalize_at()  # vec теперь (0.6, 0.8)
+        ```
         """
-        length = self.length()
+        length = self.get_lenght()
         if length != 0:
             self.x /= length
             self.y /= length
+        return self
     
-    def rotated(self, angle: float) -> 'Vector2f':
+    def normalize(self) -> Vector2f:
         """
-        Возвращает повернутый вектор (в радианах).
+        #### Возвращает нормализованную копию вектора
         
-        Аргументы:
-            angle (float): Угол поворота в радианах
-            
-        Возвращает:
-            Vector2f: Повернутый вектор
+        ---
+        
+        :Description:
+        - Создает новый вектор единичной длины
+        - Исходный вектор не изменяется
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Новый нормализованный вектор
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2f(3, 4)
+        normalized = vec.normalize()  # (0.6, 0.8)
+        # vec остается (3, 4)
+        ```
         """
-        cos = math.cos(angle)
-        sin = math.sin(angle)
-        return Vector2f(
-            self.x * cos - self.y * sin,
-            self.x * sin + self.y * cos
-        )
+        length = self.get_lenght()
+        if length != 0:
+            return Vector2f(self.x / length, self.y / length)
+        return Vector2f(self.x, self.y)
     
-    def rotate(self, angle: float) -> None:
+    def rotate_at(self, angle: float | int) -> Self:
         """
-        Поворачивает вектор (в радианах).
+        #### Поворачивает вектор на месте
         
-        Аргументы:
-            angle (float): Угол поворота в радианах
+        ---
+        
+        :Args:
+        - angle (float | int): Угол поворота в градусах
+        
+        ---
+        
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2f(1, 0)
+        vec.rotate_at(90)  # vec теперь (0, 1)
+        ```
         """
+        angle = -math.radians(angle)
         cos = math.cos(angle)
         sin = math.sin(angle)
         x = self.x * cos - self.y * sin
         y = self.x * sin + self.y * cos
         self.x = x
         self.y = y
+        return self
     
-    def perpendicular(self) -> 'Vector2f':
+    def rotate(self, angle: float | int) -> Vector2f:
         """
-        Возвращает перпендикулярный вектор (поворот на 90° против часовой стрелки).
+        #### Возвращает повернутую копию вектора
         
-        Возвращает:
-            Vector2f: Перпендикулярный вектор
-        """
-        return Vector2f(-self.y, self.x)
-    
-    def reflect(self, normal: 'Vector2f') -> 'Vector2f':
-        """
-        Отражение вектора относительно нормали.
+        ---
         
-        Аргументы:
-            normal (Vector2f): Вектор нормали (должен быть нормализован)
-            
-        Возвращает:
-            Vector2f: Отраженный вектор
+        :Args:
+        - angle (float | int): Угол поворота в градусах
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Новый повернутый вектор
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2f(1, 0)
+        rotated = vec.rotate(90)  # (0, 1)
+        # vec остается (1, 0)
+        ```
         """
-        dot = self.dot(normal)
-        return Vector2f(
-            self.x - 2 * dot * normal.x,
-            self.y - 2 * dot * normal.y
-        )
+        angle = -math.radians(angle)
+        cos = math.cos(angle)
+        sin = math.sin(angle)
+        x = self.x * cos - self.y * sin
+        y = self.x * sin + self.y * cos
+        return Vector2f(x, y)
+
+    def get_angle(self) -> float:
+        """
+        #### Возвращает угол вектора в градусах
+        
+        ---
+        
+        :Returns:
+        - float: Угол от 0 до 360 градусов
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2f(1, 1)
+        angle = vec.get_angle()  # 45.0
+        ```
+        """
+        angle = -math.atan2(self.y, self.x) * 180 / math.pi
+        return angle if angle >= 0 else angle + 360   
+     
+    def set_angle(self, angle: float | int) -> Self:
+        """
+        #### Устанавливает угол вектора, сохраняя длину
+        
+        ---
+        
+        :Args:
+        - angle (float | int): Новый угол в градусах
+        
+        ---
+        
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2f(5, 0)
+        vec.set_angle(90)  # vec теперь (0, 5)
+        ```
+        """
+        length = self.get_lenght()
+        angle = -angle
+        self.x = math.cos(angle * math.pi / 180) * length
+        self.y = math.sin(angle * math.pi / 180) * length
+        return self
     
-    # ============== Проверки и сравнения ==============
+    def set_lenght(self, lenght: float | int) -> Self:
+        """
+        #### Устанавливает длину вектора, сохраняя направление
+        
+        ---
+        
+        :Args:
+        - lenght (float | int): Новая длина вектора
+        
+        ---
+        
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2f(3, 4)  # длина 5
+        vec.set_lenght(10)    # теперь (6, 8)
+        ```
+        """
+        length = self.get_lenght()
+        if length != 0:
+            self.x *= lenght / length
+            self.y *= lenght / length
+        return self
+    
     def is_normalized(self) -> bool:
         """
-        Проверяет, является ли вектор нормализованным (длина = 1).
+        #### Проверяет, является ли вектор нормализованным
         
-        Возвращает:
-            bool: True если длина вектора равна 1 с относительной погрешностью 1e-9
+        ---
+        
+        :Returns:
+        - bool: True если длина равна 1
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2f(0.6, 0.8)
+        print(vec.is_normalized())  # True
+        ```
         """
-        return math.isclose(self.length_squared(), 1.0, rel_tol=1e-9)
+        return self.get_lenght() == 1
     
     def is_zero(self) -> bool:
         """
-        Проверяет, является ли вектор нулевым.
+        #### Проверяет, является ли вектор нулевым
         
-        Возвращает:
-            bool: True если обе координаты равны 0 с абсолютной погрешностью 1e-9
-        """
-        return math.isclose(self.x, 0.0, abs_tol=1e-9) and math.isclose(self.y, 0.0, abs_tol=1e-9)
-    
-    def is_parallel_to(self, other: 'Vector2f') -> bool:
-        """
-        Проверяет, параллельны ли векторы.
+        ---
         
-        Аргументы:
-            other (Vector2f): Второй вектор для проверки
-            
-        Возвращает:
-            bool: True если векторное произведение равно 0 (с погрешностью)
-        """
-        return math.isclose(self.cross(other), 0.0, abs_tol=1e-9)
-    
-    def is_perpendicular_to(self, other: 'Vector2f') -> bool:
-        """
-        Проверяет, перпендикулярны ли векторы.
+        :Returns:
+        - bool: True если обе координаты равны 0
         
-        Аргументы:
-            other (Vector2f): Второй вектор для проверки
-            
-        Возвращает:
-            bool: True если скалярное произведение равно 0 (с погрешностью)
-        """
-        return math.isclose(self.dot(other), 0.0, abs_tol=1e-9)
-    
-    def is_normalized_to_epsilon(self) -> bool:
-        """
-        Проверяет нормализацию с использованием EPSILON.
+        ---
         
-        Возвращает:
-            bool: True если квадрат длины отличается от 1 менее чем на EPSILON
-        """
-        return abs(self.length_squared() - 1.0) < self.EPSILON
-    
-    def is_parallel_to_to_epsilon(self, other: 'Vector2f') -> bool:
-        """
-        Проверяет параллельность с использованием EPSILON.
-        
-        Аргументы:
-            other (Vector2f): Второй вектор для проверки
-            
-        Возвращает:
-            bool: True если один из векторов нулевой или векторное произведение меньше EPSILON
-        """
-        return self.approx_zero() or other.approx_zero() or abs(self.cross(other)) < self.EPSILON
-    
-    def is_perpendicular_to_to_epsilon(self, other: 'Vector2f') -> bool:
-        """
-        Проверяет перпендикулярность с использованием EPSILON.
-        
-        Аргументы:
-            other (Vector2f): Второй вектор для проверки
-            
-        Возвращает:
-            bool: True если скалярное произведение меньше EPSILON
-        """
-        return abs(self.dot(other)) < self.EPSILON
-    
-    def angle_to_to_epsilon(self, other: 'Vector2f') -> float:
-        """
-        Угол между векторами с проверкой на нулевые векторы.
-        
-        Аргументы:
-            other (Vector2f): Второй вектор
-            
-        Возвращает:
-            float: Угол в радианах
-            
-        Выбрасывает:
-            ValueError: Если один из векторов нулевой
-        """
-        if self.approx_zero() or other.approx_zero():
-            raise ValueError("Cannot calculate angle for zero vector")
-        return math.atan2(self.cross(other), self.dot(other))
-    
-    # ============== Преобразования ==============
-    def to_int(self) -> 'Vector2i':
-        """
-        Преобразует в целочисленный вектор с округлением.
-        
-        Возвращает:
-            Vector2i: Вектор с округленными координатами
-        """
-        return Vector2i(round(self.x), round(self.y))
-    
-    def to_int_floor(self) -> 'Vector2i':
-        """
-        Преобразует в целочисленный вектор с округлением вниз.
-        
-        Возвращает:
-            Vector2i: Вектор с округленными вниз координатами
-        """
-        return Vector2i(math.floor(self.x), math.floor(self.y))
-    
-    def to_int_ceil(self) -> 'Vector2i':
-        """
-        Преобразует в целочисленный вектор с округлением вверх.
-        
-        Возвращает:
-            Vector2i: Вектор с округленными вверх координатами
-        """
-        return Vector2i(math.ceil(self.x), math.ceil(self.y))
-    
-    def __mul__(self, other: Union[float, 'Vector2f']) -> 'Vector2f':
-        """
-        Умножение вектора на скаляр или поэлементное умножение на другой вектор.
-        
-        Аргументы:
-            other (float | Vector2f): Множитель
-            
-        Возвращает:
-            Vector2f: Результат умножения
-        """
-        if isinstance(other, Vector2f):
-            return Vector2f(self.x * other.x, self.y * other.y)
-        return Vector2f(self.x * other, self.y * other)
-    
-    def __rmul__(self, other: Union[float, 'Vector2f']) -> 'Vector2f':
-        """Умножение справа (аналогично __mul__)"""
-        return self.__mul__(other)
-    
-    def __imul__(self, other: Union[float, 'Vector2f']) -> 'Vector2f':
-        """
-        Комбинированное умножение с присваиванием (in-place).
-        
-        Аргументы:
-            other (float | Vector2f): Множитель
-            
-        Возвращает:
-            Vector2f: Измененный текущий вектор
-        """
-        if isinstance(other, Vector2f):
-            self.x *= other.x
-            self.y *= other.y
-        else:
-            self.x *= other
-            self.y *= other
-        return self
-
-
-class Vector2i(BaseVector2):
-    """
-    Вектор с целочисленными координатами.
-    
-    Оптимизирован для дискретных операций и работы с пикселями.
-    Подходит для работы с координатами в сетках, тайловых картах и других целочисленных системах.
-    """
-    EPSILON = 0  # Для целых чисел погрешность не нужна
-    
-    def __init__(self, x: int, y: int):
-        """
-        Инициализация вектора с целочисленными координатами.
-        
-        Аргументы:
-            x (int): Координата X
-            y (int): Координата Y
-        """
-        super().__init__(int(x), int(y))
-
-    def __eq__(self, other: object) -> bool:
-        """
-        Проверка на равенство (точное для целых чисел).
-        
-        Аргументы:
-            other (object): Объект для сравнения
-            
-        Возвращает:
-            bool: True если координаты точно совпадают
-        """
-        if not isinstance(other, BaseVector2):
-            return False
-        return self.x == other.x and self.y == other.y
-    
-    def approx_equal(self, other: 'BaseVector2', epsilon: float | None = None) -> bool:
-        """
-        Для целых чисел работает как точное сравнение (epsilon игнорируется).
-        
-        Аргументы:
-            other (BaseVector2): Вектор для сравнения
-            epsilon (float, optional): Игнорируется
-            
-        Возвращает:
-            bool: Результат точного сравнения
-        """
-        return self == other
-    
-    def approx_zero(self, epsilon: float | None = None) -> bool:
-        """
-        Для целых чисел работает как точная проверка на ноль (epsilon игнорируется).
-        
-        Возвращает:
-            bool: True если обе координаты точно равны 0
+        :Example:
+        ```python
+        vec = Vector2f.zero()
+        print(vec.is_zero())  # True
+        ```
         """
         return self.x == 0 and self.y == 0
+    
+    def __iter__(self):
+        return iter((self.x, self.y))
+    
+    def __copy__(self) -> Vector2f:
+        return self.copy()
 
-    def __mul__(self, other: Union[int, 'Vector2i']) -> 'Vector2i':
-        """
-        Умножение вектора на скаляр или поэлементное умножение на другой вектор.
-        
-        Аргументы:
-            other (int | Vector2i): Множитель
-            
-        Возвращает:
-            Vector2i: Результат умножения
-        """
-        if isinstance(other, (Vector2i, Vector2f)):
-            return Vector2i(self.x * other.x, self.y * other.y)
-        return Vector2i(self.x * other, self.y * other)
+    def __repr__(self) -> str:
+        return f"Vector2f({self.x}, {self.y})"
     
-    def __rmul__(self, other: Union[int, 'Vector2i']) -> 'Vector2i':
-        """Умножение справа (аналогично __mul__)"""
-        return self.__mul__(other)
+    def __str__(self) -> str:
+        return self.__repr__()
     
-    def __imul__(self, other: Union[int, 'Vector2i']) -> 'Vector2i':
-        """
-        Комбинированное умножение с присваиванием (in-place).
+    def __eq__(self, other: Vector2f) -> bool:
+        return self.x == other.x and self.y == other.y
         
-        Аргументы:
-            other (int | Vector2i): Множитель
-            
-        Возвращает:
-            Vector2i: Измененный текущий вектор
-        """
-        if isinstance(other, Vector2i):
-            self.x *= other.x
-            self.y *= other.y
+    def __ne__(self, other: Vector2f) -> bool:
+        return not self.__eq__(other)
+    
+    def __neg__(self) -> Self:
+        return Vector2f(-self.x, -self.y)
+    
+    def __abs__(self) -> Self:
+        return Vector2f(abs(self.x), abs(self.y))
+    
+    def __add__(self, other: Vector2f) -> Self:
+        return Vector2f(self.x + other.x, self.y + other.y)
+    
+    def __sub__(self, other: Vector2f) -> Self:
+        return Vector2f(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, scalar: float | int | Vector2f) -> Self:
+        if isinstance(scalar, Vector2f):
+            return Vector2f(self.x * scalar.x, self.y * scalar.y)
+        return Vector2f(self.x * scalar, self.y * scalar)
+    
+    def __truediv__(self, scalar: float | int | Vector2f) -> Self:
+        if isinstance(scalar, Vector2f):
+            return Vector2f(self.x / scalar.x, self.y / scalar.y)
+        return Vector2f(self.x / scalar, self.y / scalar)
+    
+    def __iadd__(self, other: Self) -> Self:
+        self.x += other.x
+        self.y += other.y
+        return self
+
+    def __isub__(self, other: Self) -> Self:
+        self.x -= other.x
+        self.y -= other.y
+        return self
+
+    def __imul__(self, scalar: float | int | Vector2f) -> Self:
+        if isinstance(scalar, Vector2f):
+            self.x *= scalar.x
+            self.y *= scalar.y
         else:
-            self.x *= other
-            self.y *= other
+            self.x *= scalar
+            self.y *= scalar
         return self
     
-    # ============== Фабричные методы ==============
-    @classmethod
-    def random(cls, min_val: int, max_val: int) -> 'Vector2i':
-        """
-        Создает вектор со случайными целыми координатами в заданном диапазоне.
-        
-        Аргументы:
-            min_val (int): Минимальное значение координат
-            max_val (int): Максимальное значение координат
-            
-        Возвращает:
-            Vector2i: Вектор со случайными целыми координатами
-        """
-        return cls(randint(min_val, max_val), randint(min_val, max_val))
+    def __itruediv__(self, scalar: float | int | Vector2f) -> Self:
+        if isinstance(scalar, Vector2f):
+            self.x /= scalar.x
+            self.y /= scalar.y
+        else:
+            self.x /= scalar
+            self.y /= scalar
+        return self
     
-    # ============== Математические операции ==============
-    def __floordiv__(self, scalar: int) -> 'Vector2i':
-        """
-        Целочисленное деление вектора на скаляр.
-        
-        Аргументы:
-            scalar (int): Делитель
-            
-        Возвращает:
-            Vector2i: Результат целочисленного деления
-        """
-        return Vector2i(self.x // scalar, self.y // scalar)
+
+class Vector2i:
+    """
+    #### Класс двумерного вектора с целочисленными координатами
     
-    def __mod__(self, scalar: int) -> 'Vector2i':
-        """
-        Остаток от деления компонентов вектора на скаляр.
-        
-        Аргументы:
-            scalar (int): Делитель
-            
-        Возвращает:
-            Vector2i: Вектор с остатками от деления
-        """
-        return Vector2i(self.x % scalar, self.y % scalar)
+    ---
     
-    # ============== Геометрические операции ==============
-    def angle(self) -> float:
-        """
-        Возвращает угол вектора в радианах (как float).
-        
-        Возвращает:
-            float: Угол в радианах от -π до π
-        """
-        return math.atan2(float(self.y), float(self.x))
+    :Description:
+    - Представляет точку или направление в 2D пространстве с целыми координатами
+    - Оптимизирован для работы с пиксельными координатами
+    - Поддерживает все основные математические операции
     
-    def angle_degrees(self) -> float:
-        """
-        Возвращает угол вектора в градусах (как float).
-        
-        Возвращает:
-            float: Угол в градусах от -180 до 180
-        """
-        return math.degrees(self.angle())
+    ---
     
-    def length(self) -> float:
+    :Features:
+    - Математические операции с целыми числами
+    - Преобразование в Vector2f
+    - Защищенные координаты через свойства
+    """
+
+    __slots__ = ("__x", "__y")
+
+    def __init__(self, x: int | float, y: int | float):
         """
-        Возвращает длину вектора (как float).
+        #### Инициализация целочисленного вектора
         
-        Возвращает:
-            float: Длина вектора
+        ---
+        
+        :Args:
+        - x (int | float): X координата (будет приведена к int)
+        - y (int | float): Y координата (будет приведена к int)
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2i(3.7, -2.3)  # Vector2i(3, -2)
+        ```
         """
-        return math.hypot(self.x, self.y)
+        self.__x = int(x)
+        self.__y = int(y)
+
+    def to_float(self) -> Vector2f:
+        """
+        #### Преобразует в вектор с плавающей точкой
+        
+        ---
+        
+        :Returns:
+        - Vector2f: Вектор с координатами float
+        
+        ---
+        
+        :Example:
+        ```python
+        int_vec = Vector2i(3, -2)
+        float_vec = int_vec.to_float()  # Vector2f(3.0, -2.0)
+        ```
+        """
+        return Vector2f(float(self.__x), float(self.__y))
     
-    def length_squared(self) -> int:
+    def get_lenght(self) -> float:
         """
-        Возвращает квадрат длины вектора (как целое число).
+        #### Вычисляет длину вектора
         
-        Возвращает:
-            int: x^2 + y^2
+        ---
+        
+        :Returns:
+        - float: Длина вектора (√(x² + y²))
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2i(3, 4)
+        length = vec.get_lenght()  # 5.0
+        ```
         """
-        return self.x * self.x + self.y * self.y
+        return math.sqrt(self.__x * self.__x + self.__y * self.__y)
+
+    @property
+    def x(self) -> int:
+        return self.__x
+        
+    @property
+    def y(self) -> int:
+        return self.__y
+
+    @x.setter
+    def x(self, value: int | float) -> None:
+        self.__x = int(value)
+
+    @y.setter
+    def y(self, value: int | float) -> None:
+        self.__y = int(value)
+
+    @property
+    def xy(self) -> tuple[int, int]:
+        return (self.__x, self.__y)
+
+    @xy.setter
+    def xy(self, xy: tuple[int | float, int | float]) -> None:
+        self.__x = int(xy[0])
+        self.__y = int(xy[1])
+
+    def __iter__(self) -> tuple[int, int]:
+        return iter((self.__x, self.__y))
+
+    def __repr__(self) -> str:
+        return f"Vector2i({self.__x}, {self.__y})"
     
-    # ============== Преобразования ==============
-    def to_float(self) -> 'Vector2f':
-        """
-        Преобразует в вектор с плавающей точкой.
-        
-        Возвращает:
-            Vector2f: Вектор с теми же координатами, но типа float
-        """
-        return Vector2f(float(self.x), float(self.y))
+    def __str__(self) -> str:
+        return self.__repr__()
     
-    # Целочисленные векторы не поддерживают нормализацию и поворот напрямую
-    def normalized(self) -> 'Vector2f':
-        """
-        Возвращает нормализованный вектор (как Vector2f).
+    def __eq__(self, other: Vector2i) -> bool:
+        return self.__x == other.x and self.__y == other.y
         
-        Возвращает:
-            Vector2f: Нормализованный вектор с плавающей точкой
-        """
-        return self.to_float().normalized()
+    def __ne__(self, other: Vector2i) -> bool:
+        return not self.__eq__(other)
     
-    def rotated(self, angle: float) -> 'Vector2f':
-        """
-        Возвращает повернутый вектор (как Vector2f).
-        
-        Аргументы:
-            angle (float): Угол поворота в радианах
-            
-        Возвращает:
-            Vector2f: Повернутый вектор с плавающей точкой
-        """
-        return self.to_float().rotated(angle)
+    def __neg__(self) -> Vector2i:
+        return Vector2i(-self.__x, -self.__y)
     
-    def perpendicular(self) -> 'Vector2i':
-        """
-        Возвращает перпендикулярный вектор (поворот на 90° против часовой стрелки).
-        
-        Возвращает:
-            Vector2i: Перпендикулярный вектор с целыми координатами
-        """
-        return Vector2i(-self.y, self.x)
+    def __abs__(self) -> Vector2i:
+        return Vector2i(abs(self.__x), abs(self.__y))
+    
+    def __add__(self, other: Vector2i) -> Vector2i:
+        return Vector2i(self.__x + other.x, self.__y + other.y)
+    
+    def __sub__(self, other: Vector2i) -> Vector2i:
+        return Vector2i(self.__x - other.x, self.__y - other.y)
+
+    def __mul__(self, scalar: int | float | Vector2i) -> Vector2i:
+        if isinstance(scalar, Vector2i):
+            return Vector2i(self.__x * scalar.x, self.__y * scalar.y)
+        return Vector2i(self.__x * scalar, self.__y * scalar)
+    
+    def __truediv__(self, scalar: int | float | Vector2i) -> Vector2i:
+        if isinstance(scalar, Vector2i):
+            return Vector2i(self.__x / scalar.x, self.__y / scalar.y)
+        return Vector2i(self.__x / scalar, self.__y / scalar)
+    
+    def __iadd__(self, other: Vector2i) -> Vector2i:
+        self.__x += other.x
+        self.__y += other.y
+        return self
+
+    def __isub__(self, other: Vector2i) -> Vector2i:
+        self.__x -= other.x
+        self.__y -= other.y
+        return self
+
+    def __imul__(self, scalar: int | float | Vector2i) -> Vector2i:
+        if isinstance(scalar, Vector2i):
+            self.__x *= scalar.x
+            self.__y *= scalar.y
+        else:
+            self.__x *= scalar
+            self.__y *= scalar
+        return self
+    
+    def __itruediv__(self, scalar: int | float | Vector2i) -> Vector2i:
+        if isinstance(scalar, Vector2i):
+            self.__x //= scalar.x
+            self.__y //= scalar.y
+        else:
+            self.__x //= scalar
+            self.__y //= scalar
+        return self
+
+def is_parallel(v1: VectorType, v2: VectorType) -> bool:
+    """
+    #### Проверяет параллельность двух векторов
+    
+    ---
+    
+    :Args:
+    - v1 (VectorType): Первый вектор
+    - v2 (VectorType): Второй вектор
+    
+    ---
+    
+    :Returns:
+    - bool: True если векторы параллельны
+    
+    ---
+    
+    :Example:
+    ```python
+    v1 = Vector2f(2, 4)
+    v2 = Vector2f(1, 2)
+    print(is_parallel(v1, v2))  # True
+    ```
+    """
+    return v1.x * v2.y == v1.y * v2.x
+
+def is_perpendicular(v1: VectorType, v2: VectorType) -> bool:
+    """
+    #### Проверяет перпендикулярность двух векторов
+    
+    ---
+    
+    :Args:
+    - v1 (VectorType): Первый вектор
+    - v2 (VectorType): Второй вектор
+    
+    ---
+    
+    :Returns:
+    - bool: True если векторы перпендикулярны
+    
+    ---
+    
+    :Example:
+    ```python
+    v1 = Vector2f(1, 0)
+    v2 = Vector2f(0, 1)
+    print(is_perpendicular(v1, v2))  # True
+    ```
+    """
+    return v1.x * v2.x + v1.y * v2.y == 0
+
+def angle_between(v1: VectorType, v2: VectorType) -> float:
+    """
+    #### Вычисляет угол между двумя векторами
+    
+    ---
+    
+    :Args:
+    - v1 (VectorType): Первый вектор
+    - v2 (VectorType): Второй вектор
+    
+    ---
+    
+    :Returns:
+    - float: Угол в градусах (0-180)
+    
+    ---
+    
+    :Example:
+    ```python
+    v1 = Vector2f(1, 0)
+    v2 = Vector2f(0, 1)
+    angle = angle_between(v1, v2)  # 90.0
+    ```
+    """
+    return math.degrees(math.acos((v1.x * v2.x + v1.y * v2.y) / (v1.get_lenght() * v2.get_lenght())))
+
+def cross(v1: VectorType, v2: VectorType) -> float:
+    """
+    #### Вычисляет векторное произведение (в 2D - скаляр)
+    
+    ---
+    
+    :Args:
+    - v1 (VectorType): Первый вектор
+    - v2 (VectorType): Второй вектор
+    
+    ---
+    
+    :Returns:
+    - float: Результат векторного произведения
+    
+    ---
+    
+    :Note:
+    - Положительное значение означает поворот против часовой стрелки
+    - Отрицательное - по часовой стрелке
+    
+    ---
+    
+    :Game Applications:
+    - Определение стороны поворота (влево/вправо) для AI навигации
+    - Проверка пересечения линий и коллизий
+    - Вычисление площади треугольников и многоугольников
+    - Определение направления вращения объектов
+    - Алгоритмы поиска пути и обхода препятствий
+    
+    ---
+    
+    :Example:
+    ```python
+    # Определить, поворачивает ли игрок влево или вправо
+    player_forward = Vector2f(1, 0)
+    to_target = Vector2f(0, 1)
+    turn_direction = cross(player_forward, to_target)  # 1.0 (влево)
+    
+    # Проверка пересечения отрезков для коллизий
+    if cross(line1_dir, line2_dir) != 0:
+        print("Линии пересекаются")
+    ```
+    """
+    return v1.x * v2.y - v1.y * v2.x
+
+def dot(v1: VectorType, v2: VectorType) -> float:
+    """
+    #### Вычисляет скалярное произведение векторов
+    
+    ---
+    
+    :Args:
+    - v1 (VectorType): Первый вектор
+    - v2 (VectorType): Второй вектор
+    
+    ---
+    
+    :Returns:
+    - float: Результат скалярного произведения
+    
+    ---
+    
+    :Note:
+    - Используется для определения угла между векторами
+    - Равно 0 для перпендикулярных векторов
+    - Положительное значение - острый угол, отрицательное - тупой
+    
+    ---
+    
+    :Game Applications:
+    - Определение поля зрения (FOV) для AI и камер
+    - Проверка направления взгляда персонажа на цель
+    - Вычисление освещения (угол между светом и поверхностью)
+    - Определение "за спиной" или "впереди" для стелс-механик
+    - Расчет отражения снарядов и физических объектов
+    - Оптимизация рендеринга (culling невидимых объектов)
+    
+    ---
+    
+    :Example:
+    ```python
+    # Проверить, видит ли игрок цель (в пределах 90° конуса)
+    player_forward = Vector2f(1, 0).normalize()
+    to_target = (target_pos - player_pos).normalize()
+    visibility = dot(player_forward, to_target)
+    if visibility > 0.7:  # cos(45°) ≈ 0.7
+        print("Цель в поле зрения")
+    
+    # Определить, движется ли объект к игроку или от него
+    to_player = (player_pos - enemy_pos).normalize()
+    enemy_velocity_normalized = enemy_velocity.normalize()
+    approaching = dot(to_player, enemy_velocity_normalized) > 0
+    ```
+    """
+    return v1.x * v2.x + v1.y * v2.y
+

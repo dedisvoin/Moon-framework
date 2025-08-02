@@ -7,7 +7,7 @@ window.set_wait_fps(FPS_UNLIMIT_CONST)
 
 events = WindowEvents()
 window.set_system_cursor(SystemCursors.Hand)
-window.enable_rounded_corners()
+
 
 while window.is_open():
     if not window.update(events): window.close()
