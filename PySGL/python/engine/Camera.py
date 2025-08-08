@@ -165,8 +165,8 @@ class Camera2D:
         # =============================================
         # Система следования за двумя объектами
         # =============================================
-        self.__first_target: Vector2i | Vector2f | BaseVector2 | None = None   # Первый объект слежения
-        self.__second_target: Vector2i | Vector2f | BaseVector2 | None = None  # Второй объект слежения
+        self.__first_target: Vector2i | Vector2f | Vector2f | None = None   # Первый объект слежения
+        self.__second_target: Vector2i | Vector2f | Vector2f | None = None  # Второй объект слежения
         self.__two_target_factor: float = 0.5                                  # Коэффициент позиции между объектами (0-1)
         self.__use_two_target: bool = False                                    # Флаг использования двойного слежения
         self.__auto_scale_padding: float = 0                                   # Отступ для автомасштабирования
@@ -183,6 +183,11 @@ class Camera2D:
         # Интеграция с окном
         # =============================================
         self.__window: Window | None = None     # Ссылка на окно для автоадаптации
+    
+    @final
+    def set_zoom(self, zoom: float = 1) -> Self:
+        self.__zoom = zoom
+        return self
 
     @final
     def set_window(self, window: Window) -> Self:
@@ -1241,7 +1246,7 @@ class Camera2D:
         
         # Генерация случайного направления тряски
         if not self.__shake_only_x and not self.__shake_only_y:
-            self.__current_shake = self.__target_shake.rotated(randint(0, 360))
+            self.__current_shake = self.__target_shake.rotate(randint(0, 360))
         elif self.__shake_only_x:
             self.__current_shake.x = self.__target_shake.x * uniform(-1, 1)
             self.__current_shake.y = 0
@@ -1295,6 +1300,10 @@ class Camera2D:
         ```
         """
         window.set_view(self.__view)
+
+    @final
+    def apply_texture(self, texture):
+        texture.set_view(self.__view)
 
     @final
     def reapply(self, window: Window) -> None:

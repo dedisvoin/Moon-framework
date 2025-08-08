@@ -857,7 +857,7 @@ class Window:
         self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
         self.__window_alpha: int = alpha
 
-        self.set_alpha(self.__window_alpha)
+        #self.set_alpha(self.__window_alpha)
         # Получаем стандартную область отображения (View) и сохраняем указатель на нее
         self.__view = self.get_default_view()
         
@@ -1031,7 +1031,6 @@ class Window:
         :Description:
         - Возвращает True, если окно в данный момент окное не заблокированно 
         - Возвращает False, если окно заблокированно програмно
-        - Для окон верхнего уровня также учитывает видимость
         
         ---
         

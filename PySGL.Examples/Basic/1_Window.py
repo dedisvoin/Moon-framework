@@ -2,16 +2,10 @@ import sys
 sys.path.append("./")
 from PySGL.python.Window import *
 
-window = Window(title="test").set_view_info()
-window.set_wait_fps(FPS_UNLIMIT_CONST)
-
+window = Window().set_view_info()
 events = WindowEvents()
-window.set_system_cursor(SystemCursors.Hand)
 
-
-while window.is_open():
-    if not window.update(events): window.close()
+while window.update(events):
     window.clear()
     window.view_info()
     window.display()
-    

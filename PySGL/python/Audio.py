@@ -8,7 +8,7 @@
 *Автор: Павлов Иван (Pavlov Ivan)*
 
 *Лицензия: MIT*
-##### Реализованно на 100% 
+##### Реализованно на 99% 
 
 ---
 
@@ -1038,7 +1038,7 @@ class MultiSound:
         self.__current_sound: int = 0
         self.__position: tuple[float, float, float] = (0, 0, 0)
 
-    def auto_play(self) -> None:
+    def auto_play(self) -> Self:
         """
         #### Автоматически воспроизводит звук, переключая каналы
         
@@ -1051,11 +1051,13 @@ class MultiSound:
         self.__sounds[self.__current_sound].play()
         self.__current_sound = (self.__current_sound + 1) % self.__number_of_channels
 
+        return self
+
     # //////////////////////////////////////////////////////////////////////////////////////////
     # Методы по отдельности для удобства контроля воспроизведения
     # //////////////////////////////////////////////////////////////////////////////////////////
     
-    def play(self) -> None:
+    def play(self) -> Self:
         """
         #### Воспроизводит текущий звук
         
@@ -1066,8 +1068,9 @@ class MultiSound:
         - Для автоматического переключения используйте auto_play()
         """
         self.__sounds[self.__current_sound].play()
+        return self
 
-    def next(self) -> None:
+    def next(self) -> Self:
         """
         #### Переключает на следующий звуковой канал
         
@@ -1078,10 +1081,11 @@ class MultiSound:
         - Не воспроизводит звук автоматически
         """
         self.__current_sound = (self.__current_sound + 1) % self.__number_of_channels
+        return Self
 
     # //////////////////////////////////////////////////////////////////////////////////////////
 
-    def stop(self) -> None:
+    def stop(self) -> Self:
         """
         #### Останавливает текущий звук
         
@@ -1091,8 +1095,9 @@ class MultiSound:
         - Воздействует только на активный в данный момент канал
         """
         self.__sounds[self.__current_sound].stop()
+        return self
 
-    def pause(self) -> None:
+    def pause(self) -> Self:
         """
         #### Приостанавливает текущий звук
         
@@ -1102,8 +1107,9 @@ class MultiSound:
         - Воздействует только на активный в данный момент канал
         """
         self.__sounds[self.__current_sound].pause()
+        return self
 
-    def stop_all(self) -> None:
+    def stop_all(self) -> Self:
         """
         #### Останавливает все звуки во всех каналах
         
@@ -1114,8 +1120,9 @@ class MultiSound:
         """
         for sound in self.__sounds:
             sound.stop()
+        return self
 
-    def pause_all(self) -> None:
+    def pause_all(self) -> Self:
         """
         #### Приостанавливает все звуки во всех каналах
         
@@ -1127,8 +1134,9 @@ class MultiSound:
         """
         for sound in self.__sounds:
             sound.pause()
+        return self
 
-    def add_chanel(self) -> None:
+    def add_chanel(self, count: int = 1) -> Self:
         """
         #### Добавляет новый канал для воспроизведения
         
@@ -1138,10 +1146,12 @@ class MultiSound:
         - Создает новую копию оригинального звука
         - Увеличивает общее количество доступных каналов
         """
-        self.__sounds.append(self.__original_sound.copy())
-        self.__number_of_channels += 1
+        for _ in range(count):
+            self.__sounds.append(self.__original_sound.copy())
+            self.__number_of_channels += 1
+        return self
 
-    def remove_chanel(self, index: int) -> None:
+    def remove_chanel(self, index: int) -> Self:
         """
         #### Удаляет канал по указанному индексу
         
@@ -1165,6 +1175,7 @@ class MultiSound:
             raise ValueError("Invalid channel index")
         del self.__sounds[index]
         self.__number_of_channels -= 1
+        return self
 
     def set_position_all(self, x: float, y: float, z: float) -> None:
         """
@@ -1244,7 +1255,7 @@ class MultiSound:
             raise ValueError("Invalid channel index")
         self.__sounds[index].set_position(x, y, z)
 
-    def set_volume_all(self, volume: float) -> None:
+    def set_volume_all(self, volume: float) -> Self:
         """
         #### Устанавливает громкость для всех каналов
         
@@ -1255,6 +1266,7 @@ class MultiSound:
         """
         for sound in self.__sounds:
             sound.set_volume(volume)
+        return self
 
     def set_volume_current(self, volume: float) -> None:
         """

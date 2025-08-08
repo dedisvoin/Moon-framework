@@ -14,3 +14,7 @@ __pycache__/
 
 .vscode/
 
+.game_data/
+*.png
+*.md
+*.wav

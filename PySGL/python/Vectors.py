@@ -72,6 +72,10 @@ type Vector2f = Vector2f
 type Vector2i = Vector2i
 type VectorType = Vector2f | Vector2i
 
+type NormalisedVector = Vector2f
+
+
+
 class Vector2f:
     """
     #### Класс двумерного вектора с плавающей точкой
@@ -135,8 +139,8 @@ class Vector2f:
         return Vector2f(0, 0)
     
     @classmethod
-    def normal(self, point1: list[int | float] | tuple[int | float, int | float], 
-                             point2: list[int | float] | tuple[int | float, int | float]):
+    def between(self, point1: list[int | float] | tuple[int | float, int | float], 
+                     point2: list[int | float] | tuple[int | float, int | float]):
         """
         #### Создает вектор направления между двумя точками
         
@@ -160,6 +164,33 @@ class Vector2f:
         ```
         """
         return Vector2f(point2[0] - point1[0], point2[1] - point1[1])
+    
+    @classmethod
+    def normal(self, vector: Vector2f) -> NormalisedVector:
+        """
+        #### Создает нормальный (перпендикулярный) вектор
+        
+        ---
+        
+        :Args:
+        - vector (Vector2f): Исходный вектор
+        
+        ---
+        
+        :Returns:
+        - NormalisedVector: Нормализованный перпендикулярный вектор
+        
+        ---
+        
+        :Example:
+        ```python
+        vec = Vector2f(3, 4)
+        normal = Vector2f.normal(vec)  # Перпендикулярный вектор
+        """
+        if vector.get_lenght() == 0:
+            return Vector2f.zero()
+        
+        return vector.normalize().rotate(90)
 
     def __init__(self, x: float | int, y: float | int) -> Self:
         """
@@ -535,6 +566,11 @@ class Vector2f:
         if isinstance(scalar, Vector2f):
             return Vector2f(self.x * scalar.x, self.y * scalar.y)
         return Vector2f(self.x * scalar, self.y * scalar)
+    
+    def __pow__(self, scalar: float | int | Vector2f) -> Self:
+        if isinstance(scalar, Vector2f):
+            return Vector2f(self.x ** scalar.x, self.y ** scalar.y)
+        return Vector2f(self.x ** scalar, self.y ** scalar)
     
     def __truediv__(self, scalar: float | int | Vector2f) -> Self:
         if isinstance(scalar, Vector2f):
