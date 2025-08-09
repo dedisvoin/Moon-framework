@@ -16,5 +16,4 @@ __pycache__/
 
 .game_data/
 *.png
-*.md
 *.wav

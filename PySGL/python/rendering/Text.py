@@ -1,7 +1,8 @@
 import ctypes
-from enum import Enum, auto
 import os
+
 from typing import Any, Self
+
 from ..Colors import *
 from ..Vectors import Vector2f
 from ..Types import OriginTypes

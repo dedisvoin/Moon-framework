@@ -44,6 +44,7 @@ class Game:
             "flag_set_sound": Sound(SoundBuffer("game_data/flag_set.wav")).set_volume(60),
             "flag_destroy_sound": Sound(SoundBuffer("game_data/flag_destroy.wav")).set_pitch(0.6).set_volume(60),
         }
+        print(self.data['cell_open_sound'].get)
 
 
         # Создаем текстуру для затемнения открытых клеток
@@ -126,7 +127,7 @@ class Game:
         self.__rainbow_shader.set_uniform("targetColor", Color(100, 100, 100, 255))
 
         self.map_size = 50
-        self.mine_count = 3
+        self.mine_count = 350
         self.mine_map = None
         self.map = []
         
@@ -138,7 +139,7 @@ class Game:
         self.person_rect = RectangleShape(self.map_cell_size, self.map_cell_size)
         self.person_rect.set_color(COLOR_ALPHA)
         self.person_rect.set_outline_color(Color(100, 100, 100))
-        self.person_rect.set_outline_thickness(3)
+        self.person_rect.set_outline_thickness(1)
 
         self.person_pos = [self.map_size // 2, self.map_size // 2]
         self.camera = Camera2D(*window.get_size().xy).set_zoom(0.1).set_target_zoom(0.1).set_lerp_zoom(0.02)
@@ -213,7 +214,7 @@ class Game:
         # Обновляем анимацию открытия клеток
         for i in range(len(self.cells_to_open)-1, -1, -1):
             x, y, progress = self.cells_to_open[i]
-            progress += 0.02 # Скорость анимации
+            progress += 0.1 # Скорость анимации
             
             if progress >= 1.0:
                 # Анимация завершена, открываем клетку
