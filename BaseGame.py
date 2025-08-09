@@ -44,7 +44,6 @@ class Game:
             "flag_set_sound": Sound(SoundBuffer("game_data/flag_set.wav")).set_volume(60),
             "flag_destroy_sound": Sound(SoundBuffer("game_data/flag_destroy.wav")).set_pitch(0.6).set_volume(60),
         }
-        print(self.data['cell_open_sound'].get)
 
 
         # Создаем текстуру для затемнения открытых клеток
