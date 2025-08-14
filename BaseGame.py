@@ -1,11 +1,11 @@
-from PySGL.python.Window import *
-from PySGL.python.Rendering.Sprites import *
-from PySGL.python.Rendering.Shapes import *
-from PySGL.python.Engine.Camera import Camera2D
-from PySGL.python.Rendering.Shaders import *
-from PySGL.python.Audio import *
-from PySGL.python.Inputs import *
-from PySGL.python.Math import distance
+from Moon.python.Window import *
+from Moon.python.Rendering.Sprites import *
+from Moon.python.Rendering.Shapes import *
+from Moon.python.Engine.Camera import Camera2D
+from Moon.python.Rendering.Shaders import *
+from Moon.python.Audio import *
+from Moon.python.Inputs import *
+from Moon.python.Math import distance
 import random
 
 
@@ -136,7 +136,7 @@ class Game:
         # Графика
         self.thin_line = LineThinShape()
         self.person_rect = RectangleShape(self.map_cell_size, self.map_cell_size)
-        self.person_rect.set_color(COLOR_ALPHA)
+        self.person_rect.set_color(COLOR_TRANSPARENT)
         self.person_rect.set_outline_color(Color(100, 100, 100))
         self.person_rect.set_outline_thickness(1)
 
