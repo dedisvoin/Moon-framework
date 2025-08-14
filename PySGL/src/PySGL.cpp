@@ -349,7 +349,7 @@ extern "C" {
 
     __declspec(dllexport) void
     _Shader_SetUniformColor(ShaderPtr shader, char* name, int r, int g, int b, int a) {
-        shader->setUniform(name, sf::Glsl::Vec4(r/255.0f, g/255.0f, b/255.0f, a/255.0f));
+        shader->setUniform(name, sf::Glsl::Vec4(r/256.0f, g/256.0f, b/256.0f, a/256.0f));
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -968,6 +968,10 @@ extern "C" {
     __declspec(dllexport) ViewPtr _View_Create(FloatRectPtr rect) {
         ViewPtr view = new sf::View(*rect);
         return view;
+    }
+
+    __declspec(dllexport) void _View_Delete(ViewPtr view) {
+        delete view;
     }
 
     __declspec(dllexport) float _View_GetPositionX(ViewPtr view) {

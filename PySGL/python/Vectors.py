@@ -235,6 +235,9 @@ class Vector2f:
         ```
         """
         return Vector2i(int(self.x), int(self.y))
+    
+    def as_tuple(self) -> tuple[float, float]:
+        return (self.x, self.y)
 
     @property
     def xy(self) -> tuple[float, float]:

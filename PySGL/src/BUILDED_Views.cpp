@@ -42,13 +42,16 @@ extern "C" {
 
 }
 
-
 extern "C" {
     typedef sf::View* ViewPtr;
 
     __declspec(dllexport) ViewPtr _View_Create(FloatRectPtr rect) {
         ViewPtr view = new sf::View(*rect);
         return view;
+    }
+
+    __declspec(dllexport) void _View_Delete(ViewPtr view) {
+        delete view;
     }
 
     __declspec(dllexport) float _View_GetPositionX(ViewPtr view) {

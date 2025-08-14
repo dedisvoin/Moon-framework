@@ -2862,7 +2862,7 @@ class BaseLineShape:
         - Для оптимальной производительности избегайте прямых вызовов
         """
         # Вычисляем вектор направления
-        vector = Vector2f.normal(self.__start_pos, self.__end_pos)
+        vector = Vector2f.between(self.__start_pos, self.__end_pos)
         length = vector.get_lenght()
         normal = vector.normalize()
         angle = normal.get_angle()
@@ -3387,18 +3387,18 @@ class LineShape(BaseLineShape):
         self.__thickness_shape.set_width(self.__thickness * 2 + self.get_width())
         
         if not self._BaseLineShape__rounded_corners:
-            n = Vector2f.from_two_point(
+            n = Vector2f.between(
                 self._BaseLineShape__start_pos,
                 self._BaseLineShape__end_pos
-            ).normalized() * self.__thickness
+            ).normalize_at() * self.__thickness
             
             self.__thickness_shape.set_start_point(
-                self.get_start_pos()[0] + n.x,
-                self.get_start_pos()[1] + n.y
+                self.get_start_pos().x + n.x,
+                self.get_start_pos().y + n.y
             )
             self.__thickness_shape.set_end_point(
-                self.get_end_pos()[0] - n.x,
-                self.get_end_pos()[1] - n.y
+                self.get_end_pos().x - n.x,
+                self.get_end_pos().y - n.y
             )
         else:
             self.__thickness_shape.set_start_point(*self.get_start_pos())
