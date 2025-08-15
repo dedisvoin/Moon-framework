@@ -181,13 +181,11 @@ class Color:
         semi_transparent = Color(0, 255, 0, 128)  # Полупрозрачный зеленый
         ```
         """
-        if not all(0 <= x <= 255 for x in (r, g, b, a)):
-            raise ValueError("All color components must be between 0 and 255")
-            
-        self.r = int(r)
-        self.g = int(g)
-        self.b = int(b)
-        self.a = int(a)
+
+        self.r = int(min(max(r, 0), 255))
+        self.g = int(min(max(g, 0), 255))
+        self.b = int(min(max(b, 0), 255))
+        self.a = int(min(max(a, 0), 255))
 
     def copy(self) -> "Color":
         return Color(self.r, self.g, self.b, self.a)

@@ -282,6 +282,14 @@ extern "C" {
     __declspec(dllexport) void _RenderStates_SetBlendMode(RenderStatesPtr render_states, BlendModePtr blend_mode) {
         render_states->blendMode = *blend_mode;
     }
+
+    __declspec(dllexport) void _RenderStates_SetTexture(RenderStatesPtr render_states, sf::Texture *texture) {
+        render_states->texture = texture;
+    }
+
+    __declspec(dllexport) void _RenderStates_SetTransform(RenderStatesPtr render_states, sf::Transform* transform) {
+        render_states->transform = *transform;
+    }
 }
 
 extern "C" {
@@ -915,6 +923,62 @@ extern "C" {
     __declspec(dllexport) int 
     _VertexArray_GetPrimitiveType(VertexArrayPtr vertexArray) {
         return static_cast<int>(vertexArray->getPrimitiveType());
+    }
+
+    // Оптимизированные функции для прямого доступа
+    __declspec(dllexport) void
+    _VertexArray_SetVertexPosition(VertexArrayPtr vertexArray, int index, float x, float y) {
+        if (index >= 0 && index < vertexArray->getVertexCount()) {
+            (*vertexArray)[index].position = sf::Vector2f(x, y);
+        }
+    }
+
+
+    __declspec(dllexport) void
+    _VertexArray_SetVertexColor(VertexArrayPtr vertexArray, int index, int r, int g, int b, int a) {
+        if (index >= 0 && index < vertexArray->getVertexCount()) {
+            (*vertexArray)[index].color = sf::Color(r, g, b, a);
+        }
+    }
+
+    __declspec(dllexport) void
+    _VertexArray_SetAllVerticesColor(VertexArrayPtr vertexArray, int r, int g, int b, int a) {
+        sf::Color color(r, g, b, a);
+        for (size_t i = 0; i < vertexArray->getVertexCount(); ++i) {
+            (*vertexArray)[i].color = color;
+        }
+    }
+
+    // Функции для работы с текстурными координатами
+    __declspec(dllexport) void
+    _VertexArray_AddVertexWithTexCoords(VertexArrayPtr vertexArray, float x, float y, int r, int g, int b, int a, float texX, float texY) {
+        vertexArray->append(sf::Vertex(
+            sf::Vector2f(x, y),
+            sf::Color(r, g, b, a),
+            sf::Vector2f(texX, texY)
+        ));
+    }
+
+    __declspec(dllexport) void
+    _VertexArray_SetVertexTexCoords(VertexArrayPtr vertexArray, int index, float texX, float texY) {
+        if (index >= 0 && index < vertexArray->getVertexCount()) {
+            (*vertexArray)[index].texCoords = sf::Vector2f(texX, texY);
+        }
+    }
+
+    __declspec(dllexport) void
+    _VertexArray_SetQuadTexCoords(VertexArrayPtr vertexArray, int startIndex, float left, float top, float width, float height) {
+        if (startIndex >= 0 && startIndex + 3 < vertexArray->getVertexCount()) {
+            (*vertexArray)[startIndex].texCoords = sf::Vector2f(left, top);
+            (*vertexArray)[startIndex + 1].texCoords = sf::Vector2f(left + width, top);
+            (*vertexArray)[startIndex + 2].texCoords = sf::Vector2f(left + width, top + height);
+            (*vertexArray)[startIndex + 3].texCoords = sf::Vector2f(left, top + height);
+        }
+    }
+
+    // Специальная функция для отрисовки VertexArray с RenderStates
+    __declspec(dllexport) void _Window_DrawVertexArrayWithRenderStates(sf::RenderWindow* window, sf::RenderStates* render_states, VertexArrayPtr vertexArray) {
+        window->draw(*vertexArray, *render_states);
     }
 }
 #ifndef SFML_GRAPHICS_HPP

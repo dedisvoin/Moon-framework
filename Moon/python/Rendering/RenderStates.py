@@ -4,6 +4,7 @@ from .Shaders import *
 import os
 from Moon import DLL_FOUND_PATH
 
+
 # Загрузка нативной библиотеки
 class LibraryLoadError(Exception):
     """Ошибка загрузки нативной библиотеки"""
@@ -51,6 +52,7 @@ LIB_PYSGL._BlendMode_CreateFull.restype = ctypes.c_void_p
 LIB_PYSGL._BlendMode_Delete.argtypes = [ctypes.c_void_p]
 LIB_PYSGL._BlendMode_Delete.restype = None
 
+type BlendMode = BlendMode
 class BlendMode:
     """
     #### Класс для управления режимами смешивания пикселей
@@ -144,7 +146,7 @@ class BlendMode:
     # ================================================================================
     
     @staticmethod
-    def Alpha():
+    def Alpha() -> BlendMode:
         """
         #### Стандартное альфа-смешивание (прозрачность)
         
@@ -182,7 +184,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Add():
+    def Add() -> BlendMode:
         """
         #### Аддитивное смешивание (сложение цветов)
         
@@ -222,7 +224,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Multiply():
+    def Multiply() -> BlendMode:
         """
         #### Мультипликативное смешивание (умножение цветов)
         
@@ -262,7 +264,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def None_():
+    def Default() -> BlendMode:
         """
         #### Отсутствие смешивания (замещение)
         
@@ -302,7 +304,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Subtract():
+    def Subtract() -> BlendMode:
         """
         #### Субтрактивное смешивание (вычитание цветов)
         
@@ -342,7 +344,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Screen():
+    def Screen() -> BlendMode:
         """
         #### Экранное смешивание (осветление)
         
@@ -382,7 +384,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Lighten():
+    def Lighten() -> BlendMode:
         """
         #### Осветление (максимум цветов)
         
@@ -422,7 +424,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Darken():
+    def Darken() -> BlendMode:
         """
         #### Затемнение (минимум цветов)
         
@@ -463,7 +465,6 @@ class BlendMode:
 
 
 
-
 LIB_PYSGL._RenderStates_Create.argtypes = None
 LIB_PYSGL._RenderStates_Create.restype = ctypes.c_void_p
 LIB_PYSGL._RenderStates_Delete.argtypes = [ctypes.c_void_p]
@@ -472,23 +473,88 @@ LIB_PYSGL._RenderStates_SetShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL._RenderStates_SetShader.restype = None
 LIB_PYSGL._RenderStates_SetBlendMode.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL._RenderStates_SetBlendMode.restype = None
+LIB_PYSGL._RenderStates_SetTexture.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_PYSGL._RenderStates_SetTexture.restype = None
 
 RenderStatesPtr = ctypes.c_void_p
+type Texture = Texture
 
 class RenderStates:
+
+    """
+    #### Состояния рендеринга для управления отрисовкой объектов
+    
+    ---
+    
+    :Description:
+    - Управляет параметрами рендеринга: шейдеры, текстуры, режимы смешивания
+    - Позволяет настраивать визуальные эффекты для отрисовки
+    - Поддерживает цепочку вызовов методов
+    
+    ---
+    
+    :Example:
+    ```python
+    # Создание состояний с аддитивным смешиванием
+    states = RenderStates().set_blend_mode(BlendMode.Add()).set_texture(my_texture)
+    window.draw(sprite, states)
+    ```
+    """
+    
     def __init__(self):
+        """
+        #### Создает новые состояния рендеринга с настройками по умолчанию
+        """
         self._ptr = LIB_PYSGL._RenderStates_Create()
         self.__shader: Shader | None = None
         self.__blend_mode = None
+        self.__texture = None
 
     def get_ptr(self) -> RenderStatesPtr:
+        """
+        #### Возвращает указатель на внутренний объект C++
+        
+        :Returns:
+        - RenderStatesPtr: Указатель для внутреннего использования
+        """
         return self._ptr
     
     def set_shader(self, shader: Shader) -> Self:
+        """
+        #### Устанавливает шейдер для рендеринга
+        
+        :Args:
+        - shader (Shader): Шейдерная программа для применения эффектов
+        
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
+        """
         self.__shader = shader
         LIB_PYSGL._RenderStates_SetShader(self._ptr, self.__shader.get_ptr())
         return self
     
+    def set_texture(self, texture: Texture) -> Self:
+        """
+        #### Устанавливает текстуру для рендеринга
+        
+        :Args:
+        - texture (Texture): Текстура для наложения на объекты
+        
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
+        """
+        LIB_PYSGL._RenderStates_SetTexture(self._ptr, texture.get_ptr())
+        return self
+    
+    def get_texture(self) -> Texture | None:
+        """
+        #### Возвращает текущую установленную текстуру
+        
+        :Returns:
+        - Texture | None: Текущая текстура или None если не установлена
+        """
+        return self.__texture
+
     def set_blend_mode(self, blend_mode: BlendMode) -> Self:
         """
         #### Устанавливает режим смешивания для рендеринга
@@ -523,9 +589,21 @@ class RenderStates:
         return self
 
     def get_blend_mode(self) -> BlendMode:
+        """
+        #### Возвращает текущий режим смешивания
+        
+        :Returns:
+        - BlendMode: Текущий режим смешивания пикселей
+        """
         return self.__blend_mode
 
     def get_shader(self) -> Shader:
+        """
+        #### Возвращает текущий шейдер
+        
+        :Returns:
+        - Shader: Текущая шейдерная программа
+        """
         return self.__shader
 
     

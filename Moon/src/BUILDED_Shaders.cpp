@@ -52,6 +52,14 @@ extern "C" {
     __declspec(dllexport) void _RenderStates_SetBlendMode(RenderStatesPtr render_states, BlendModePtr blend_mode) {
         render_states->blendMode = *blend_mode;
     }
+
+    __declspec(dllexport) void _RenderStates_SetTexture(RenderStatesPtr render_states, sf::Texture *texture) {
+        render_states->texture = texture;
+    }
+
+    __declspec(dllexport) void _RenderStates_SetTransform(RenderStatesPtr render_states, sf::Transform* transform) {
+        render_states->transform = *transform;
+    }
 }
 
 extern "C" {

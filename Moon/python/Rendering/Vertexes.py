@@ -73,77 +73,33 @@ LIB_PYSGL._VertexArray_SetVertexForPositionAndColor.argtypes = [
 ]
 LIB_PYSGL._VertexArray_SetVertexForPositionAndColor.restype = None
 
-# Функции для получения данных о вершине из VertexArray напрямую
-# Изменено на ctypes.c_float для точности позиции
-LIB_PYSGL._VertexArray_GetVertexPositionX.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._VertexArray_GetVertexPositionX.restype = ctypes.c_float
-LIB_PYSGL._VertexArray_GetVertexPositionY.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._VertexArray_GetVertexPositionY.restype = ctypes.c_float
-LIB_PYSGL._VertexArray_GetVertexColorR.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._VertexArray_GetVertexColorR.restype = ctypes.c_int
-LIB_PYSGL._VertexArray_GetVertexColorG.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._VertexArray_GetVertexColorG.restype = ctypes.c_int
-LIB_PYSGL._VertexArray_GetVertexColorB.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._VertexArray_GetVertexColorB.restype = ctypes.c_int
-LIB_PYSGL._VertexArray_GetVertexColorA.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._VertexArray_GetVertexColorA.restype = ctypes.c_int
+# Оптимизированные функции для прямого доступа к данным вершин
+LIB_PYSGL._VertexArray_SetVertexPosition.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_float, ctypes.c_float]
+LIB_PYSGL._VertexArray_SetVertexPosition.restype = None
+LIB_PYSGL._VertexArray_SetVertexColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_PYSGL._VertexArray_SetVertexColor.restype = None
+LIB_PYSGL._VertexArray_SetAllVerticesColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_PYSGL._VertexArray_SetAllVerticesColor.restype = None
+
+# Функции для работы с текстурными координатами
+LIB_PYSGL._VertexArray_AddVertexWithTexCoords.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_float, ctypes.c_float]
+LIB_PYSGL._VertexArray_AddVertexWithTexCoords.restype = None
+LIB_PYSGL._VertexArray_SetVertexTexCoords.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_float, ctypes.c_float]
+LIB_PYSGL._VertexArray_SetVertexTexCoords.restype = None
+LIB_PYSGL._VertexArray_SetQuadTexCoords.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float]
+LIB_PYSGL._VertexArray_SetQuadTexCoords.restype = None
 
 class Vertex:
-    """
-    Класс вершины для графического рендеринга.
-
-    Содержит информацию о **позиции** и **цвете** вершины. Этот класс является
-    просто контейнером данных для удобства, фактические данные хранятся
-    в нативном VertexArray.
-    """
-
-    def __init__(self, pos: Vector2f = Vector2f(0, 0), color: Color = COLOR_BLACK):
-        """
-        Инициализирует новую вершину.
-
-        Args:
-            pos (Vector2f): Начальная позиция вершины (по умолчанию (0, 0)).
-            color (Color): Начальный цвет вершины (по умолчанию черный).
-        """
-        self.__position = pos
-        self.__color = color
-
-    @property
-    def position(self) -> Vector2f:
-        """
-        Возвращает или устанавливает позицию вершины.
-
-        Пример:
-            >>> vertex.position = Vector2f(10, 20)
-            >>> print(vertex.position.x)
-        """
-        return self.__position
-
-    @position.setter
-    def position(self, new_pos: Vector2f):
-        if not isinstance(new_pos, Vector2f):
-            raise TypeError("Position must be a Vector2f object.")
-        self.__position = new_pos
-
-    @property
-    def color(self) -> Color:
-        """
-        Возвращает или устанавливает цвет вершины.
-
-        Пример:
-            >>> vertex.color = Color(255, 0, 0)
-            >>> print(vertex.color.r)
-        """
-        return self.__color
-
-    @color.setter
-    def color(self, new_color: Color):
-        if not isinstance(new_color, Color):
-            raise TypeError("Color must be a Color object.")
-        self.__color = new_color
-
+    """Легковесный контейнер для данных вершины."""
+    __slots__ = ('position', 'color', 'tex_coords')
+    
+    def __init__(self, pos: Vector2f = None, color: Color = None, tex_coords: Vector2f = None):
+        self.position = pos if pos is not None else Vector2f(0, 0)
+        self.color = color if color is not None else COLOR_BLACK
+        self.tex_coords = tex_coords if tex_coords is not None else Vector2f(0, 0)
+        
     def __repr__(self):
-        return f"Vertex(pos={self.position}, color={self.color})"
+        return f"Vertex({self.position.x}, {self.position.y}, {self.color}, {self.tex_coords})"
 
 
 class VertexArray:
@@ -227,11 +183,20 @@ class VertexArray:
         if not isinstance(vertex, Vertex):
             raise TypeError("Argument 'vertex' must be an instance of Vertex.")
         
-        LIB_PYSGL._VertexArray_AddVertexForPositionAndColor(
-            self._ptr, 
-            vertex.position.x, vertex.position.y, 
-            vertex.color.r, vertex.color.g, vertex.color.b, vertex.color.a
-        )
+        if hasattr(vertex, 'tex_coords') and vertex.tex_coords is not None:
+            LIB_PYSGL._VertexArray_AddVertexWithTexCoords(
+                self._ptr,
+                vertex.position.x, vertex.position.y,
+                vertex.color.r, vertex.color.g, vertex.color.b, vertex.color.a,
+                float(vertex.tex_coords.x), float(vertex.tex_coords.y)
+            )
+        else:
+
+            LIB_PYSGL._VertexArray_AddVertexForPositionAndColor(
+                self._ptr, 
+                vertex.position.x, vertex.position.y, 
+                vertex.color.r, vertex.color.g, vertex.color.b, vertex.color.a
+            )
     
     def extend(self, vertices: list[Vertex]) -> None:
         """
@@ -247,6 +212,16 @@ class VertexArray:
         """Очищает массив вершин."""
         LIB_PYSGL._VertexArray_Clear(self._ptr)
 
+    def set_quad_texture_coords(self, start_index: int, tex_left: float = 0.0, tex_top: float = 0.0, tex_right: float = 1.0, tex_bottom: float = 1.0) -> None:
+        """
+        Устанавливает текстурные координаты для квада (четырех вершин).
+        
+        Args:
+            start_index (int): Индекс первой вершины квада
+            tex_left, tex_top, tex_right, tex_bottom (float): Границы текстуры (0.0-1.0)
+        """
+        LIB_PYSGL._VertexArray_SetQuadTexCoords(self._ptr, start_index, tex_left, tex_top, tex_right, tex_bottom)
+
     def resize(self, size: int) -> None:
         """
         Изменяет размер нативного массива вершин.
@@ -259,6 +234,7 @@ class VertexArray:
         """
         if not isinstance(size, int) or size < 0:
             raise ValueError("Size must be a non-negative integer.")
+        LIB_PYSGL._VertexArray_Resize(self._ptr, size) 
         LIB_PYSGL._VertexArray_Resize(self._ptr, size)
 
     def set_vertex(self, index: int, vertex: Vertex) -> None:
@@ -281,65 +257,52 @@ class VertexArray:
         )
 
     def set_vertex_position(self, index: int, x: float, y: float) -> None:
-        """
-        Устанавливает позицию вершины по индексу.
-
-        Args:
-            index (int): Индекс вершины.
-            x (float): Новая X-координата.
-            y (float): Новая Y-координата.
-        """
+        """Быстро устанавливает позицию вершины."""
         if not (0 <= index < len(self)):
-            raise IndexError(f"Vertex index {index} out of bounds for VertexArray of size {len(self)}.")
-        
-        # Получаем текущий цвет, чтобы не изменить его
-        current_vertex = self[index] 
-        self.set_vertex(index, Vertex(Vector2f(x, y), current_vertex.color))
+            raise IndexError(f"Vertex index {index} out of bounds")
+        LIB_PYSGL._VertexArray_SetVertexPosition(self._ptr, index, x, y)
 
     def set_vertex_color(self, index: int, color: Color) -> None:
-        """
-        Устанавливает цвет вершины по индексу.
-
-        Args:
-            index (int): Индекс вершины.
-            color (Color): Новый цвет.
-        """
-        if not isinstance(color, Color):
-            raise TypeError("Argument 'color' must be an instance of Color.")
+        """Быстро устанавливает цвет вершины."""
         if not (0 <= index < len(self)):
-            raise IndexError(f"Vertex index {index} out of bounds for VertexArray of size {len(self)}.")
-        
-        # Получаем текущую позицию, чтобы не изменить её
-        current_vertex = self[index]
-        self.set_vertex(index, Vertex(current_vertex.position, color))
+            raise IndexError(f"Vertex index {index} out of bounds")
+        LIB_PYSGL._VertexArray_SetVertexColor(self._ptr, index, color.r, color.g, color.b, color.a)
 
     def set_color(self, color: Color) -> None:
-        """
-        Устанавливает цвет для всех вершин в массиве.
+        """Быстро устанавливает цвет для всех вершин."""
+        LIB_PYSGL._VertexArray_SetAllVerticesColor(self._ptr, color.r, color.g, color.b, color.a)
 
-        Args:
-            color (Color): Новый цвет.
-        """
-        if not isinstance(color, Color):
-            raise TypeError("Argument 'color' must be an instance of Color.")
+    def add_vertices(self, vertices: list[Vertex]) -> Self:
+        """Быстро добавляет множество вершин."""
+        for vertex in vertices:
+            self.append(vertex)
+        return self
+
+    def add_vertex_with_texture(self, x: float, y: float, color: Color, tex_x: float, tex_y: float) -> None:
+        """Добавляет вершину с текстурными координатами."""
+        LIB_PYSGL._VertexArray_AddVertexWithTexCoords(
+            self._ptr, x, y, color.r, color.g, color.b, color.a, tex_x, tex_y
+        )
+
+    def set_vertex_texture_coords(self, index: int, tex_x: float, tex_y: float) -> None:
+        """Устанавливает текстурные координаты вершины."""
+        if not (0 <= index < len(self)):
+            raise IndexError(f"Vertex index {index} out of bounds")
+        LIB_PYSGL._VertexArray_SetVertexTexCoords(self._ptr, index, tex_x, tex_y)
+
+    def set_quad_texture_coords(self, start_index: int, left: float, top: float, width: float, height: float) -> None:
+        """Устанавливает текстурные координаты для квада (4 вершины)."""
+        if not (0 <= start_index < len(self) - 3):
+            raise IndexError(f"Quad start index {start_index} out of bounds")
+        LIB_PYSGL._VertexArray_SetQuadTexCoords(self._ptr, start_index, left, top, width, height)
+
+    def add_textured_quad(self, x: float, y: float, width: float, height: float, color: Color, 
+                         tex_left: float, tex_top: float, tex_width: float, tex_height: float) -> None:
+        """Добавляет текстурированный квад."""
+        start_index = len(self)
         
-        for i in range(len(self)):
-            # Получаем текущую позицию, чтобы не менять её
-            current_pos = self[i].position 
-            self.set_vertex(i, Vertex(current_pos, color))
-
-    # fluent interface для удобства
-    def with_primitive_type(self, primitive_type: PrimitiveType) -> 'VertexArray':
-        """Устанавливает тип примитива и возвращает VertexArray для цепочки вызовов."""
-        self.set_primitive_type(primitive_type)
-        return self
-
-    def with_resize(self, size: int) -> 'VertexArray':
-        """Изменяет размер массива и возвращает VertexArray для цепочки вызовов."""
-        self.resize(size)
-        return self
-
-    def with_color(self, color: Color) -> 'VertexArray':
-        """Устанавливает цвет для всех вершин и возвращает VertexArray для цепочки вызовов."""
-        self.set_color(color)
-        return self
+        # Добавляем 4 вершины квада
+        self.add_vertex_with_texture(x, y, color, tex_left, tex_top)
+        self.add_vertex_with_texture(x + width, y, color, tex_left + tex_width, tex_top)
+        self.add_vertex_with_texture(x + width, y + height, color, tex_left + tex_width, tex_top + tex_height)
+        self.add_vertex_with_texture(x, y + height, color, tex_left, tex_top + tex_height)

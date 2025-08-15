@@ -91,6 +91,7 @@ from .Rendering.Text import *
 from .Rendering.Shapes import *
 from .Rendering.Shaders import Shader
 from .Rendering.RenderStates import RenderStates
+from .Rendering.Vertexes import VertexArray
 
 @final
 class LibraryLoadError(Exception):
@@ -188,6 +189,8 @@ LIB_PYSGL._Window_MapCoordsToPixelY.argtypes = [ctypes.c_void_p, ctypes.c_double
 LIB_PYSGL._Window_MapCoordsToPixelY.restype = ctypes.c_float
 LIB_PYSGL._Window_DrawWithRenderStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL._Window_DrawWithRenderStates.restype = None
+LIB_PYSGL._Window_DrawVertexArrayWithRenderStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+LIB_PYSGL._Window_DrawVertexArrayWithRenderStates.restype = None
 LIB_PYSGL._Window_DrawWithShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
 LIB_PYSGL._Window_DrawWithShader.restype = None
 LIB_PYSGL._Window_SetCursorVisibility.argtypes = [ctypes.c_void_p, ctypes.c_bool]
@@ -3063,17 +3066,20 @@ class Window:
         """
         if not isinstance(shape.get_ptr(), int):
             # Специальные объекты с собственной логикой отрисовки
-            shape.special_draw(self)
+            try:
+                shape.special_draw(self, render_states)
+            except:
+                shape.special_draw(self)
         else:
             # Стандартные объекты
             if render_states is None:
                 LIB_PYSGL._Window_Draw(self.__window_ptr, shape.get_ptr())
             elif isinstance(render_states, RenderStates):
-                LIB_PYSGL._Window_DrawWithRenderStates(
-                    self.__window_ptr, 
-                    render_states.get_ptr(), 
-                    shape.get_ptr()
-                )
+                    LIB_PYSGL._Window_DrawWithRenderStates(
+                        self.__window_ptr, 
+                        render_states.get_ptr(), 
+                        shape.get_ptr()
+                    )
             elif isinstance(render_states, Shader):
                 LIB_PYSGL._Window_DrawWithShader(
                     self.__window_ptr,
