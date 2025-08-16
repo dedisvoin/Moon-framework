@@ -125,8 +125,8 @@ class Game:
         self.__rainbow_shader.set_uniform("resolution", Vector2f(0.5, 0.5))
         self.__rainbow_shader.set_uniform("targetColor", Color(100, 100, 100, 255))
 
-        self.map_size = 50
-        self.mine_count = 350
+        self.map_size = 20
+        self.mine_count = 100
         self.mine_map = None
         self.map = []
         
