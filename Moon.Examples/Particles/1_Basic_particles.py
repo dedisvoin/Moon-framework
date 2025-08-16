@@ -27,16 +27,16 @@ p.max_velocity_rotation_speed = 30
 p.min_velocity_rotation_speed = 0
 
 p2 = CPU_Particle(color=Color(155*0.5, 250*0.5, 150*0.5, 255), size=100, shape=ParticleShapes.LightCircle)
-p2.spreading_angle = 90
-p2.max_speed = 100
+p2.spreading_angle = 100
+p2.max_speed = 160
 p2.min_speed = 10
 p2.resize = -10
-p2.angular_distribution_area = 360
-p2.resistance = 0.99
-p2.max_size = 100
+p2.angular_distribution_area = 100
+p2.resistance = 1
+p2.max_size = 40
 p2.min_size = 20
-p2.max_velocity_rotation_speed = 30
-p2.min_velocity_rotation_speed = 0
+p2.max_velocity_rotation_speed = 10
+p2.min_velocity_rotation_speed = 4
 
 
 ps.lightning = True
@@ -47,7 +47,7 @@ while window.update(events):
     window.clear(COLOR_BLACK)
 
     render_time = window.get_render_time(10)
-    ps.emit_per_time(p, CPU_ParticleEmitters.Point(window.get_center() + Vector2f(0, 0)), 0.01, 40, window.get_render_time(), emitter_id="1")
+    ps.emit_per_time(p2, CPU_ParticleEmitters.Point(window.get_center() + Vector2f(0, 0)), 0.01, 40, window.get_render_time(), emitter_id="1")
     #ps.emit_per_time(p2, CPU_ParticleEmitters.Point(window.get_center() + Vector2f(-300, 0)), 0.01, 5, window.get_render_time(), emitter_id='2')
     ps.update(render_time)
 
