@@ -15,5 +15,4 @@ __pycache__/
 .vscode/
 
 .game_data/
-*.png
 *.wav
