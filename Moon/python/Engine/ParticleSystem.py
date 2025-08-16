@@ -116,7 +116,7 @@ class ParticleShapes:
     LightCircle = 2
     Sprite = 3
 
-class Particle:
+class CPU_Particle:
     def __init__(self, pos: Vector2f = Vector2f(0, 0), 
                       speed: Vector2f = Vector2f(0, 0), 
                       color: Color = COLOR_WHITE, 
@@ -161,7 +161,7 @@ class Particle:
             self.texture = TEXTURE_LIGHT_CIRCLE
 
     def copy(self):
-        np = Particle(Vector2f(self.position.x, self.position.y), 
+        np = CPU_Particle(Vector2f(self.position.x, self.position.y), 
                        Vector2f(self.speed.x, self.speed.y), 
                        self.color, self.size, self.resize, self.shape)
         np.max_speed = self.max_speed
@@ -187,9 +187,20 @@ class CPU_ParticleEmitters:
         def __init__(self, position: Vector2f):
             self.position = position
 
-class ParticleSystem:
+    class Rect:
+        def __init__(self, position: Vector2f, width: float = 1, height: float = 1):
+            self.position = position
+            self.width = width
+            self.height = height
+
+    class Circle:
+        def __init__(self, positiom: Vector2f, radius: float = 1):
+            self.position = positiom
+            self.radius = radius
+
+class CPU_ParticleSystem:
     def __init__(self):
-        self.particles: list[Particle] = []
+        self.particles: list[CPU_Particle] = []
         self.vertices = VertexArray().set_primitive_type(VertexArray.PrimitiveType.QUADS)
 
         self.atlas = DEFAULT_TEXTURE_ATLAS.get_render_texture().get_texture()
@@ -207,10 +218,14 @@ class ParticleSystem:
 
         self.lightning = False
     
-    def _construct_particle(self, particle: Particle, emitter: CPU_ParticleEmitters) -> Particle:
+    def _construct_particle(self, particle: CPU_Particle, emitter: CPU_ParticleEmitters) -> CPU_Particle:
         p = particle.copy()
         if isinstance(emitter, CPU_ParticleEmitters.Point):
             p.position = Vector2f(emitter.position.x, emitter.position.y)
+        if isinstance(emitter, CPU_ParticleEmitters.Rect):
+            p.position = Vector2f(emitter.position.x + random.uniform(0, emitter.width), emitter.position.y + random.uniform(0, emitter.height))
+        if isinstance(emitter, CPU_ParticleEmitters.Circle):
+            p.position = emitter.position + Vector2f(0, random.uniform(0, emitter.radius)).rotate_at(random.uniform(0, 360))
             
         p.speed = Vector2f(0, random.uniform(p.min_speed, p.max_speed)).set_angle(p.spreading_angle + random.uniform(-p.angular_distribution_area / 2, p.angular_distribution_area / 2))
         p.rotation_speed = random.uniform(p.min_rotation_speed, p.max_rotation_speed)
@@ -218,7 +233,7 @@ class ParticleSystem:
         p.velocity_rotation_speed = random.uniform(p.min_velocity_rotation_speed, p.max_velocity_rotation_speed)
         return p
 
-    def emit(self, particle: Particle, emitter: CPU_ParticleEmitters, count: int = 1):
+    def emit(self, particle: CPU_Particle, emitter: CPU_ParticleEmitters, count: int = 1):
         for _ in range(count):
             self.particles.append(self._construct_particle(particle, emitter))
 
@@ -302,7 +317,7 @@ class ParticleSystem:
     def get_ptr(self) -> Self:
         return self
     
-    def emit_per_time(self, particle: Particle, emitter: CPU_ParticleEmitters, 
+    def emit_per_time(self, particle: CPU_Particle, emitter: CPU_ParticleEmitters, 
                       interval_seconds: float, count: int = 1, render_time: float = 1.0, 
                       emitter_id: str = "default"):
         if emitter_id not in self.emission_timers:

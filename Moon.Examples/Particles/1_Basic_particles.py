@@ -13,8 +13,8 @@ window.set_view_info()
 
 
 
-ps = ParticleSystem()
-p = Particle(color=Color(255*0.5, 200*0.5, 150*0.5, 255), size=100, shape=ParticleShapes.LightCircle)
+ps = CPU_ParticleSystem()
+p = CPU_Particle(color=Color(255*0.5, 200*0.5, 150*0.5, 255), size=100, shape=ParticleShapes.LightCircle)
 p.spreading_angle = 90
 p.max_speed = 100
 p.min_speed = 10
@@ -26,7 +26,7 @@ p.min_size = 20
 p.max_velocity_rotation_speed = 30
 p.min_velocity_rotation_speed = 0
 
-p2 = Particle(color=Color(155*0.5, 250*0.5, 150*0.5, 255), size=100, shape=ParticleShapes.LightCircle)
+p2 = CPU_Particle(color=Color(155*0.5, 250*0.5, 150*0.5, 255), size=100, shape=ParticleShapes.LightCircle)
 p2.spreading_angle = 90
 p2.max_speed = 100
 p2.min_speed = 10
