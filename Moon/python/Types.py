@@ -1,23 +1,51 @@
-from .Colors import Color
+from Moon.python.Colors import Color
 from enum import Enum, auto
-from typing import NoReturn, Optional, Callable, TypeAlias, Union, overload, Self, Literal
+from typing import NoReturn, Optional, Callable, TypeAlias, Union, overload, Self, Literal, Final, Generic
 from uuid import uuid4
 
-type FunctionOrMethod =     Callable
+# Тип обозначающий функцию или метод == +
+type FunctionOrMethod = Callable        #
+# ===================================== +
 
-Number: TypeAlias =               int | float
-type OptionalNumber =       Optional[Number]
+# Тип числового значения (int или float) == +
+type Number = int | float                   #
+# ========================================= +
 
-type TwoNumberList =        list[Number] | tuple[Number, Number]
-type TwoIntegerList =       list[int] | tuple[int, int]
-type TwoFloatList =         list[float] | tuple[float, float]
+# Тип опционального числового значения == +
+type OptionalNumber = Optional[Number]    #
+# ======================================= +
 
-type ThreeNumbersList =     list[Number] | tuple[Number, Number, Number]
-type FourNumbersList =      list[Number] | tuple[Number, Number, Number, Number]
-type ColorType =            Color | ThreeNumbersList
+# Тип обозначающий список из двух чисел (int или float) ==== +
+type TwoNumberList = list[Number] | tuple[Number, Number]    #
+# ========================================================== +
 
-type Identifier =           int | str
-type OptionalIdentifier =   Optional[Identifier]
+# Тип обозначающий список из двух целых чисел ====== +
+type TwoIntegerList = list[int] | tuple[int, int]    #
+# ================================================== +
+
+# Тип обозначающий список из двух дробных чисел ======== +
+type TwoFloatList = list[float] | tuple[float, float]    #
+# ====================================================== +
+
+# Тип обозначающий список из трех чисел (int или float) =============== +
+type ThreeNumbersList = list[Number] | tuple[Number, Number, Number]    #
+# ===================================================================== +
+
+# Тип обозначающий список из четырех чисел (int или float) =================== +
+type FourNumbersList = list[Number] | tuple[Number, Number, Number, Number]    #
+# ============================================================================ +
+
+# Тип обозначающий любое значение которое можно имплементировать как цвет == +
+type ColorType = Color | ThreeNumbersList                                    #
+# ========================================================================== +
+
+# Тип идентификаторного значения ======= +
+type Identifier =           int | str    #
+# ====================================== +
+
+# Тип опционального идентификатора ================ +
+type OptionalIdentifier =   Optional[Identifier]    #
+# ================================================= +
 
 
 def AutoIdentifier() -> Identifier:
@@ -30,6 +58,10 @@ def AutoIdentifier() -> Identifier:
     - идентификатор
     """
     return str(uuid4())
+
+# Тип индекса из перечисления Origins ==  +
+type OriginTypes = OriginTypes            #
+# ======================================= +
 
 
 class OriginTypes(Enum):

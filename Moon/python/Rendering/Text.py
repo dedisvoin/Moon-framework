@@ -124,58 +124,58 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL = ctypes.CDLL(_find_library())
+    LIB_MOON = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
 
-LIB_PYSGL.loadSystemFont.argtypes = [ctypes.c_char_p]
-LIB_PYSGL.loadSystemFont.restype = ctypes.c_void_p
+LIB_MOON.loadSystemFont.argtypes = [ctypes.c_char_p]
+LIB_MOON.loadSystemFont.restype = ctypes.c_void_p
 
-LIB_PYSGL.createText.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.createText.restype =  ctypes.c_void_p
+LIB_MOON.createText.argtypes = [ctypes.c_void_p]
+LIB_MOON.createText.restype =  ctypes.c_void_p
 
-LIB_PYSGL.setText.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
-LIB_PYSGL.setText.restype = None
+LIB_MOON.setText.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+LIB_MOON.setText.restype = None
 
-LIB_PYSGL.setTextSize.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL.setTextSize.restype = None
+LIB_MOON.setTextSize.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON.setTextSize.restype = None
 
-LIB_PYSGL.setTextColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL.setTextColor.restype = None
+LIB_MOON.setTextColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON.setTextColor.restype = None
 
-LIB_PYSGL.setTextPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL.setTextPosition.restype = None
+LIB_MOON.setTextPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON.setTextPosition.restype = None
 
-LIB_PYSGL.setTextOfsset.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL.setTextOfsset.restype = None
+LIB_MOON.setTextOfsset.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON.setTextOfsset.restype = None
 
-LIB_PYSGL.setTextAngle.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL.setTextAngle.restype = None
+LIB_MOON.setTextAngle.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON.setTextAngle.restype = None
 
-LIB_PYSGL.setStyle.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL.setStyle.restype = None
+LIB_MOON.setStyle.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON.setStyle.restype = None
 
-LIB_PYSGL.setOutlineColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL.setOutlineColor.restype = None
+LIB_MOON.setOutlineColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON.setOutlineColor.restype = None
 
-LIB_PYSGL.setOutlineThickness.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL.setOutlineThickness.restype = None
+LIB_MOON.setOutlineThickness.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON.setOutlineThickness.restype = None
 
-LIB_PYSGL.setLetterSpacing.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL.setLetterSpacing.restype = None
+LIB_MOON.setLetterSpacing.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON.setLetterSpacing.restype = None
 
-LIB_PYSGL.getTextWidth.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getTextWidth.restype = ctypes.c_double
+LIB_MOON.getTextWidth.argtypes = [ctypes.c_void_p]
+LIB_MOON.getTextWidth.restype = ctypes.c_double
 
-LIB_PYSGL.getTextHeight.argtypes = [ctypes.c_void_p]
-LIB_PYSGL.getTextHeight.restype = ctypes.c_double
+LIB_MOON.getTextHeight.argtypes = [ctypes.c_void_p]
+LIB_MOON.getTextHeight.restype = ctypes.c_double
 
-LIB_PYSGL.setFont.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL.setFont.restype = None
+LIB_MOON.setFont.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON.setFont.restype = None
 
-LIB_PYSGL.setTextScale.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL.setTextScale.restype = None
+LIB_MOON.setTextScale.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON.setTextScale.restype = None
 
 class Font:
     """
@@ -244,7 +244,7 @@ class Font:
         - FileNotFoundError: Если файл шрифта не существует
         """
         self.__font_path = font_path
-        self.__font_ptr = LIB_PYSGL.loadSystemFont(self.__font_path.encode('utf-8'))
+        self.__font_ptr = LIB_MOON.loadSystemFont(self.__font_path.encode('utf-8'))
 
     def get_font_ptr(self):
         """
@@ -446,7 +446,7 @@ class BaseText:
         - Связывает с указанным шрифтом
         """
         self.__font = font
-        self.__text_ptr: BaseTextPtr = LIB_PYSGL.createText(self.__font.get_font_ptr())
+        self.__text_ptr: BaseTextPtr = LIB_MOON.createText(self.__font.get_font_ptr())
         self.__text: str = ""
         self.__scale: list[float, float] = [1, 1]
         self.__origin: Vector2f = Vector2f(0, 0)
@@ -455,7 +455,7 @@ class BaseText:
         self.__outline_thickness: float = 0
         self.__color: Color = Color(0, 0, 0, 255)
         self.__letter_spacing: float = 0
-        LIB_PYSGL.setTextColor(self.__text_ptr, self.__color.r, self.__color.g, self.__color.b, self.__color.a)
+        LIB_MOON.setTextColor(self.__text_ptr, self.__color.r, self.__color.g, self.__color.b, self.__color.a)
 
     def get_ptr(self) -> BaseTextPtr:
         """
@@ -501,7 +501,7 @@ class BaseText:
         ```
         """
         self.__text = text
-        LIB_PYSGL.setText(self.__text_ptr, text.encode())
+        LIB_MOON.setText(self.__text_ptr, text.encode())
         return self
     
     def set_text_scale_xy(self, x: float | None = None, y: float | None = None) -> Self:
@@ -531,7 +531,7 @@ class BaseText:
             self.__scale[0] = x
         if y is not None :
             self.__scale[1] = y
-        LIB_PYSGL.setTextScale(self.__text_ptr, self.__scale[0], self.__scale[1])
+        LIB_MOON.setTextScale(self.__text_ptr, self.__scale[0], self.__scale[1])
         return self
     
     def set_text_scale(self, scale: float) -> Self:
@@ -558,7 +558,7 @@ class BaseText:
         """
         self.__scale[0] = scale
         self.__scale[1] = scale
-        LIB_PYSGL.setTextScale(self.__text_ptr, self.__scale[0], self.__scale[1])
+        LIB_MOON.setTextScale(self.__text_ptr, self.__scale[0], self.__scale[1])
         return self
     
     def set_fast_text(self, value: Any) -> Self:
@@ -590,7 +590,7 @@ class BaseText:
         text_obj.set_fast_text(fps_counter)
         ```
         """
-        LIB_PYSGL.setText(self.__text_ptr, str(value).encode('utf-8'))
+        LIB_MOON.setText(self.__text_ptr, str(value).encode('utf-8'))
         return self
         
     def set_size(self, size: int | float) -> Self:
@@ -614,7 +614,7 @@ class BaseText:
         text_obj.set_size(24)  # Размер 24px
         ```
         """
-        LIB_PYSGL.setTextSize(self.__text_ptr, int(size))
+        LIB_MOON.setTextSize(self.__text_ptr, int(size))
         return self
         
     def set_color(self, color: Color) -> Self:
@@ -639,7 +639,7 @@ class BaseText:
         ```
         """
         self.__color = color
-        LIB_PYSGL.setTextColor(self.__text_ptr, color.r, color.g, color.b, color.a)
+        LIB_MOON.setTextColor(self.__text_ptr, color.r, color.g, color.b, color.a)
         return self
         
     def set_position(self, x: float, y: float) -> Self:
@@ -664,7 +664,7 @@ class BaseText:
         text_obj.set_position(100, 50)
         ```
         """
-        LIB_PYSGL.setTextPosition(self.__text_ptr, x, y)
+        LIB_MOON.setTextPosition(self.__text_ptr, x, y)
         return self
         
     def set_origin(self, x: float, y: float) -> Self:
@@ -696,7 +696,7 @@ class BaseText:
         text_obj.set_origin(text_width/2, text_height/2)
         ```
         """
-        LIB_PYSGL.setTextOfsset(self.__text_ptr, x, y)
+        LIB_MOON.setTextOfsset(self.__text_ptr, x, y)
         self.__origin.x = x
         self.__origin.y = y
         return self
@@ -733,7 +733,7 @@ class BaseText:
         text_obj.set_angle(45)  # Поворот на 45 градусов
         ```
         """
-        LIB_PYSGL.setTextAngle(self.__text_ptr, angle)
+        LIB_MOON.setTextAngle(self.__text_ptr, angle)
         self.__angle = angle
         return self
 
@@ -770,7 +770,7 @@ class BaseText:
         text_obj.set_style(TextStyle.BOLD | TextStyle.ITALIC)
         ```
         """
-        LIB_PYSGL.setStyle(self.__text_ptr, style)
+        LIB_MOON.setStyle(self.__text_ptr, style)
         return self
     
     def set_font(self, font: Font) -> Self:
@@ -795,7 +795,7 @@ class BaseText:
         text_obj.set_font(new_font)
         ```
         """
-        LIB_PYSGL.setFont(self.__text_ptr, font.get_font_ptr())
+        LIB_MOON.setFont(self.__text_ptr, font.get_font_ptr())
         return self
 
     def set_outline_color(self, color: Color) -> Self:
@@ -824,7 +824,7 @@ class BaseText:
         text_obj.set_outline_color(Color(0, 0, 0)).set_outline_thickness(2)
         ```
         """
-        LIB_PYSGL.setOutlineColor(self.__text_ptr, color.r, color.g, color.b, color.a)
+        LIB_MOON.setOutlineColor(self.__text_ptr, color.r, color.g, color.b, color.a)
         self.__outline_color = color
         return self
     
@@ -860,7 +860,7 @@ class BaseText:
         text_obj.set_outline_thickness(1.5)  # Тонкий контур
         ```
         """
-        LIB_PYSGL.setOutlineThickness(self.__text_ptr, thickness)
+        LIB_MOON.setOutlineThickness(self.__text_ptr, thickness)
         self.__outline_thickness = thickness
         return self
     
@@ -896,7 +896,7 @@ class BaseText:
         text_obj.set_letter_spacing(2.0)  # Увеличить интервалы
         ```
         """
-        LIB_PYSGL.setLetterSpacing(self.__text_ptr, spacing)
+        LIB_MOON.setLetterSpacing(self.__text_ptr, spacing)
         self.__letter_spacing = spacing
         return self
     
@@ -935,7 +935,7 @@ class BaseText:
         text_obj.set_position(screen_width/2 - width/2, y)
         ```
         """
-        return LIB_PYSGL.getTextWidth(self.__text_ptr)
+        return LIB_MOON.getTextWidth(self.__text_ptr)
     
     def get_text_height(self) -> float:
         """
@@ -961,7 +961,7 @@ class BaseText:
         text_obj.set_position(x, screen_height/2 - height/2)
         ```
         """
-        return LIB_PYSGL.getTextHeight(self.__text_ptr)
+        return LIB_MOON.getTextHeight(self.__text_ptr)
     
     def get_uninitialized_text_width(self, text: str) -> float:
         """
@@ -993,7 +993,7 @@ class BaseText:
         """
         saved_text = self.__text
         self.set_text(text)
-        width = LIB_PYSGL.getTextWidth(self.__text_ptr)
+        width = LIB_MOON.getTextWidth(self.__text_ptr)
         self.set_text(saved_text)
         return width
     
@@ -1027,7 +1027,7 @@ class BaseText:
         """
         saved_text = self.__text
         self.set_text(text)
-        height = LIB_PYSGL.getTextHeight(self.__text_ptr)
+        height = LIB_MOON.getTextHeight(self.__text_ptr)
         self.set_text(saved_text)
         return height
     

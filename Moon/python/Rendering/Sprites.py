@@ -55,37 +55,37 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL = ctypes.CDLL(_find_library())
+    LIB_MOON = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
 # Определение типов аргументов и возвращаемых значений для функций библиотеки
-LIB_PYSGL._RenderTexture_Init.argtypes = None
-LIB_PYSGL._RenderTexture_Init.restype = ctypes.c_void_p
-LIB_PYSGL._RenderTexture_Create.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._RenderTexture_Create.restype = ctypes.c_bool
-LIB_PYSGL._RenderTexture_Draw.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._RenderTexture_Draw.restype = None
-LIB_PYSGL._RenderTexture_Clear.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._RenderTexture_Clear.restype = None
-LIB_PYSGL._RenderTexture_Display.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._RenderTexture_Display.restype = None
-LIB_PYSGL._RenderTexture_SetSmooth.argtypes = [ctypes.c_void_p, ctypes.c_bool]
-LIB_PYSGL._RenderTexture_SetSmooth.restype = None
-LIB_PYSGL._RenderTexture_DrawWithStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._RenderTexture_DrawWithStates.restype = None
-LIB_PYSGL._RenderTexture_DrawWithShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._RenderTexture_DrawWithShader.restype = None
-LIB_PYSGL._RenderTexture_SetView.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._RenderTexture_SetView.restype = None
-LIB_PYSGL._RenderTexture_GetView.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._RenderTexture_GetView.restype = ctypes.c_void_p
-LIB_PYSGL._RenderTexture_GetDefaultView.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._RenderTexture_GetDefaultView.restype = ctypes.c_void_p
-LIB_PYSGL._RenderTexture_GetTexture.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._RenderTexture_GetTexture.restype = ctypes.c_void_p
-LIB_PYSGL._RenderTexture_Delete.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._RenderTexture_Delete.restype = None
+LIB_MOON._RenderTexture_Init.argtypes = None
+LIB_MOON._RenderTexture_Init.restype = ctypes.c_void_p
+LIB_MOON._RenderTexture_Create.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+LIB_MOON._RenderTexture_Create.restype = ctypes.c_bool
+LIB_MOON._RenderTexture_Draw.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._RenderTexture_Draw.restype = None
+LIB_MOON._RenderTexture_Clear.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._RenderTexture_Clear.restype = None
+LIB_MOON._RenderTexture_Display.argtypes = [ctypes.c_void_p]
+LIB_MOON._RenderTexture_Display.restype = None
+LIB_MOON._RenderTexture_SetSmooth.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+LIB_MOON._RenderTexture_SetSmooth.restype = None
+LIB_MOON._RenderTexture_DrawWithStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._RenderTexture_DrawWithStates.restype = None
+LIB_MOON._RenderTexture_DrawWithShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._RenderTexture_DrawWithShader.restype = None
+LIB_MOON._RenderTexture_SetView.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._RenderTexture_SetView.restype = None
+LIB_MOON._RenderTexture_GetView.argtypes = [ctypes.c_void_p]
+LIB_MOON._RenderTexture_GetView.restype = ctypes.c_void_p
+LIB_MOON._RenderTexture_GetDefaultView.argtypes = [ctypes.c_void_p]
+LIB_MOON._RenderTexture_GetDefaultView.restype = ctypes.c_void_p
+LIB_MOON._RenderTexture_GetTexture.argtypes = [ctypes.c_void_p]
+LIB_MOON._RenderTexture_GetTexture.restype = ctypes.c_void_p
+LIB_MOON._RenderTexture_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._RenderTexture_Delete.restype = None
 
 # Тип указателя на RenderTexture ========= +
 type RenderTexturePtr = ctypes.c_void_p    #
@@ -98,14 +98,14 @@ class RenderTexture:
     """
     def __init__(self):
         """Инициализирует новую текстуру рендеринга"""
-        self._ptr = LIB_PYSGL._RenderTexture_Init()
+        self._ptr = LIB_MOON._RenderTexture_Init()
         self.__width: None | int = None
         self.__height: None | int = None
         self.__smooth: bool = False
 
     def delete(self):
         """Удаляет текстуру рендеринга"""
-        LIB_PYSGL._RenderTexture_Delete(self._ptr)
+        LIB_MOON._RenderTexture_Delete(self._ptr)
 
     def __del__(self):
         self.delete()
@@ -124,7 +124,7 @@ class RenderTexture:
         Raises:
             Exception: Если не удалось создать текстуру
         """
-        if LIB_PYSGL._RenderTexture_Create(self._ptr, width, height):
+        if LIB_MOON._RenderTexture_Create(self._ptr, width, height):
             self.__width = width
             self.__height = height
         else:
@@ -134,7 +134,7 @@ class RenderTexture:
     def get_texture(self) -> "Texture":
         """Возвращает объект текстуры, связанный с текстурой рендеринга"""
         texture = Texture()
-        texture.set_ptr(LIB_PYSGL._RenderTexture_GetTexture(self._ptr))
+        texture.set_ptr(LIB_MOON._RenderTexture_GetTexture(self._ptr))
         return texture
 
     def get_ptr(self) -> RenderTexturePtr:
@@ -167,12 +167,12 @@ class RenderTexture:
                 shape.special_draw(self) 
         else:
             if render_states is None:
-                LIB_PYSGL._RenderTexture_Draw(self._ptr, shape.get_ptr())
+                LIB_MOON._RenderTexture_Draw(self._ptr, shape.get_ptr())
             else:
                 if isinstance(render_states, Shader):
-                    LIB_PYSGL._RenderTexture_DrawWithShader(self._ptr, shape.get_ptr(), render_states.get_ptr())
+                    LIB_MOON._RenderTexture_DrawWithShader(self._ptr, shape.get_ptr(), render_states.get_ptr())
                 elif isinstance(render_states, RenderStates):
-                    LIB_PYSGL._RenderTexture_DrawWithStates(self._ptr, shape.get_ptr(), render_states.get_ptr())
+                    LIB_MOON._RenderTexture_DrawWithStates(self._ptr, shape.get_ptr(), render_states.get_ptr())
 
     def clear(self, color: Color = COLOR_WHITE):
         """
@@ -181,11 +181,11 @@ class RenderTexture:
         Args:
             color: Цвет очистки (по умолчанию белый)
         """
-        LIB_PYSGL._RenderTexture_Clear(self._ptr, color.r, color.g, color.b, color.r)
+        LIB_MOON._RenderTexture_Clear(self._ptr, color.r, color.g, color.b, color.r)
 
     def display(self):
         """Обновляет текстуру рендеринга (финализирует отрисовку)"""
-        LIB_PYSGL._RenderTexture_Display(self._ptr)
+        LIB_MOON._RenderTexture_Display(self._ptr)
 
     def set_smooth(self, smooth: bool = False):
         """
@@ -194,7 +194,7 @@ class RenderTexture:
         Args:
             smooth: Если True - включает сглаживание, False - выключает
         """
-        LIB_PYSGL._RenderTexture_SetSmooth(self._ptr, smooth)
+        LIB_MOON._RenderTexture_SetSmooth(self._ptr, smooth)
         self.__smooth = smooth
 
     def get_smooth(self) -> bool:
@@ -207,82 +207,82 @@ class RenderTexture:
     
     def set_view(self, view: View):
         """Устанавливает вид (камеру) для рендеринга"""
-        LIB_PYSGL._RenderTexture_SetView(self._ptr, view.get_ptr())
+        LIB_MOON._RenderTexture_SetView(self._ptr, view.get_ptr())
 
     def get_default_view(self) -> View:
         """Возвращает вид по умолчанию для этой текстуры рендеринга"""
-        return LIB_PYSGL._RenderTexture_GetDefaultView(self._ptr)
+        return LIB_MOON._RenderTexture_GetDefaultView(self._ptr)
     
     def get_view(self) -> View:
         """Возвращает текущий активный вид текстуры рендеринга"""
-        return LIB_PYSGL._RenderTexture_GetView(self._ptr)
+        return LIB_MOON._RenderTexture_GetView(self._ptr)
 
 # Определение функций для работы со спрайтами
-LIB_PYSGL._Sprite_GetFromRenderTexture.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetFromRenderTexture.restype = ctypes.c_void_p
+LIB_MOON._Sprite_GetFromRenderTexture.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetFromRenderTexture.restype = ctypes.c_void_p
 
-LIB_PYSGL._Sprite_GetFromTexture.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetFromTexture.restype = ctypes.c_void_p
+LIB_MOON._Sprite_GetFromTexture.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetFromTexture.restype = ctypes.c_void_p
 
-LIB_PYSGL._Sprite_Scale.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Sprite_Scale.restype = None
-LIB_PYSGL._Sprite_Rotate.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL._Sprite_Rotate.restype = None
-LIB_PYSGL._Sprite_SetColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._Sprite_SetColor.restype = None
-LIB_PYSGL._Sprite_SetOrigin.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Sprite_SetOrigin.restype = None
-LIB_PYSGL._Sprite_SetPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Sprite_SetPosition.restype = None
-LIB_PYSGL._Sprite_SetRotation.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL._Sprite_SetRotation.restype = None
-LIB_PYSGL._Sprite_SetScale.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Sprite_SetScale.restype = None
-LIB_PYSGL._Sprite_GetColorR.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetColorR.restype = ctypes.c_int
-LIB_PYSGL._Sprite_GetColorG.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetColorG.restype = ctypes.c_int
-LIB_PYSGL._Sprite_GetColorB.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetColorB.restype = ctypes.c_int
-LIB_PYSGL._Sprite_GetColorA.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetColorA.restype = ctypes.c_int
-LIB_PYSGL._Sprite_GetOriginX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetOriginX.restype = ctypes.c_float
-LIB_PYSGL._Sprite_GetOriginY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetOriginY.restype = ctypes.c_float
-LIB_PYSGL._Sprite_GetPositionX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetPositionX.restype = ctypes.c_float
-LIB_PYSGL._Sprite_GetPositionY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetPositionY.restype = ctypes.c_float
-LIB_PYSGL._Sprite_GetRotation.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetRotation.restype = ctypes.c_float
-LIB_PYSGL._Sprite_GetScaleX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetScaleX.restype = ctypes.c_float
-LIB_PYSGL._Sprite_GetScaleY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Sprite_GetScaleY.restype = ctypes.c_float
+LIB_MOON._Sprite_Scale.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Sprite_Scale.restype = None
+LIB_MOON._Sprite_Rotate.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON._Sprite_Rotate.restype = None
+LIB_MOON._Sprite_SetColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Sprite_SetColor.restype = None
+LIB_MOON._Sprite_SetOrigin.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Sprite_SetOrigin.restype = None
+LIB_MOON._Sprite_SetPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Sprite_SetPosition.restype = None
+LIB_MOON._Sprite_SetRotation.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON._Sprite_SetRotation.restype = None
+LIB_MOON._Sprite_SetScale.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Sprite_SetScale.restype = None
+LIB_MOON._Sprite_GetColorR.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetColorR.restype = ctypes.c_int
+LIB_MOON._Sprite_GetColorG.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetColorG.restype = ctypes.c_int
+LIB_MOON._Sprite_GetColorB.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetColorB.restype = ctypes.c_int
+LIB_MOON._Sprite_GetColorA.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetColorA.restype = ctypes.c_int
+LIB_MOON._Sprite_GetOriginX.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetOriginX.restype = ctypes.c_float
+LIB_MOON._Sprite_GetOriginY.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetOriginY.restype = ctypes.c_float
+LIB_MOON._Sprite_GetPositionX.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetPositionX.restype = ctypes.c_float
+LIB_MOON._Sprite_GetPositionY.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetPositionY.restype = ctypes.c_float
+LIB_MOON._Sprite_GetRotation.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetRotation.restype = ctypes.c_float
+LIB_MOON._Sprite_GetScaleX.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetScaleX.restype = ctypes.c_float
+LIB_MOON._Sprite_GetScaleY.argtypes = [ctypes.c_void_p]
+LIB_MOON._Sprite_GetScaleY.restype = ctypes.c_float
 
 
 # Определение функций для работы с текстурами
-LIB_PYSGL._Texture_LoadFromFile.argtypes = [ctypes.c_char_p]
-LIB_PYSGL._Texture_LoadFromFile.restype = ctypes.c_void_p
-LIB_PYSGL._Texture_LoadFromFileWithBoundRect.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._Texture_LoadFromFileWithBoundRect.restype = ctypes.c_void_p
-LIB_PYSGL._Texture_GetMaxixmumSize.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Texture_GetMaxixmumSize.restype = ctypes.c_int
-LIB_PYSGL._Texture_GetSizeX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Texture_GetSizeX.restype = ctypes.c_int
-LIB_PYSGL._Texture_GetSizeY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Texture_GetSizeY.restype = ctypes.c_int
-LIB_PYSGL._Texture_SetRepeated.argtypes = [ctypes.c_void_p, ctypes.c_bool]
-LIB_PYSGL._Texture_SetRepeated.restype = None
-LIB_PYSGL._Texture_SetSmooth.argtypes = [ctypes.c_void_p, ctypes.c_bool]
-LIB_PYSGL._Texture_SetSmooth.restype = None
-LIB_PYSGL._Texture_Swap.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._Texture_Swap.restype = None
-LIB_PYSGL._Texture_SubTexture.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._Texture_SubTexture.restype = ctypes.c_void_p
-LIB_PYSGL._Texture_Delete.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Texture_Delete.restype = None
+LIB_MOON._Texture_LoadFromFile.argtypes = [ctypes.c_char_p]
+LIB_MOON._Texture_LoadFromFile.restype = ctypes.c_void_p
+LIB_MOON._Texture_LoadFromFileWithBoundRect.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Texture_LoadFromFileWithBoundRect.restype = ctypes.c_void_p
+LIB_MOON._Texture_GetMaxixmumSize.argtypes = [ctypes.c_void_p]
+LIB_MOON._Texture_GetMaxixmumSize.restype = ctypes.c_int
+LIB_MOON._Texture_GetSizeX.argtypes = [ctypes.c_void_p]
+LIB_MOON._Texture_GetSizeX.restype = ctypes.c_int
+LIB_MOON._Texture_GetSizeY.argtypes = [ctypes.c_void_p]
+LIB_MOON._Texture_GetSizeY.restype = ctypes.c_int
+LIB_MOON._Texture_SetRepeated.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+LIB_MOON._Texture_SetRepeated.restype = None
+LIB_MOON._Texture_SetSmooth.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+LIB_MOON._Texture_SetSmooth.restype = None
+LIB_MOON._Texture_Swap.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._Texture_Swap.restype = None
+LIB_MOON._Texture_SubTexture.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Texture_SubTexture.restype = ctypes.c_void_p
+LIB_MOON._Texture_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._Texture_Delete.restype = None
 
 # Тип указателя на текстуру ========= +
 TexturePtr = ctypes.c_void_p          #
@@ -300,7 +300,7 @@ class Texture:
     def delete(self) -> None:
         """Удаляет текстуру"""
         if self._ptr is not None:
-            LIB_PYSGL._Texture_Delete(self._ptr)
+            LIB_MOON._Texture_Delete(self._ptr)
             self._ptr = None
 
     def  __del__(self):
@@ -358,11 +358,11 @@ class Texture:
             NotImplementedError: Если переданы неверные аргументы
         """
         if arg2 is None and arg3 is None:
-            ptr = LIB_PYSGL._Texture_LoadFromFile(arg1.encode('utf-8'))
+            ptr = LIB_MOON._Texture_LoadFromFile(arg1.encode('utf-8'))
             t = Texture()
             return t.set_ptr(ptr)
         elif arg2 is not None and arg3 is not None:
-            ptr = LIB_PYSGL._Texture_LoadFromFileWithBoundRect(arg1.encode('utf-8'),
+            ptr = LIB_MOON._Texture_LoadFromFileWithBoundRect(arg1.encode('utf-8'),
                                                                arg2[0], arg2[1], arg3[0], arg3[1])
             t = Texture()
             return t.set_ptr(ptr)
@@ -372,19 +372,19 @@ class Texture:
     def get_sub_texture(self, x: int, y: int, width: int, height: int) -> "Texture":
         """Возвращает новую текстуру, содержащую только часть исходной текстуры"""
         t = Texture()
-        ptr = LIB_PYSGL._Texture_SubTexture(self._ptr, x, y, width, height)
+        ptr = LIB_MOON._Texture_SubTexture(self._ptr, x, y, width, height)
         t.set_ptr(ptr)
         return t
     
     def get_max_size(self) -> int:
         """Возвращает максимально поддерживаемый размер текстуры"""
-        return LIB_PYSGL._Texture_GetMaximumSize(self._ptr)
+        return LIB_MOON._Texture_GetMaximumSize(self._ptr)
     
     def get_size(self) -> Vector2i:
         """Возвращает размер текстуры в виде Vector2i"""
         return Vector2i(
-            LIB_PYSGL._Texture_GetSizeX(self._ptr),
-            LIB_PYSGL._Texture_GetSizeY(self._ptr)
+            LIB_MOON._Texture_GetSizeX(self._ptr),
+            LIB_MOON._Texture_GetSizeY(self._ptr)
         )
     
     def set_repeated(self, value: bool) -> Self:
@@ -397,7 +397,7 @@ class Texture:
         Returns:
             Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._Texture_SetRepeated(self._ptr, value)
+        LIB_MOON._Texture_SetRepeated(self._ptr, value)
         self.__repeated = value
         return self
 
@@ -415,7 +415,7 @@ class Texture:
         Returns:
             Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._Texture_SetSmooth(self._ptr, value)
+        LIB_MOON._Texture_SetSmooth(self._ptr, value)
         self.__smooth = value
         return self
 
@@ -433,7 +433,7 @@ class Texture:
         Returns:
             Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._Texture_Swap(self._ptr, texture.get_ptr())
+        LIB_MOON._Texture_Swap(self._ptr, texture.get_ptr())
         return self
 
 
@@ -640,7 +640,7 @@ class BaseSprite:
         Returns:                                                                            #
             Новый объект BaseSprite                                                         #
         """                                                                                 #
-        ptr = LIB_PYSGL._Sprite_GetFromRenderTexture(render_texture.get_ptr())              #
+        ptr = LIB_MOON._Sprite_GetFromRenderTexture(render_texture.get_ptr())              #
         bs = BaseSprite()                                                                   #
         bs.set_render_texture(render_texture)                                               #
         return bs.set_ptr(ptr)                                                              #
@@ -657,7 +657,7 @@ class BaseSprite:
         Returns:                                                                            #
             Новый объект BaseSprite                                                         #
         """                                                                                 #
-        ptr = LIB_PYSGL._Sprite_GetFromTexture(texture.get_ptr())                           #
+        ptr = LIB_MOON._Sprite_GetFromTexture(texture.get_ptr())                           #
         bs = BaseSprite()                                                                   #
         bs.set_texture(texture)                                                             #
         return bs.set_ptr(ptr)                                                              #
@@ -695,7 +695,7 @@ class BaseSprite:
         Returns:
             Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._Sprite_SetScale(self._ptr, float(scale), float(scale))
+        LIB_MOON._Sprite_SetScale(self._ptr, float(scale), float(scale))
         self.__scale.x = scale
         self.__scale.y = scale
         return self
@@ -709,7 +709,7 @@ class BaseSprite:
         Returns:
             Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._Sprite_SetScale(self._ptr, self.__scale.y, self.__scale.x)
+        LIB_MOON._Sprite_SetScale(self._ptr, self.__scale.y, self.__scale.x)
         return self
 
 
@@ -730,7 +730,7 @@ class BaseSprite:
         if scale_y is not None:
             self.__scale.y = scale_y
 
-        LIB_PYSGL._Sprite_SetScale(self._ptr, self.__scale.y, self.__scale.x)
+        LIB_MOON._Sprite_SetScale(self._ptr, self.__scale.y, self.__scale.x)
         
         return self
 
@@ -746,7 +746,7 @@ class BaseSprite:
         Returns:
             Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._Sprite_Rotate(self._ptr, angle)
+        LIB_MOON._Sprite_Rotate(self._ptr, angle)
         return self
     
 
@@ -761,7 +761,7 @@ class BaseSprite:
         Returns:
             Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._Sprite_SetColor(self._ptr, color.r, color.g, color.b, color.a)
+        LIB_MOON._Sprite_SetColor(self._ptr, color.r, color.g, color.b, color.a)
         return self
     
 
@@ -800,9 +800,9 @@ class BaseSprite:
             Возвращает self для цепочки вызовов
         """
         if arg2 is None and isinstance(arg1, Vector2f):
-            LIB_PYSGL._Sprite_SetOrigin(self._ptr, arg1.x, arg1.y)
+            LIB_MOON._Sprite_SetOrigin(self._ptr, arg1.x, arg1.y)
         elif arg2 is not None and (type(arg1) in [int, float] and type(arg2) in [int, float]):
-            LIB_PYSGL._Sprite_SetOrigin(self._ptr, arg1, arg2)
+            LIB_MOON._Sprite_SetOrigin(self._ptr, arg1, arg2)
         return self
     
 
@@ -841,9 +841,9 @@ class BaseSprite:
             Возвращает self для цепочки вызовов
         """
         if arg2 is None and isinstance(arg1, Vector2f):
-            LIB_PYSGL._Sprite_SetPosition(self._ptr, arg1.x, arg1.y)
+            LIB_MOON._Sprite_SetPosition(self._ptr, arg1.x, arg1.y)
         elif arg2 is not None and (type(arg1) in [int, float] and type(arg2) in [int, float]):
-            LIB_PYSGL._Sprite_SetPosition(self._ptr, arg1, arg2)
+            LIB_MOON._Sprite_SetPosition(self._ptr, arg1, arg2)
         else:
             raise TypeError("Invalid arguments!")
         return self
@@ -860,7 +860,7 @@ class BaseSprite:
         Returns:
             Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._Sprite_SetRotation(self._ptr, angle)
+        LIB_MOON._Sprite_SetRotation(self._ptr, angle)
         return self
     
 
@@ -868,10 +868,10 @@ class BaseSprite:
     def get_color(self) -> Color:
         """Возвращает текущий цвет спрайта"""
         return Color(
-            LIB_PYSGL._Sprite_GetColorR(self._ptr),
-            LIB_PYSGL._Sprite_GetColorG(self._ptr),
-            LIB_PYSGL._Sprite_GetColorB(self._ptr),
-            LIB_PYSGL._Sprite_GetColorA(self._ptr)
+            LIB_MOON._Sprite_GetColorR(self._ptr),
+            LIB_MOON._Sprite_GetColorG(self._ptr),
+            LIB_MOON._Sprite_GetColorB(self._ptr),
+            LIB_MOON._Sprite_GetColorA(self._ptr)
         )
 
 
@@ -879,8 +879,8 @@ class BaseSprite:
     def get_origin(self) -> Vector2f:
         """Возвращает текущую точку отсчета спрайта"""
         return Vector2f(
-            LIB_PYSGL._Sprite_GetOriginX(self._ptr),
-            LIB_PYSGL._Sprite_GetOriginY(self._ptr)
+            LIB_MOON._Sprite_GetOriginX(self._ptr),
+            LIB_MOON._Sprite_GetOriginY(self._ptr)
         )
 
 
@@ -888,23 +888,23 @@ class BaseSprite:
     def get_position(self) -> Vector2f:
         """Возвращает текущую позицию спрайта"""
         return Vector2f(
-            LIB_PYSGL._Sprite_GetPositionX(self._ptr),
-            LIB_PYSGL._Sprite_GetPositionY(self._ptr)
+            LIB_MOON._Sprite_GetPositionX(self._ptr),
+            LIB_MOON._Sprite_GetPositionY(self._ptr)
         )
 
 
 
     def get_angle(self) -> Number:
         """Возвращает текущий угол поворота спрайта (в градусах)"""
-        return LIB_PYSGL._Sprite_GetRotation(self._ptr)
+        return LIB_MOON._Sprite_GetRotation(self._ptr)
 
 
 
     def get_scale(self) -> Vector2f:
         """Возвращает текущий масштаб спрайта"""
         return Vector2f(
-            LIB_PYSGL._Sprite_GetScaleX(self._ptr),
-            LIB_PYSGL._Sprite_GetScaleY(self._ptr)
+            LIB_MOON._Sprite_GetScaleX(self._ptr),
+            LIB_MOON._Sprite_GetScaleY(self._ptr)
         )
     
 

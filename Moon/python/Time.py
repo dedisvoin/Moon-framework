@@ -88,11 +88,15 @@ Copyright (c) 2025 Pavlov Ivan
 
 import os
 import ctypes
-from time import time
-from typing import Generator
-from Moon import DLL_FOUND_PATH
 
-from .Types import OptionalIdentifier, Identifier, NoReturn, FunctionOrMethod
+from time import time
+from typing import Generator, Final
+
+# ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
+from Moon import DLL_FOUND_PATH               #
+# =========================================== +
+
+from Moon.python.Types import OptionalIdentifier, Identifier, FunctionOrMethod
 
 class LibraryLoadError(Exception):
     """Ошибка загрузки нативной библиотеки"""
@@ -130,17 +134,17 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL = ctypes.CDLL(_find_library())
+    LIB_MOON = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load Moon library: {e}")
 
 
-LIB_PYSGL.createClock.argtypes = [] 
-LIB_PYSGL.createClock.restype = ctypes.c_void_p  
-LIB_PYSGL.clockRestart.argtypes = [ctypes.c_void_p] 
-LIB_PYSGL.clockRestart.restype = None  
-LIB_PYSGL.getClockElapsedTime.argtypes = [ctypes.c_void_p] 
-LIB_PYSGL.getClockElapsedTime.restype = ctypes.c_double  
+LIB_MOON.createClock.argtypes = [] 
+LIB_MOON.createClock.restype = ctypes.c_void_p  
+LIB_MOON.clockRestart.argtypes = [ctypes.c_void_p] 
+LIB_MOON.clockRestart.restype = None  
+LIB_MOON.getClockElapsedTime.argtypes = [ctypes.c_void_p] 
+LIB_MOON.getClockElapsedTime.restype = ctypes.c_double  
 
 
 class Clock:
@@ -159,14 +163,14 @@ class Clock:
         Инициализирует новый экземпляр таймера.
         Создает внутренний таймер в DLL.
         """
-        self.__clock_ptr = LIB_PYSGL.createClock()  # Указатель на C++ объект таймера
+        self.__clock_ptr = LIB_MOON.createClock()  # Указатель на C++ объект таймера
 
     def restart(self) -> None:
         """
         Сбрасывает и немедленно перезапускает таймер.
         Обнуляет счетчик прошедшего времени.
         """
-        LIB_PYSGL.clockRestart(self.__clock_ptr)
+        LIB_MOON.clockRestart(self.__clock_ptr)
 
     def get_elapsed_time(self) -> float:
         """
@@ -175,7 +179,7 @@ class Clock:
         Возвращает:
             float: Количество секунд с высокой точностью (дробное число)
         """
-        return LIB_PYSGL.getClockElapsedTime(self.__clock_ptr)
+        return LIB_MOON.getClockElapsedTime(self.__clock_ptr)
 
 
 class Timer:
@@ -257,8 +261,9 @@ class Timer:
         return self.__delta
 
 
-# Глобальный буфер для хранения именованных таймеров
-TIMER_BUFFER: dict[OptionalIdentifier, Timer] = {}
+# Глобальный буфер для хранения именованных таймеров ========= +
+TIMER_BUFFER: Final[dict[OptionalIdentifier, Timer]] = {}      #
+# ============================================================ +
 
 def wait(timer_name: OptionalIdentifier = 'dummy', wait_time: float = 0) -> bool:
     """

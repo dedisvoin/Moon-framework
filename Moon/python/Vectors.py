@@ -8,7 +8,7 @@
 *Автор: Павлов Иван (Pavlov Ivan)*
 
 *Лицензия: MIT*
-##### Реализованно на 100%
+##### Реализованно на 99%
 
 ---
 
@@ -65,15 +65,29 @@ Copyright (c) 2025 Pavlov Ivan
 """
 
 import math
+
 from typing import Self
+from random import uniform
 
 
-type Vector2f = Vector2f
-type Vector2i = Vector2i
-type VectorType = Vector2f | Vector2i
 
-type NormalisedVector = Vector2f
+# Тип вектора с плавающей запятой ===== +
+# ? Предназначен для точных вычислений  #
+type Vector2f = Vector2f                #
+# ===================================== +
 
+
+# Тип целочисленного вектора ========== +
+type Vector2i = Vector2i                #
+# ===================================== +
+
+# Union подобный веткорый тип ========= +
+type VectorType = Vector2f | Vector2i   #
+# ===================================== +
+
+# Тип нормализованного вектора ======== +
+type NormalisedVector = Vector2f        #
+# ===================================== +
 
 
 class Vector2f:
@@ -192,6 +206,11 @@ class Vector2f:
         
         return vector.normalize().rotate(90)
 
+    @classmethod
+    def random(self) -> NormalisedVector:
+        vector = Vector2f(1, 0).rotate_at(uniform(0, 360))
+        return vector
+
     def __init__(self, x: float | int, y: float | int) -> Self:
         """
         #### Инициализация вектора с координатами
@@ -238,6 +257,9 @@ class Vector2f:
     
     def as_tuple(self) -> tuple[float, float]:
         return (self.x, self.y)
+    
+    def as_list(self) -> list[float]:
+        return [self.x, self.y]
 
     @property
     def xy(self) -> tuple[float, float]:
@@ -649,6 +671,12 @@ class Vector2i:
         """
         self.__x = int(x)
         self.__y = int(y)
+    
+    def as_tuple(self) -> tuple[int, int]:
+        return (self.x, self.y)
+    
+    def as_list(self) -> list[int]:
+        return [self.x, self.y]
 
     def to_float(self) -> Vector2f:
         """
@@ -952,4 +980,3 @@ def dot(v1: VectorType, v2: VectorType) -> float:
     ```
     """
     return v1.x * v2.x + v1.y * v2.y
-
