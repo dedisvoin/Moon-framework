@@ -163,17 +163,21 @@ class RenderTexture:
                           Если RenderStates - применяются указанные состояния
                           Если Shader - применяется указанный шейдер
         """
+
         if not isinstance(shape.get_ptr(), int):
-            if isinstance(shape, (BaseLineShape, LineShape)):
-                shape.special_draw(self) 
+            # Специальные объекты с собственной логикой отрисовки
+            try:
+                shape.special_draw(self, render_states)
+            except:
+                shape.special_draw(self)
         else:
+            # Стандартные объекты
             if render_states is None:
                 LIB_MOON._RenderTexture_Draw(self._ptr, shape.get_ptr())
-            else:
-                if isinstance(render_states, Shader):
-                    LIB_MOON._RenderTexture_DrawWithShader(self._ptr, shape.get_ptr(), render_states.get_ptr())
-                elif isinstance(render_states, RenderStates):
-                    LIB_MOON._RenderTexture_DrawWithStates(self._ptr, shape.get_ptr(), render_states.get_ptr())
+            elif isinstance(render_states, RenderStates):
+                LIB_MOON._RenderTexture_DrawWithStates(self._ptr, shape.get_ptr(), render_states.get_ptr())
+            elif isinstance(render_states, Shader):
+                LIB_MOON._RenderTexture_DrawWithShader(self._ptr, shape.get_ptr(), render_states.get_ptr())
 
     def clear(self, color: Color = COLOR_WHITE):
         """

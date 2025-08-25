@@ -761,7 +761,7 @@ DEFAULT_WINDOW_TITLE_COLOR:  Final[Color] = Color(255, 255, 255)
 
 # Путь к стандартной иконке приложения, используемой если не задана пользовательская
 DEFAULT_WINDOW_ICON_PATH:    Final[str]   = "Moon\data\icons\default_app_icon.png" 
-
+DEFAULT_WINDOW_ICON_LOCAL_PATH: Final[str] = "./icons/default_app_icon.png"
 
 @final
 class Window:
@@ -980,7 +980,11 @@ class Window:
         self.set_title_color(DEFAULT_WINDOW_TITLE_COLOR)
         self.set_header_color(DEFAULT_WINDOW_HEADER_COLOR)
         self.set_border_color(DEFAULT_WINDOW_BORDER_COLOR)
-        self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
+
+        try:
+            self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
+        except:
+            self.set_icon_from_path(DEFAULT_WINDOW_ICON_LOCAL_PATH)
 
     def enable_fpsmonitor_keybinding(self, value: bool = True) -> Self:
         """
@@ -1078,6 +1082,8 @@ class Window:
         window.set_icon_from_path("icon.ico")  # Установить иконку
         ```
         """
+        if os.path.exists(path) is False:
+            raise FileNotFoundError(f"Icon file not found: {path}")
         result = LIB_MOON._Window_SetIconFromPath(self.__window_ptr, path.encode('utf-8'))
         if result:
             self.__icon_path = path

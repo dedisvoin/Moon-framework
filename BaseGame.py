@@ -6,10 +6,14 @@ from Moon.python.Rendering.Shaders import *
 from Moon.python.Audio import *
 from Moon.python.Inputs import *
 from Moon.python.Math import distance
+from Moon.python.Engine.ParticleSystem import *
 import random
 
 
-window = Window(title="Minesweeper", context_settings=ContextSettings().set_antialiasing_level(8), vsync=True).set_view_info()
+window = Window(1920, 1080, title="Minesweeper", context_settings=ContextSettings().set_antialiasing_level(8), vsync=True, style=Window.Style.FullScreenDesktop).set_view_info()
+window.enable_fpsmonitor_keybinding()
+window.set_fpsmonitor_keybinding('shift+m')
+window.enable_ghosting()
 window.set_wait_fps(60)
 window_events = WindowEvents()
 
@@ -40,10 +44,84 @@ class Game:
             "8": sprites[7],
             "flag": sprites[8],
             "closed": sprites[10],  # Спрайт для закрытой клетки
-            "cell_open_sound": MultiSound(Sound(SoundBuffer("game_data/cell_opening.wav")), 30).set_volume_all(80),
+            "cell_open_sound": MultiSound(Sound(SoundBuffer("game_data/cell_opening.wav")), 30).set_volume_all(50),
             "flag_set_sound": Sound(SoundBuffer("game_data/flag_set.wav")).set_volume(60),
             "flag_destroy_sound": Sound(SoundBuffer("game_data/flag_destroy.wav")).set_pitch(0.6).set_volume(60),
+            "wall": MultiSound(Sound(SoundBuffer("game_data\wall.wav")), 10).set_volume_all(50),
+            "down_sprite": LoadSprite("game_data\down_sprite.png", 1),
+            "moving": MultiSound(Sound(SoundBuffer("game_data\moving.wav")), 10).set_volume_all(20),
+            "no_opened": MultiSound(Sound(SoundBuffer(r"game_data\no opened.wav")), 10).set_volume_all(80)
         }
+
+
+        self.global_particle_system = CPU_ParticleSystem()
+        self.global_particle_system.lightning = False
+
+
+        self.local_particle_system = CPU_ParticleSystem()
+        self.local_particle_system.lightning = False
+
+        self.down_particle_emmiter = CPU_ParticleEmitters.Rect(Vector2f(0, 1080), 1920, 100)
+
+        self.down_particle = CPU_Particle(color=COLOR_BLACK, size=100, shape=ParticleShapes.Rectangle)
+        self.down_particle.spreading_angle = 100
+        self.down_particle.max_speed = 160
+        self.down_particle.min_speed = 100
+        self.down_particle.resize = -80
+        self.down_particle.angular_distribution_area = 100
+        self.down_particle.resistance = 1
+        self.down_particle.max_size = 100
+        self.down_particle.min_size = 20
+        self.down_particle.max_velocity_rotation_speed = 10
+        self.down_particle.min_velocity_rotation_speed = 4
+        self.down_particle.max_rotation_speed = 100
+        self.down_particle.min_rotation_speed = -100
+
+        self.person_particles_emitter = CPU_ParticleEmitters.Rect(Vector2f(0, 0), self.map_cell_size*5, self.map_cell_size*5)
+
+        self.person_not_moving_particles = CPU_Particle(color=COLOR_WHITE, size=30, shape=ParticleShapes.Rectangle)
+        self.person_not_moving_particles.spreading_angle = 90
+        self.person_not_moving_particles.max_speed = 1000
+        self.person_not_moving_particles.min_speed = 100
+        self.person_not_moving_particles.resize = -20
+        self.person_not_moving_particles.angular_distribution_area = 45
+        self.person_not_moving_particles.resistance = 0.1
+        self.person_not_moving_particles.max_size = 20
+        self.person_not_moving_particles.min_size = 5
+        self.person_not_moving_particles.max_velocity_rotation_speed = 0
+        self.person_not_moving_particles.min_velocity_rotation_speed = 0
+        self.person_not_moving_particles.max_rotation_speed = 100
+        self.person_not_moving_particles.min_rotation_speed = -100
+
+        self.cell_opening_emitter = CPU_ParticleEmitters.Rect(Vector2f(0, 0), self.map_cell_size, self.map_cell_size)
+
+        self.cel_open_particles = CPU_Particle(color=COLOR_WHITE, size=30, shape=ParticleShapes.Rectangle)
+        self.cel_open_particles.spreading_angle = 0
+        self.cel_open_particles.max_speed = 100
+        self.cel_open_particles.min_speed = 10
+        self.cel_open_particles.resize = -20
+        self.cel_open_particles.angular_distribution_area = 360
+        self.cel_open_particles.resistance = 0.5
+        self.cel_open_particles.max_size = 14
+        self.cel_open_particles.min_size = 1
+        self.cel_open_particles.max_velocity_rotation_speed = 0
+        self.cel_open_particles.min_velocity_rotation_speed = 0
+        self.cel_open_particles.max_rotation_speed = 100
+        self.cel_open_particles.min_rotation_speed = -100
+
+        self.flag_delete_particle = CPU_Particle(color=COLOR_RED, size=30, shape=ParticleShapes.Rectangle)
+        self.flag_delete_particle.spreading_angle = 0
+        self.flag_delete_particle.max_speed = 100
+        self.flag_delete_particle.min_speed = 10
+        self.flag_delete_particle.resize = -20
+        self.flag_delete_particle.angular_distribution_area = 360
+        self.flag_delete_particle.resistance = 0.01
+        self.flag_delete_particle.max_size = 8
+        self.flag_delete_particle.min_size = 1
+        self.flag_delete_particle.max_velocity_rotation_speed = 0
+        self.flag_delete_particle.min_velocity_rotation_speed = 0
+        self.flag_delete_particle.max_rotation_speed = 100
+        self.flag_delete_particle.min_rotation_speed = -100
 
 
         # Создаем текстуру для затемнения открытых клеток
@@ -80,9 +158,9 @@ class Game:
             // Изменение цвета во время анимации
             vec4 original = texture2D(texture, gl_TexCoord[0].xy);
             vec3 color = mix(
-                original.rgb * vec3(0.5, 0.8, 1.0), // Голубоватый оттенок в начале
-                original.rgb,                        // Оригинальный цвет в конце
-                smoothstep(0.3, 1.0, progress)      // Плавный переход
+                vec3(1, 1, 1), 
+                original.rgb,                        
+                smoothstep(0.0, 1.0, progress)     
             );
             
             // Финальный цвет с учетом прозрачности
@@ -122,11 +200,13 @@ class Game:
         self.__rainbow_shader.set_uniform("speed", 0.5)
         self.__rainbow_shader.set_uniform("waveWidth", 0.001)
         self.__rainbow_shader.set_uniform("time", 0.0)
-        self.__rainbow_shader.set_uniform("resolution", Vector2f(0.5, 0.5))
+        self.__rainbow_shader.set_uniform("resolution", Vector2f(window.get_size().x, window.get_size().y))
         self.__rainbow_shader.set_uniform("targetColor", Color(100, 100, 100, 255))
+        
+        # Настройка шейдера огня
 
-        self.map_size = 50
-        self.mine_count = 200
+        self.map_size = 16
+        self.mine_count = 40
         self.mine_map = None
         self.map = []
         
@@ -135,22 +215,68 @@ class Game:
 
         # Графика
         self.thin_line = LineThinShape()
-        self.person_rect = RectangleShape(self.map_cell_size, self.map_cell_size)
+        self.person_rect = RectangleShape(self.map_cell_size + 2, self.map_cell_size + 2)
+        self.person_rect.set_origin(1, 1)
         self.person_rect.set_color(COLOR_TRANSPARENT)
-        self.person_rect.set_outline_color(Color(100, 100, 100))
+        self.person_rect.set_outline_color(Color(255, 255, 255))
         self.person_rect.set_outline_thickness(1)
 
+        self.help_rect_alpha = 255
+        self.help_rect = RectangleShape(self.map_cell_size * 3, self.map_cell_size * 3)
+        self.help_rect.set_origin(self.map_cell_size, self.map_cell_size)
+        self.help_rect.set_color(COLOR_TRANSPARENT)
+        self.help_rect.set_outline_color(Color(39, 39, 39))
+        self.help_rect.set_outline_thickness(1)
+
+        self.person_smooth_pos = [self.map_size // 2 * self.map_cell_size, self.map_size // 2 * self.map_cell_size]
+
         self.person_pos = [self.map_size // 2, self.map_size // 2]
-        self.camera = Camera2D(*window.get_size().xy).set_zoom(0.1).set_target_zoom(0.1).set_lerp_zoom(0.02)
+        self.camera = Camera2D(*window.get_size().xy).set_zoom(0.1).set_target_zoom(0.2).set_lerp_zoom(0.2)
+        self.camera.set_zoom_limits(0.1, 0.6)
 
         self.start_circle = CircleShape(20).set_origin_radius(1)
         self.start_circle.set_color(COLOR_RED)
 
     def set_cell_without_mine(self):
-        cell: Cell = self.map[self.person_pos[0]][self.person_pos[1]]
-        while cell.this_mine:
-            cell = self.map[random.randint(0, self.map_size - 1)][random.randint(0, self.map_size - 1)]
-        cell.start = True
+        # Сначала попробуем найти клетку вообще без мин вокруг
+        safe_cells = []
+        for y in range(self.map_size):
+            for x in range(self.map_size):
+                cell = self.map[y][x]
+                if not cell.this_mine and cell.mine_count == 0:
+                    safe_cells.append((x, y))
+        
+        # Если нашли клетки без мин, выбираем случайную
+        if safe_cells:
+            x, y = random.choice(safe_cells)
+            self.map[y][x].start = True
+            return
+        
+        # Если клеток без мин нет, ищем клетку с минимальным количеством мин
+        min_mines = float('inf')
+        candidate_cells = []
+        
+        for y in range(self.map_size):
+            for x in range(self.map_size):
+                cell = self.map[y][x]
+                if not cell.this_mine:
+                    if cell.mine_count < min_mines:
+                        min_mines = cell.mine_count
+                        candidate_cells = [(x, y)]
+                    elif cell.mine_count == min_mines:
+                        candidate_cells.append((x, y))
+        
+        # Выбираем случайную клетку с минимальным количеством мин
+        if candidate_cells:
+            x, y = random.choice(candidate_cells)
+            self.map[y][x].start = True
+        else:
+            # Если вообще нет безопасных клеток (маловероятно, но на всякий случай)
+            x, y = random.randint(0, self.map_size - 1), random.randint(0, self.map_size - 1)
+            while self.map[y][x].this_mine:
+                x, y = random.randint(0, self.map_size - 1), random.randint(0, self.map_size - 1)
+            self.map[y][x].start = True
+
         
 
     def generate_mine_map(self):
@@ -189,6 +315,8 @@ class Game:
             return
         if cell.flagged:
             self.data['flag_destroy_sound'].play()
+            self.cell_opening_emitter.position = Vector2f(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size )
+            self.local_particle_system.emit(self.flag_delete_particle, self.cell_opening_emitter, 5)
         else:
             self.data['flag_set_sound'].play()
             
@@ -200,6 +328,7 @@ class Game:
         
         cell = self.map[y][x]
         if cell.open or cell.flagged or self.game_over:
+            self.data['no_opened'].auto_play()
             return
         
         # Добавляем в очередь для анимации
@@ -218,10 +347,12 @@ class Game:
             if progress >= 1.0:
                 # Анимация завершена, открываем клетку
                 cell = self.map[y][x]
-                d = min(50, distance(x, y, self.person_pos[0], self.person_pos[1]))
+                d = min(16, distance(x, y, self.person_pos[0], self.person_pos[1]))
 
-                self.data['cell_open_sound'].set_volume_current(100 * (1 - d / 50))
+                self.data['cell_open_sound'].set_volume_current(100 * (1 - d / 16))
                 self.data['cell_open_sound'].play()
+                self.cell_opening_emitter.position = Vector2f(x * self.map_cell_size, y * self.map_cell_size)
+                self.local_particle_system.emit(self.cel_open_particles, self.cell_opening_emitter, 5)
                 cell.open = True
                 cell.opening_progress = 1.0
                 self.cells_to_open.pop(i)
@@ -252,31 +383,76 @@ class Game:
 
     def update(self):
         self.update_opening_animation()
+
+        self.global_particle_system.emit_per_time(self.down_particle, self.down_particle_emmiter, 0.01, 10)
+        self.global_particle_system.update(window.get_render_time())
+
+        self.local_particle_system.update(window.get_render_time())
         
         self.camera.follow(Vector2f(self.person_pos[0] * self.map_cell_size + self.map_cell_size / 2, 
                             self.person_pos[1] * self.map_cell_size + self.map_cell_size / 2))
         self.camera.update()
 
-        # if self.map[self.person_pos[1]][self.person_pos[0]].open:
-        #     self.camera.set_target_zoom(0.3)
-        # else:
-        #     self.camera.set_target_zoom(0.1)
+        if KeyBoardInterface.get_click_combination("ctrl+="):
+            self.camera.set_target_zoom(self.camera.get_target_zoom() - 0.1)
+        if KeyBoardInterface.get_click_combination("ctrl+_"):
+            self.camera.set_target_zoom(self.camera.get_target_zoom() + 0.1)
 
         if window.get_resized():
             self.camera.set_size(*window.get_size().xy)
             self.__scene_texture = RenderTexture().create(window.get_size().x, window.get_size().y)
             self.__scene_sprite = BaseSprite.FromRenderTexture(self.__scene_texture)
+            # Обновляем разрешение в шейдере огня при изменении размера окна
 
         self.__rainbow_shader.set_uniform("time", window.get_global_timer())
-        
+
+        self.person_smooth_pos[0] -= (self.person_smooth_pos[0] - self.person_pos[0] * self.map_cell_size) * 0.6
+        self.person_smooth_pos[1] -= (self.person_smooth_pos[1] - self.person_pos[1] * self.map_cell_size) * 0.6
+
+        if not self.map[self.person_pos[1]][self.person_pos[0]].open:
+            self.help_rect_alpha += 10
+
+        else:
+            self.help_rect_alpha -= 10
+        self.help_rect_alpha = max(0, min(self.help_rect_alpha, 255))
+        self.help_rect.set_outline_color(Color(39, 39, 39, self.help_rect_alpha))
+
         # Управление персонажем
         if KeyBoardInterface.get_click("up"):
+            if self.person_pos[1] - 1 < 0:
+                self.data['wall'].auto_play()
+                self.person_not_moving_particles.spreading_angle = 90
+                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
+                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+            else:
+                self.data['moving'].auto_play()
             self.person_pos[1] = max(0, self.person_pos[1] - 1)
         if KeyBoardInterface.get_click("down"):
+            if self.person_pos[1] + 1 > self.map_size - 1:
+                self.data['wall'].auto_play()
+                self.person_not_moving_particles.spreading_angle = 270
+                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
+                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+            else:
+                self.data['moving'].auto_play()
             self.person_pos[1] = min(self.map_size - 1, self.person_pos[1] + 1)
         if KeyBoardInterface.get_click("left"):
+            if self.person_pos[0] - 1 < 0:
+                self.data['wall'].auto_play()
+                self.person_not_moving_particles.spreading_angle = 180
+                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
+                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+            else:
+                self.data['moving'].auto_play()
             self.person_pos[0] = max(0, self.person_pos[0] - 1)
         if KeyBoardInterface.get_click("right"):
+            if self.person_pos[0] + 1 > self.map_size - 1:
+                self.data['wall'].auto_play()
+                self.person_not_moving_particles.spreading_angle = 0
+                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
+                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+            else:
+                self.data['moving'].auto_play()
             self.person_pos[0] = min(self.map_size - 1, self.person_pos[0] + 1)
         
         # Открытие клетки по нажатию O
@@ -289,11 +465,12 @@ class Game:
             x, y = self.person_pos[0], self.person_pos[1]
             self.toggle_flag(x, y)
 
-        self.person_rect.set_position(self.person_pos[0] * self.map_cell_size, 
-                                    self.person_pos[1] * self.map_cell_size)
+        
+        self.person_rect.set_position(self.person_smooth_pos[0], self.person_smooth_pos[1])
+        self.help_rect.set_position(self.person_smooth_pos[0], self.person_smooth_pos[1])
         
     def render_map(self, texture):
-        self.thin_line.set_color(Color(90, 90, 90))
+        self.thin_line.set_color(Color(50, 50, 50))
         for x in range(self.map_size + 1):
             self.thin_line.set_points(x * self.map_cell_size, 0, 
                                     x * self.map_cell_size, self.map_size * self.map_cell_size)
@@ -348,9 +525,7 @@ class Game:
 
     def render(self):
         self.camera.apply_texture(self.__scene_texture)
-        self.__scene_texture.clear(COLOR_DARK_GRAY)
-        
-
+        self.__scene_texture.clear(Color(100, 100, 100))
         
         # Клетки
         for y in range(len(self.map)):
@@ -358,13 +533,19 @@ class Game:
                 self.render_cell(self.__scene_texture, self.map[y][x], x, y)
         
         # Персонаж
-        
         self.render_map(self.__scene_texture)
         self.__scene_texture.draw(self.person_rect)
+        self.__scene_texture.draw(self.help_rect)   
+        self.__scene_texture.draw(self.local_particle_system)
         self.__scene_texture.display()
         
-        # Финальный рендер с шейдером
-        window.draw(self.__scene_sprite, self.__rainbow_shader)
+        # Финальный рендер с шейдером огня
+        window.draw(self.__scene_sprite)
+
+        # Если нужно оставить down_sprite, можно отрисовать его отдельно
+        
+        window.draw(self.global_particle_system)
+        window.draw(self.data['down_sprite'])
 
 GAME = Game()
 GAME.generate_mine_map()
