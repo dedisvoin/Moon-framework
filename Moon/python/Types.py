@@ -59,11 +59,6 @@ def AutoIdentifier() -> Identifier:
     """
     return str(uuid4())
 
-# Тип индекса из перечисления Origins ==  +
-type OriginTypes = OriginTypes            #
-# ======================================= +
-
-
 class OriginTypes(Enum):
     TOP_CENTER =        auto()
     DOWN_CENTER =       auto()
@@ -74,3 +69,4 @@ class OriginTypes(Enum):
     TOP_RIGHT =         auto()
     DOWN_LEFT =         auto()
     DOWN_RIGHT =        auto()
+

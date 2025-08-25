@@ -71,23 +71,6 @@ from random import uniform
 
 
 
-# Тип вектора с плавающей запятой ===== +
-# ? Предназначен для точных вычислений  #
-type Vector2f = Vector2f                #
-# ===================================== +
-
-
-# Тип целочисленного вектора ========== +
-type Vector2i = Vector2i                #
-# ===================================== +
-
-# Union подобный веткорый тип ========= +
-type VectorType = Vector2f | Vector2i   #
-# ===================================== +
-
-# Тип нормализованного вектора ======== +
-type NormalisedVector = Vector2f        #
-# ===================================== +
 
 
 class Vector2f:
@@ -113,7 +96,7 @@ class Vector2f:
     __slots__ = ("x", "y")
 
     @classmethod
-    def one(self) -> Vector2f:
+    def one(self) -> "Vector2f":
         """
         #### Создает единичный вектор (1, 1)
         
@@ -133,7 +116,7 @@ class Vector2f:
         return Vector2f(1, 1)
     
     @classmethod
-    def zero(self) -> Vector2f:
+    def zero(self) -> "Vector2f":
         """
         #### Создает нулевой вектор (0, 0)
         
@@ -180,7 +163,7 @@ class Vector2f:
         return Vector2f(point2[0] - point1[0], point2[1] - point1[1])
     
     @classmethod
-    def normal(self, vector: Vector2f) -> NormalisedVector:
+    def normal(self, vector: "Vector2f") -> "NormalisedVector":
         """
         #### Создает нормальный (перпендикулярный) вектор
         
@@ -207,7 +190,7 @@ class Vector2f:
         return vector.normalize().rotate(90)
 
     @classmethod
-    def random(self) -> NormalisedVector:
+    def random(self) -> "NormalisedVector":
         vector = Vector2f(1, 0).rotate_at(uniform(0, 360))
         return vector
 
@@ -231,7 +214,7 @@ class Vector2f:
         self.x = float(x)
         self.y = float(y)
 
-    def to_int(self) -> Vector2i:
+    def to_int(self) -> "Vector2i":
         """
         #### Преобразует в целочисленный вектор
         
@@ -286,7 +269,7 @@ class Vector2f:
         self.x = float(value[0])
         self.y = float(value[1])
 
-    def copy(self) -> Vector2f:
+    def copy(self) -> "Vector2f":
         """
         #### Создает копию вектора
         
@@ -353,7 +336,7 @@ class Vector2f:
             self.y /= length
         return self
     
-    def normalize(self) -> Vector2f:
+    def normalize(self) -> "Vector2f":
         """
         #### Возвращает нормализованную копию вектора
         
@@ -413,7 +396,7 @@ class Vector2f:
         self.y = y
         return self
     
-    def rotate(self, angle: float | int) -> Vector2f:
+    def rotate(self, angle: float | int) -> "Vector2f":
         """
         #### Возвращает повернутую копию вектора
         
@@ -560,7 +543,7 @@ class Vector2f:
     def __iter__(self):
         return iter((self.x, self.y))
     
-    def __copy__(self) -> Vector2f:
+    def __copy__(self) -> "Vector2f":
         return self.copy()
 
     def __repr__(self) -> str:
@@ -569,10 +552,10 @@ class Vector2f:
     def __str__(self) -> str:
         return self.__repr__()
     
-    def __eq__(self, other: Vector2f) -> bool:
+    def __eq__(self, other: "Vector2f") -> bool:
         return self.x == other.x and self.y == other.y
         
-    def __ne__(self, other: Vector2f) -> bool:
+    def __ne__(self, other: "Vector2f") -> bool:
         return not self.__eq__(other)
     
     def __neg__(self) -> Self:
@@ -581,23 +564,23 @@ class Vector2f:
     def __abs__(self) -> Self:
         return Vector2f(abs(self.x), abs(self.y))
     
-    def __add__(self, other: Vector2f) -> Self:
+    def __add__(self, other: "Vector2f") -> Self:
         return Vector2f(self.x + other.x, self.y + other.y)
     
-    def __sub__(self, other: Vector2f) -> Self:
+    def __sub__(self, other: "Vector2f") -> Self:
         return Vector2f(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, scalar: float | int | Vector2f) -> Self:
+    def __mul__(self, scalar: float | int) -> Self:
         if isinstance(scalar, Vector2f):
             return Vector2f(self.x * scalar.x, self.y * scalar.y)
         return Vector2f(self.x * scalar, self.y * scalar)
     
-    def __pow__(self, scalar: float | int | Vector2f) -> Self:
+    def __pow__(self, scalar: float | int) -> Self:
         if isinstance(scalar, Vector2f):
             return Vector2f(self.x ** scalar.x, self.y ** scalar.y)
         return Vector2f(self.x ** scalar, self.y ** scalar)
     
-    def __truediv__(self, scalar: float | int | Vector2f) -> Self:
+    def __truediv__(self, scalar: float | int) -> Self:
         if isinstance(scalar, Vector2f):
             return Vector2f(self.x / scalar.x, self.y / scalar.y)
         return Vector2f(self.x / scalar, self.y / scalar)
@@ -612,7 +595,7 @@ class Vector2f:
         self.y -= other.y
         return self
 
-    def __imul__(self, scalar: float | int | Vector2f) -> Self:
+    def __imul__(self, scalar: float | int) -> Self:
         if isinstance(scalar, Vector2f):
             self.x *= scalar.x
             self.y *= scalar.y
@@ -621,7 +604,7 @@ class Vector2f:
             self.y *= scalar
         return self
     
-    def __itruediv__(self, scalar: float | int | Vector2f) -> Self:
+    def __itruediv__(self, scalar: float | int) -> Self:
         if isinstance(scalar, Vector2f):
             self.x /= scalar.x
             self.y /= scalar.y
@@ -750,45 +733,45 @@ class Vector2i:
     def __str__(self) -> str:
         return self.__repr__()
     
-    def __eq__(self, other: Vector2i) -> bool:
+    def __eq__(self, other: "Vector2i") -> bool:
         return self.__x == other.x and self.__y == other.y
         
-    def __ne__(self, other: Vector2i) -> bool:
+    def __ne__(self, other: "Vector2i") -> bool:
         return not self.__eq__(other)
     
-    def __neg__(self) -> Vector2i:
+    def __neg__(self) -> "Vector2i":
         return Vector2i(-self.__x, -self.__y)
     
-    def __abs__(self) -> Vector2i:
+    def __abs__(self) -> "Vector2i":
         return Vector2i(abs(self.__x), abs(self.__y))
     
-    def __add__(self, other: Vector2i) -> Vector2i:
+    def __add__(self, other: "Vector2i") -> "Vector2i":
         return Vector2i(self.__x + other.x, self.__y + other.y)
     
-    def __sub__(self, other: Vector2i) -> Vector2i:
+    def __sub__(self, other: "Vector2i") -> "Vector2i":
         return Vector2i(self.__x - other.x, self.__y - other.y)
 
-    def __mul__(self, scalar: int | float | Vector2i) -> Vector2i:
+    def __mul__(self, scalar: int | float) -> "Vector2i":
         if isinstance(scalar, Vector2i):
             return Vector2i(self.__x * scalar.x, self.__y * scalar.y)
         return Vector2i(self.__x * scalar, self.__y * scalar)
     
-    def __truediv__(self, scalar: int | float | Vector2i) -> Vector2i:
+    def __truediv__(self, scalar: int | float) -> "Vector2i":
         if isinstance(scalar, Vector2i):
             return Vector2i(self.__x / scalar.x, self.__y / scalar.y)
         return Vector2i(self.__x / scalar, self.__y / scalar)
     
-    def __iadd__(self, other: Vector2i) -> Vector2i:
+    def __iadd__(self, other: "Vector2i") -> "Vector2i":
         self.__x += other.x
         self.__y += other.y
         return self
 
-    def __isub__(self, other: Vector2i) -> Vector2i:
+    def __isub__(self, other: "Vector2i") -> "Vector2i":
         self.__x -= other.x
         self.__y -= other.y
         return self
 
-    def __imul__(self, scalar: int | float | Vector2i) -> Vector2i:
+    def __imul__(self, scalar: int | float) -> "Vector2i":
         if isinstance(scalar, Vector2i):
             self.__x *= scalar.x
             self.__y *= scalar.y
@@ -797,7 +780,7 @@ class Vector2i:
             self.__y *= scalar
         return self
     
-    def __itruediv__(self, scalar: int | float | Vector2i) -> Vector2i:
+    def __itruediv__(self, scalar: int | float) -> "Vector2i":
         if isinstance(scalar, Vector2i):
             self.__x //= scalar.x
             self.__y //= scalar.y
@@ -806,7 +789,7 @@ class Vector2i:
             self.__y //= scalar
         return self
 
-def is_parallel(v1: VectorType, v2: VectorType) -> bool:
+def is_parallel(v1: "VectorType", v2: "VectorType") -> bool:
     """
     #### Проверяет параллельность двух векторов
     
@@ -832,7 +815,7 @@ def is_parallel(v1: VectorType, v2: VectorType) -> bool:
     """
     return v1.x * v2.y == v1.y * v2.x
 
-def is_perpendicular(v1: VectorType, v2: VectorType) -> bool:
+def is_perpendicular(v1: "VectorType", v2: "VectorType") -> bool:
     """
     #### Проверяет перпендикулярность двух векторов
     
@@ -858,7 +841,7 @@ def is_perpendicular(v1: VectorType, v2: VectorType) -> bool:
     """
     return v1.x * v2.x + v1.y * v2.y == 0
 
-def angle_between(v1: VectorType, v2: VectorType) -> float:
+def angle_between(v1: "VectorType", v2: "VectorType") -> float:
     """
     #### Вычисляет угол между двумя векторами
     
@@ -884,7 +867,7 @@ def angle_between(v1: VectorType, v2: VectorType) -> float:
     """
     return math.degrees(math.acos((v1.x * v2.x + v1.y * v2.y) / (v1.get_lenght() * v2.get_lenght())))
 
-def cross(v1: VectorType, v2: VectorType) -> float:
+def cross(v1: "VectorType", v2: "VectorType") -> float:
     """
     #### Вычисляет векторное произведение (в 2D - скаляр)
     
@@ -930,7 +913,7 @@ def cross(v1: VectorType, v2: VectorType) -> float:
     """
     return v1.x * v2.y - v1.y * v2.x
 
-def dot(v1: VectorType, v2: VectorType) -> float:
+def dot(v1: "VectorType", v2: "VectorType") -> float:
     """
     #### Вычисляет скалярное произведение векторов
     
@@ -980,3 +963,9 @@ def dot(v1: VectorType, v2: VectorType) -> float:
     ```
     """
     return v1.x * v2.x + v1.y * v2.y
+
+
+# Union подобный веткорый тип ========= +
+type VectorType = Vector2f | Vector2i   #
+# ===================================== +
+

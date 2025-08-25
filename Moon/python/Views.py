@@ -76,6 +76,7 @@ from typing import Self, Optional, Final, final
 
 # ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
 from Moon import DLL_FOUND_PATH               #
+from Moon import DLL_LOCAL_FOUND_PATH         #
 # =========================================== +
 
 @final
@@ -105,7 +106,7 @@ def _find_library() -> str:
     """
     search_paths = [
         DLL_FOUND_PATH,
-        "./dlls/Moon.dll",
+        DLL_LOCAL_FOUND_PATH,
         os.path.join(os.path.dirname(__file__), "..", "dlls", "Moon.dll")
     ]
     

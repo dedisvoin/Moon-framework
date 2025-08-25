@@ -8,6 +8,7 @@ from Moon.python.Vectors import Vector2f, Vector2i
 from Moon.python.Rendering.Vertexes import VertexArray, Vertex  
 
 from Moon import DLL_FOUND_PATH
+from Moon import DLL_LOCAL_FOUND_PATH
 
 # Псевдоним для типа указателя на шейп прямоугольника == +
 RectanglePtr: Final[ctypes.c_void_p] = ctypes.c_void_p
@@ -40,7 +41,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("PySGL.Shapes: Library not found at", lib_path)
-            lib_path = "./dlls/PySGL.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")

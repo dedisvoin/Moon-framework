@@ -2,7 +2,9 @@ import ctypes
 from typing import Self
 from .Shaders import *
 import os
+
 from Moon import DLL_FOUND_PATH
+from Moon import DLL_LOCAL_FOUND_PATH
 
 
 # Загрузка нативной библиотеки
@@ -31,7 +33,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("PySGL.RenderStates: Library not found at", lib_path)
-            lib_path = "./dlls/PySGL.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")
@@ -52,7 +54,6 @@ LIB_MOON._BlendMode_CreateFull.restype = ctypes.c_void_p
 LIB_MOON._BlendMode_Delete.argtypes = [ctypes.c_void_p]
 LIB_MOON._BlendMode_Delete.restype = None
 
-type BlendMode = BlendMode
 class BlendMode:
     """
     #### Класс для управления режимами смешивания пикселей
@@ -146,7 +147,7 @@ class BlendMode:
     # ================================================================================
     
     @staticmethod
-    def Alpha() -> BlendMode:
+    def Alpha() -> "BlendMode":
         """
         #### Стандартное альфа-смешивание (прозрачность)
         
@@ -184,7 +185,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Add() -> BlendMode:
+    def Add() -> "BlendMode":
         """
         #### Аддитивное смешивание (сложение цветов)
         
@@ -224,7 +225,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Multiply() -> BlendMode:
+    def Multiply() -> "BlendMode":
         """
         #### Мультипликативное смешивание (умножение цветов)
         
@@ -264,7 +265,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Default() -> BlendMode:
+    def Default() -> "BlendMode":
         """
         #### Отсутствие смешивания (замещение)
         
@@ -304,7 +305,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Subtract() -> BlendMode:
+    def Subtract() -> "BlendMode":
         """
         #### Субтрактивное смешивание (вычитание цветов)
         
@@ -344,7 +345,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Screen() -> BlendMode:
+    def Screen() -> "BlendMode":
         """
         #### Экранное смешивание (осветление)
         
@@ -384,7 +385,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Lighten() -> BlendMode:
+    def Lighten() -> "BlendMode":
         """
         #### Осветление (максимум цветов)
         
@@ -424,7 +425,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Darken() -> BlendMode:
+    def Darken() -> "BlendMode":
         """
         #### Затемнение (минимум цветов)
         
@@ -477,7 +478,7 @@ LIB_MOON._RenderStates_SetTexture.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_MOON._RenderStates_SetTexture.restype = None
 
 RenderStatesPtr = ctypes.c_void_p
-type Texture = Texture
+
 
 class RenderStates:
 
@@ -533,7 +534,7 @@ class RenderStates:
         LIB_MOON._RenderStates_SetShader(self._ptr, self.__shader.get_ptr())
         return self
     
-    def set_texture(self, texture: Texture) -> Self:
+    def set_texture(self, texture) -> Self:
         """
         #### Устанавливает текстуру для рендеринга
         
@@ -546,7 +547,7 @@ class RenderStates:
         LIB_MOON._RenderStates_SetTexture(self._ptr, texture.get_ptr())
         return self
     
-    def get_texture(self) -> Texture | None:
+    def get_texture(self):
         """
         #### Возвращает текущую установленную текстуру
         

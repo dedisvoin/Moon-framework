@@ -47,7 +47,7 @@ while window.update(events):
     window.clear(COLOR_BLACK)
 
     render_time = window.get_render_time(10)
-    ps.emit_per_time(p2, CPU_ParticleEmitters.Point(window.get_center() + Vector2f(0, 0)), 0.01, 40, window.get_render_time(), emitter_id="1")
+    ps.emit_per_time(p2, CPU_ParticleEmitters.Point(window.get_center() + Vector2f(0, 0)), 0.01, 1, window.get_render_time(), emitter_id="1")
     #ps.emit_per_time(p2, CPU_ParticleEmitters.Point(window.get_center() + Vector2f(-300, 0)), 0.01, 5, window.get_render_time(), emitter_id='2')
     ps.update(render_time)
 

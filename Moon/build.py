@@ -104,7 +104,7 @@ def build():
     DLLS_FILES_PATH = properties["DLLS_FILES_PATH"]
 
     print(f"{Fore.BLUE}Building{Fore.RESET}: Generating builded file...")
-    file = open(BUILD_FILES_PATH+"/PySGL.cpp", 'w', encoding="utf-8")
+    file = open(BUILD_FILES_PATH+"/Moon.cpp", 'w', encoding="utf-8")
     for bf in builded_files:
         
             fp = BUILD_FILES_PATH + "/" + bf
@@ -116,7 +116,7 @@ def build():
     file.close()
 
     # Сборка файла
-    build_file(BUILD_FILES_PATH + "/" + "PySGL.cpp", DLLS_FILES_PATH, COMPILER_PATH, SFML_INCLUDE_PATH, SFML_LIB_PATH)
+    build_file(BUILD_FILES_PATH + "/" + "Moon.cpp", DLLS_FILES_PATH, COMPILER_PATH, SFML_INCLUDE_PATH, SFML_LIB_PATH)
 
     # Удаление временного файла
     # os.remove(BUILD_FILES_PATH + "/" + "BUILD.cpp")

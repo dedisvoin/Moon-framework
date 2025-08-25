@@ -94,6 +94,7 @@ from typing import Generator, Final
 
 # ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
 from Moon import DLL_FOUND_PATH               #
+from Moon import DLL_LOCAL_FOUND_PATH         #
 # =========================================== +
 
 from Moon.python.Types import OptionalIdentifier, Identifier, FunctionOrMethod
@@ -123,7 +124,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("Library not found at", lib_path)
-            lib_path = "./dlls/Moon.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")

@@ -79,6 +79,7 @@ from typing import overload, Final, final, Self
 
 # ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
 from Moon import DLL_FOUND_PATH               #
+from Moon import DLL_LOCAL_FOUND_PATH         #
 # =========================================== +
 
 from Moon.python.Colors import *
@@ -119,7 +120,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("Library not found at", lib_path)
-            lib_path = "./dlls/Moon.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")
@@ -964,7 +965,7 @@ class Window:
         self.__active: bool = True
         self.__cursor: SystemCursors = SystemCursors.Arrow
         self.__using_keybinding_for_open_fps_monitor: bool = False
-        self.__fps_monitor_key_binding: str = "shift+f"
+        self.__fps_monitor_key_binding: str = "alt+f"
         self.__fps_monitor_opened: bool = True
 
         # Флаг который будет реализован в будщем 
@@ -982,19 +983,71 @@ class Window:
         self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
 
     def enable_fpsmonitor_keybinding(self, value: bool = True) -> Self:
+        """
+        #### Включает/выключает горячие клавиши для FPS монитора
+        
+        ---
+        
+        :Args:
+        - value (bool): True - включить, False - выключить (по умолчанию True)
+        
+        ---
+        
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
+        """
         self.__using_keybinding_for_open_fps_monitor = value
         return self
 
     def get_using_keybindind_for_fpsmonitor(self) -> bool:
+        """
+        #### Проверяет, включены ли горячие клавиши для FPS монитора
+        
+        ---
+        
+        :Returns:
+        - bool: True если горячие клавиши включены, False если выключены
+        """
         return self.__using_keybinding_for_open_fps_monitor
     
     def get_fpsmonitor_keybinding(self) -> str:
+        """
+        #### Возвращает текущую комбинацию клавиш для FPS монитора
+        
+        ---
+        
+        :Returns:
+        - str: Строка с комбинацией клавиш
+        """
         return self.__fps_monitor_key_binding
     
     def get_fpsmonitor_opened_for_keybinding(self) -> bool:
+        """
+        #### Проверяет, открыт ли FPS монитор через горячие клавиши
+        
+        ---
+        
+        :Returns:
+        - bool: True если монитор открыт, False если закрыт
+        """
         return self.__fps_monitor_opened
     
     def set_fpsmonitor_keybinding(self, keys: str) -> Self:
+        """
+        #### Устанавливает комбинацию клавиш для FPS монитора
+
+        Пример: `ctrl+f`
+        
+        ---
+        
+        :Args:
+        - keys (str): Строка с комбинацией клавиш
+        
+        ---
+        
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
+        """
         self.__fps_monitor_key_binding = keys
         return self
 
