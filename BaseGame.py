@@ -561,23 +561,49 @@ class Game:
         window.draw(self.global_particle_system)
         
       
-        self.down_text.set_text("ctrl+\"+\" - zoom in")
+        self.down_text.set_text("ctrl + <+> - zoom in")
         self.down_text.set_size(18)
         self.down_text.set_color(COLOR_WHITE)
         self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-160, NATIVE_SCREEN_RESOLUTION[1]-60)
         
         window.draw(self.down_text)
 
-        self.down_text.set_text("ctrl+\"-\" - zoom out")
+        self.down_text.set_text("ctrl + <-> - zoom out")
         self.down_text.set_size(18)
         self.down_text.set_color(COLOR_WHITE)
         self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-160, NATIVE_SCREEN_RESOLUTION[1]-30)
         window.draw(self.down_text)
+        
+        self.thin_line.set_points(NATIVE_SCREEN_RESOLUTION[0]-180, NATIVE_SCREEN_RESOLUTION[1]-5, NATIVE_SCREEN_RESOLUTION[0]-180, NATIVE_SCREEN_RESOLUTION[1]-55)
+        self.thin_line.set_color(COLOR_WHITE)
+        window.draw(self.thin_line)
 
-        self.down_text.set_text("'o' - open cell")
+        self.down_text.set_text("<o> - open cell")
         self.down_text.set_size(18)
         self.down_text.set_color(COLOR_WHITE)
-        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-340, NATIVE_SCREEN_RESOLUTION[1]-30)
+        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-350, NATIVE_SCREEN_RESOLUTION[1]-30)
+        window.draw(self.down_text)
+        
+        self.down_text.set_text("shift + <m> - monitor")
+        self.down_text.set_size(18)
+        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-350, NATIVE_SCREEN_RESOLUTION[1]-60)
+        window.draw(self.down_text)
+        
+        self.thin_line.set_points(NATIVE_SCREEN_RESOLUTION[0]-370, NATIVE_SCREEN_RESOLUTION[1]-5, NATIVE_SCREEN_RESOLUTION[0]-370, NATIVE_SCREEN_RESOLUTION[1]-55)
+        self.thin_line.set_color(COLOR_WHITE)
+        window.draw(self.thin_line)
+        
+        self.down_text.set_text("<f> - set flag")
+        self.down_text.set_size(18)
+        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-510, NATIVE_SCREEN_RESOLUTION[1]-60)
+        window.draw(self.down_text)
+        
+        self.down_text.set_text("<f> - delete flag")
+        self.down_text.set_size(18)
+        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-510, NATIVE_SCREEN_RESOLUTION[1]-30)
         window.draw(self.down_text)
 
 
