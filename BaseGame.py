@@ -65,6 +65,7 @@ class Game:
         self.flag_druging = 0
 
         self.down_right_plan = LoadSprite("game_data\down_right_plan.png")
+        self.down_right_plan.set_color(Color(255, 255, 255, 120))
         self.down_right_plan.set_typed_origin(OriginTypes.DOWN_RIGHT)
         self.down_right_plan.set_position(NATIVE_SCREEN_RESOLUTION[0], NATIVE_SCREEN_RESOLUTION[1])
 
