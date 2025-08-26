@@ -35,6 +35,7 @@ class Cell:
 class Game:
     def __init__(self):
         self.map_cell_size = 10
+        self.flag_count = 0
         sprites = LoadSpriteArrayFromSprite("game_data/spites.png", [10, 10], self.map_cell_size / 10)
         self.data = {
             'mine_sprite': sprites[9],
@@ -56,6 +57,8 @@ class Game:
             "no_opened": MultiSound(Sound(SoundBuffer(r"game_data\no opened.wav")), 10).set_volume_all(80)
         }
         self.outlined_mine = BaseSprite.FromTexture(apply_outline_to_texture(self.data['mine_sprite'].get_texture(), COLOR_WHITE, 1, PIXEL_PERFECT_OUTLINE_SHADER))
+        self.outlined_flag = BaseSprite.FromTexture(apply_outline_to_texture(self.data['flag'].get_texture(), COLOR_WHITE, 1, PIXEL_PERFECT_OUTLINE_SHADER))
+
 
         self.global_particle_system = CPU_ParticleSystem()
         self.global_particle_system.lightning = False
@@ -611,6 +614,16 @@ class Game:
         window.draw(self.outlined_mine)
         
         self.down_text.set_text(f"{self.mine_count} mines")
+        self.down_text.set_size(18)
+        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_position(40, NATIVE_SCREEN_RESOLUTION[1]-28)
+        window.draw(self.down_text)
+        
+        self.outlined_flag.set_position(0, NATIVE_SCREEN_RESOLUTION[1] - 65)
+        self.outlined_flag.set_scale(3)
+        window.draw(self.outlined_flag)
+        
+        self.down_text.set_text(f"{self.flag_count}/{self.mine_count} flags")
         self.down_text.set_size(18)
         self.down_text.set_color(COLOR_WHITE)
         self.down_text.set_position(40, NATIVE_SCREEN_RESOLUTION[1]-28)
