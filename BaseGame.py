@@ -455,43 +455,72 @@ class Game:
         self.help_rect.set_position(self.person_smooth_pos[0], self.person_smooth_pos[1])
 
     def person_update(self):
-        # Управление персонажем
-        if KeyBoardInterface.get_click("up"):
-            if self.person_pos[1] - 1 < 0:
-                self.data['wall'].auto_play()
-                self.person_not_moving_particles.spreading_angle = 90
-                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
-                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
-            else:
-                self.data['moving'].auto_play()
-            self.person_pos[1] = max(0, self.person_pos[1] - 1)
-        if KeyBoardInterface.get_click("down"):
-            if self.person_pos[1] + 1 > self.map_size - 1:
-                self.data['wall'].auto_play()
-                self.person_not_moving_particles.spreading_angle = 270
-                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
-                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
-            else:
-                self.data['moving'].auto_play()
-            self.person_pos[1] = min(self.map_size - 1, self.person_pos[1] + 1)
-        if KeyBoardInterface.get_click("left"):
-            if self.person_pos[0] - 1 < 0:
-                self.data['wall'].auto_play()
-                self.person_not_moving_particles.spreading_angle = 180
-                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
-                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
-            else:
-                self.data['moving'].auto_play()
-            self.person_pos[0] = max(0, self.person_pos[0] - 1)
-        if KeyBoardInterface.get_click("right"):
-            if self.person_pos[0] + 1 > self.map_size - 1:
-                self.data['wall'].auto_play()
-                self.person_not_moving_particles.spreading_angle = 0
-                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
-                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
-            else:
-                self.data['moving'].auto_play()
-            self.person_pos[0] = min(self.map_size - 1, self.person_pos[0] + 1)
+        # Управление персонажем (стрелки и WASD)
+        move_directions = []
+        
+        # Стрелки
+        if KeyBoardInterface.get_click("up") or KeyBoardInterface.get_click("w"):
+            move_directions.append("up")
+        if KeyBoardInterface.get_click("down") or KeyBoardInterface.get_click("s"):
+            move_directions.append("down")
+        if KeyBoardInterface.get_click("left") or KeyBoardInterface.get_click("a"):
+            move_directions.append("left")
+        if KeyBoardInterface.get_click("right") or KeyBoardInterface.get_click("d"):
+            move_directions.append("right")
+        
+        # Обрабатываем движение только если нажата одна клавиша
+        if len(move_directions) == 1:
+            direction = move_directions[0]
+            
+            if direction == "up" or direction == "w":
+                if self.person_pos[1] - 1 < 0:
+                    self.data['wall'].auto_play()
+                    self.person_not_moving_particles.spreading_angle = 90
+                    self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
+                    self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+                else:
+                    self.data['moving'].auto_play()
+                    self.person_pos[1] = max(0, self.person_pos[1] - 1)
+                    
+            elif direction == "down" or direction == "s":
+                if self.person_pos[1] + 1 > self.map_size - 1:
+                    self.data['wall'].auto_play()
+                    self.person_not_moving_particles.spreading_angle = 270
+                    self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
+                    self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+                else:
+                    self.data['moving'].auto_play()
+                    self.person_pos[1] = min(self.map_size - 1, self.person_pos[1] + 1)
+                    
+            elif direction == "left" or direction == "a":
+                if self.person_pos[0] - 1 < 0:
+                    self.data['wall'].auto_play()
+                    self.person_not_moving_particles.spreading_angle = 180
+                    self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
+                    self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+                else:
+                    self.data['moving'].auto_play()
+                    self.person_pos[0] = max(0, self.person_pos[0] - 1)
+                    
+            elif direction == "right" or direction == "d":
+                if self.person_pos[0] + 1 > self.map_size - 1:
+                    self.data['wall'].auto_play()
+                    self.person_not_moving_particles.spreading_angle = 0
+                    self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
+                    self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+                else:
+                    self.data['moving'].auto_play()
+                    self.person_pos[0] = min(self.map_size - 1, self.person_pos[0] + 1)
+        
+        # Открытие клетки по нажатию O или E
+        if KeyBoardInterface.get_click("o") or KeyBoardInterface.get_click("e"):
+            x, y = self.person_pos[0], self.person_pos[1]
+            self.open_cell(x, y)
+            
+        # Установка/снятие флага по нажатию F или Q
+        if KeyBoardInterface.get_click("f") or KeyBoardInterface.get_click("q"):
+            x, y = self.person_pos[0], self.person_pos[1]
+            self.toggle_flag(x, y)
         
         # Открытие клетки по нажатию O
         if KeyBoardInterface.get_click("o"):
@@ -586,49 +615,71 @@ class Game:
         window.draw(self.down_right_plan)
         
       
-        self.down_text.set_text("ctrl + <+> - zoom in")
-        self.down_text.set_size(18)
-        self.down_text.set_color(COLOR_GRAY)
-        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-160, NATIVE_SCREEN_RESOLUTION[1]-60)
+        # Три столбца подсказок
+        column1_x = NATIVE_SCREEN_RESOLUTION[0] - 370 # Левый столбец
+        column2_x = NATIVE_SCREEN_RESOLUTION[0] - 240  # Центральный столбец  
+        column3_x = NATIVE_SCREEN_RESOLUTION[0] - 120  # Правый столбец
+        start_y = NATIVE_SCREEN_RESOLUTION[1] - 40     # Начальная позиция по Y
         
-        window.draw(self.down_text)
-
-        self.down_text.set_text("ctrl + <-> - zoom out")
-        self.down_text.set_size(18)
+        # Столбец 1: Управление движением
+        self.down_text.set_text("Movement:")
+        self.down_text.set_size(16)
         self.down_text.set_color(COLOR_GRAY)
-        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-160, NATIVE_SCREEN_RESOLUTION[1]-30)
-        window.draw(self.down_text)
-        
-        self.thin_line.set_points(NATIVE_SCREEN_RESOLUTION[0]-180, NATIVE_SCREEN_RESOLUTION[1]-5, NATIVE_SCREEN_RESOLUTION[0]-180, NATIVE_SCREEN_RESOLUTION[1]-55)
-        self.thin_line.set_color(COLOR_GRAY)
-        window.draw(self.thin_line)
-
-        self.down_text.set_text("<o> - open cell")
-        self.down_text.set_size(18)
-        self.down_text.set_color(COLOR_GRAY)
-        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-350, NATIVE_SCREEN_RESOLUTION[1]-30)
+        self.down_text.set_position(column1_x, start_y - 25)
         window.draw(self.down_text)
         
-        self.down_text.set_text("shift + <m> - monitor")
-        self.down_text.set_size(18)
+        self.down_text.set_text("Arrows / WASD")
+        self.down_text.set_size(16)
         self.down_text.set_color(COLOR_GRAY)
-        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-350, NATIVE_SCREEN_RESOLUTION[1]-60)
+        self.down_text.set_position(column1_x, start_y-5)
         window.draw(self.down_text)
         
-        self.thin_line.set_points(NATIVE_SCREEN_RESOLUTION[0]-370, NATIVE_SCREEN_RESOLUTION[1]-5, NATIVE_SCREEN_RESOLUTION[0]-370, NATIVE_SCREEN_RESOLUTION[1]-55)
-        self.thin_line.set_color(COLOR_GRAY)
+        # Разделитель после 1 столбца
+        self.thin_line.set_points(column1_x + 115, start_y - 25, column1_x + 115, start_y + 40)
+        self.thin_line.set_color(Color(100, 100, 100, 150))
         window.draw(self.thin_line)
         
-        self.down_text.set_text("<f> - set flag")
-        self.down_text.set_size(18)
+        # Столбец 2: Действия с клетками
+        self.down_text.set_text("Actions:")
+        self.down_text.set_size(16)
         self.down_text.set_color(COLOR_GRAY)
-        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-510, NATIVE_SCREEN_RESOLUTION[1]-60)
+        self.down_text.set_position(column2_x, start_y - 25)
         window.draw(self.down_text)
         
-        self.down_text.set_text("<f> - delete flag")
-        self.down_text.set_size(18)
+        self.down_text.set_text("Open: O / E")
+        self.down_text.set_size(16)
         self.down_text.set_color(COLOR_GRAY)
-        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-510, NATIVE_SCREEN_RESOLUTION[1]-30)
+        self.down_text.set_position(column2_x, start_y - 5)
+        window.draw(self.down_text)
+        
+        self.down_text.set_text("Flag: F / Q")
+        self.down_text.set_size(16)
+        self.down_text.set_color(COLOR_GRAY)
+        self.down_text.set_position(column2_x, start_y + 15)
+        window.draw(self.down_text)
+        
+        # Разделитель после 2 столбца
+        self.thin_line.set_points(column2_x + 100, start_y - 25, column2_x + 100, start_y + 40)
+        self.thin_line.set_color(Color(100, 100, 100, 150))
+        window.draw(self.thin_line)
+        
+        # Столбец 3: Настройки
+        self.down_text.set_text("Settings:")
+        self.down_text.set_size(16)
+        self.down_text.set_color(COLOR_GRAY)
+        self.down_text.set_position(column3_x, start_y - 25)
+        window.draw(self.down_text)
+        
+        self.down_text.set_text("Zoom: ctrl +/-")
+        self.down_text.set_size(16)
+        self.down_text.set_color(COLOR_GRAY)
+        self.down_text.set_position(column3_x, start_y - 5)
+        window.draw(self.down_text)
+        
+        self.down_text.set_text("Monitor: shift M")
+        self.down_text.set_size(16)
+        self.down_text.set_color(COLOR_GRAY)
+        self.down_text.set_position(column3_x, start_y + 15)
         window.draw(self.down_text)
         
         self.outlined_mine.set_position(2, NATIVE_SCREEN_RESOLUTION[1] - 30)
@@ -703,9 +754,9 @@ start_text.set_position(NATIVE_SCREEN_RESOLUTION[0]/2, NATIVE_SCREEN_RESOLUTION[
 while window.update(window_events):
     window.clear(COLOR_BLACK)
     
-
-    if KeyBoardInterface.get_click("s"):
-        game_start_flag = True
+    if not game_start_flag:
+        if KeyBoardInterface.get_click("s"):
+            game_start_flag = True
     if not GAME.white_rect_draw:
         GAME.person_update()
     GAME.update()
