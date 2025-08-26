@@ -76,11 +76,13 @@ import keyboard
 from enum import Enum
 from typing import Any, Callable, Literal, Final, final, Optional, Union, Set, Dict
 
-from .Vectors import Vector2i  # Векторные операции для позиций
 from .Types import Self
+from .Vectors import Vector2i  # Векторные операции для позиций
 
-from Moon import DLL_FOUND_PATH
-from Moon import DLL_LOCAL_FOUND_PATH
+# ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
+from Moon import DLL_FOUND_PATH               #
+from Moon import DLL_LOCAL_FOUND_PATH         #
+# =========================================== +
 
 from functools import lru_cache
 
