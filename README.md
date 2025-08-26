@@ -128,7 +128,7 @@ from Moon.python.Rendering.Shapes import *
 window = Window()
 events = WindowEvents()
 
-# Создаем красный прямоугольник с поворотом
+# Создаем красный прямоугольник
 rect = RectangleShape(200, 200)\
     .set_origin(100, 100)\
     .set_color(COLOR_RED)\
