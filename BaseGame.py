@@ -64,6 +64,10 @@ class Game:
         self.many_flags_target_alpha = 0
         self.flag_druging = 0
 
+        self.down_right_plan = LoadSprite("game_data\down_right_plan.png")
+        self.down_right_plan.set_typed_origin(OriginTypes.DOWN_RIGHT)
+        self.down_right_plan.set_position(NATIVE_SCREEN_RESOLUTION[0], NATIVE_SCREEN_RESOLUTION[1])
+
         self.global_particle_system = CPU_ParticleSystem()
         self.global_particle_system.lightning = False
 
@@ -71,21 +75,7 @@ class Game:
         self.local_particle_system = CPU_ParticleSystem()
         self.local_particle_system.lightning = False
 
-        self.down_particle_emmiter = CPU_ParticleEmitters.Rect(Vector2f(0, NATIVE_SCREEN_RESOLUTION[1]), NATIVE_SCREEN_RESOLUTION[0], 100)
 
-        self.down_particle = CPU_Particle(color=Color(0, 1, 1, 255), size=100, shape=ParticleShapes.Rectangle)
-        self.down_particle.spreading_angle = 90
-        self.down_particle.max_speed = 300
-        self.down_particle.min_speed = 100
-        self.down_particle.resize = -300
-        self.down_particle.angular_distribution_area = 0
-        self.down_particle.resistance = 1
-        self.down_particle.max_size = 200
-        self.down_particle.min_size = 20
-        self.down_particle.max_velocity_rotation_speed = 10
-        self.down_particle.min_velocity_rotation_speed = 4
-        self.down_particle.max_rotation_speed = 30
-        self.down_particle.min_rotation_speed = -30
 
         self.person_particles_emitter = CPU_ParticleEmitters.Rect(Vector2f(0, 0), self.map_cell_size*5, self.map_cell_size*5)
 
@@ -425,7 +415,7 @@ class Game:
             for x in range(len(self.map[y])):
                 self.map[y][x].draging *= 0.8
 
-        self.global_particle_system.emit_per_time(self.down_particle, self.down_particle_emmiter, 0.01, 10)
+
         self.global_particle_system.update(window.get_render_time())
 
         self.local_particle_system.update(window.get_render_time())
@@ -588,6 +578,8 @@ class Game:
         # Если нужно оставить down_sprite, можно отрисовать его отдельно
         
         window.draw(self.global_particle_system)
+
+        window.draw(self.down_right_plan)
         
       
         self.down_text.set_text("ctrl + <+> - zoom in")
