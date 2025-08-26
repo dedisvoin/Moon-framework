@@ -71,7 +71,6 @@ Copyright (c) 2025 Pavlov Ivan
 
 import os
 import ctypes
-from cachetools import cached
 import keyboard
 
 from enum import Enum

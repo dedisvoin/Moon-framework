@@ -63,7 +63,7 @@ class Game:
 
         self.down_particle_emmiter = CPU_ParticleEmitters.Rect(Vector2f(0, 1080), 1920, 100)
 
-        self.down_particle = CPU_Particle(color=COLOR_BLACK, size=100, shape=ParticleShapes.Rectangle)
+        self.down_particle = CPU_Particle(color=Color(0, 1, 1, 255), size=100, shape=ParticleShapes.Rectangle)
         self.down_particle.spreading_angle = 100
         self.down_particle.max_speed = 160
         self.down_particle.min_speed = 100
@@ -539,7 +539,7 @@ class Game:
         self.__scene_texture.draw(self.local_particle_system)
         self.__scene_texture.display()
         
-        # Финальный рендер с шейдером огня
+
         window.draw(self.__scene_sprite)
 
         # Если нужно оставить down_sprite, можно отрисовать его отдельно
