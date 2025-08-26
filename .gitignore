@@ -15,4 +15,5 @@ __pycache__/
 .vscode/
 
 .game_data/
-./venv
+.venv/
+build/
