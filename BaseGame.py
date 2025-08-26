@@ -448,6 +448,12 @@ class Game:
         self.help_rect_alpha = max(0, min(self.help_rect_alpha, 255))
         self.help_rect.set_outline_color(Color(39, 39, 39, self.help_rect_alpha))
 
+        
+        
+        self.person_rect.set_position(self.person_smooth_pos[0], self.person_smooth_pos[1])
+        self.help_rect.set_position(self.person_smooth_pos[0], self.person_smooth_pos[1])
+
+    def person_update(self):
         # Управление персонажем
         if KeyBoardInterface.get_click("up"):
             if self.person_pos[1] - 1 < 0:
@@ -496,9 +502,6 @@ class Game:
             x, y = self.person_pos[0], self.person_pos[1]
             self.toggle_flag(x, y)
 
-        
-        self.person_rect.set_position(self.person_smooth_pos[0], self.person_smooth_pos[1])
-        self.help_rect.set_position(self.person_smooth_pos[0], self.person_smooth_pos[1])
         
     def render_map(self, texture):
         self.thin_line.set_color(Color(50, 50, 50))
@@ -627,7 +630,7 @@ class Game:
         self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-510, NATIVE_SCREEN_RESOLUTION[1]-30)
         window.draw(self.down_text)
         
-        self.outlined_mine.set_position(0, NATIVE_SCREEN_RESOLUTION[1] - 30)
+        self.outlined_mine.set_position(2, NATIVE_SCREEN_RESOLUTION[1] - 30)
         self.outlined_mine.set_scale(3)
         window.draw(self.outlined_mine)
         
@@ -649,7 +652,7 @@ class Game:
         self.flag_druging *= 0.85
         v = Vector2f(self.flag_druging, 0).rotate_at(random.randint(0, 360))
 
-        self.outlined_flag.set_position(0 + v.x, NATIVE_SCREEN_RESOLUTION[1] - 65 + v.y)
+        self.outlined_flag.set_position(2 + v.x, NATIVE_SCREEN_RESOLUTION[1] - 65 + v.y)
         self.outlined_flag.set_scale(3)
         
         window.draw(self.outlined_flag)
@@ -672,13 +675,13 @@ class Game:
         self.white_rect_color_alpha += (self.white_rect_target_alpha - self.white_rect_color_alpha) * 0.03
         self.white_rect.set_color(Color(255, 255, 255, self.white_rect_color_alpha))
 
-        self.white_rect_size[0] += (self.white_rect_target_size[0] - self.white_rect_size[0]) * 0.1
-        self.white_rect_size[1] += (self.white_rect_target_size[1] - self.white_rect_size[1]) * 0.1
+        self.white_rect_size[0] += (self.white_rect_target_size[0] - self.white_rect_size[0]) * 0.4
+        self.white_rect_size[1] += (self.white_rect_target_size[1] - self.white_rect_size[1]) * 0.4
         self.white_rect.set_size(*self.white_rect_size)
         self.white_rect.set_origin(self.white_rect_size[0]/2, self.white_rect_size[1]/2)
         self.white_rect.set_position(NATIVE_SCREEN_RESOLUTION[0]/2, NATIVE_SCREEN_RESOLUTION[1]/2)
         
-        self.white_rect_outline_width += (self.white_rect_target_outline_width - self.white_rect_outline_width) * 0.05
+        self.white_rect_outline_width += (self.white_rect_target_outline_width - self.white_rect_outline_width) * 0.1
         self.white_rect.set_outline_thickness(self.white_rect_outline_width)
 
 
@@ -699,8 +702,11 @@ start_text.set_position(NATIVE_SCREEN_RESOLUTION[0]/2, NATIVE_SCREEN_RESOLUTION[
 while window.update(window_events):
     window.clear(COLOR_BLACK)
     
+
     if KeyBoardInterface.get_click("s"):
         game_start_flag = True
+    if not GAME.white_rect_draw:
+        GAME.person_update()
     GAME.update()
 
     
