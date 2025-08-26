@@ -53,7 +53,6 @@ class Game:
             "cell_open_sound": MultiSound(Sound(SoundBuffer("game_data/cell_opening.wav")), 30).set_volume_all(50),
             "flag_set_sound": Sound(SoundBuffer("game_data/flag_set.wav")).set_volume(60),
             "flag_destroy_sound": Sound(SoundBuffer("game_data/flag_destroy.wav")).set_pitch(0.6).set_volume(60),
-            "wall": MultiSound(Sound(SoundBuffer("game_data\wall.wav")), 10).set_volume_all(50),
             "moving": MultiSound(Sound(SoundBuffer("game_data\moving.wav")), 10).set_volume_all(20),
             "no_opened": MultiSound(Sound(SoundBuffer(r"game_data\no opened.wav")), 10).set_volume_all(80)
         }
@@ -259,6 +258,12 @@ class Game:
         
         self.down_text = Text(Font.SystemFont("calibri"))
 
+        self.key_states = {
+            'up': False, 'down': False, 'left': False, 'right': False,
+            'w': False, 's': False, 'a': False, 'd': False
+        }
+        self.move_cooldown = 0  # Задержка между движениями при зажатии
+
     def set_cell_without_mine(self):
         # Сначала попробуем найти клетку вообще без мин вокруг
         safe_cells = []
@@ -438,8 +443,8 @@ class Game:
 
         self.__rainbow_shader.set_uniform("time", window.get_global_timer())
 
-        self.person_smooth_pos[0] -= (self.person_smooth_pos[0] - self.person_pos[0] * self.map_cell_size) * 0.6
-        self.person_smooth_pos[1] -= (self.person_smooth_pos[1] - self.person_pos[1] * self.map_cell_size) * 0.6
+        self.person_smooth_pos[0] -= (self.person_smooth_pos[0] - self.person_pos[0] * self.map_cell_size) * 0.2
+        self.person_smooth_pos[1] -= (self.person_smooth_pos[1] - self.person_pos[1] * self.map_cell_size) * 0.2
 
         if not self.map[self.person_pos[1]][self.person_pos[0]].open:
             self.help_rect_alpha += 10
@@ -449,86 +454,120 @@ class Game:
         self.help_rect_alpha = max(0, min(self.help_rect_alpha, 255))
         self.help_rect.set_outline_color(Color(39, 39, 39, self.help_rect_alpha))
 
-        
-        
+    
         self.person_rect.set_position(self.person_smooth_pos[0], self.person_smooth_pos[1])
         self.help_rect.set_position(self.person_smooth_pos[0], self.person_smooth_pos[1])
 
+    def try_move(self, direction):
+        move_made = False
+        
+        if direction == "up":
+            if self.person_pos[1] - 1 < 0:
+
+                self.person_not_moving_particles.spreading_angle = 90
+                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(
+                    self.person_pos[0] * self.map_cell_size, 
+                    self.person_pos[1] * self.map_cell_size, 
+                    self.camera.get_view()
+                )
+                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+            else:
+                self.data['moving'].auto_play()
+                self.person_pos[1] = max(0, self.person_pos[1] - 1)
+                move_made = True
+                
+        elif direction == "down":
+            if self.person_pos[1] + 1 > self.map_size - 1:
+
+                self.person_not_moving_particles.spreading_angle = 270
+                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(
+                    self.person_pos[0] * self.map_cell_size, 
+                    self.person_pos[1] * self.map_cell_size, 
+                    self.camera.get_view()
+                )
+                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+            else:
+                self.data['moving'].auto_play()
+                self.person_pos[1] = min(self.map_size - 1, self.person_pos[1] + 1)
+                move_made = True
+                
+        elif direction == "left":
+            if self.person_pos[0] - 1 < 0:
+
+                self.person_not_moving_particles.spreading_angle = 180
+                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(
+                    self.person_pos[0] * self.map_cell_size, 
+                    self.person_pos[1] * self.map_cell_size, 
+                    self.camera.get_view()
+                )
+                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+            else:
+                self.data['moving'].auto_play()
+                self.person_pos[0] = max(0, self.person_pos[0] - 1)
+                move_made = True
+                
+        elif direction == "right":
+            if self.person_pos[0] + 1 > self.map_size - 1:
+
+                self.person_not_moving_particles.spreading_angle = 0
+                self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(
+                    self.person_pos[0] * self.map_cell_size, 
+                    self.person_pos[1] * self.map_cell_size, 
+                    self.camera.get_view()
+                )
+                self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
+            else:
+                self.data['moving'].auto_play()
+                self.person_pos[0] = min(self.map_size - 1, self.person_pos[0] + 1)
+                move_made = True
+        
+        return move_made
+
     def person_update(self):
-        # Управление персонажем (стрелки и WASD)
-        move_directions = []
+    # Обновляем состояния клавиш
+        keys_to_check = ['up', 'down', 'left', 'right', 'w', 's', 'a', 'd']
+        for key in keys_to_check:
+            if KeyBoardInterface.get_click(key):
+                self.key_states[key] = True
+            if not KeyBoardInterface.get_press(key):
+                self.key_states[key] = False
         
-        # Стрелки
-        if KeyBoardInterface.get_click("up") or KeyBoardInterface.get_click("w"):
-            move_directions.append("up")
-        if KeyBoardInterface.get_click("down") or KeyBoardInterface.get_click("s"):
-            move_directions.append("down")
-        if KeyBoardInterface.get_click("left") or KeyBoardInterface.get_click("a"):
-            move_directions.append("left")
-        if KeyBoardInterface.get_click("right") or KeyBoardInterface.get_click("d"):
-            move_directions.append("right")
-        
-        # Обрабатываем движение только если нажата одна клавиша
-        if len(move_directions) == 1:
-            direction = move_directions[0]
+        # Обрабатываем движение с задержкой при зажатии
+        move_made = False
+        if self.move_cooldown <= 0:
+            # Проверяем все возможные направления движения
+            directions = []
             
-            if direction == "up" or direction == "w":
-                if self.person_pos[1] - 1 < 0:
-                    self.data['wall'].auto_play()
-                    self.person_not_moving_particles.spreading_angle = 90
-                    self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
-                    self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
-                else:
-                    self.data['moving'].auto_play()
-                    self.person_pos[1] = max(0, self.person_pos[1] - 1)
-                    
-            elif direction == "down" or direction == "s":
-                if self.person_pos[1] + 1 > self.map_size - 1:
-                    self.data['wall'].auto_play()
-                    self.person_not_moving_particles.spreading_angle = 270
-                    self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
-                    self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
-                else:
-                    self.data['moving'].auto_play()
-                    self.person_pos[1] = min(self.map_size - 1, self.person_pos[1] + 1)
-                    
-            elif direction == "left" or direction == "a":
-                if self.person_pos[0] - 1 < 0:
-                    self.data['wall'].auto_play()
-                    self.person_not_moving_particles.spreading_angle = 180
-                    self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
-                    self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
-                else:
-                    self.data['moving'].auto_play()
-                    self.person_pos[0] = max(0, self.person_pos[0] - 1)
-                    
-            elif direction == "right" or direction == "d":
-                if self.person_pos[0] + 1 > self.map_size - 1:
-                    self.data['wall'].auto_play()
-                    self.person_not_moving_particles.spreading_angle = 0
-                    self.person_particles_emitter.position = window.convert_view_coords_to_window_coords(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size, self.camera.get_view())
-                    self.global_particle_system.emit(self.person_not_moving_particles, self.person_particles_emitter, 10)
-                else:
-                    self.data['moving'].auto_play()
-                    self.person_pos[0] = min(self.map_size - 1, self.person_pos[0] + 1)
+            # Стрелки
+            if self.key_states['up']: directions.append('up')
+            if self.key_states['down']: directions.append('down') 
+            if self.key_states['left']: directions.append('left')
+            if self.key_states['right']: directions.append('right')
+            
+            # WASD
+            if self.key_states['w']: directions.append('up')
+            if self.key_states['s']: directions.append('down')
+            if self.key_states['a']: directions.append('left') 
+            if self.key_states['d']: directions.append('right')
+            
+            # Если нажата только одна клавиша движения
+            if len(directions) == 1:
+                direction = directions[0]
+                move_made = self.try_move(direction)
+                
+                if move_made:
+                    self.move_cooldown = 10  # Задержка между движениями при зажатии
         
-        # Открытие клетки по нажатию O или E
+        if self.move_cooldown > 0:
+            self.move_cooldown -= 1
+        
+        # Открытие клетки по нажатию O или E (одиночное нажатие)
         if KeyBoardInterface.get_click("o") or KeyBoardInterface.get_click("e"):
             x, y = self.person_pos[0], self.person_pos[1]
             self.open_cell(x, y)
             
-        # Установка/снятие флага по нажатию F или Q
+        # Установка/снятие флага по нажатию F или Q (одиночное нажатие)
         if KeyBoardInterface.get_click("f") or KeyBoardInterface.get_click("q"):
-            x, y = self.person_pos[0], self.person_pos[1]
-            self.toggle_flag(x, y)
-        
-        # Открытие клетки по нажатию O
-        if KeyBoardInterface.get_click("o"):
-            x, y = self.person_pos[0], self.person_pos[1]
-            self.open_cell(x, y)
-            
-        # Установка/снятие флага по нажатию F
-        if KeyBoardInterface.get_click("f"):
             x, y = self.person_pos[0], self.person_pos[1]
             self.toggle_flag(x, y)
 
