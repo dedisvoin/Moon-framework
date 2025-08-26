@@ -15,6 +15,7 @@ window.enable_fpsmonitor_keybinding()
 window.set_fpsmonitor_keybinding('shift+m')
 window.enable_ghosting()
 window.set_wait_fps(60)
+window.set_fps_monitor_opened(False)
 window_events = WindowEvents()
 
 
@@ -697,7 +698,7 @@ start_text.set_text("Press S to start")
 start_text.set_size(200)
 start_text.set_color(COLOR_BLACK)
 start_text.set_typed_origin(OriginTypes.CENTER)
-start_text.set_position(NATIVE_SCREEN_RESOLUTION[0]/2, NATIVE_SCREEN_RESOLUTION[1]/2)
+start_text.set_position(NATIVE_SCREEN_RESOLUTION[0]/2, NATIVE_SCREEN_RESOLUTION[1]/2 - 50)
 
 while window.update(window_events):
     window.clear(COLOR_BLACK)

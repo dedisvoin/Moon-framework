@@ -986,6 +986,10 @@ class Window:
         except:
             self.set_icon_from_path(DEFAULT_WINDOW_ICON_LOCAL_PATH)
 
+    def set_fps_monitor_opened(self, value: bool) -> Self:
+        self.__fps_monitor_opened = value
+        return self
+
     def enable_fpsmonitor_keybinding(self, value: bool = True) -> Self:
         """
         #### Включает/выключает горячие клавиши для FPS монитора
