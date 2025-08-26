@@ -235,6 +235,7 @@ class Game:
         self.camera.set_zoom_limits(0.1, 0.6)
         self.camera.set_center(Vector2f(self.person_pos[0] * self.map_cell_size + self.map_cell_size / 2, 
                             self.person_pos[1] * self.map_cell_size + self.map_cell_size / 2))
+        self.camera.set_lerp_movement(0.01)
 
 
         self.start_circle = CircleShape(20).set_origin_radius(1)
