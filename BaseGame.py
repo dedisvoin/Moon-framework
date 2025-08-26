@@ -55,7 +55,7 @@ class Game:
             "moving": MultiSound(Sound(SoundBuffer("game_data\moving.wav")), 10).set_volume_all(20),
             "no_opened": MultiSound(Sound(SoundBuffer(r"game_data\no opened.wav")), 10).set_volume_all(80)
         }
-
+        self.outlined_mine = BaseSprite.FromTexture(apply_outline_to_texture(self.data['mine_sprite'].get_texture(), COLOR_WHITE, 1, PIXEL_PERFECT_OUTLINE_SHADER))
 
         self.global_particle_system = CPU_ParticleSystem()
         self.global_particle_system.lightning = False
@@ -563,47 +563,57 @@ class Game:
       
         self.down_text.set_text("ctrl + <+> - zoom in")
         self.down_text.set_size(18)
-        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_color(COLOR_GRAY)
         self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-160, NATIVE_SCREEN_RESOLUTION[1]-60)
         
         window.draw(self.down_text)
 
         self.down_text.set_text("ctrl + <-> - zoom out")
         self.down_text.set_size(18)
-        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_color(COLOR_GRAY)
         self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-160, NATIVE_SCREEN_RESOLUTION[1]-30)
         window.draw(self.down_text)
         
         self.thin_line.set_points(NATIVE_SCREEN_RESOLUTION[0]-180, NATIVE_SCREEN_RESOLUTION[1]-5, NATIVE_SCREEN_RESOLUTION[0]-180, NATIVE_SCREEN_RESOLUTION[1]-55)
-        self.thin_line.set_color(COLOR_WHITE)
+        self.thin_line.set_color(COLOR_GRAY)
         window.draw(self.thin_line)
 
         self.down_text.set_text("<o> - open cell")
         self.down_text.set_size(18)
-        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_color(COLOR_GRAY)
         self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-350, NATIVE_SCREEN_RESOLUTION[1]-30)
         window.draw(self.down_text)
         
         self.down_text.set_text("shift + <m> - monitor")
         self.down_text.set_size(18)
-        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_color(COLOR_GRAY)
         self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-350, NATIVE_SCREEN_RESOLUTION[1]-60)
         window.draw(self.down_text)
         
         self.thin_line.set_points(NATIVE_SCREEN_RESOLUTION[0]-370, NATIVE_SCREEN_RESOLUTION[1]-5, NATIVE_SCREEN_RESOLUTION[0]-370, NATIVE_SCREEN_RESOLUTION[1]-55)
-        self.thin_line.set_color(COLOR_WHITE)
+        self.thin_line.set_color(COLOR_GRAY)
         window.draw(self.thin_line)
         
         self.down_text.set_text("<f> - set flag")
         self.down_text.set_size(18)
-        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_color(COLOR_GRAY)
         self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-510, NATIVE_SCREEN_RESOLUTION[1]-60)
         window.draw(self.down_text)
         
         self.down_text.set_text("<f> - delete flag")
         self.down_text.set_size(18)
-        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_color(COLOR_GRAY)
         self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-510, NATIVE_SCREEN_RESOLUTION[1]-30)
+        window.draw(self.down_text)
+        
+        self.outlined_mine.set_position(0, NATIVE_SCREEN_RESOLUTION[1] - 30)
+        self.outlined_mine.set_scale(3)
+        window.draw(self.outlined_mine)
+        
+        self.down_text.set_text(f"{self.mine_count} mines")
+        self.down_text.set_size(18)
+        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_position(40, NATIVE_SCREEN_RESOLUTION[1]-28)
         window.draw(self.down_text)
 
 
