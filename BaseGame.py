@@ -323,12 +323,15 @@ class Game:
         cell = self.map[y][x]
         if cell.open or self.game_over:
             return
+            
         if cell.flagged:
             self.data['flag_destroy_sound'].play()
             self.cell_opening_emitter.position = Vector2f(self.person_pos[0] * self.map_cell_size, self.person_pos[1] * self.map_cell_size )
             self.local_particle_system.emit(self.flag_delete_particle, self.cell_opening_emitter, 5)
+            self.flag_count -= 1  # Уменьшаем счетчик флагов
         else:
             self.data['flag_set_sound'].play()
+            self.flag_count += 1  # Увеличиваем счетчик флагов
             
         cell.flagged = not cell.flagged  # Переключаем состояние флага
 
@@ -626,7 +629,7 @@ class Game:
         self.down_text.set_text(f"{self.flag_count}/{self.mine_count} flags")
         self.down_text.set_size(18)
         self.down_text.set_color(COLOR_WHITE)
-        self.down_text.set_position(40, NATIVE_SCREEN_RESOLUTION[1]-28)
+        self.down_text.set_position(40, NATIVE_SCREEN_RESOLUTION[1]-60)
         window.draw(self.down_text)
 
 
