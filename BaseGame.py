@@ -52,7 +52,6 @@ class Game:
             "flag_set_sound": Sound(SoundBuffer("game_data/flag_set.wav")).set_volume(60),
             "flag_destroy_sound": Sound(SoundBuffer("game_data/flag_destroy.wav")).set_pitch(0.6).set_volume(60),
             "wall": MultiSound(Sound(SoundBuffer("game_data\wall.wav")), 10).set_volume_all(50),
-            "down_sprite": LoadSprite("game_data\down_sprite.png", 1),
             "moving": MultiSound(Sound(SoundBuffer("game_data\moving.wav")), 10).set_volume_all(20),
             "no_opened": MultiSound(Sound(SoundBuffer(r"game_data\no opened.wav")), 10).set_volume_all(80)
         }
@@ -240,6 +239,10 @@ class Game:
 
         self.start_circle = CircleShape(20).set_origin_radius(1)
         self.start_circle.set_color(COLOR_RED)
+        
+        
+        
+        self.down_text = Text(Font.SystemFont("calibri"))
 
     def set_cell_without_mine(self):
         # Сначала попробуем найти клетку вообще без мин вокруг
@@ -556,7 +559,27 @@ class Game:
         # Если нужно оставить down_sprite, можно отрисовать его отдельно
         
         window.draw(self.global_particle_system)
-        window.draw(self.data['down_sprite'])
+        
+      
+        self.down_text.set_text("ctrl+\"+\" - zoom in")
+        self.down_text.set_size(18)
+        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-160, NATIVE_SCREEN_RESOLUTION[1]-60)
+        
+        window.draw(self.down_text)
+
+        self.down_text.set_text("ctrl+\"-\" - zoom out")
+        self.down_text.set_size(18)
+        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-160, NATIVE_SCREEN_RESOLUTION[1]-30)
+        window.draw(self.down_text)
+
+        self.down_text.set_text("'o' - open cell")
+        self.down_text.set_size(18)
+        self.down_text.set_color(COLOR_WHITE)
+        self.down_text.set_position(NATIVE_SCREEN_RESOLUTION[0]-340, NATIVE_SCREEN_RESOLUTION[1]-30)
+        window.draw(self.down_text)
+
 
 GAME = Game()
 GAME.generate_mine_map()
