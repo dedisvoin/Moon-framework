@@ -8,7 +8,7 @@ from Moon.python.Rendering.Text import *
 from Moon.python.Inputs import MouseInterface
 
 
-window = Window(style=Window.Style.No).set_view_info()
+window = Window(400, 300, style=Window.Style.No).set_view_info()
 events = WindowEvents()
 window.set_wait_fps(60)
 window.enable_ghosting().set_ghosting_min_alpha(70)
