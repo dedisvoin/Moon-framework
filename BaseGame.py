@@ -69,12 +69,12 @@ class Game:
 
         self.down_particle = CPU_Particle(color=Color(0, 1, 1, 255), size=100, shape=ParticleShapes.Rectangle)
         self.down_particle.spreading_angle = 100
-        self.down_particle.max_speed = 160
+        self.down_particle.max_speed = 300
         self.down_particle.min_speed = 100
-        self.down_particle.resize = -80
+        self.down_particle.resize = -180
         self.down_particle.angular_distribution_area = 100
         self.down_particle.resistance = 1
-        self.down_particle.max_size = 100
+        self.down_particle.max_size = 200
         self.down_particle.min_size = 20
         self.down_particle.max_velocity_rotation_speed = 10
         self.down_particle.min_velocity_rotation_speed = 4
