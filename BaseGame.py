@@ -67,18 +67,18 @@ class Game:
         self.down_particle_emmiter = CPU_ParticleEmitters.Rect(Vector2f(0, NATIVE_SCREEN_RESOLUTION[1]), NATIVE_SCREEN_RESOLUTION[0], 100)
 
         self.down_particle = CPU_Particle(color=Color(0, 1, 1, 255), size=100, shape=ParticleShapes.Rectangle)
-        self.down_particle.spreading_angle = 100
+        self.down_particle.spreading_angle = 90
         self.down_particle.max_speed = 300
         self.down_particle.min_speed = 100
-        self.down_particle.resize = -180
-        self.down_particle.angular_distribution_area = 100
+        self.down_particle.resize = -300
+        self.down_particle.angular_distribution_area = 0
         self.down_particle.resistance = 1
         self.down_particle.max_size = 200
         self.down_particle.min_size = 20
         self.down_particle.max_velocity_rotation_speed = 10
         self.down_particle.min_velocity_rotation_speed = 4
-        self.down_particle.max_rotation_speed = 100
-        self.down_particle.min_rotation_speed = -100
+        self.down_particle.max_rotation_speed = 30
+        self.down_particle.min_rotation_speed = -30
 
         self.person_particles_emitter = CPU_ParticleEmitters.Rect(Vector2f(0, 0), self.map_cell_size*5, self.map_cell_size*5)
 
