@@ -447,11 +447,12 @@ class Game:
         self.person_smooth_pos[0] -= (self.person_smooth_pos[0] - self.person_pos[0] * self.map_cell_size) * 0.3
         self.person_smooth_pos[1] -= (self.person_smooth_pos[1] - self.person_pos[1] * self.map_cell_size) * 0.3
 
-        if not self.map[self.person_pos[1]][self.person_pos[0]].open:
-            self.help_rect_alpha += 10
+
+        if (not self.map[self.person_pos[1]][self.person_pos[0]].open) or self.map[self.person_pos[1]][self.person_pos[0]].mine_count == 0:
+            self.help_rect_alpha -= 10
 
         else:
-            self.help_rect_alpha -= 10
+            self.help_rect_alpha += 10
         self.help_rect_alpha = max(0, min(self.help_rect_alpha, 255))
         self.help_rect.set_outline_color(Color(39, 39, 39, self.help_rect_alpha))
 
