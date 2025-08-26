@@ -698,7 +698,7 @@ start_text.set_text("Press S to start")
 start_text.set_size(200 * NATIVE_SCREEN_RESOLUTION[1] / 1080)
 start_text.set_color(COLOR_BLACK)
 start_text.set_typed_origin(OriginTypes.CENTER)
-start_text.set_position(NATIVE_SCREEN_RESOLUTION[0]/2, NATIVE_SCREEN_RESOLUTION[1]/2 - 50)
+start_text.set_position(NATIVE_SCREEN_RESOLUTION[0]/2, NATIVE_SCREEN_RESOLUTION[1]/2 - 50 * 1080 / NATIVE_SCREEN_RESOLUTION[1])
 
 while window.update(window_events):
     window.clear(COLOR_BLACK)
