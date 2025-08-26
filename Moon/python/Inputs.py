@@ -71,15 +71,19 @@ Copyright (c) 2025 Pavlov Ivan
 
 import os
 import ctypes
+from cachetools import cached
 import keyboard
 
 from enum import Enum
-from typing import Any, Callable, Literal, Final, final, Optional, Union
+from typing import Any, Callable, Literal, Final, final, Optional, Union, Set, Dict
 
 from .Vectors import Vector2i  # Векторные операции для позиций
 from .Types import Self
 
 from Moon import DLL_FOUND_PATH
+from Moon import DLL_LOCAL_FOUND_PATH
+
+from functools import lru_cache
 
 # ==================== КЛАССЫ ОШИБОК ====================
 class InputError(Exception):
@@ -115,7 +119,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("Library not found at", lib_path)
-            lib_path = "./dlls/Moon.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")
@@ -457,7 +461,7 @@ MouseInterface: Final[Mouse] = Mouse()
 @final
 class Keyboard:
     """
-    Основной класс для работы с клавиатурой
+    Оптимизированный класс для работы с клавиатурой
     
     Предоставляет:
     - Проверку нажатий клавиш
@@ -465,11 +469,12 @@ class Keyboard:
     - Работу с комбинациями клавиш
     """
     
-    # Поддерживаемые клавиши
+    # Поддерживаемые клавиши с быстрым доступом
     KEYS_ARRAY: Final[list[str]] = [
         # Буквы
         "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", 
         "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+        "а", "б", "в","г","д","е","ё","ж","з","и","й","к","л","м","н","о","п","р","с","т","у","ф","х","ц","ч","щ","ъ","ь","э","ю","я",
         # Цифры
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
         # Функциональные клавиши
@@ -480,18 +485,51 @@ class Keyboard:
         "esc", "enter", "space", "backspace", "tab", "capslock", 
         "shift", "ctrl", "alt", "win", "menu", "pause",
         # Символы
-        "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", 
+        "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "=", "-"
         "`", "~", "{", "}", "[", "]", "|", ":", "\"", "<", ">", "?", "/", ".", ","
     ]
+    
+    # Кэш для быстрого доступа к нормализованным комбинациям
+    _COMBINATION_CACHE: Dict[str, Set[str]] = {}
+    _PRESSED_KEYS_CACHE: Set[str] = set()
+    _LAST_UPDATE_TIME: float = 0
+    _CACHE_TTL: float = 0.01  # 10ms кэширование
 
     def __init__(self):
         """Инициализация состояния клавиатуры"""
-        self._last_click_state = {}  # Состояние клавиш в предыдущем кадре
+        self._last_click_state: Dict[str, bool] = {}
+        self._last_pressed_keys: Set[str] = set()
+        self._last_combination_state: Dict[str, bool] = {}
+
+    @classmethod
+    def _update_pressed_cache(cls) -> None:
+        """
+        #### Обновляет кэш нажатых клавиш с ограничением по времени
+        
+        ---
+        
+        :Raises:
+            InputError: Ошибка при обновлении кэша
+        """
+        import time
+        current_time = time.time()
+        
+        if current_time - cls._LAST_UPDATE_TIME > cls._CACHE_TTL:
+            try:
+                cls._PRESSED_KEYS_CACHE.clear()
+                for key in cls.KEYS_ARRAY:
+                    try:
+                        if keyboard.is_pressed(key):
+                            cls._PRESSED_KEYS_CACHE.add(key)
+                    except: ...
+                cls._LAST_UPDATE_TIME = current_time
+            except Exception as e:
+                raise InputError(f"Failed to update pressed keys cache: {e}")
 
     @classmethod
     def get_press(cls, keys: str) -> bool:
         """
-        #### Проверяет, нажата ли клавиша/комбинация
+        #### Проверяет, нажата ли клавиша/комбинация (оптимизированная версия)
         
         ---
         
@@ -511,14 +549,18 @@ class Keyboard:
         """
         if not isinstance(keys, str):
             raise InvalidInputError("Keys must be a string")
-        try:
-            return keyboard.is_pressed(keys)
-        except Exception as e:
-            raise InputError(f"Failed to check key press: {e}")
-    
+        
+        # Для одиночных клавиш используем быструю проверку
+        if '+' not in keys:
+            cls._update_pressed_cache()
+            return keys.lower() in cls._PRESSED_KEYS_CACHE
+        
+        # Для комбинаций используем оптимизированный метод
+        return cls.get_press_combination(keys)
+
     def get_click(self, keys: str) -> bool:
         """
-        #### Проверяет, была ли клавиша только что нажата (в этом кадре)
+        #### Проверяет, была ли клавиша только что нажата (оптимизированная версия)
         
         ---
         
@@ -538,40 +580,41 @@ class Keyboard:
         try:
             current_state = self.get_press(keys)
             
-            # Если клавиша нажата сейчас, но не была нажата в прошлом кадре
-            if current_state and not self._last_click_state.get(keys, False):
+            # Быстрая проверка состояния через локальный кэш
+            was_pressed = self._last_click_state.get(keys, False)
+            
+            if current_state and not was_pressed:
                 self._last_click_state[keys] = True
                 return True
             elif not current_state:
                 self._last_click_state[keys] = False
+            
             return False
         except Exception as e:
             raise InputError(f"Failed to get key click: {e}")
-    
+
     @classmethod
-    def get_pressed_keys(cls) -> list[str]:
+    @lru_cache(maxsize=128)
+    def _normalize_combination(cls, keys: str) -> Set[str]:
         """
-        #### Возвращает список всех нажатых в данный момент клавиш
+        #### Нормализует и кэширует комбинацию клавиш
         
         ---
         
-        :Returns:
-            list[str]: Список нажатых клавиш
+        :Arguments:
+            keys: Комбинация клавиш для нормализации
             
         ---
         
-        :Raises:
-            InputError: Ошибка при получении состояния
+        :Returns:
+            Set[str]: Нормализованное множество клавиш
         """
-        try:
-            return [key for key in cls.KEYS_ARRAY if keyboard.is_pressed(key)]
-        except Exception as e:
-            raise InputError(f"Failed to get pressed keys: {e}")
-    
+        return set(key.strip().lower() for key in keys.split('+'))
+
     @classmethod
     def get_press_combination(cls, keys: str) -> bool:
         """
-        #### Проверяет, нажата ли комбинация клавиш
+        #### Оптимизированная проверка комбинации клавиш
         
         ---
         
@@ -593,15 +636,20 @@ class Keyboard:
             raise InvalidInputError("Key combination must be string with '+' separator")
         
         try:
-            keys_set = set(keys.lower().split('+'))
-            pressed_set = set(cls.get_pressed_keys())
-            return keys_set.issubset(pressed_set)
+            # Используем кэшированную нормализацию
+            keys_set = cls._normalize_combination(keys)
+            
+            # Обновляем кэш нажатых клавиш
+            cls._update_pressed_cache()
+            
+            # Быстрая проверка подмножества
+            return keys_set.issubset(cls._PRESSED_KEYS_CACHE)
         except Exception as e:
             raise InputError(f"Failed to check key combination: {e}")
 
     def get_click_combination(self, keys: str) -> bool:
         """
-        #### Проверяет, была ли комбинация только что нажата (в этом кадре)
+        #### Проверяет, была ли комбинация только что нажата (оптимизированная версия)
         
         ---
         
@@ -620,17 +668,57 @@ class Keyboard:
         """
         try:
             current_state = self.get_press_combination(keys)
-            if current_state and not self._last_click_state.get(keys, False):
-                self._last_click_state[keys] = True
+            was_pressed = self._last_combination_state.get(keys, False)
+            
+            if current_state and not was_pressed:
+                self._last_combination_state[keys] = True
                 return True
             elif not current_state:
-                self._last_click_state[keys] = False
+                self._last_combination_state[keys] = False
+            
             return False
         except Exception as e:
             raise InputError(f"Failed to get combination click: {e}")
 
+    @classmethod
+    def get_pressed_keys(cls) -> list[str]:
+        """
+        #### Оптимизированное получение списка нажатых клавиш
+        
+        ---
+        
+        :Returns:
+            list[str]: Список нажатых клавиш
+            
+        ---
+        
+        :Raises:
+            InputError: Ошибка при получении состояния
+        """
+        cls._update_pressed_cache()
+        return list(cls._PRESSED_KEYS_CACHE)
+
+    def update_frame(self) -> None:
+        """
+        #### Метод для обновления состояния в конце кадра
+        (опционально, для ручного управления кэшем)
+        """
+        self._update_pressed_cache()
+
+    def clear_cache(self) -> None:
+        """
+        #### Очищает внутренние кэши
+        """
+        self._last_click_state.clear()
+        self._last_combination_state.clear()
+        self._normalize_combination.cache_clear()
+        self._PRESSED_KEYS_CACHE.clear()
+
+# ////////////////////////////////////////////////////////////////////////////
 # Глобальный экземпляр интерфейса клавиатуры
+# Используется для удобства, чтобы не создавать экземпляр класса каждый раз
 KeyBoardInterface: Final[Keyboard] = Keyboard()
+# ////////////////////////////////////////////////////////////////////////////
 
 # ==================== МЕНЕДЖЕР СОБЫТИЙ ====================
 @final

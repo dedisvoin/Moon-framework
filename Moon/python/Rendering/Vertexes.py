@@ -74,13 +74,17 @@ Copyright (c) 2025 Pavlov Ivan
 
 import os
 import ctypes
+
 from enum import Enum
 from typing import Self, final
 
-from Moon.python.Vectors import Vector2f
 from Moon.python.Colors import Color
+from Moon.python.Vectors import Vector2f
 
-from Moon import DLL_FOUND_PATH
+# ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
+from Moon import DLL_FOUND_PATH               #
+from Moon import DLL_LOCAL_FOUND_PATH         #
+# =========================================== +
 
 # Загрузка нативной библиотеки
 class LibraryLoadError(Exception):
@@ -108,7 +112,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("PySGL.Vertexes: Library not found at", lib_path)
-            lib_path = "./dlls/PySGL.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")
@@ -119,51 +123,51 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL = ctypes.CDLL(_find_library())
+    LIB_MOON = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
 # --- Настройка функций для работы с VertexArray ---
 # Передаем только те функции, которые взаимодействуют с VertexArray
-LIB_PYSGL._VertexArray_Create.restype = ctypes.c_void_p
-LIB_PYSGL._VertexArray_Delete.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._VertexArray_Delete.restype = None
-LIB_PYSGL._VertexArray_AddVertexForPositionAndColor.argtypes = [
+LIB_MOON._VertexArray_Create.restype = ctypes.c_void_p
+LIB_MOON._VertexArray_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._VertexArray_Delete.restype = None
+LIB_MOON._VertexArray_AddVertexForPositionAndColor.argtypes = [
     ctypes.c_void_p, ctypes.c_double, ctypes.c_double, 
     ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int
 ]
-LIB_PYSGL._VertexArray_AddVertexForPositionAndColor.restype = None
-LIB_PYSGL._VertexArray_Clear.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._VertexArray_Clear.restype = None
-LIB_PYSGL._VertexArray_GetVertexCount.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._VertexArray_GetVertexCount.restype = ctypes.c_int
-LIB_PYSGL._VertexArray_GetPrimitiveType.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._VertexArray_GetPrimitiveType.restype = ctypes.c_int
-LIB_PYSGL._VertexArray_Resize.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._VertexArray_Resize.restype = None
-LIB_PYSGL._VertexArray_SetPrimitiveType.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._VertexArray_SetPrimitiveType.restype = None
-LIB_PYSGL._VertexArray_SetVertexForPositionAndColor.argtypes = [
+LIB_MOON._VertexArray_AddVertexForPositionAndColor.restype = None
+LIB_MOON._VertexArray_Clear.argtypes = [ctypes.c_void_p]
+LIB_MOON._VertexArray_Clear.restype = None
+LIB_MOON._VertexArray_GetVertexCount.argtypes = [ctypes.c_void_p]
+LIB_MOON._VertexArray_GetVertexCount.restype = ctypes.c_int
+LIB_MOON._VertexArray_GetPrimitiveType.argtypes = [ctypes.c_void_p]
+LIB_MOON._VertexArray_GetPrimitiveType.restype = ctypes.c_int
+LIB_MOON._VertexArray_Resize.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON._VertexArray_Resize.restype = None
+LIB_MOON._VertexArray_SetPrimitiveType.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON._VertexArray_SetPrimitiveType.restype = None
+LIB_MOON._VertexArray_SetVertexForPositionAndColor.argtypes = [
     ctypes.c_void_p, ctypes.c_int, ctypes.c_double, ctypes.c_double, 
     ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int
 ]
-LIB_PYSGL._VertexArray_SetVertexForPositionAndColor.restype = None
+LIB_MOON._VertexArray_SetVertexForPositionAndColor.restype = None
 
 # Оптимизированные функции для прямого доступа к данным вершин
-LIB_PYSGL._VertexArray_SetVertexPosition.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._VertexArray_SetVertexPosition.restype = None
-LIB_PYSGL._VertexArray_SetVertexColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._VertexArray_SetVertexColor.restype = None
-LIB_PYSGL._VertexArray_SetAllVerticesColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._VertexArray_SetAllVerticesColor.restype = None
+LIB_MOON._VertexArray_SetVertexPosition.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_float, ctypes.c_float]
+LIB_MOON._VertexArray_SetVertexPosition.restype = None
+LIB_MOON._VertexArray_SetVertexColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._VertexArray_SetVertexColor.restype = None
+LIB_MOON._VertexArray_SetAllVerticesColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._VertexArray_SetAllVerticesColor.restype = None
 
 # Функции для работы с текстурными координатами
-LIB_PYSGL._VertexArray_AddVertexWithTexCoords.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._VertexArray_AddVertexWithTexCoords.restype = None
-LIB_PYSGL._VertexArray_SetVertexTexCoords.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._VertexArray_SetVertexTexCoords.restype = None
-LIB_PYSGL._VertexArray_SetQuadTexCoords.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._VertexArray_SetQuadTexCoords.restype = None
+LIB_MOON._VertexArray_AddVertexWithTexCoords.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_float, ctypes.c_float]
+LIB_MOON._VertexArray_AddVertexWithTexCoords.restype = None
+LIB_MOON._VertexArray_SetVertexTexCoords.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_float, ctypes.c_float]
+LIB_MOON._VertexArray_SetVertexTexCoords.restype = None
+LIB_MOON._VertexArray_SetQuadTexCoords.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float]
+LIB_MOON._VertexArray_SetQuadTexCoords.restype = None
 
 @final
 class Vertex:
@@ -288,7 +292,7 @@ class VertexArray:
         :Raises:
         - RuntimeError: При ошибке создания нативного объекта
         """
-        self._ptr = LIB_PYSGL._VertexArray_Create()
+        self._ptr = LIB_MOON._VertexArray_Create()
 
     def get_ptr(self):
         """
@@ -323,7 +327,7 @@ class VertexArray:
         - Проверяет существование указателя перед удалением
         """
         if self._ptr: # Проверяем, что указатель существует перед удалением
-            LIB_PYSGL._VertexArray_Delete(self._ptr)
+            LIB_MOON._VertexArray_Delete(self._ptr)
             self._ptr = None # Обнуляем указатель после удаления
 
     def __len__(self) -> int:
@@ -342,7 +346,7 @@ class VertexArray:
         print(f"В массиве {len(vertex_array)} вершин")
         ```
         """
-        return LIB_PYSGL._VertexArray_GetVertexCount(self._ptr)
+        return LIB_MOON._VertexArray_GetVertexCount(self._ptr)
 
     def __getitem__(self, index: int) -> Vertex:
         """
@@ -380,12 +384,12 @@ class VertexArray:
         if not (0 <= index < len(self)):
             raise IndexError(f"Vertex index {index} out of bounds for VertexArray of size {len(self)}.")
         
-        pos_x = LIB_PYSGL._VertexArray_GetVertexPositionX(self._ptr, index)
-        pos_y = LIB_PYSGL._VertexArray_GetVertexPositionY(self._ptr, index)
-        color_r = LIB_PYSGL._VertexArray_GetVertexColorR(self._ptr, index)
-        color_g = LIB_PYSGL._VertexArray_GetVertexColorG(self._ptr, index)
-        color_b = LIB_PYSGL._VertexArray_GetVertexColorB(self._ptr, index)
-        color_a = LIB_PYSGL._VertexArray_GetVertexColorA(self._ptr, index)
+        pos_x = LIB_MOON._VertexArray_GetVertexPositionX(self._ptr, index)
+        pos_y = LIB_MOON._VertexArray_GetVertexPositionY(self._ptr, index)
+        color_r = LIB_MOON._VertexArray_GetVertexColorR(self._ptr, index)
+        color_g = LIB_MOON._VertexArray_GetVertexColorG(self._ptr, index)
+        color_b = LIB_MOON._VertexArray_GetVertexColorB(self._ptr, index)
+        color_a = LIB_MOON._VertexArray_GetVertexColorA(self._ptr, index)
         
         return Vertex(Vector2f(pos_x, pos_y), Color(color_r, color_g, color_b, color_a))
 
@@ -423,7 +427,7 @@ class VertexArray:
         """
         if not isinstance(primitive_type, self.PrimitiveType):
             raise TypeError("primitive_type must be an instance of VertexArray.PrimitiveType")
-        LIB_PYSGL._VertexArray_SetPrimitiveType(self._ptr, primitive_type.value)
+        LIB_MOON._VertexArray_SetPrimitiveType(self._ptr, primitive_type.value)
         return self
 
     def get_primitive_type(self) -> PrimitiveType:
@@ -443,7 +447,7 @@ class VertexArray:
             print("Массив настроен для треугольников")
         ```
         """
-        return VertexArray.PrimitiveType(LIB_PYSGL._VertexArray_GetPrimitiveType(self._ptr))
+        return VertexArray.PrimitiveType(LIB_MOON._VertexArray_GetPrimitiveType(self._ptr))
 
     def append(self, vertex: Vertex) -> None:
         """
@@ -478,7 +482,7 @@ class VertexArray:
             raise TypeError("Argument 'vertex' must be an instance of Vertex.")
         
         if hasattr(vertex, 'tex_coords') and vertex.tex_coords is not None:
-            LIB_PYSGL._VertexArray_AddVertexWithTexCoords(
+            LIB_MOON._VertexArray_AddVertexWithTexCoords(
                 self._ptr,
                 vertex.position.x, vertex.position.y,
                 vertex.color.r, vertex.color.g, vertex.color.b, vertex.color.a,
@@ -486,7 +490,7 @@ class VertexArray:
             )
         else:
 
-            LIB_PYSGL._VertexArray_AddVertexForPositionAndColor(
+            LIB_MOON._VertexArray_AddVertexForPositionAndColor(
                 self._ptr, 
                 vertex.position.x, vertex.position.y, 
                 vertex.color.r, vertex.color.g, vertex.color.b, vertex.color.a
@@ -536,7 +540,7 @@ class VertexArray:
         array.clear()  # Теперь len(array) == 0
         ```
         """
-        LIB_PYSGL._VertexArray_Clear(self._ptr)
+        LIB_MOON._VertexArray_Clear(self._ptr)
 
     def set_quad_texture_coords(self, start_index: int, tex_left: float = 0.0, tex_top: float = 0.0, tex_right: float = 1.0, tex_bottom: float = 1.0) -> None:
         """
@@ -566,7 +570,7 @@ class VertexArray:
         array.set_quad_texture_coords(0, 0.0, 0.0, 1.0, 1.0)
         ```
         """
-        LIB_PYSGL._VertexArray_SetQuadTexCoords(self._ptr, start_index, tex_left, tex_top, tex_right, tex_bottom)
+        LIB_MOON._VertexArray_SetQuadTexCoords(self._ptr, start_index, tex_left, tex_top, tex_right, tex_bottom)
 
     def resize(self, size: int) -> None:
         """
@@ -598,8 +602,8 @@ class VertexArray:
         """
         if not isinstance(size, int) or size < 0:
             raise ValueError("Size must be a non-negative integer.")
-        LIB_PYSGL._VertexArray_Resize(self._ptr, size) 
-        LIB_PYSGL._VertexArray_Resize(self._ptr, size)
+        LIB_MOON._VertexArray_Resize(self._ptr, size) 
+        LIB_MOON._VertexArray_Resize(self._ptr, size)
 
     def set_vertex(self, index: int, vertex: Vertex) -> None:
         """
@@ -637,7 +641,7 @@ class VertexArray:
         if not (0 <= index < len(self)):
             raise IndexError(f"Vertex index {index} out of bounds for VertexArray of size {len(self)}.")
         
-        LIB_PYSGL._VertexArray_SetVertexForPositionAndColor(
+        LIB_MOON._VertexArray_SetVertexForPositionAndColor(
             self._ptr, index, 
             vertex.position.x, vertex.position.y, 
             vertex.color.r, vertex.color.g, vertex.color.b, vertex.color.a
@@ -674,7 +678,7 @@ class VertexArray:
         """
         if not (0 <= index < len(self)):
             raise IndexError(f"Vertex index {index} out of bounds")
-        LIB_PYSGL._VertexArray_SetVertexPosition(self._ptr, index, x, y)
+        LIB_MOON._VertexArray_SetVertexPosition(self._ptr, index, x, y)
 
     def set_vertex_color(self, index: int, color: Color) -> None:
         """
@@ -706,7 +710,7 @@ class VertexArray:
         """
         if not (0 <= index < len(self)):
             raise IndexError(f"Vertex index {index} out of bounds")
-        LIB_PYSGL._VertexArray_SetVertexColor(self._ptr, index, color.r, color.g, color.b, color.a)
+        LIB_MOON._VertexArray_SetVertexColor(self._ptr, index, color.r, color.g, color.b, color.a)
 
     def set_color(self, color: Color) -> None:
         """
@@ -731,7 +735,7 @@ class VertexArray:
         array.set_color(Color(128, 128, 128))  # Серый цвет для всех
         ```
         """
-        LIB_PYSGL._VertexArray_SetAllVerticesColor(self._ptr, color.r, color.g, color.b, color.a)
+        LIB_MOON._VertexArray_SetAllVerticesColor(self._ptr, color.r, color.g, color.b, color.a)
 
     def add_vertices(self, vertices: list[Vertex]) -> Self:
         """
@@ -790,7 +794,7 @@ class VertexArray:
         array.add_vertex_with_texture(100, 200, Color(255, 0, 0), 0.5, 0.5)
         ```
         """
-        LIB_PYSGL._VertexArray_AddVertexWithTexCoords(
+        LIB_MOON._VertexArray_AddVertexWithTexCoords(
             self._ptr, x, y, color.r, color.g, color.b, color.a, tex_x, tex_y
         )
 
@@ -825,13 +829,13 @@ class VertexArray:
         """
         if not (0 <= index < len(self)):
             raise IndexError(f"Vertex index {index} out of bounds")
-        LIB_PYSGL._VertexArray_SetVertexTexCoords(self._ptr, index, tex_x, tex_y)
+        LIB_MOON._VertexArray_SetVertexTexCoords(self._ptr, index, tex_x, tex_y)
 
     def set_quad_texture_coords(self, start_index: int, left: float, top: float, width: float, height: float) -> None:
         """Устанавливает текстурные координаты для квада (4 вершины)."""
         if not (0 <= start_index < len(self) - 3):
             raise IndexError(f"Quad start index {start_index} out of bounds")
-        LIB_PYSGL._VertexArray_SetQuadTexCoords(self._ptr, start_index, left, top, width, height)
+        LIB_MOON._VertexArray_SetQuadTexCoords(self._ptr, start_index, left, top, width, height)
 
     def add_textured_quad(self, x: float, y: float, width: float, height: float, color: Color, 
                          tex_left: float, tex_top: float, tex_width: float, tex_height: float) -> None:

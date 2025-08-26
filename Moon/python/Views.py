@@ -68,13 +68,16 @@ Copyright (c) 2025 Pavlov Ivan
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
-
-import ctypes
 import os
-from typing import Self, Optional, Final, final
-from contextlib import contextmanager
+import ctypes
 
-from Moon import DLL_FOUND_PATH
+from contextlib import contextmanager
+from typing import Self, Optional, Final, final
+
+# ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
+from Moon import DLL_FOUND_PATH               #
+from Moon import DLL_LOCAL_FOUND_PATH         #
+# =========================================== +
 
 @final
 class LibraryLoadError(Exception):
@@ -103,7 +106,7 @@ def _find_library() -> str:
     """
     search_paths = [
         DLL_FOUND_PATH,
-        "./dlls/Moon.dll",
+        DLL_LOCAL_FOUND_PATH,
         os.path.join(os.path.dirname(__file__), "..", "dlls", "Moon.dll")
     ]
     
@@ -115,7 +118,7 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL: Final[ctypes.CDLL] = ctypes.CDLL(_find_library())
+    LIB_MOON: Final[ctypes.CDLL] = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load Moon library: {e}")
 
@@ -125,86 +128,90 @@ except Exception as e:
 #   из нативной DLL библиотеки Moon, используемых через ctypes. #
 ##################################################################
 
-# Типы указателей для аннотаций
-FloatRectPtr = ctypes.c_void_p
-ViewPtr = ctypes.c_void_p
+# Типы указателея на прамоугольную область просмотра = +
+type FloatRectPtr = ctypes.c_void_p                    #
+# ==================================================== +
+
+# Тип указателя на вид ========= +
+type ViewPtr = ctypes.c_void_p   #
+# ============================== +
 
 # FloatRect функции
-LIB_PYSGL._FloatRect_Create.argtypes = [ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._FloatRect_Create.restype = ctypes.c_void_p
+LIB_MOON._FloatRect_Create.argtypes = [ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float]
+LIB_MOON._FloatRect_Create.restype = ctypes.c_void_p
 
-LIB_PYSGL._FloatRect_Delete.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._FloatRect_Delete.restype = None
+LIB_MOON._FloatRect_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._FloatRect_Delete.restype = None
 
-LIB_PYSGL._FloatRect_GetPositionX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._FloatRect_GetPositionX.restype = ctypes.c_float
+LIB_MOON._FloatRect_GetPositionX.argtypes = [ctypes.c_void_p]
+LIB_MOON._FloatRect_GetPositionX.restype = ctypes.c_float
 
-LIB_PYSGL._FloatRect_GetPositionY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._FloatRect_GetPositionY.restype = ctypes.c_float
+LIB_MOON._FloatRect_GetPositionY.argtypes = [ctypes.c_void_p]
+LIB_MOON._FloatRect_GetPositionY.restype = ctypes.c_float
 
-LIB_PYSGL._FloatRect_GetWidth.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._FloatRect_GetWidth.restype = ctypes.c_float
+LIB_MOON._FloatRect_GetWidth.argtypes = [ctypes.c_void_p]
+LIB_MOON._FloatRect_GetWidth.restype = ctypes.c_float
 
-LIB_PYSGL._FloatRect_GetHeight.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._FloatRect_GetHeight.restype = ctypes.c_float
+LIB_MOON._FloatRect_GetHeight.argtypes = [ctypes.c_void_p]
+LIB_MOON._FloatRect_GetHeight.restype = ctypes.c_float
 
-LIB_PYSGL._FloatRect_SetPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._FloatRect_SetPosition.restype = None
+LIB_MOON._FloatRect_SetPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._FloatRect_SetPosition.restype = None
 
-LIB_PYSGL._FloatRect_SetSize.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._FloatRect_SetSize.restype = None
+LIB_MOON._FloatRect_SetSize.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._FloatRect_SetSize.restype = None
 
 # View функции
-LIB_PYSGL._View_Create.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._View_Create.restype = ctypes.c_void_p
+LIB_MOON._View_Create.argtypes = [ctypes.c_void_p]
+LIB_MOON._View_Create.restype = ctypes.c_void_p
 
-LIB_PYSGL._View_Delete.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._View_Delete.restype = None
+LIB_MOON._View_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._View_Delete.restype = None
 
-LIB_PYSGL._View_GetCenterX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._View_GetCenterX.restype = ctypes.c_float
+LIB_MOON._View_GetCenterX.argtypes = [ctypes.c_void_p]
+LIB_MOON._View_GetCenterX.restype = ctypes.c_float
 
-LIB_PYSGL._View_GetCenterY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._View_GetCenterY.restype = ctypes.c_float
+LIB_MOON._View_GetCenterY.argtypes = [ctypes.c_void_p]
+LIB_MOON._View_GetCenterY.restype = ctypes.c_float
 
-LIB_PYSGL._View_GetPositionX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._View_GetPositionX.restype = ctypes.c_float
+LIB_MOON._View_GetPositionX.argtypes = [ctypes.c_void_p]
+LIB_MOON._View_GetPositionX.restype = ctypes.c_float
 
-LIB_PYSGL._View_GetPositionY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._View_GetPositionY.restype = ctypes.c_float
+LIB_MOON._View_GetPositionY.argtypes = [ctypes.c_void_p]
+LIB_MOON._View_GetPositionY.restype = ctypes.c_float
 
-LIB_PYSGL._View_GetAngle.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._View_GetAngle.restype = ctypes.c_float
+LIB_MOON._View_GetAngle.argtypes = [ctypes.c_void_p]
+LIB_MOON._View_GetAngle.restype = ctypes.c_float
 
-LIB_PYSGL._View_GetWidth.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._View_GetWidth.restype = ctypes.c_float
+LIB_MOON._View_GetWidth.argtypes = [ctypes.c_void_p]
+LIB_MOON._View_GetWidth.restype = ctypes.c_float
 
-LIB_PYSGL._View_GetHeight.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._View_GetHeight.restype = ctypes.c_float
+LIB_MOON._View_GetHeight.argtypes = [ctypes.c_void_p]
+LIB_MOON._View_GetHeight.restype = ctypes.c_float
 
-LIB_PYSGL._View_Rotate.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL._View_Rotate.restype = None
+LIB_MOON._View_Rotate.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON._View_Rotate.restype = None
 
-LIB_PYSGL._View_Reset.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._View_Reset.restype = None
+LIB_MOON._View_Reset.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._View_Reset.restype = None
 
-LIB_PYSGL._View_Move.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._View_Move.restype = None
+LIB_MOON._View_Move.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._View_Move.restype = None
 
-LIB_PYSGL._View_SetCenter.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._View_SetCenter.restype = None
+LIB_MOON._View_SetCenter.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._View_SetCenter.restype = None
 
-LIB_PYSGL._View_SetAngle.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL._View_SetAngle.restype = None
+LIB_MOON._View_SetAngle.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON._View_SetAngle.restype = None
 
-LIB_PYSGL._View_SetViewport.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._View_SetViewport.restype = None
+LIB_MOON._View_SetViewport.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._View_SetViewport.restype = None
 
-LIB_PYSGL._View_SetSize.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._View_SetSize.restype = None
+LIB_MOON._View_SetSize.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._View_SetSize.restype = None
 
-LIB_PYSGL._View_Zoom.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL._View_Zoom.restype = None
+LIB_MOON._View_Zoom.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON._View_Zoom.restype = None
 
 
 @final
@@ -264,7 +271,7 @@ class FloatRect:
         if w < 0 or h < 0:
             raise ValueError(f"Размеры должны быть неотрицательными: w={w}, h={h}")
             
-        self._ptr = LIB_PYSGL._FloatRect_Create(float(x), float(y), float(w), float(h))
+        self._ptr = LIB_MOON._FloatRect_Create(float(x), float(y), float(w), float(h))
         if not self._ptr:
             raise ViewError("Не удалось создать FloatRect")
         self._is_valid = True
@@ -314,7 +321,7 @@ class FloatRect:
         """
         if hasattr(self, '_is_valid') and self._is_valid and hasattr(self, '_ptr'):
             try:
-                LIB_PYSGL._FloatRect_Delete(self._ptr)
+                LIB_MOON._FloatRect_Delete(self._ptr)
             except:
                 pass  # Игнорируем ошибки при удалении
             finally:
@@ -340,8 +347,8 @@ class FloatRect:
         """
         self._check_valid()
         return (
-            LIB_PYSGL._FloatRect_GetPositionX(self._ptr),
-            LIB_PYSGL._FloatRect_GetPositionY(self._ptr),
+            LIB_MOON._FloatRect_GetPositionX(self._ptr),
+            LIB_MOON._FloatRect_GetPositionY(self._ptr),
         )
     
     @final
@@ -364,8 +371,8 @@ class FloatRect:
         """
         self._check_valid()
         return (
-            LIB_PYSGL._FloatRect_GetWidth(self._ptr),
-            LIB_PYSGL._FloatRect_GetHeight(self._ptr),
+            LIB_MOON._FloatRect_GetWidth(self._ptr),
+            LIB_MOON._FloatRect_GetHeight(self._ptr),
         )
     
     @final
@@ -403,7 +410,7 @@ class FloatRect:
         new_x = float(x) if x is not None else current_x
         new_y = float(y) if y is not None else current_y
         
-        LIB_PYSGL._FloatRect_SetPosition(self._ptr, new_x, new_y)
+        LIB_MOON._FloatRect_SetPosition(self._ptr, new_x, new_y)
         return self
     
     @final
@@ -449,7 +456,7 @@ class FloatRect:
         new_w = float(w) if w is not None else current_w
         new_h = float(h) if h is not None else current_h
         
-        LIB_PYSGL._FloatRect_SetSize(self._ptr, new_w, new_h)
+        LIB_MOON._FloatRect_SetSize(self._ptr, new_w, new_h)
         return self
         
     @final
@@ -539,7 +546,7 @@ class View:
             raise TypeError("float_rect должен быть экземпляром FloatRect")
             
         self._float_rect = float_rect
-        self._ptr = LIB_PYSGL._View_Create(float_rect.get_ptr())
+        self._ptr = LIB_MOON._View_Create(float_rect.get_ptr())
         if not self._ptr:
             raise ViewError("Не удалось создать View")
         self._is_valid = True
@@ -585,10 +592,10 @@ class View:
             
         # Получаем параметры из нативного View
         try:
-            width = LIB_PYSGL._View_GetWidth(view_ptr)
-            height = LIB_PYSGL._View_GetHeight(view_ptr)
-            pos_x = LIB_PYSGL._View_GetPositionX(view_ptr)
-            pos_y = LIB_PYSGL._View_GetPositionY(view_ptr)
+            width = LIB_MOON._View_GetWidth(view_ptr)
+            height = LIB_MOON._View_GetHeight(view_ptr)
+            pos_x = LIB_MOON._View_GetPositionX(view_ptr)
+            pos_y = LIB_MOON._View_GetPositionY(view_ptr)
         except Exception as e:
             raise ViewError(f"Не удалось получить параметры View: {e}")
 
@@ -628,9 +635,9 @@ class View:
         """
         if (hasattr(self, '_is_valid') and self._is_valid and 
             hasattr(self, '_owns_ptr') and self._owns_ptr and 
-            hasattr(self, '_ptr') and hasattr(LIB_PYSGL, '_View_Delete')):
+            hasattr(self, '_ptr') and hasattr(LIB_MOON, '_View_Delete')):
             try:
-                LIB_PYSGL._View_Delete(self._ptr)
+                LIB_MOON._View_Delete(self._ptr)
             except:
                 pass  # Игнорируем ошибки при удалении
             finally:
@@ -699,7 +706,7 @@ class View:
         ```
         """
         self._check_valid()
-        LIB_PYSGL._View_SetCenter(self._ptr, float(x), float(y))
+        LIB_MOON._View_SetCenter(self._ptr, float(x), float(y))
         return self
 
     @final
@@ -735,7 +742,7 @@ class View:
             raise ValueError(f"Размеры должны быть положительными: width={width}, height={height}")
             
         self._check_valid()
-        LIB_PYSGL._View_SetSize(self._ptr, float(width), float(height))
+        LIB_MOON._View_SetSize(self._ptr, float(width), float(height))
         return self
 
     @final
@@ -771,7 +778,7 @@ class View:
             raise TypeError("viewport должен быть экземпляром FloatRect")
             
         self._check_valid()
-        LIB_PYSGL._View_SetViewport(self._ptr, viewport.get_ptr())
+        LIB_MOON._View_SetViewport(self._ptr, viewport.get_ptr())
         return self
 
     @final
@@ -798,7 +805,7 @@ class View:
         ```
         """
         self._check_valid()
-        LIB_PYSGL._View_SetAngle(self._ptr, float(angle))
+        LIB_MOON._View_SetAngle(self._ptr, float(angle))
         return self
 
     @final
@@ -826,7 +833,7 @@ class View:
         ```
         """
         self._check_valid()
-        LIB_PYSGL._View_Move(self._ptr, float(offset_x), float(offset_y))
+        LIB_MOON._View_Move(self._ptr, float(offset_x), float(offset_y))
         return self
 
     @final
@@ -849,8 +856,8 @@ class View:
         """
         self._check_valid()
         return (
-            LIB_PYSGL._View_GetCenterX(self._ptr),
-            LIB_PYSGL._View_GetCenterY(self._ptr),
+            LIB_MOON._View_GetCenterX(self._ptr),
+            LIB_MOON._View_GetCenterY(self._ptr),
         )
 
     @final
@@ -873,8 +880,8 @@ class View:
         """
         self._check_valid()
         return (
-            LIB_PYSGL._View_GetPositionX(self._ptr),
-            LIB_PYSGL._View_GetPositionY(self._ptr),
+            LIB_MOON._View_GetPositionX(self._ptr),
+            LIB_MOON._View_GetPositionY(self._ptr),
         )
 
     @final
@@ -896,7 +903,7 @@ class View:
         ```
         """
         self._check_valid()
-        return LIB_PYSGL._View_GetAngle(self._ptr)
+        return LIB_MOON._View_GetAngle(self._ptr)
 
     @final
     def get_size(self) -> tuple[float, float]:
@@ -918,8 +925,8 @@ class View:
         """
         self._check_valid()
         return (
-            LIB_PYSGL._View_GetWidth(self._ptr),
-            LIB_PYSGL._View_GetHeight(self._ptr),
+            LIB_MOON._View_GetWidth(self._ptr),
+            LIB_MOON._View_GetHeight(self._ptr),
         )
 
     @final
@@ -946,7 +953,7 @@ class View:
         ```
         """
         self._check_valid()
-        LIB_PYSGL._View_Rotate(self._ptr, float(angle))
+        LIB_MOON._View_Rotate(self._ptr, float(angle))
         return self
 
     @final
@@ -985,7 +992,7 @@ class View:
             raise ValueError(f"Коэффициент масштабирования должен быть положительным: {factor}")
             
         self._check_valid()
-        LIB_PYSGL._View_Zoom(self._ptr, float(factor))
+        LIB_MOON._View_Zoom(self._ptr, float(factor))
         return self
 
     @final
@@ -1021,7 +1028,7 @@ class View:
             raise TypeError("rectangle должен быть экземпляром FloatRect")
             
         self._check_valid()
-        LIB_PYSGL._View_Reset(self._ptr, rectangle.get_ptr())
+        LIB_MOON._View_Reset(self._ptr, rectangle.get_ptr())
         self._float_rect = rectangle
         return self
         

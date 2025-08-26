@@ -77,7 +77,9 @@ from enum import Enum
 import os
 from Moon.python.Vectors import Vector2f, Vector2i
 from Moon.python.Colors import Color
+
 from Moon import DLL_FOUND_PATH
+from Moon import DLL_LOCAL_FOUND_PATH
 
 ##################################################################
 #                   `C / C++` Bindings                           #
@@ -111,7 +113,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("PySGL.Shaders: Library not found at", lib_path)
-            lib_path = "./dlls/PySGL.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")
@@ -122,30 +124,30 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL = ctypes.CDLL(_find_library())
+    LIB_MOON = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
 
 
-LIB_PYSGL._Shader_Create.argtypes = None
-LIB_PYSGL._Shader_Create.restype = ctypes.c_void_p
-LIB_PYSGL._Shader_LoadFromFile.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p]
-LIB_PYSGL._Shader_LoadFromFile.restype = ctypes.c_bool
-LIB_PYSGL._Shader_LoadFromStrings.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p]
-LIB_PYSGL._Shader_LoadFromStrings.restype = ctypes.c_bool
-LIB_PYSGL._Shader_LoadFromStringWithType.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
-LIB_PYSGL._Shader_LoadFromStringWithType.restype = ctypes.c_bool
-LIB_PYSGL._Shader_GetCurrentTexture.argtypes = None
-LIB_PYSGL._Shader_GetCurrentTexture.restype = ctypes.c_void_p
+LIB_MOON._Shader_Create.argtypes = None
+LIB_MOON._Shader_Create.restype = ctypes.c_void_p
+LIB_MOON._Shader_LoadFromFile.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p]
+LIB_MOON._Shader_LoadFromFile.restype = ctypes.c_bool
+LIB_MOON._Shader_LoadFromStrings.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p]
+LIB_MOON._Shader_LoadFromStrings.restype = ctypes.c_bool
+LIB_MOON._Shader_LoadFromStringWithType.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+LIB_MOON._Shader_LoadFromStringWithType.restype = ctypes.c_bool
+LIB_MOON._Shader_GetCurrentTexture.argtypes = None
+LIB_MOON._Shader_GetCurrentTexture.restype = ctypes.c_void_p
 
-LIB_PYSGL._Shader_SetUniformInt.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
-LIB_PYSGL._Shader_SetUniformFloat.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_float]
-LIB_PYSGL._Shader_SetUniformBool.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_bool]
-LIB_PYSGL._Shader_SetUniformTexture.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_void_p]
-LIB_PYSGL._Shader_SetUniformIntVector.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._Shader_SetUniformFloatVector.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Shader_SetUniformColor.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Shader_SetUniformInt.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+LIB_MOON._Shader_SetUniformFloat.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_float]
+LIB_MOON._Shader_SetUniformBool.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_bool]
+LIB_MOON._Shader_SetUniformTexture.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_void_p]
+LIB_MOON._Shader_SetUniformIntVector.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Shader_SetUniformFloatVector.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Shader_SetUniformColor.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
 
 
 ShaderPtr = ctypes.c_void_p
@@ -174,7 +176,7 @@ def get_current_texture() -> ctypes.c_void_p:
     shader.set_uniform("u_texture", current_tex)
     ```
     """
-    return LIB_PYSGL._Shader_GetCurrentTexture()
+    return LIB_MOON._Shader_GetCurrentTexture()
 
 
 class Shader:
@@ -373,7 +375,7 @@ class Shader:
         - После создания необходимо загрузить шейдерный код
         - Используйте методы load_from_* или FromString/FromFile
         """
-        self._ptr: ShaderPtr | None = LIB_PYSGL._Shader_Create()
+        self._ptr: ShaderPtr | None = LIB_MOON._Shader_Create()
         self.__fragment_data: str = ""
         self.__vertex_data: str = ""
 
@@ -431,19 +433,19 @@ class Shader:
         ```
         """
         if isinstance(value, bool):
-            LIB_PYSGL._Shader_SetUniformBool(self._ptr, name.encode('utf-8'), value)
+            LIB_MOON._Shader_SetUniformBool(self._ptr, name.encode('utf-8'), value)
         elif isinstance(value, int):
-            LIB_PYSGL._Shader_SetUniformInt(self._ptr, name.encode('utf-8'), value)
+            LIB_MOON._Shader_SetUniformInt(self._ptr, name.encode('utf-8'), value)
         elif isinstance(value, float):
-            LIB_PYSGL._Shader_SetUniformFloat(self._ptr, name.encode('utf-8'), value)
+            LIB_MOON._Shader_SetUniformFloat(self._ptr, name.encode('utf-8'), value)
         elif isinstance(value, ctypes.c_void_p):
-            LIB_PYSGL._Shader_SetUniformTexture(self._ptr, name.encode('utf-8'), value)
+            LIB_MOON._Shader_SetUniformTexture(self._ptr, name.encode('utf-8'), value)
         elif isinstance(value, Vector2f):
-            LIB_PYSGL._Shader_SetUniformFloatVector(self._ptr, name.encode('utf-8'), float(value.x), float(value.y))
+            LIB_MOON._Shader_SetUniformFloatVector(self._ptr, name.encode('utf-8'), float(value.x), float(value.y))
         elif isinstance(value, Vector2i):
-            LIB_PYSGL._Shader_SetUniformIntVector(self._ptr, name.encode('utf-8'), int(value.x), int(value.y))
+            LIB_MOON._Shader_SetUniformIntVector(self._ptr, name.encode('utf-8'), int(value.x), int(value.y))
         elif isinstance(value, Color):
-            LIB_PYSGL._Shader_SetUniformColor(self._ptr, name.encode('utf-8'), int(value.r), int(value.g), int(value.b), int(value.a))
+            LIB_MOON._Shader_SetUniformColor(self._ptr, name.encode('utf-8'), int(value.r), int(value.g), int(value.b), int(value.a))
         else:
             raise TypeError("Invalid uniform type.")
         
@@ -537,7 +539,7 @@ class Shader:
             print("Ошибка компиляции вершинного шейдера")
         ```
         """
-        return LIB_PYSGL._Shader_LoadFromStringWithType(self._ptr, source.encode('utf-8'), type.value)
+        return LIB_MOON._Shader_LoadFromStringWithType(self._ptr, source.encode('utf-8'), type.value)
     
     def load_from_strings(self, fragment: str, vertex: str) -> "Shader":
         """
@@ -574,7 +576,7 @@ class Shader:
         """
         self.__fragment_data = fragment
         self.__vertex_data = vertex
-        LIB_PYSGL._Shader_LoadFromStrings(self._ptr, self.__vertex_data.encode('utf-8'), self.__fragment_data.encode('utf-8'))
+        LIB_MOON._Shader_LoadFromStrings(self._ptr, self.__vertex_data.encode('utf-8'), self.__fragment_data.encode('utf-8'))
         return self
 
     def load_from_files(self, fragment_path: str, vertex_path: str) -> "Shader":
@@ -622,6 +624,6 @@ class Shader:
         self.__vertex_path = vertex_path
         self.__fragment_data = open(self.__fragment_path, 'r').read()
         self.__vertex_data = open(self.__vertex_path, 'r').read()
-        LIB_PYSGL._Shader_LoadFromFile(self._ptr, self.__vertex_path.encode('utf-8'), self.__fragment_path.encode('utf-8'))
+        LIB_MOON._Shader_LoadFromFile(self._ptr, self.__vertex_path.encode('utf-8'), self.__fragment_path.encode('utf-8'))
         return self
     

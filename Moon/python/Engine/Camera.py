@@ -142,7 +142,7 @@ class Camera2D:
         self.__saved_zoom: float = 1            # Сохраненный базовый уровень масштабирования
         self.__zoom: float = 1                  # Текущий уровень масштабирования
         self.__lerp_zoom: float = 0.1           # Скорость интерполяции масштабирования (0-1)
-        self.__min_zoom: float = 0.1            # Минимальный уровень масштабирования
+        self.__min_zoom: float = 0.01          # Минимальный уровень масштабирования
         self.__max_zoom: float = 10.0           # Максимальный уровень масштабирования
 
         # =============================================
@@ -414,6 +414,10 @@ class Camera2D:
         ```
         """
         return self.__zoom
+    
+    @final
+    def get_target_zoom(self) -> float:
+        return self.__target_zoom
 
     @final
     def shake(self, amplitude: float = 5, duration: float = 1.0) -> Self:

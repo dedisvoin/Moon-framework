@@ -70,28 +70,29 @@ Copyright (c) 2025 Pavlov Ivan
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
-
 import os
 import ctypes
 import keyboard
 
-
-from Moon import DLL_FOUND_PATH
 from time import time
 from typing import overload, Final, final, Self
 
-from .Colors import *
-from .Time import Clock 
-from .Views import View
-from .Types import TwoIntegerList
-from .Inputs import MouseInterface
-from .Vectors import Vector2i, Vector2f
+# ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
+from Moon import DLL_FOUND_PATH               #
+from Moon import DLL_LOCAL_FOUND_PATH         #
+# =========================================== +
 
-from .Rendering.Text import *
-from .Rendering.Shapes import *
-from .Rendering.Shaders import Shader
-from .Rendering.RenderStates import RenderStates
-from .Rendering.Vertexes import VertexArray
+from Moon.python.Colors import *
+from Moon.python.Time import Clock 
+from Moon.python.Views import View
+from Moon.python.Types import TwoIntegerList
+from Moon.python.Vectors import Vector2i, Vector2f
+from Moon.python.Inputs import MouseInterface, KeyBoardInterface
+
+from Moon.python.Rendering.Text import *
+from Moon.python.Rendering.Shapes import *
+from Moon.python.Rendering.Shaders import Shader
+from Moon.python.Rendering.RenderStates import RenderStates
 
 @final
 class LibraryLoadError(Exception):
@@ -119,7 +120,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("Library not found at", lib_path)
-            lib_path = "./dlls/Moon.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")
@@ -130,7 +131,7 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL: Final[ctypes.CDLL] = ctypes.CDLL(_find_library())
+    LIB_MOON: Final[ctypes.CDLL] = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load Moon library: {e}")
 
@@ -153,90 +154,88 @@ def get_screen_resolution() -> TwoIntegerList:
 ##################################################################
 #                   `C / C++` Bindings                           #
 #   Определение аргументов и возвращаемых типов для функций      #
-#   из нативной DLL библиотеки Moon, используемых через ctypes. #
+#   из нативной DLL библиотеки Moon, используемых через ctypes.  #
 ##################################################################
 
+LIB_MOON._Window_Create.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_void_p]
+LIB_MOON._Window_Create.restype = ctypes.c_void_p
+LIB_MOON._Window_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_Delete.restype = None
+LIB_MOON._Window_Clear.argtypes = [ctypes.c_void_p, ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_ubyte]
+LIB_MOON._Window_Clear.restype = None
+LIB_MOON._Window_Display.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_Display.restype = None
+LIB_MOON._Window_IsOpen.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_IsOpen.restype = ctypes.c_bool
+LIB_MOON._Window_Draw.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._Window_Draw.restype = None
+LIB_MOON._Window_GetDefaultView.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_GetDefaultView.restype = ctypes.c_void_p
+LIB_MOON._Window_SetView.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._Window_SetView.restype = None
+LIB_MOON._Window_SetWaitFps.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+LIB_MOON._Window_SetWaitFps.restype = None
+LIB_MOON._Window_SetTitle.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+LIB_MOON._Window_SetTitle.restype = None
+LIB_MOON._Window_SetVsync.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+LIB_MOON._Window_SetVsync.restype = None
+LIB_MOON._Window_MapPixelToCoordsX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
+LIB_MOON._Window_MapPixelToCoordsX.restype = ctypes.c_float
+LIB_MOON._Window_MapPixelToCoordsY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
+LIB_MOON._Window_MapPixelToCoordsY.restype = ctypes.c_float
+LIB_MOON._Window_MapCoordsToPixelX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
+LIB_MOON._Window_MapCoordsToPixelX.restype = ctypes.c_float
+LIB_MOON._Window_MapCoordsToPixelY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
+LIB_MOON._Window_MapCoordsToPixelY.restype = ctypes.c_float
+LIB_MOON._Window_DrawWithRenderStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._Window_DrawWithRenderStates.restype = None
+LIB_MOON._Window_DrawVertexArrayWithRenderStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._Window_DrawVertexArrayWithRenderStates.restype = None
+LIB_MOON._Window_DrawWithShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._Window_DrawWithShader.restype = None
+LIB_MOON._Window_SetCursorVisibility.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+LIB_MOON._Window_SetCursorVisibility.restype = None
+LIB_MOON._Window_Close.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_Close.restype = None
+LIB_MOON._Window_SetSystemCursor.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON._Window_SetSystemCursor.restype = None
+LIB_MOON._Window_GetSizeWidth.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_GetSizeWidth.restype = ctypes.c_int
+LIB_MOON._Window_GetSizeHeight.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_GetSizeHeight.restype = ctypes.c_int
+LIB_MOON._Window_GetPositionX.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_GetPositionX.restype = ctypes.c_int
+LIB_MOON._Window_GetPositionY.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_GetPositionY.restype = ctypes.c_int
+LIB_MOON._Window_SetPosition.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Window_SetPosition.restype = None
+LIB_MOON._Window_SetSize.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Window_SetSize.restype = None
+LIB_MOON._Window_GetCurrentEventType.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._Window_GetCurrentEventType.restype = ctypes.c_int
+LIB_MOON._Window_SetIconFromPath.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+LIB_MOON._Window_SetIconFromPath.restype = ctypes.c_bool
 
-LIB_PYSGL._Window_Create.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_void_p]
-LIB_PYSGL._Window_Create.restype = ctypes.c_void_p
-LIB_PYSGL._Window_Delete.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Window_Delete.restype = None
-LIB_PYSGL._Window_Clear.argtypes = [ctypes.c_void_p, ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_ubyte, ctypes.c_ubyte]
-LIB_PYSGL._Window_Clear.restype = None
-LIB_PYSGL._Window_Display.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Window_Display.restype = None
-LIB_PYSGL._Window_IsOpen.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Window_IsOpen.restype = ctypes.c_bool
-LIB_PYSGL._Window_Draw.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._Window_Draw.restype = None
-LIB_PYSGL._Window_GetDefaultView.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Window_GetDefaultView.restype = ctypes.c_void_p
-LIB_PYSGL._Window_SetView.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._Window_SetView.restype = None
-LIB_PYSGL._Window_SetWaitFps.argtypes = [ctypes.c_void_p, ctypes.c_uint]
-LIB_PYSGL._Window_SetWaitFps.restype = None
-LIB_PYSGL._Window_SetTitle.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
-LIB_PYSGL._Window_SetTitle.restype = None
-LIB_PYSGL._Window_SetVsync.argtypes = [ctypes.c_void_p, ctypes.c_bool]
-LIB_PYSGL._Window_SetVsync.restype = None
-LIB_PYSGL._Window_MapPixelToCoordsX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
-LIB_PYSGL._Window_MapPixelToCoordsX.restype = ctypes.c_float
-LIB_PYSGL._Window_MapPixelToCoordsY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
-LIB_PYSGL._Window_MapPixelToCoordsY.restype = ctypes.c_float
-LIB_PYSGL._Window_MapCoordsToPixelX.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
-LIB_PYSGL._Window_MapCoordsToPixelX.restype = ctypes.c_float
-LIB_PYSGL._Window_MapCoordsToPixelY.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_void_p]
-LIB_PYSGL._Window_MapCoordsToPixelY.restype = ctypes.c_float
-LIB_PYSGL._Window_DrawWithRenderStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._Window_DrawWithRenderStates.restype = None
-LIB_PYSGL._Window_DrawVertexArrayWithRenderStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._Window_DrawVertexArrayWithRenderStates.restype = None
-LIB_PYSGL._Window_DrawWithShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._Window_DrawWithShader.restype = None
-LIB_PYSGL._Window_SetCursorVisibility.argtypes = [ctypes.c_void_p, ctypes.c_bool]
-LIB_PYSGL._Window_SetCursorVisibility.restype = None
-LIB_PYSGL._Window_Close.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Window_Close.restype = None
-LIB_PYSGL._Window_SetSystemCursor.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._Window_SetSystemCursor.restype = None
-LIB_PYSGL._Window_GetSizeWidth.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Window_GetSizeWidth.restype = ctypes.c_int
-LIB_PYSGL._Window_GetSizeHeight.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Window_GetSizeHeight.restype = ctypes.c_int
-LIB_PYSGL._Window_GetPositionX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Window_GetPositionX.restype = ctypes.c_int
-LIB_PYSGL._Window_GetPositionY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Window_GetPositionY.restype = ctypes.c_int
-LIB_PYSGL._Window_SetPosition.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._Window_SetPosition.restype = None
-LIB_PYSGL._Window_SetSize.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._Window_SetSize.restype = None
-LIB_PYSGL._Window_GetCurrentEventType.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._Window_GetCurrentEventType.restype = ctypes.c_int
-LIB_PYSGL._Window_SetIconFromPath.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
-LIB_PYSGL._Window_SetIconFromPath.restype = ctypes.c_bool
-
-LIB_PYSGL._Events_Create.argtypes = []
-LIB_PYSGL._Events_Create.restype = ctypes.c_void_p
-LIB_PYSGL._Events_Destroy.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Events_Destroy.restype = None
-
-LIB_PYSGL._Events_GetType.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Events_GetType.restype = ctypes.c_int
-LIB_PYSGL._Events_GetKey.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Events_GetKey.restype = ctypes.c_int
-LIB_PYSGL._Events_GetMouseButton.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Events_GetMouseButton.restype = ctypes.c_int
-LIB_PYSGL._Events_GetMouseX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Events_GetMouseX.restype = ctypes.c_int
-LIB_PYSGL._Events_GetMouseY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Events_GetMouseY.restype = ctypes.c_int
-LIB_PYSGL._Events_GetSizeWidth.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Events_GetSizeWidth.restype = ctypes.c_int
-LIB_PYSGL._Events_GetSizeHeight.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Events_GetSizeHeight.restype = ctypes.c_int
-LIB_PYSGL._Events_GetMouseWheel.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Events_GetMouseWheel.restype = ctypes.c_int
+LIB_MOON._Events_Create.argtypes = []
+LIB_MOON._Events_Create.restype = ctypes.c_void_p
+LIB_MOON._Events_Destroy.argtypes = [ctypes.c_void_p]
+LIB_MOON._Events_Destroy.restype = None
+LIB_MOON._Events_GetType.argtypes = [ctypes.c_void_p]
+LIB_MOON._Events_GetType.restype = ctypes.c_int
+LIB_MOON._Events_GetKey.argtypes = [ctypes.c_void_p]
+LIB_MOON._Events_GetKey.restype = ctypes.c_int
+LIB_MOON._Events_GetMouseButton.argtypes = [ctypes.c_void_p]
+LIB_MOON._Events_GetMouseButton.restype = ctypes.c_int
+LIB_MOON._Events_GetMouseX.argtypes = [ctypes.c_void_p]
+LIB_MOON._Events_GetMouseX.restype = ctypes.c_int
+LIB_MOON._Events_GetMouseY.argtypes = [ctypes.c_void_p]
+LIB_MOON._Events_GetMouseY.restype = ctypes.c_int
+LIB_MOON._Events_GetSizeWidth.argtypes = [ctypes.c_void_p]
+LIB_MOON._Events_GetSizeWidth.restype = ctypes.c_int
+LIB_MOON._Events_GetSizeHeight.argtypes = [ctypes.c_void_p]
+LIB_MOON._Events_GetSizeHeight.restype = ctypes.c_int
+LIB_MOON._Events_GetMouseWheel.argtypes = [ctypes.c_void_p]
+LIB_MOON._Events_GetMouseWheel.restype = ctypes.c_int
 
 
   
@@ -319,7 +318,7 @@ class WindowEvents:
         :Raises:
         - RuntimeError: При ошибке создания нативного объекта
         """
-        self.__event_ptr = LIB_PYSGL._Events_Create()
+        self.__event_ptr = LIB_MOON._Events_Create()
 
     def __del__(self):
         """
@@ -331,7 +330,7 @@ class WindowEvents:
         - Удаляет нативный объект событий
         - Гарантирует корректное завершение работы
         """
-        LIB_PYSGL._Events_Destroy(self.__event_ptr)
+        LIB_MOON._Events_Destroy(self.__event_ptr)
 
     def get_ptr(self) -> ctypes.c_void_p:
         """
@@ -371,7 +370,7 @@ class WindowEvents:
             handle_event(events)
         ```
         """
-        return LIB_PYSGL._Window_GetCurrentEventType(window.get_ptr(), self.__event_ptr)
+        return LIB_MOON._Window_GetCurrentEventType(window.get_ptr(), self.__event_ptr)
 
     def get_type(self) -> int:
         """
@@ -390,7 +389,7 @@ class WindowEvents:
             handle_key_press()
         ```
         """
-        return LIB_PYSGL._Events_GetType(self.__event_ptr)
+        return LIB_MOON._Events_GetType(self.__event_ptr)
 
     def get_key(self) -> int:
         """
@@ -406,7 +405,7 @@ class WindowEvents:
         :Note:
         - Только для KeyPressed/KeyReleased событий
         """
-        return LIB_PYSGL._Events_GetKey(self.__event_ptr)
+        return LIB_MOON._Events_GetKey(self.__event_ptr)
 
     def get_mouse_button(self) -> int:
         """
@@ -422,7 +421,7 @@ class WindowEvents:
         :Note:
         - Для MouseButtonPressed/MouseButtonReleased
         """
-        return LIB_PYSGL._Events_GetMouseButton(self.__event_ptr)
+        return LIB_MOON._Events_GetMouseButton(self.__event_ptr)
     
     def get_mouse_wheel(self) -> int:
         """
@@ -438,7 +437,7 @@ class WindowEvents:
         :Note:
         - Для MouseWheelMoved/MouseWheelScrolled
         """
-        return LIB_PYSGL._Events_GetMouseWheel(self.__event_ptr)
+        return LIB_MOON._Events_GetMouseWheel(self.__event_ptr)
 
     def get_mouse_x(self) -> int:
         """
@@ -454,7 +453,7 @@ class WindowEvents:
         :Note:
         - Для событий связанных с положением мыши
         """
-        return LIB_PYSGL._Events_GetMouseX(self.__event_ptr)
+        return LIB_MOON._Events_GetMouseX(self.__event_ptr)
 
     def get_mouse_y(self) -> int:
         """
@@ -470,7 +469,7 @@ class WindowEvents:
         :Note:
         - Для событий связанных с положением мыши
         """
-        return LIB_PYSGL._Events_GetMouseY(self.__event_ptr)
+        return LIB_MOON._Events_GetMouseY(self.__event_ptr)
     
     def get_size_width(self) -> int:
         """
@@ -486,7 +485,7 @@ class WindowEvents:
         :Note:
         - Только для Resized события
         """
-        return LIB_PYSGL._Events_GetSizeWidth(self.__event_ptr)
+        return LIB_MOON._Events_GetSizeWidth(self.__event_ptr)
     
     def get_size_height(self) -> int:
         """
@@ -502,15 +501,16 @@ class WindowEvents:
         :Note:
         - Только для Resized события
         """
-        return LIB_PYSGL._Events_GetSizeHeight(self.__event_ptr)
+        return LIB_MOON._Events_GetSizeHeight(self.__event_ptr)
 
 
 # Тип для хранения указателя на объект окна ===== +
 type WindowPtr = ctypes.c_void_p
 # =============================================== +
 
-# Константа для обозначения неограниченного FPS (представляется большим числом)
-FPS_UNLIMIT_CONST: Final[float] = 1000000
+# Константа для обозначения неограниченного FPS (представляется большим числом) = +
+FPS_UNLIMIT_CONST: Final[Union[int, float]] = 1000000                             #
+# =============================================================================== +
 
 @final
 class SystemCursors:
@@ -545,29 +545,32 @@ class SystemCursors:
     Help = 19                     # Курсор со знаком вопроса (указывает на справку или подсказку)
     NotAllowed = 20               # Курсор "Действие запрещено" (перечеркнутый круг, например при drag-and-drop)
 
+# Индекс оконного атрибута отвечающего за скругления углов окна (Windows 11+) = +
+DWMWA_WINDOW_CORNER_PREFERENCE: Final[int] = 33                                 #
+# ============================================================================= +
 
-DWMWA_WINDOW_CORNER_PREFERENCE: Final[int] = 33
+# Константа обьекта оконного интерфейса ============================================ +
+# ! Не рекомендуется использовать вне предоставленного функционала фреймворка!       #
+DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")                              #  
+# ================================================================================== #
 
-DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")
-
-
-LIB_PYSGL._WindowContextSettings_Create.restype = ctypes.c_void_p
-LIB_PYSGL._WindowContextSettings_Delete.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._WindowContextSettings_Delete.restype = None
-LIB_PYSGL._WindowContextSettings_SetAttributeFlags.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._WindowContextSettings_SetAttributeFlags.restype = None
-LIB_PYSGL._WindowContextSettings_SetAntialiasingLevel.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._WindowContextSettings_SetAntialiasingLevel.restype = None
-LIB_PYSGL._WindowContextSettings_SetDepthBits.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._WindowContextSettings_SetDepthBits.restype = None
-LIB_PYSGL._WindowContextSettings_SetMajorVersion.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._WindowContextSettings_SetMajorVersion.restype = None
-LIB_PYSGL._WindowContextSettings_SetMinorVersion.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._WindowContextSettings_SetMinorVersion.restype = None
-LIB_PYSGL._WindowContextSettings_SetStencilBits.argtypes = [ctypes.c_void_p, ctypes.c_int]
-LIB_PYSGL._WindowContextSettings_SetStencilBits.restype = None
-LIB_PYSGL._WindowContextSettings_SetSrgbCapable.argtypes = [ctypes.c_void_p, ctypes.c_bool]
-LIB_PYSGL._WindowContextSettings_SetSrgbCapable.restype = None
+LIB_MOON._WindowContextSettings_Create.restype = ctypes.c_void_p
+LIB_MOON._WindowContextSettings_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._WindowContextSettings_Delete.restype = None
+LIB_MOON._WindowContextSettings_SetAttributeFlags.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON._WindowContextSettings_SetAttributeFlags.restype = None
+LIB_MOON._WindowContextSettings_SetAntialiasingLevel.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON._WindowContextSettings_SetAntialiasingLevel.restype = None
+LIB_MOON._WindowContextSettings_SetDepthBits.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON._WindowContextSettings_SetDepthBits.restype = None
+LIB_MOON._WindowContextSettings_SetMajorVersion.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON._WindowContextSettings_SetMajorVersion.restype = None
+LIB_MOON._WindowContextSettings_SetMinorVersion.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON._WindowContextSettings_SetMinorVersion.restype = None
+LIB_MOON._WindowContextSettings_SetStencilBits.argtypes = [ctypes.c_void_p, ctypes.c_int]
+LIB_MOON._WindowContextSettings_SetStencilBits.restype = None
+LIB_MOON._WindowContextSettings_SetSrgbCapable.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+LIB_MOON._WindowContextSettings_SetSrgbCapable.restype = None
 
 @final
 class ContextSettings:
@@ -600,7 +603,7 @@ class ContextSettings:
         - Создает объект с базовыми настройками OpenGL
         - Все параметры устанавливаются в значения по умолчанию
         """
-        self.__context_ptr = LIB_PYSGL._WindowContextSettings_Create()
+        self.__context_ptr = LIB_MOON._WindowContextSettings_Create()
     
     def __del__(self):
         """
@@ -613,7 +616,7 @@ class ContextSettings:
         - Освобождает нативные ресурсы
         """
         if hasattr(self, '_ContextSettings__context_ptr'):
-            LIB_PYSGL._WindowContextSettings_Delete(self.__context_ptr)
+            LIB_MOON._WindowContextSettings_Delete(self.__context_ptr)
     
     def get_ptr(self) -> ctypes.c_void_p:
         """
@@ -647,7 +650,7 @@ class ContextSettings:
         settings = ContextSettings().set_antialiasing_level(4)
         ```
         """
-        LIB_PYSGL._WindowContextSettings_SetAntialiasingLevel(self.__context_ptr, level)
+        LIB_MOON._WindowContextSettings_SetAntialiasingLevel(self.__context_ptr, level)
         return self
     
     def set_depth_bits(self, bits: int) -> Self:
@@ -664,7 +667,7 @@ class ContextSettings:
         :Returns:
         - ContextSettings: Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._WindowContextSettings_SetDepthBits(self.__context_ptr, bits)
+        LIB_MOON._WindowContextSettings_SetDepthBits(self.__context_ptr, bits)
         return self
     
     def set_stencil_bits(self, bits: int) -> Self:
@@ -681,7 +684,7 @@ class ContextSettings:
         :Returns:
         - ContextSettings: Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._WindowContextSettings_SetStencilBits(self.__context_ptr, bits)
+        LIB_MOON._WindowContextSettings_SetStencilBits(self.__context_ptr, bits)
         return self
     
     def set_opengl_version(self, major: int, minor: int) -> Self:
@@ -707,8 +710,8 @@ class ContextSettings:
         settings.set_opengl_version(3, 3)
         ```
         """
-        LIB_PYSGL._WindowContextSettings_SetMajorVersion(self.__context_ptr, major)
-        LIB_PYSGL._WindowContextSettings_SetMinorVersion(self.__context_ptr, minor)
+        LIB_MOON._WindowContextSettings_SetMajorVersion(self.__context_ptr, major)
+        LIB_MOON._WindowContextSettings_SetMinorVersion(self.__context_ptr, minor)
         return self
     
     def set_srgb_capable(self, capable: bool) -> Self:
@@ -725,7 +728,7 @@ class ContextSettings:
         :Returns:
         - ContextSettings: Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._WindowContextSettings_SetSrgbCapable(self.__context_ptr, capable)
+        LIB_MOON._WindowContextSettings_SetSrgbCapable(self.__context_ptr, capable)
         return self
     
     def set_attribute_flags(self, flags: int) -> Self:
@@ -742,7 +745,7 @@ class ContextSettings:
         :Returns:
         - ContextSettings: Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._WindowContextSettings_SetAttributeFlags(self.__context_ptr, flags)
+        LIB_MOON._WindowContextSettings_SetAttributeFlags(self.__context_ptr, flags)
         return self
 
 
@@ -754,11 +757,11 @@ DEFAULT_WINDOW_HEADER_COLOR: Final[Color] = Color(98, 134, 248).lighten(0.2)  # 
 DEFAULT_WINDOW_BORDER_COLOR: Final[Color] = Color(98, 134, 248).lighten(0.2)  # Цвет рамки окна
 
 # Белый цвет для текста заголовка окна, обеспечивает хороший контраст
-DEFAULT_WINDOW_TITLE_COLOR:  Final[Color] = Color(255, 255, 255)  # Цвет текста в заголовке
+DEFAULT_WINDOW_TITLE_COLOR:  Final[Color] = Color(255, 255, 255) 
 
 # Путь к стандартной иконке приложения, используемой если не задана пользовательская
-DEFAULT_WINDOW_ICON_PATH:    Final[str]   = "Moon\data\icons\default_app_icon.png"  # Путь к файлу иконки по умолчанию
-
+DEFAULT_WINDOW_ICON_PATH:    Final[str]   = "Moon\data\icons\default_app_icon.png" 
+DEFAULT_WINDOW_ICON_LOCAL_PATH: Final[str] = "./icons/default_app_icon.png"
 
 @final
 class Window:
@@ -861,7 +864,7 @@ class Window:
 
         # Используем переданные настройки или создаем новые по умолчанию
         if context_settings is None:
-            temp_context_settings = LIB_PYSGL._WindowContextSettings_Create()
+            temp_context_settings = LIB_MOON._WindowContextSettings_Create()
             context_ptr = temp_context_settings
             should_delete_context = True
         else:
@@ -869,11 +872,11 @@ class Window:
             should_delete_context = False
         
         # Создаем окно через нативную библиотеку и сохраняем указатель на него
-        self.__window_ptr: WindowPtr = LIB_PYSGL._Window_Create(width, height, title.encode('utf-8'), style, context_ptr)
+        self.__window_ptr: WindowPtr = LIB_MOON._Window_Create(width, height, title.encode('utf-8'), style, context_ptr)
         
         # Освобождаем временные настройки контекста (только если мы их создали)
         if should_delete_context:
-            LIB_PYSGL._WindowContextSettings_Delete(temp_context_settings)
+            LIB_MOON._WindowContextSettings_Delete(temp_context_settings)
         self.__title = title
         self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
         self.__window_alpha: int = alpha
@@ -898,7 +901,7 @@ class Window:
         # Инициализация переменных для отслеживания FPS (максимальное и минимальное значения)
         self.__min_fps_in_fps_history: float = 0
         self.__max_fps_in_fps_history: float = 0
-        LIB_PYSGL._Window_SetWaitFps(self.__window_ptr, int(self.__wait_fps))
+        LIB_MOON._Window_SetWaitFps(self.__window_ptr, int(self.__wait_fps))
 
         #////////////////////////////////////////////////////////////////////////////////
         # (             Переменные, необходимые для генерации графика фрейм-тайма            )
@@ -961,6 +964,9 @@ class Window:
 
         self.__active: bool = True
         self.__cursor: SystemCursors = SystemCursors.Arrow
+        self.__using_keybinding_for_open_fps_monitor: bool = False
+        self.__fps_monitor_key_binding: str = "alt+f"
+        self.__fps_monitor_opened: bool = True
 
         # Флаг который будет реализован в будщем 
         self.__using_custom_window: bool = False
@@ -974,7 +980,80 @@ class Window:
         self.set_title_color(DEFAULT_WINDOW_TITLE_COLOR)
         self.set_header_color(DEFAULT_WINDOW_HEADER_COLOR)
         self.set_border_color(DEFAULT_WINDOW_BORDER_COLOR)
-        self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
+
+        try:
+            self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
+        except:
+            self.set_icon_from_path(DEFAULT_WINDOW_ICON_LOCAL_PATH)
+
+    def enable_fpsmonitor_keybinding(self, value: bool = True) -> Self:
+        """
+        #### Включает/выключает горячие клавиши для FPS монитора
+        
+        ---
+        
+        :Args:
+        - value (bool): True - включить, False - выключить (по умолчанию True)
+        
+        ---
+        
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
+        """
+        self.__using_keybinding_for_open_fps_monitor = value
+        return self
+
+    def get_using_keybindind_for_fpsmonitor(self) -> bool:
+        """
+        #### Проверяет, включены ли горячие клавиши для FPS монитора
+        
+        ---
+        
+        :Returns:
+        - bool: True если горячие клавиши включены, False если выключены
+        """
+        return self.__using_keybinding_for_open_fps_monitor
+    
+    def get_fpsmonitor_keybinding(self) -> str:
+        """
+        #### Возвращает текущую комбинацию клавиш для FPS монитора
+        
+        ---
+        
+        :Returns:
+        - str: Строка с комбинацией клавиш
+        """
+        return self.__fps_monitor_key_binding
+    
+    def get_fpsmonitor_opened_for_keybinding(self) -> bool:
+        """
+        #### Проверяет, открыт ли FPS монитор через горячие клавиши
+        
+        ---
+        
+        :Returns:
+        - bool: True если монитор открыт, False если закрыт
+        """
+        return self.__fps_monitor_opened
+    
+    def set_fpsmonitor_keybinding(self, keys: str) -> Self:
+        """
+        #### Устанавливает комбинацию клавиш для FPS монитора
+
+        Пример: `ctrl+f`
+        
+        ---
+        
+        :Args:
+        - keys (str): Строка с комбинацией клавиш
+        
+        ---
+        
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
+        """
+        self.__fps_monitor_key_binding = keys
+        return self
 
     def set_icon_from_path(self, path: str) -> bool:
         """
@@ -1003,7 +1082,9 @@ class Window:
         window.set_icon_from_path("icon.ico")  # Установить иконку
         ```
         """
-        result = LIB_PYSGL._Window_SetIconFromPath(self.__window_ptr, path.encode('utf-8'))
+        if os.path.exists(path) is False:
+            raise FileNotFoundError(f"Icon file not found: {path}")
+        result = LIB_MOON._Window_SetIconFromPath(self.__window_ptr, path.encode('utf-8'))
         if result:
             self.__icon_path = path
         return result
@@ -1236,7 +1317,7 @@ class Window:
         ```
         """
         self.__cursor = cursor
-        LIB_PYSGL._Window_SetSystemCursor(self.__window_ptr, cursor)
+        LIB_MOON._Window_SetSystemCursor(self.__window_ptr, cursor)
         return self
 
     @final
@@ -1289,7 +1370,7 @@ class Window:
     @final
     def enable_vsync(self) -> Self:
         self.__vsync = True
-        LIB_PYSGL._Window_SetVsync(self.__window_ptr, self.__vsync)
+        LIB_MOON._Window_SetVsync(self.__window_ptr, self.__vsync)
 
     @final
     def enable_ghosting(self, value: bool = True) -> Self:
@@ -1488,7 +1569,7 @@ class Window:
         window.close()
         ```
         """
-        LIB_PYSGL._Window_Close(self.__window_ptr)
+        LIB_MOON._Window_Close(self.__window_ptr)
 
     @final
     def hide_cursor(self) -> Self:
@@ -1514,7 +1595,7 @@ class Window:
         window.hide_cursor().set_fullscreen(True)
         ```
         """
-        LIB_PYSGL._Window_SetCursorVisibility(self.__window_ptr, False)
+        LIB_MOON._Window_SetCursorVisibility(self.__window_ptr, False)
         self.__cursor_visibility = False
         return self
         
@@ -1542,7 +1623,7 @@ class Window:
         window.show_cursor().set_fullscreen(False)
         ```
         """
-        LIB_PYSGL._Window_SetCursorVisibility(self.__window_ptr, True)
+        LIB_MOON._Window_SetCursorVisibility(self.__window_ptr, True)
         self.__cursor_visibility = True
         return self
 
@@ -1673,8 +1754,8 @@ class Window:
         ```
         """
         return Vector2f(
-            LIB_PYSGL._Window_MapPixelToCoordsX(self.__window_ptr, x, y, view.get_ptr()),
-            LIB_PYSGL._Window_MapPixelToCoordsY(self.__window_ptr, x, y, view.get_ptr()),
+            LIB_MOON._Window_MapPixelToCoordsX(self.__window_ptr, x, y, view.get_ptr()),
+            LIB_MOON._Window_MapPixelToCoordsY(self.__window_ptr, x, y, view.get_ptr()),
         )
         
     @final
@@ -1711,8 +1792,8 @@ class Window:
         ```
         """
         return Vector2f(
-            LIB_PYSGL._Window_MapCoordsToPixelX(self.__window_ptr, x, y, view.get_ptr()),
-            LIB_PYSGL._Window_MapCoordsToPixelY(self.__window_ptr, x, y, view.get_ptr()),
+            LIB_MOON._Window_MapCoordsToPixelX(self.__window_ptr, x, y, view.get_ptr()),
+            LIB_MOON._Window_MapCoordsToPixelY(self.__window_ptr, x, y, view.get_ptr()),
         )
 
     @final
@@ -1741,7 +1822,7 @@ class Window:
         camera = window.get_default_view()
         ```
         """
-        return View.from_view_ptr(LIB_PYSGL._Window_GetDefaultView(self.__window_ptr))
+        return View.from_view_ptr(LIB_MOON._Window_GetDefaultView(self.__window_ptr))
 
     @final
     def set_position(self, x: int, y: int) -> Self:
@@ -1773,7 +1854,7 @@ class Window:
         window.set_position(100, 200)
         ```
         """
-        LIB_PYSGL._Window_SetPosition(self.__window_ptr, x, y)
+        LIB_MOON._Window_SetPosition(self.__window_ptr, x, y)
         return self
 
     @final
@@ -1814,7 +1895,7 @@ class Window:
         """
         if width <= 0 or height <= 0:
             raise ValueError("Window dimensions must be positive")
-        LIB_PYSGL._Window_SetSize(self.__window_ptr, width, height)
+        LIB_MOON._Window_SetSize(self.__window_ptr, width, height)
         return self
 
     @final
@@ -1876,8 +1957,8 @@ class Window:
         ```
         """
         return Vector2i(
-            LIB_PYSGL._Window_GetSizeWidth(self.__window_ptr),
-            LIB_PYSGL._Window_GetSizeHeight(self.__window_ptr)
+            LIB_MOON._Window_GetSizeWidth(self.__window_ptr),
+            LIB_MOON._Window_GetSizeHeight(self.__window_ptr)
         )
 
     @final  
@@ -1938,8 +2019,8 @@ class Window:
         ```
         """
         return Vector2i(
-            LIB_PYSGL._Window_GetPositionX(self.__window_ptr),
-            LIB_PYSGL._Window_GetPositionY(self.__window_ptr)
+            LIB_MOON._Window_GetPositionX(self.__window_ptr),
+            LIB_MOON._Window_GetPositionY(self.__window_ptr)
         )
 
     @final
@@ -1971,6 +2052,9 @@ class Window:
         """
         
         if not self.__view_info:
+            return
+
+        if not self.__fps_monitor_opened:
             return
             
         # Устанавливаем представление по умолчанию, чтобы информация отображалась в экранных координатах
@@ -2120,7 +2204,7 @@ class Window:
         ```
         """
         self.__vsync = value
-        LIB_PYSGL._Window_SetVsync(self.__window_ptr, value)
+        LIB_MOON._Window_SetVsync(self.__window_ptr, value)
         return self
 
     @final
@@ -2345,7 +2429,7 @@ class Window:
         window.set_wait_fps(FPS_UNLIMIT_CONST)
         ```
         """
-        LIB_PYSGL._Window_SetWaitFps(self.__window_ptr, int(fps))
+        LIB_MOON._Window_SetWaitFps(self.__window_ptr, int(fps))
         self.__wait_fps = fps
         return self
 
@@ -2495,7 +2579,7 @@ class Window:
         :Returns:
         - Self: Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._Window_SetView(self.__window_ptr, view.get_ptr())
+        LIB_MOON._Window_SetView(self.__window_ptr, view.get_ptr())
         return self
         
     @final
@@ -2582,6 +2666,10 @@ class Window:
             # Плавное изменение прозрачности
             self.__window_alpha += (target_alpha - self.__window_alpha) * self.__ghosting_interpolation * self.__render_time * 100
             self.set_alpha(self.__window_alpha)
+
+        if self.__using_keybinding_for_open_fps_monitor:
+            if KeyBoardInterface.get_click_combination(self.__fps_monitor_key_binding):
+                self.__fps_monitor_opened = not self.__fps_monitor_opened
         
         # =============================================
         # Расчет метрик производительности
@@ -2751,9 +2839,9 @@ class Window:
         ```
         """
         if isinstance(color, Color):
-            LIB_PYSGL._Window_Clear(self.__window_ptr, color.r, color.g, color.b, color.a)
+            LIB_MOON._Window_Clear(self.__window_ptr, color.r, color.g, color.b, color.a)
         elif color is None:
-            LIB_PYSGL._Window_Clear(
+            LIB_MOON._Window_Clear(
                 self.__window_ptr, 
                 self.__clear_color.r, 
                 self.__clear_color.g, 
@@ -2790,7 +2878,7 @@ class Window:
         window.display()
         ```
         """
-        LIB_PYSGL._Window_Display(self.__window_ptr)
+        LIB_MOON._Window_Display(self.__window_ptr)
 
     @final
     def set_title(self, title: str) -> Self:
@@ -2823,7 +2911,7 @@ class Window:
         ```
         """
         self.__title = title
-        LIB_PYSGL._Window_SetTitle(self.__window_ptr, title.encode('utf-8'))
+        LIB_MOON._Window_SetTitle(self.__window_ptr, title.encode('utf-8'))
         return self
     
     @final
@@ -2937,7 +3025,7 @@ class Window:
             ... 
         ```
         """
-        return LIB_PYSGL._Window_IsOpen(self.__window_ptr)
+        return LIB_MOON._Window_IsOpen(self.__window_ptr)
     
     @final
     @overload
@@ -3073,15 +3161,15 @@ class Window:
         else:
             # Стандартные объекты
             if render_states is None:
-                LIB_PYSGL._Window_Draw(self.__window_ptr, shape.get_ptr())
+                LIB_MOON._Window_Draw(self.__window_ptr, shape.get_ptr())
             elif isinstance(render_states, RenderStates):
-                    LIB_PYSGL._Window_DrawWithRenderStates(
+                    LIB_MOON._Window_DrawWithRenderStates(
                         self.__window_ptr, 
                         render_states.get_ptr(), 
                         shape.get_ptr()
                     )
             elif isinstance(render_states, Shader):
-                LIB_PYSGL._Window_DrawWithShader(
+                LIB_MOON._Window_DrawWithShader(
                     self.__window_ptr,
                     render_states.get_ptr(),
                     shape.get_ptr()

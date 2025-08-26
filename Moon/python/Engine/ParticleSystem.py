@@ -6,14 +6,15 @@ from Moon.python.Rendering.Vertexes import *
 from Moon.python.Rendering.RenderStates import RenderStates, BlendMode
 import random
 
+import math
 
-def CREATE_CIRCLE_TEXTURE(resolution: int = 10, approximation: int = 10) -> RenderTexture:
+def CREATE_CIRCLE_TEXTURE(resolution: int = 100, approximation: int = 60) -> RenderTexture:
     texture = RenderTexture().create(resolution, resolution)
     texture.clear(COLOR_TRANSPARENT)
     circle = CircleShape(approximation)
 
-    circle.set_position(resolution / 2, resolution / 2)
-    circle.set_origin_radius(resolution / 2)
+    circle.set_position(resolution // 2, resolution // 2)
+    circle.set_origin_radius(resolution // 2)
     circle.set_color(COLOR_WHITE)
 
     texture.draw(circle)
@@ -272,7 +273,7 @@ class CPU_ParticleSystem:
                 coords = self.rect_coords
             
             # Вычисляем повернутые вершины
-            import math
+            
             cos_r = math.cos(math.radians(p.rotation))
             sin_r = math.sin(math.radians(p.rotation))
             

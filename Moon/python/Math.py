@@ -1,8 +1,9 @@
 import math
-from typing import overload, Union, Tuple
-from noise import pnoise2
 
-from .Vectors import *
+from noise import pnoise2
+from typing import overload, Union, Tuple
+
+from Moon.python.Vectors import *
 
 
 def perlin_noise(x: float, y: float, octaves: int = 1, persistance: float = 0.5, lacunarity: float = 2.0) -> float:

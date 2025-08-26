@@ -8,6 +8,7 @@ from Moon.python.Vectors import Vector2f, Vector2i
 from Moon.python.Rendering.Vertexes import VertexArray, Vertex  
 
 from Moon import DLL_FOUND_PATH
+from Moon import DLL_LOCAL_FOUND_PATH
 
 # Псевдоним для типа указателя на шейп прямоугольника == +
 RectanglePtr: Final[ctypes.c_void_p] = ctypes.c_void_p
@@ -40,7 +41,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("PySGL.Shapes: Library not found at", lib_path)
-            lib_path = "./dlls/PySGL.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")
@@ -51,39 +52,39 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL: Final[ctypes.CDLL] = ctypes.CDLL(_find_library())
+    LIB_MOON: Final[ctypes.CDLL] = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
 
-LIB_PYSGL._Rectangle_Create.restype = RectanglePtr
-LIB_PYSGL._Rectangle_Create.argtypes = [ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Rectangle_GetPositionX.restype = ctypes.c_float
-LIB_PYSGL._Rectangle_GetPositionX.argtypes = [RectanglePtr]
-LIB_PYSGL._Rectangle_GetPositionY.restype = ctypes.c_float
-LIB_PYSGL._Rectangle_GetPositionY.argtypes = [RectanglePtr]
-LIB_PYSGL._Rectangle_GetWidth.restype = ctypes.c_float
-LIB_PYSGL._Rectangle_GetWidth.argtypes = [RectanglePtr]
-LIB_PYSGL._Rectangle_GetHeight.restype = ctypes.c_float
-LIB_PYSGL._Rectangle_GetHeight.argtypes = [RectanglePtr]
-LIB_PYSGL._Rectangle_SetPosition.restype = None
-LIB_PYSGL._Rectangle_SetPosition.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Rectangle_SetColor.restype = None
-LIB_PYSGL._Rectangle_SetColor.argtypes = [RectanglePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._Rectangle_SetOrigin.restype = None
-LIB_PYSGL._Rectangle_SetOrigin.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Rectangle_SetSize.restype = None
-LIB_PYSGL._Rectangle_SetSize.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Rectangle_SetRotation.restype = None
-LIB_PYSGL._Rectangle_SetRotation.argtypes = [RectanglePtr, ctypes.c_float]
-LIB_PYSGL._Rectangle_SetOutlineThickness.restype = None
-LIB_PYSGL._Rectangle_SetOutlineThickness.argtypes = [RectanglePtr, ctypes.c_float]
-LIB_PYSGL._Rectangle_SetOutlineColor.restype = None
-LIB_PYSGL._Rectangle_SetOutlineColor.argtypes = [RectanglePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._Rectangle_SetScale.restype = None
-LIB_PYSGL._Rectangle_SetScale.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Rectangle_Delete.restype = None
-LIB_PYSGL._Rectangle_Delete.argtypes = [RectanglePtr]
+LIB_MOON._Rectangle_Create.restype = RectanglePtr
+LIB_MOON._Rectangle_Create.argtypes = [ctypes.c_float, ctypes.c_float]
+LIB_MOON._Rectangle_GetPositionX.restype = ctypes.c_float
+LIB_MOON._Rectangle_GetPositionX.argtypes = [RectanglePtr]
+LIB_MOON._Rectangle_GetPositionY.restype = ctypes.c_float
+LIB_MOON._Rectangle_GetPositionY.argtypes = [RectanglePtr]
+LIB_MOON._Rectangle_GetWidth.restype = ctypes.c_float
+LIB_MOON._Rectangle_GetWidth.argtypes = [RectanglePtr]
+LIB_MOON._Rectangle_GetHeight.restype = ctypes.c_float
+LIB_MOON._Rectangle_GetHeight.argtypes = [RectanglePtr]
+LIB_MOON._Rectangle_SetPosition.restype = None
+LIB_MOON._Rectangle_SetPosition.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Rectangle_SetColor.restype = None
+LIB_MOON._Rectangle_SetColor.argtypes = [RectanglePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Rectangle_SetOrigin.restype = None
+LIB_MOON._Rectangle_SetOrigin.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Rectangle_SetSize.restype = None
+LIB_MOON._Rectangle_SetSize.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Rectangle_SetRotation.restype = None
+LIB_MOON._Rectangle_SetRotation.argtypes = [RectanglePtr, ctypes.c_float]
+LIB_MOON._Rectangle_SetOutlineThickness.restype = None
+LIB_MOON._Rectangle_SetOutlineThickness.argtypes = [RectanglePtr, ctypes.c_float]
+LIB_MOON._Rectangle_SetOutlineColor.restype = None
+LIB_MOON._Rectangle_SetOutlineColor.argtypes = [RectanglePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Rectangle_SetScale.restype = None
+LIB_MOON._Rectangle_SetScale.argtypes = [RectanglePtr, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Rectangle_Delete.restype = None
+LIB_MOON._Rectangle_Delete.argtypes = [RectanglePtr]
 
 @final
 class RectangleShape:
@@ -155,7 +156,7 @@ class RectangleShape:
             raise ValueError("Dimensions must be positive")
             
         # Создание нативного объекта
-        self._ptr = LIB_PYSGL._Rectangle_Create(float(width), float(height))
+        self._ptr = LIB_MOON._Rectangle_Create(float(width), float(height))
         
         # Инициализация Python-атрибутов
         self.__color: Color | None = None          # Основной цвет (None = прозрачный)
@@ -279,7 +280,7 @@ class RectangleShape:
         - Не вызывайте явно - использует механизм сборки мусора Python
         """
         if hasattr(self, '_ptr') and self._ptr:
-            LIB_PYSGL._Rectangle_Delete(self._ptr)
+            LIB_MOON._Rectangle_Delete(self._ptr)
             self._ptr = None
 
     @final
@@ -373,9 +374,9 @@ class RectangleShape:
         - Внутренний метод - используйте перегруженные версии
         """
         if isinstance(arg1, Vector2f) and arg2 is None:
-            LIB_PYSGL._Rectangle_SetPosition(self._ptr, float(arg1.x), float(arg1.y))
+            LIB_MOON._Rectangle_SetPosition(self._ptr, float(arg1.x), float(arg1.y))
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
-            LIB_PYSGL._Rectangle_SetPosition(self._ptr, float(arg1), float(arg2))
+            LIB_MOON._Rectangle_SetPosition(self._ptr, float(arg1), float(arg2))
         else:
             raise ValueError(
                 "Invalid arguments. "
@@ -409,8 +410,8 @@ class RectangleShape:
         print(f"Прямоугольник находится в ({pos.x}, {pos.y})")
         ```
         """
-        x = LIB_PYSGL._Rectangle_GetPositionX(self._ptr)
-        y = LIB_PYSGL._Rectangle_GetPositionY(self._ptr)
+        x = LIB_MOON._Rectangle_GetPositionX(self._ptr)
+        y = LIB_MOON._Rectangle_GetPositionY(self._ptr)
         return Vector2f(x, y)
 
     @final
@@ -443,7 +444,7 @@ class RectangleShape:
         rect.set_color(Color(0, 0, 255, 128))
         ```
         """
-        LIB_PYSGL._Rectangle_SetColor(self._ptr, color.r, color.g, color.b, color.a)
+        LIB_MOON._Rectangle_SetColor(self._ptr, color.r, color.g, color.b, color.a)
         self.__color = color
         return self
 
@@ -574,7 +575,7 @@ class RectangleShape:
                 f"got ({type(arg1).__name__}, {type(arg2).__name__})"
             )
         
-        LIB_PYSGL._Rectangle_SetOrigin(self._ptr, x, y)
+        LIB_MOON._Rectangle_SetOrigin(self._ptr, x, y)
         self.__origin.x = x
         self.__origin.y = y
         return self
@@ -702,7 +703,7 @@ class RectangleShape:
         if width < 0 or height < 0:
             raise ValueError("Size values must be positive")
         
-        LIB_PYSGL._Rectangle_SetSize(self._ptr, width, height)
+        LIB_MOON._Rectangle_SetSize(self._ptr, width, height)
         return self
 
     @final
@@ -730,8 +731,8 @@ class RectangleShape:
         print(f"Ширина: {size.x}, Высота: {size.y}")
         ```
         """
-        width = LIB_PYSGL._Rectangle_GetWidth(self._ptr)
-        height = LIB_PYSGL._Rectangle_GetHeight(self._ptr)
+        width = LIB_MOON._Rectangle_GetWidth(self._ptr)
+        height = LIB_MOON._Rectangle_GetHeight(self._ptr)
         return Vector2f(width, height)
     
     @final
@@ -769,7 +770,7 @@ class RectangleShape:
         ```
         """
         angle = float(angle)
-        LIB_PYSGL._Rectangle_SetRotation(self._ptr, angle)
+        LIB_MOON._Rectangle_SetRotation(self._ptr, angle)
         self.__angle = angle % 360  # Нормализуем угол
         return self
 
@@ -835,7 +836,7 @@ class RectangleShape:
         ```
         """
         thickness = max(0.0, float(thickness))  # Гарантируем неотрицательное значение
-        LIB_PYSGL._Rectangle_SetOutlineThickness(self._ptr, thickness)
+        LIB_MOON._Rectangle_SetOutlineThickness(self._ptr, thickness)
         self.__outline_thickness = thickness
         return self
 
@@ -898,7 +899,7 @@ class RectangleShape:
         rect.set_outline_color(Color(0, 0, 255, 128))
         ```
         """
-        LIB_PYSGL._Rectangle_SetOutlineColor(self._ptr, color.r, color.g, color.b, color.a)
+        LIB_MOON._Rectangle_SetOutlineColor(self._ptr, color.r, color.g, color.b, color.a)
         self.__outline_color = color
         return self
 
@@ -1028,7 +1029,7 @@ class RectangleShape:
         if scale_x == 0 or scale_y == 0:
             raise ValueError("Scale values cannot be zero")
         
-        LIB_PYSGL._Rectangle_SetScale(self._ptr, scale_x, scale_y)
+        LIB_MOON._Rectangle_SetScale(self._ptr, scale_x, scale_y)
         self.__scale.x = scale_x
         self.__scale.y = scale_y
         return self
@@ -1167,42 +1168,42 @@ class RectangleShape:
 # для C++ функций, связанных с кругами.
 
 
-LIB_PYSGL._Circle_Create.argtypes = [ctypes.c_float, ctypes.c_int]
-LIB_PYSGL._Circle_Create.restype = ctypes.c_void_p
-LIB_PYSGL._Circle_Delete.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Circle_Delete.restype = None
-LIB_PYSGL._Circle_SetPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Circle_SetPosition.restype = None
-LIB_PYSGL._Circle_GetPositionX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Circle_GetPositionX.restype = ctypes.c_float
-LIB_PYSGL._Circle_GetPositionY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Circle_GetPositionY.restype = ctypes.c_float
-LIB_PYSGL._Circle_SetRadius.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL._Circle_SetRadius.restype = None
-LIB_PYSGL._Circle_GetRadius.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Circle_GetRadius.restype = ctypes.c_float
-LIB_PYSGL._Circle_SetRotation.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL._Circle_SetRotation.restype = None
-LIB_PYSGL._Circle_GetRotation.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Circle_GetRotation.restype = ctypes.c_float
-LIB_PYSGL._Circle_SetFillColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._Circle_SetFillColor.restype = None
-LIB_PYSGL._Circle_SetOutlineColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._Circle_SetOutlineColor.restype = None
-LIB_PYSGL._Circle_SetOutlineThickness.argtypes = [ctypes.c_void_p, ctypes.c_float]
-LIB_PYSGL._Circle_SetOutlineThickness.restype = None
-LIB_PYSGL._Circle_SetScale.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Circle_SetScale.restype = None
-LIB_PYSGL._Circle_GetScaleX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Circle_GetScaleX.restype = ctypes.c_float
-LIB_PYSGL._Circle_GetScaleY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Circle_GetScaleY.restype = ctypes.c_float
-LIB_PYSGL._Circle_SetOrigin.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Circle_SetOrigin.restype = None
-LIB_PYSGL._Circle_GetOriginX.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Circle_GetOriginX.restype = ctypes.c_float
-LIB_PYSGL._Circle_GetOriginY.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._Circle_GetOriginY.restype = ctypes.c_float
+LIB_MOON._Circle_Create.argtypes = [ctypes.c_float, ctypes.c_int]
+LIB_MOON._Circle_Create.restype = ctypes.c_void_p
+LIB_MOON._Circle_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._Circle_Delete.restype = None
+LIB_MOON._Circle_SetPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Circle_SetPosition.restype = None
+LIB_MOON._Circle_GetPositionX.argtypes = [ctypes.c_void_p]
+LIB_MOON._Circle_GetPositionX.restype = ctypes.c_float
+LIB_MOON._Circle_GetPositionY.argtypes = [ctypes.c_void_p]
+LIB_MOON._Circle_GetPositionY.restype = ctypes.c_float
+LIB_MOON._Circle_SetRadius.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON._Circle_SetRadius.restype = None
+LIB_MOON._Circle_GetRadius.argtypes = [ctypes.c_void_p]
+LIB_MOON._Circle_GetRadius.restype = ctypes.c_float
+LIB_MOON._Circle_SetRotation.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON._Circle_SetRotation.restype = None
+LIB_MOON._Circle_GetRotation.argtypes = [ctypes.c_void_p]
+LIB_MOON._Circle_GetRotation.restype = ctypes.c_float
+LIB_MOON._Circle_SetFillColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Circle_SetFillColor.restype = None
+LIB_MOON._Circle_SetOutlineColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Circle_SetOutlineColor.restype = None
+LIB_MOON._Circle_SetOutlineThickness.argtypes = [ctypes.c_void_p, ctypes.c_float]
+LIB_MOON._Circle_SetOutlineThickness.restype = None
+LIB_MOON._Circle_SetScale.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Circle_SetScale.restype = None
+LIB_MOON._Circle_GetScaleX.argtypes = [ctypes.c_void_p]
+LIB_MOON._Circle_GetScaleX.restype = ctypes.c_float
+LIB_MOON._Circle_GetScaleY.argtypes = [ctypes.c_void_p]
+LIB_MOON._Circle_GetScaleY.restype = ctypes.c_float
+LIB_MOON._Circle_SetOrigin.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Circle_SetOrigin.restype = None
+LIB_MOON._Circle_GetOriginX.argtypes = [ctypes.c_void_p]
+LIB_MOON._Circle_GetOriginX.restype = ctypes.c_float
+LIB_MOON._Circle_GetOriginY.argtypes = [ctypes.c_void_p]
+LIB_MOON._Circle_GetOriginY.restype = ctypes.c_float
 
 @final
 class CircleShape:
@@ -1272,7 +1273,7 @@ class CircleShape:
             raise ValueError("Circle must have at least 3 points")
             
         self.__approximation = int(approximation)
-        self._ptr = LIB_PYSGL._Circle_Create(100, int(approximation))
+        self._ptr = LIB_MOON._Circle_Create(100, int(approximation))
         self.set_origin(100, 100)  # Центрируем точку отсчета
         
         # Инициализация атрибутов
@@ -1323,7 +1324,7 @@ class CircleShape:
         ```
         """
         if hasattr(self, '_ptr') and self._ptr:
-            LIB_PYSGL._Circle_Delete(self._ptr)
+            LIB_MOON._Circle_Delete(self._ptr)
             self._ptr = None  # Защита от повторного удаления
 
     
@@ -1598,7 +1599,7 @@ class CircleShape:
                 f"got ({type(arg1).__name__}, {type(arg2).__name__})"
             )
         
-        LIB_PYSGL._Circle_SetPosition(self._ptr, x, y)
+        LIB_MOON._Circle_SetPosition(self._ptr, x, y)
         return self
     
     def get_position(self) -> Vector2f:
@@ -1628,8 +1629,8 @@ class CircleShape:
         distance = (circle.get_position() - target.get_position()).length()
         ```
         """
-        x = LIB_PYSGL._Circle_GetPositionX(self._ptr)
-        y = LIB_PYSGL._Circle_GetPositionY(self._ptr)
+        x = LIB_MOON._Circle_GetPositionX(self._ptr)
+        y = LIB_MOON._Circle_GetPositionY(self._ptr)
         return Vector2f(x, y)
 
     def set_radius(self, radius: float) -> Self:
@@ -1670,7 +1671,7 @@ class CircleShape:
         if radius < 0:
             raise ValueError("Radius must be positive")
         
-        LIB_PYSGL._Circle_SetRadius(self._ptr, radius)
+        LIB_MOON._Circle_SetRadius(self._ptr, radius)
         return self
     
     def get_radius(self) -> float:
@@ -1701,7 +1702,7 @@ class CircleShape:
         area = math.pi * circle.get_radius() ** 2
         ```
         """
-        return LIB_PYSGL._Circle_GetRadius(self._ptr)
+        return LIB_MOON._Circle_GetRadius(self._ptr)
 
     def set_angle(self, angle: float) -> Self:
         """
@@ -1737,7 +1738,7 @@ class CircleShape:
         ```
         """
         angle = float(angle) % 360  # Нормализация угла
-        LIB_PYSGL._Circle_SetRotation(self._ptr, angle)
+        LIB_MOON._Circle_SetRotation(self._ptr, angle)
         return self
 
     def get_angle(self) -> float:
@@ -1765,7 +1766,7 @@ class CircleShape:
             print("Круг перевернут")
         ```
         """
-        return LIB_PYSGL._Circle_GetRotation(self._ptr)
+        return LIB_MOON._Circle_GetRotation(self._ptr)
 
     def set_color(self, color: Color) -> Self:
         """
@@ -1804,7 +1805,7 @@ class CircleShape:
         - None отключает заливку (полная прозрачность)
         - Цвет кэшируется в Python-объекте
         """
-        LIB_PYSGL._Circle_SetFillColor(self._ptr, color.r, color.g, color.b, color.a)
+        LIB_MOON._Circle_SetFillColor(self._ptr, color.r, color.g, color.b, color.a)
         self.__color = color
         return self
 
@@ -1867,7 +1868,7 @@ class CircleShape:
         circle.set_outline_color(Color(255, 255, 255, 128))
         ```
         """
-        LIB_PYSGL._Circle_SetOutlineColor(self._ptr, color.r, color.g, color.b, color.a)
+        LIB_MOON._Circle_SetOutlineColor(self._ptr, color.r, color.g, color.b, color.a)
         self.__outline_color = color
         return self
 
@@ -1935,7 +1936,7 @@ class CircleShape:
         - При thickness > radius граница может отображаться некорректно
         """
         thickness = max(0.0, float(thickness))  # Гарантируем неотрицательное значение
-        LIB_PYSGL._Circle_SetOutlineThickness(self._ptr, thickness)
+        LIB_MOON._Circle_SetOutlineThickness(self._ptr, thickness)
         self.__outline_thickness = thickness
         return self
 
@@ -2062,7 +2063,7 @@ class CircleShape:
         if scale_x == 0 or scale_y == 0:
             raise ValueError("Scale values cannot be zero")
         
-        LIB_PYSGL._Circle_SetScale(self._ptr, scale_x, scale_y)
+        LIB_MOON._Circle_SetScale(self._ptr, scale_x, scale_y)
         return self
 
     def get_scale(self) -> Vector2f:
@@ -2091,8 +2092,8 @@ class CircleShape:
         ```
         """
         return Vector2f(
-            LIB_PYSGL._Circle_GetScaleX(self._ptr),
-            LIB_PYSGL._Circle_GetScaleY(self._ptr)
+            LIB_MOON._Circle_GetScaleX(self._ptr),
+            LIB_MOON._Circle_GetScaleY(self._ptr)
         )
     
     @overload
@@ -2180,7 +2181,7 @@ class CircleShape:
         else:
             raise TypeError("Invalid argument types for set_origin")
         
-        LIB_PYSGL._Circle_SetOrigin(self._ptr, x, y)
+        LIB_MOON._Circle_SetOrigin(self._ptr, x, y)
         return self
 
     def get_origin(self) -> Vector2f:
@@ -2206,8 +2207,8 @@ class CircleShape:
         print(f"Точка отсчета: ({origin.x}, {origin.y})")
         ```
         """
-        x = LIB_PYSGL._Circle_GetOriginX(self._ptr)
-        y = LIB_PYSGL._Circle_GetOriginY(self._ptr)
+        x = LIB_MOON._Circle_GetOriginX(self._ptr)
+        y = LIB_MOON._Circle_GetOriginY(self._ptr)
         return Vector2f(x, y)
     
     @final

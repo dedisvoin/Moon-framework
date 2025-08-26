@@ -2,7 +2,9 @@ import ctypes
 from typing import Self
 from .Shaders import *
 import os
+
 from Moon import DLL_FOUND_PATH
+from Moon import DLL_LOCAL_FOUND_PATH
 
 
 # Загрузка нативной библиотеки
@@ -31,7 +33,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("PySGL.RenderStates: Library not found at", lib_path)
-            lib_path = "./dlls/PySGL.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")
@@ -42,17 +44,16 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL = ctypes.CDLL(_find_library())
+    LIB_MOON = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
-LIB_PYSGL._BlendMode_CreateFull.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
+LIB_MOON._BlendMode_CreateFull.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
                                             ctypes.c_int, ctypes.c_int, ctypes.c_int]
-LIB_PYSGL._BlendMode_CreateFull.restype = ctypes.c_void_p
-LIB_PYSGL._BlendMode_Delete.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._BlendMode_Delete.restype = None
+LIB_MOON._BlendMode_CreateFull.restype = ctypes.c_void_p
+LIB_MOON._BlendMode_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._BlendMode_Delete.restype = None
 
-type BlendMode = BlendMode
 class BlendMode:
     """
     #### Класс для управления режимами смешивания пикселей
@@ -132,11 +133,11 @@ class BlendMode:
         self.__alpha_dst_factor = alpha_dst_factor
         self.__alpha_eq = alpha_eq
 
-        self.__blend_mode_ptr = LIB_PYSGL._BlendMode_CreateFull(self.__color_src_factor, self.__color_dst_factor, self.__color_eq,
+        self.__blend_mode_ptr = LIB_MOON._BlendMode_CreateFull(self.__color_src_factor, self.__color_dst_factor, self.__color_eq,
                                                                 self.__alpha_src_factor, self.__alpha_dst_factor, self.__alpha_eq)
 
     def  __del__(self) -> None:
-        LIB_PYSGL._BlendMode_Delete(self.__blend_mode_ptr)
+        LIB_MOON._BlendMode_Delete(self.__blend_mode_ptr)
 
     def get_ptr(self) -> ctypes.c_void_p:
         return self.__blend_mode_ptr
@@ -146,7 +147,7 @@ class BlendMode:
     # ================================================================================
     
     @staticmethod
-    def Alpha() -> BlendMode:
+    def Alpha() -> "BlendMode":
         """
         #### Стандартное альфа-смешивание (прозрачность)
         
@@ -184,7 +185,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Add() -> BlendMode:
+    def Add() -> "BlendMode":
         """
         #### Аддитивное смешивание (сложение цветов)
         
@@ -224,7 +225,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Multiply() -> BlendMode:
+    def Multiply() -> "BlendMode":
         """
         #### Мультипликативное смешивание (умножение цветов)
         
@@ -264,7 +265,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Default() -> BlendMode:
+    def Default() -> "BlendMode":
         """
         #### Отсутствие смешивания (замещение)
         
@@ -304,7 +305,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Subtract() -> BlendMode:
+    def Subtract() -> "BlendMode":
         """
         #### Субтрактивное смешивание (вычитание цветов)
         
@@ -344,7 +345,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Screen() -> BlendMode:
+    def Screen() -> "BlendMode":
         """
         #### Экранное смешивание (осветление)
         
@@ -384,7 +385,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Lighten() -> BlendMode:
+    def Lighten() -> "BlendMode":
         """
         #### Осветление (максимум цветов)
         
@@ -424,7 +425,7 @@ class BlendMode:
         )
     
     @staticmethod
-    def Darken() -> BlendMode:
+    def Darken() -> "BlendMode":
         """
         #### Затемнение (минимум цветов)
         
@@ -465,19 +466,19 @@ class BlendMode:
 
 
 
-LIB_PYSGL._RenderStates_Create.argtypes = None
-LIB_PYSGL._RenderStates_Create.restype = ctypes.c_void_p
-LIB_PYSGL._RenderStates_Delete.argtypes = [ctypes.c_void_p]
-LIB_PYSGL._RenderStates_Delete.restype = None
-LIB_PYSGL._RenderStates_SetShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._RenderStates_SetShader.restype = None
-LIB_PYSGL._RenderStates_SetBlendMode.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._RenderStates_SetBlendMode.restype = None
-LIB_PYSGL._RenderStates_SetTexture.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIB_PYSGL._RenderStates_SetTexture.restype = None
+LIB_MOON._RenderStates_Create.argtypes = None
+LIB_MOON._RenderStates_Create.restype = ctypes.c_void_p
+LIB_MOON._RenderStates_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._RenderStates_Delete.restype = None
+LIB_MOON._RenderStates_SetShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._RenderStates_SetShader.restype = None
+LIB_MOON._RenderStates_SetBlendMode.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._RenderStates_SetBlendMode.restype = None
+LIB_MOON._RenderStates_SetTexture.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+LIB_MOON._RenderStates_SetTexture.restype = None
 
 RenderStatesPtr = ctypes.c_void_p
-type Texture = Texture
+
 
 class RenderStates:
 
@@ -505,7 +506,7 @@ class RenderStates:
         """
         #### Создает новые состояния рендеринга с настройками по умолчанию
         """
-        self._ptr = LIB_PYSGL._RenderStates_Create()
+        self._ptr = LIB_MOON._RenderStates_Create()
         self.__shader: Shader | None = None
         self.__blend_mode = None
         self.__texture = None
@@ -530,10 +531,10 @@ class RenderStates:
         - Self: Возвращает self для цепочки вызовов
         """
         self.__shader = shader
-        LIB_PYSGL._RenderStates_SetShader(self._ptr, self.__shader.get_ptr())
+        LIB_MOON._RenderStates_SetShader(self._ptr, self.__shader.get_ptr())
         return self
     
-    def set_texture(self, texture: Texture) -> Self:
+    def set_texture(self, texture) -> Self:
         """
         #### Устанавливает текстуру для рендеринга
         
@@ -543,10 +544,10 @@ class RenderStates:
         :Returns:
         - Self: Возвращает self для цепочки вызовов
         """
-        LIB_PYSGL._RenderStates_SetTexture(self._ptr, texture.get_ptr())
+        LIB_MOON._RenderStates_SetTexture(self._ptr, texture.get_ptr())
         return self
     
-    def get_texture(self) -> Texture | None:
+    def get_texture(self):
         """
         #### Возвращает текущую установленную текстуру
         
@@ -585,7 +586,7 @@ class RenderStates:
         ```
         """
         self.__blend_mode = blend_mode
-        LIB_PYSGL._RenderStates_SetBlendMode(self._ptr, self.__blend_mode.get_ptr())
+        LIB_MOON._RenderStates_SetBlendMode(self._ptr, self.__blend_mode.get_ptr())
         return self
 
     def get_blend_mode(self) -> BlendMode:

@@ -69,16 +69,22 @@ Copyright (c) 2025 Pavlov Ivan
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
-import ctypes
 import os
+import ctypes
+from typing import final
 
 from Moon.python.Types import *
-from Moon import DLL_FOUND_PATH
+
+# ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
+from Moon import DLL_FOUND_PATH               #
+from Moon import DLL_LOCAL_FOUND_PATH         #
+# =========================================== +
 
 class LibraryLoadError(Exception):
     """Ошибка загрузки нативной библиотеки"""
     pass
 
+@final
 def _find_library() -> str:
     """
     #### Поиск пути к нативной библиотеке BUILD.dll
@@ -99,7 +105,7 @@ def _find_library() -> str:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
             print("Library not found at", lib_path)
-            lib_path = "./dlls/Moon.dll"
+            lib_path = DLL_LOCAL_FOUND_PATH
             if not os.path.exists(lib_path):
                 print("Library not found at", lib_path)
                 raise FileNotFoundError(f"Library not found at {lib_path}")
@@ -110,24 +116,25 @@ def _find_library() -> str:
 
 # Загружаем DLL библиотеку
 try:
-    LIB_PYSGL = ctypes.CDLL(_find_library())
+    LIB_MOON = ctypes.CDLL(_find_library())
 except Exception as e:
     raise ImportError(f"Failed to load Moon library: {e}")
 
 # Тип указателя на звуковой буфер ====== +
-SoundBufferPtr = ctypes.c_void_p
+SoundBufferPtr = ctypes.c_void_p         #
 # ====================================== +
 
 # Определение типов аргументов и возвращаемых значений для функций DLL
-LIB_PYSGL._SoundBuffer_loadFromFile.argtypes = [ctypes.c_char_p]
-LIB_PYSGL._SoundBuffer_loadFromFile.restype = SoundBufferPtr
-LIB_PYSGL._SoundBuffer_Destroy.argtypes = [SoundBufferPtr]
-LIB_PYSGL._SoundBuffer_Destroy.restype = None
-LIB_PYSGL._SoundBuffer_GetChannelsCount.argtypes = [SoundBufferPtr]
-LIB_PYSGL._SoundBuffer_GetChannelsCount.restype = ctypes.c_int
-LIB_PYSGL._SoundBuffer_GetSampleRate.argtypes = [SoundBufferPtr]
-LIB_PYSGL._SoundBuffer_GetSampleRate.restype = ctypes.c_int
+LIB_MOON._SoundBuffer_loadFromFile.argtypes = [ctypes.c_char_p]
+LIB_MOON._SoundBuffer_loadFromFile.restype = SoundBufferPtr
+LIB_MOON._SoundBuffer_Destroy.argtypes = [SoundBufferPtr]
+LIB_MOON._SoundBuffer_Destroy.restype = None
+LIB_MOON._SoundBuffer_GetChannelsCount.argtypes = [SoundBufferPtr]
+LIB_MOON._SoundBuffer_GetChannelsCount.restype = ctypes.c_int
+LIB_MOON._SoundBuffer_GetSampleRate.argtypes = [SoundBufferPtr]
+LIB_MOON._SoundBuffer_GetSampleRate.restype = ctypes.c_int
 
+@final
 class SoundBuffer:
     """
     #### Класс для работы со звуковыми буферами
@@ -171,8 +178,9 @@ class SoundBuffer:
         ```
         """
         self.__path = path
-        self.__ptr: SoundBufferPtr = LIB_PYSGL._SoundBuffer_loadFromFile(path.encode('utf-8'))
+        self.__ptr: SoundBufferPtr = LIB_MOON._SoundBuffer_loadFromFile(path.encode('utf-8'))
         
+    @final
     def destroy(self) -> None:
         """
         #### Освобождает ресурсы звукового буфера
@@ -182,7 +190,7 @@ class SoundBuffer:
         :Note:
         - Вызывается автоматически при удалении объекта
         """
-        LIB_PYSGL._SoundBuffer_Destroy(self.__ptr)
+        LIB_MOON._SoundBuffer_Destroy(self.__ptr)
         self.__ptr = None
 
     def __del__(self) -> None:
@@ -196,6 +204,7 @@ class SoundBuffer:
         """
         self.destroy()
 
+    @final
     def get_sample_rate(self) -> int:
         """
         #### Возвращает частоту дискретизации звука
@@ -212,8 +221,9 @@ class SoundBuffer:
         rate = buffer.get_sample_rate()  # 44100
         ```
         """
-        return LIB_PYSGL._SoundBuffer_GetSampleRate(self.__ptr)
+        return LIB_MOON._SoundBuffer_GetSampleRate(self.__ptr)
 
+    @final
     def get_ptr(self) -> SoundBufferPtr:
         """
         #### Возвращает указатель на нативный буфер
@@ -230,6 +240,7 @@ class SoundBuffer:
         """
         return self.__ptr
     
+    @final
     def get_channels_count(self) -> int:
         """
         #### Возвращает количество аудиоканалов
@@ -246,8 +257,9 @@ class SoundBuffer:
         channels = buffer.get_channels_count()  # 2
         ```
         """
-        return LIB_PYSGL._SoundBuffer_GetChannelsCount(self.__ptr)
+        return LIB_MOON._SoundBuffer_GetChannelsCount(self.__ptr)
     
+    @final
     def get_path(self) -> str:
         """
         #### Возвращает путь к исходному файлу
@@ -260,37 +272,38 @@ class SoundBuffer:
         return self.__path
 
 # Тип указателя на звук ========= +
-SoundPtr = ctypes.c_void_p
+SoundPtr = ctypes.c_void_p        #
 # =============================== +
 
 # Определение типов аргументов и возвращаемых значений для функций DLL
-LIB_PYSGL._Sound_Create.argtypes = [SoundBufferPtr]
-LIB_PYSGL._Sound_Create.restype = SoundPtr
-LIB_PYSGL._Sound_Play.argtypes = [SoundPtr]
-LIB_PYSGL._Sound_Play.restype = None
-LIB_PYSGL._Sound_Pause.argtypes = [SoundPtr]
-LIB_PYSGL._Sound_Pause.restype = None
-LIB_PYSGL._Sound_Stop.argtypes = [SoundPtr]
-LIB_PYSGL._Sound_Stop.restype = None
-LIB_PYSGL._Sound_Destroy.argtypes = [SoundPtr]
-LIB_PYSGL._Sound_Destroy.restype = None
-LIB_PYSGL._Sound_SetLoop.argtypes = [SoundPtr, ctypes.c_bool]
-LIB_PYSGL._Sound_SetLoop.restype = None
-LIB_PYSGL._Sound_SetVolume.argtypes = [SoundPtr, ctypes.c_float]
-LIB_PYSGL._Sound_SetVolume.restype = None
-LIB_PYSGL._Sound_SetPitch.argtypes = [SoundPtr, ctypes.c_float]
-LIB_PYSGL._Sound_SetPitch.restype = None
-LIB_PYSGL._Sound_SetAttenuation.argtypes = [SoundPtr, ctypes.c_float]
-LIB_PYSGL._Sound_SetAttenuation.restype = None
-LIB_PYSGL._Sound_ResetBuffer.argtypes = [SoundPtr]
-LIB_PYSGL._Sound_ResetBuffer.restype = None
-LIB_PYSGL._Sound_SetPosition.argtypes = [SoundPtr, ctypes.c_float, ctypes.c_float, ctypes.c_float]
-LIB_PYSGL._Sound_SetPosition.restype = None
-LIB_PYSGL._Sound_SetRelativeToListener.argtypes = [SoundPtr, ctypes.c_bool]
-LIB_PYSGL._Sound_SetRelativeToListener.restype = None
-LIB_PYSGL._Sound_GetStatus.argtypes = [SoundPtr]
-LIB_PYSGL._Sound_GetStatus.restype = ctypes.c_int
+LIB_MOON._Sound_Create.argtypes = [SoundBufferPtr]
+LIB_MOON._Sound_Create.restype = SoundPtr
+LIB_MOON._Sound_Play.argtypes = [SoundPtr]
+LIB_MOON._Sound_Play.restype = None
+LIB_MOON._Sound_Pause.argtypes = [SoundPtr]
+LIB_MOON._Sound_Pause.restype = None
+LIB_MOON._Sound_Stop.argtypes = [SoundPtr]
+LIB_MOON._Sound_Stop.restype = None
+LIB_MOON._Sound_Destroy.argtypes = [SoundPtr]
+LIB_MOON._Sound_Destroy.restype = None
+LIB_MOON._Sound_SetLoop.argtypes = [SoundPtr, ctypes.c_bool]
+LIB_MOON._Sound_SetLoop.restype = None
+LIB_MOON._Sound_SetVolume.argtypes = [SoundPtr, ctypes.c_float]
+LIB_MOON._Sound_SetVolume.restype = None
+LIB_MOON._Sound_SetPitch.argtypes = [SoundPtr, ctypes.c_float]
+LIB_MOON._Sound_SetPitch.restype = None
+LIB_MOON._Sound_SetAttenuation.argtypes = [SoundPtr, ctypes.c_float]
+LIB_MOON._Sound_SetAttenuation.restype = None
+LIB_MOON._Sound_ResetBuffer.argtypes = [SoundPtr]
+LIB_MOON._Sound_ResetBuffer.restype = None
+LIB_MOON._Sound_SetPosition.argtypes = [SoundPtr, ctypes.c_float, ctypes.c_float, ctypes.c_float]
+LIB_MOON._Sound_SetPosition.restype = None
+LIB_MOON._Sound_SetRelativeToListener.argtypes = [SoundPtr, ctypes.c_bool]
+LIB_MOON._Sound_SetRelativeToListener.restype = None
+LIB_MOON._Sound_GetStatus.argtypes = [SoundPtr]
+LIB_MOON._Sound_GetStatus.restype = ctypes.c_int
 
+@final
 class AudioStatus(Enum):
     """
     #### Перечисление статусов воспроизведения звука
@@ -306,6 +319,7 @@ class AudioStatus(Enum):
     PAUSED = auto()
     PLAYING = auto()
 
+@final
 class Sound:
     """
     #### Класс для управления воспроизведением звука
@@ -340,18 +354,19 @@ class Sound:
         self.__sound_buffer = sound_buffer
 
         try:
-            self.__ptr: SoundPtr = LIB_PYSGL._Sound_Create(self.__sound_buffer.get_ptr())
+            self.__ptr: SoundPtr = LIB_MOON._Sound_Create(self.__sound_buffer.get_ptr())
         except:
             raise RuntimeError("Failed to create sound")
         
-        self.__played: bool = False
-        self.__paused: bool = False
-        self.__volume: float = 1.0
-        self.__pitch: float = 1.0
-        self.__attenuation: float = 1.0
-        self.__looped: bool = False
-        self.__id: Identifier = AutoIdentifier()
+        self.__played:          bool = False
+        self.__paused:          bool = False
+        self.__volume:          float = 1.0
+        self.__pitch:           float = 1.0
+        self.__attenuation:     float = 1.0
+        self.__looped:          bool = False
+        self.__id:              Identifier = AutoIdentifier()
 
+    @final
     def get_identifier(self) -> Identifier:
         """
         #### Возвращает идентификатор звука
@@ -388,6 +403,7 @@ class Sound:
         """
         return hash(self.__id)
     
+    @final
     def get_path(self) -> str:
         """
         #### Возвращает путь к исходному файлу
@@ -399,6 +415,7 @@ class Sound:
         """
         return self.__sound_buffer.get_path()
 
+    @final
     def get_status(self) -> AudioStatus:
         """
         #### Возвращает текущий статус воспроизведения
@@ -416,8 +433,9 @@ class Sound:
             print("Sound is playing")
         ```
         """
-        return AudioStatus(LIB_PYSGL._Sound_GetStatus(self.__ptr))
+        return AudioStatus(LIB_MOON._Sound_GetStatus(self.__ptr))
 
+    @final
     def set_relative_to_listener(self, relative: bool) -> Self:
         """
         #### Устанавливает, будет ли звук воспроизводиться относительно слушателя.
@@ -439,9 +457,10 @@ class Sound:
         sound.set_relative_to_listener(True)
         ```
         """
-        LIB_PYSGL._Sound_SetRelativeToListener(self.__ptr, relative)
+        LIB_MOON._Sound_SetRelativeToListener(self.__ptr, relative)
         return self
 
+    @final
     def set_position(self, x: float, y: float, z: float) -> Self:
         """
         Устанавливает позицию звука в 3D пространстве.
@@ -465,9 +484,10 @@ class Sound:
         sound.set_position(0, 0, 0) # Устанавливает звук в центр экрана
         ```
         """
-        LIB_PYSGL._Sound_SetPosition(self.__ptr, float(x), float(y), float(z))
+        LIB_MOON._Sound_SetPosition(self.__ptr, float(x), float(y), float(z))
         return self
     
+    @final
     def play_left(self) -> Self:
         """
         #### Воспроизводит звук слева от слушателя.
@@ -481,6 +501,7 @@ class Sound:
         self.play()
         return self
     
+    @final
     def play_right(self) -> Self:
         """
         #### Воспроизводит звук справа от слушателя.
@@ -494,6 +515,7 @@ class Sound:
         self.play()
         return self
 
+    @final
     def copy(self) -> "Sound":
         """
         #### Создает копию текущего звука с теми же параметрами.
@@ -519,6 +541,7 @@ class Sound:
         sound.set_loop(self.__looped)
         return sound
 
+    @final
     def get_ptr(self) -> SoundPtr:
         """
         #### Возвращает указатель на звук.
@@ -538,6 +561,7 @@ class Sound:
         """
         return self.__ptr
     
+    @final
     def get_sound_buffer(self) -> SoundBuffer:
         """
         #### Возвращает звуковой буфер.
@@ -557,6 +581,7 @@ class Sound:
         """
         return self.__sound_buffer
     
+    @final
     def play(self) -> Self:
         """
         #### Начинает воспроизведение звука.
@@ -576,9 +601,10 @@ class Sound:
         """
         self.__played = True
         self.__paused = False
-        LIB_PYSGL._Sound_Play(self.__ptr)
+        LIB_MOON._Sound_Play(self.__ptr)
         return self
     
+    @final
     def pause(self) -> Self:
         """
         #### Приостанавливает воспроизведение звука.
@@ -587,9 +613,10 @@ class Sound:
         - self: Для цепных вызовов
         """
         self.__paused = True
-        LIB_PYSGL._Sound_Pause(self.__ptr)
+        LIB_MOON._Sound_Pause(self.__ptr)
         return self
     
+    @final
     def stop(self) -> Self:
         """
         #### Останавливает воспроизведение звука.
@@ -598,9 +625,10 @@ class Sound:
         - self: Для цепных вызовов
         """
         self.__played = False
-        LIB_PYSGL._Sound_Stop(self.__ptr)
+        LIB_MOON._Sound_Stop(self.__ptr)
         return self
     
+    @final
     def is_playing(self) -> bool:
         """
         #### Проверяет, воспроизводится ли звук.
@@ -620,6 +648,7 @@ class Sound:
         """
         return self.__played
     
+    @final
     def is_paused(self) -> bool:
         """
         #### Проверяет, приостановлен ли звук.
@@ -631,6 +660,7 @@ class Sound:
         """
         return self.__paused
     
+    @final
     def set_loop(self, loop: bool) -> Self:
         """
         #### Устанавливает зацикливание звука.
@@ -651,9 +681,10 @@ class Sound:
         ```
         """
         self.__looped = loop
-        LIB_PYSGL._Sound_SetLoop(self.__ptr, loop)
+        LIB_MOON._Sound_SetLoop(self.__ptr, loop)
         return self
 
+    @final
     def get_loop(self) -> bool:
         """
         #### Проверяет, зациклен ли звук.
@@ -673,6 +704,7 @@ class Sound:
         """
         return self.__looped
 
+    @final
     def set_volume(self, volume: float) -> Self:
         """
         #### Устанавливает громкость звука.
@@ -688,9 +720,10 @@ class Sound:
         - self: Для цепных вызовов
         """
         self.__volume = volume
-        LIB_PYSGL._Sound_SetVolume(self.__ptr, volume)
+        LIB_MOON._Sound_SetVolume(self.__ptr, volume)
         return self
     
+    @final
     def get_volume(self) -> float:
         """
         #### Возвращает текущую громкость звука.
@@ -702,6 +735,7 @@ class Sound:
         """
         return self.__volume
     
+    @final
     def set_pitch(self, pitch: float) -> Self:
         """
         #### Устанавливает высоту тона звука.
@@ -715,9 +749,10 @@ class Sound:
         - self: Для цепных вызовов
         """
         self.__pitch = pitch
-        LIB_PYSGL._Sound_SetPitch(self.__ptr, pitch)
+        LIB_MOON._Sound_SetPitch(self.__ptr, pitch)
         return self
     
+    @final
     def get_pitch(self) -> float:
         """
         #### Возвращает текущую высоту тона звука.
@@ -727,6 +762,7 @@ class Sound:
         """
         return self.__pitch
     
+    @final
     def set_attenuation(self, attenuation: float) -> Self:
         """
         #### Устанавливает затухание звука.
@@ -740,9 +776,10 @@ class Sound:
         - self: Для цепных вызовов
         """
         self.__attenuation = attenuation
-        LIB_PYSGL._Sound_SetAttenuation(self.__ptr, attenuation)
+        LIB_MOON._Sound_SetAttenuation(self.__ptr, attenuation)
         return self
     
+    @final
     def get_attenuation(self) -> float:
         """
         #### Возвращает текущее затухание звука.
@@ -754,11 +791,12 @@ class Sound:
         """
         return self.__attenuation
     
+    @final
     def destroy(self) -> None:
         """
         #### Освобождает ресурсы звука.
         """
-        LIB_PYSGL._Sound_Destroy(self.__ptr)
+        LIB_MOON._Sound_Destroy(self.__ptr)
         self.__ptr = None
 
     def __del__(self) -> None:
@@ -767,6 +805,7 @@ class Sound:
         """
         self.destroy()
 
+    @final
     def reset(self) -> Self:
         """
         #### Сбрасывает звук в начальное состояние.
@@ -776,7 +815,7 @@ class Sound:
         :Returns:
             self: Для цепных вызовов
         """
-        LIB_PYSGL._Sound_ResetBuffer(self.__ptr)
+        LIB_MOON._Sound_ResetBuffer(self.__ptr)
         return self
 
 class SoundEventListener:
