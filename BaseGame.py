@@ -443,8 +443,8 @@ class Game:
 
         self.__rainbow_shader.set_uniform("time", window.get_global_timer())
 
-        self.person_smooth_pos[0] -= (self.person_smooth_pos[0] - self.person_pos[0] * self.map_cell_size) * 0.2
-        self.person_smooth_pos[1] -= (self.person_smooth_pos[1] - self.person_pos[1] * self.map_cell_size) * 0.2
+        self.person_smooth_pos[0] -= (self.person_smooth_pos[0] - self.person_pos[0] * self.map_cell_size) * 0.3
+        self.person_smooth_pos[1] -= (self.person_smooth_pos[1] - self.person_pos[1] * self.map_cell_size) * 0.3
 
         if not self.map[self.person_pos[1]][self.person_pos[0]].open:
             self.help_rect_alpha += 10
