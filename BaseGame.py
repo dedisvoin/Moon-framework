@@ -17,6 +17,9 @@ window.enable_ghosting()
 window.set_wait_fps(60)
 window_events = WindowEvents()
 
+
+NATIVE_SCREEN_RESOLUTION = get_screen_resolution()
+
 class Cell:
     def __init__(self):
         self.open = False
@@ -61,7 +64,7 @@ class Game:
         self.local_particle_system = CPU_ParticleSystem()
         self.local_particle_system.lightning = False
 
-        self.down_particle_emmiter = CPU_ParticleEmitters.Rect(Vector2f(0, 1080), 1920, 100)
+        self.down_particle_emmiter = CPU_ParticleEmitters.Rect(Vector2f(0, NATIVE_SCREEN_RESOLUTION[1]), NATIVE_SCREEN_RESOLUTION[0], 100)
 
         self.down_particle = CPU_Particle(color=Color(0, 1, 1, 255), size=100, shape=ParticleShapes.Rectangle)
         self.down_particle.spreading_angle = 100
