@@ -58,7 +58,11 @@ class Game:
         }
         self.outlined_mine = BaseSprite.FromTexture(apply_outline_to_texture(self.data['mine_sprite'].get_texture(), COLOR_WHITE, 1, PIXEL_PERFECT_OUTLINE_SHADER))
         self.outlined_flag = BaseSprite.FromTexture(apply_outline_to_texture(self.data['flag'].get_texture(), COLOR_WHITE, 1, PIXEL_PERFECT_OUTLINE_SHADER))
-
+        self.many_flags = LoadSprite("game_data\many_flags.png")
+        self.many_flags.set_position(0, NATIVE_SCREEN_RESOLUTION[1] - 73)
+        self.many_flags_alpha = 0
+        self.many_flags_target_alpha = 0
+        self.flag_druging = 0
 
         self.global_particle_system = CPU_ParticleSystem()
         self.global_particle_system.lightning = False
@@ -239,11 +243,28 @@ class Game:
         self.person_pos = [self.map_size // 2, self.map_size // 2]
         self.camera = Camera2D(*window.get_size().xy).set_zoom(0.1).set_target_zoom(0.2).set_lerp_zoom(0.2)
         self.camera.set_zoom_limits(0.1, 0.6)
+        self.camera.set_center(Vector2f(self.person_pos[0] * self.map_cell_size + self.map_cell_size / 2, 
+                            self.person_pos[1] * self.map_cell_size + self.map_cell_size / 2))
+
 
         self.start_circle = CircleShape(20).set_origin_radius(1)
         self.start_circle.set_color(COLOR_RED)
+
         
-        
+        self.white_rect = RectangleShape(*NATIVE_SCREEN_RESOLUTION)
+        self.white_rect.set_outline_color(COLOR_WHITE)
+        self.white_rect.set_outline_thickness(1920 / 2)
+        self.white_rect.set_color(COLOR_WHITE)
+
+        self.white_rect_size = copy(NATIVE_SCREEN_RESOLUTION)
+        self.white_rect_color_alpha = 255
+        self.white_rect_outline_width = 1920 / 2
+
+        self.white_rect_target_alpha = 0
+        self.white_rect_target_size = [12*5, 12*5]
+        self.white_rect_target_outline_width = 5
+
+        self.white_rect_draw = True
         
         self.down_text = Text(Font.SystemFont("calibri"))
 
@@ -332,6 +353,8 @@ class Game:
         else:
             self.data['flag_set_sound'].play()
             self.flag_count += 1  # Увеличиваем счетчик флагов
+            if self.flag_count > self.mine_count:
+                self.flag_druging = 10
             
         cell.flagged = not cell.flagged  # Переключаем состояние флага
 
@@ -622,15 +645,50 @@ class Game:
         self.down_text.set_position(40, NATIVE_SCREEN_RESOLUTION[1]-28)
         window.draw(self.down_text)
         
-        self.outlined_flag.set_position(0, NATIVE_SCREEN_RESOLUTION[1] - 65)
+    
+        self.many_flags_alpha -= (self.many_flags_alpha - self.many_flags_target_alpha) * 0.1
+        self.many_flags.set_color(Color(255, 255, 255, self.many_flags_alpha))
+        if self.flag_count > self.mine_count:
+            self.many_flags_target_alpha = 255
+        else:
+            self.many_flags_target_alpha = 0
+        window.draw(self.many_flags)
+
+        self.flag_druging *= 0.85
+        v = Vector2f(self.flag_druging, 0).rotate_at(random.randint(0, 360))
+
+        self.outlined_flag.set_position(0 + v.x, NATIVE_SCREEN_RESOLUTION[1] - 65 + v.y)
         self.outlined_flag.set_scale(3)
+        
         window.draw(self.outlined_flag)
         
-        self.down_text.set_text(f"{self.flag_count}/{self.mine_count} flags")
+        self.down_text.set_text(f"{self.flag_count} / {self.mine_count} flags")
         self.down_text.set_size(18)
         self.down_text.set_color(COLOR_WHITE)
-        self.down_text.set_position(40, NATIVE_SCREEN_RESOLUTION[1]-60)
+        self.down_text.set_position(40 + v.x, NATIVE_SCREEN_RESOLUTION[1]-60 + v.y)
         window.draw(self.down_text)
+
+        
+        if self.white_rect_draw:
+            window.draw(self.white_rect)
+        
+    def interface_update(self):
+        
+        if round(self.white_rect_outline_width, 1) == self.white_rect_target_outline_width:
+            self.white_rect_draw = False
+
+        self.white_rect_color_alpha += (self.white_rect_target_alpha - self.white_rect_color_alpha) * 0.03
+        self.white_rect.set_color(Color(255, 255, 255, self.white_rect_color_alpha))
+
+        self.white_rect_size[0] += (self.white_rect_target_size[0] - self.white_rect_size[0]) * 0.1
+        self.white_rect_size[1] += (self.white_rect_target_size[1] - self.white_rect_size[1]) * 0.1
+        self.white_rect.set_size(*self.white_rect_size)
+        self.white_rect.set_origin(self.white_rect_size[0]/2, self.white_rect_size[1]/2)
+        self.white_rect.set_position(NATIVE_SCREEN_RESOLUTION[0]/2, NATIVE_SCREEN_RESOLUTION[1]/2)
+        
+        self.white_rect_outline_width += (self.white_rect_target_outline_width - self.white_rect_outline_width) * 0.05
+        self.white_rect.set_outline_thickness(self.white_rect_outline_width)
+
 
 
 GAME = Game()
@@ -638,9 +696,29 @@ GAME.generate_mine_map()
 GAME.generate_game_map()
 GAME.set_cell_without_mine()
 
+game_start_flag = False
+start_text = Text(Font.SystemFont("calibri"))
+start_text.set_text("Press S to start")
+start_text.set_size(200)
+start_text.set_color(COLOR_BLACK)
+start_text.set_typed_origin(OriginTypes.CENTER)
+start_text.set_position(NATIVE_SCREEN_RESOLUTION[0]/2, NATIVE_SCREEN_RESOLUTION[1]/2)
+
 while window.update(window_events):
     window.clear(COLOR_BLACK)
+    
+    if KeyBoardInterface.get_click("s"):
+        game_start_flag = True
     GAME.update()
+
+    
+
+
     GAME.render()
+
+    if game_start_flag:
+        GAME.interface_update()
+    else:
+        window.draw(start_text)
     window.view_info()
     window.display()

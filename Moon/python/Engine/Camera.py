@@ -1155,6 +1155,10 @@ class Camera2D:
         ```
         """
         return self.__current_center 
+    
+    def set_center(self, position: Vector2f):
+        self.__current_center = position
+        self.__view.set_center(*position.as_tuple())
 
     @final
     def update(self, delta: float = 1) -> None:
