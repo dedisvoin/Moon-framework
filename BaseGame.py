@@ -29,6 +29,7 @@ class Cell:
         self.flagged = False
         self.opening_progress = 0.0  # Прогресс анимации открытия (0..1)
         self.start = False
+        self.draging = 0
 
 
 class Game:
@@ -332,6 +333,7 @@ class Game:
         cell = self.map[y][x]
         if cell.open or cell.flagged or self.game_over:
             self.data['no_opened'].auto_play()
+            self.map[y][x].draging = 3
             return
         
         # Добавляем в очередь для анимации
@@ -382,10 +384,14 @@ class Game:
             for cell in row:
                 if cell.this_mine:
                     cell.open = True
-                    cell.opening_progress = 1.0
+                    cell.opening_progress = 1
 
     def update(self):
         self.update_opening_animation()
+        
+        for y in range(len(self.map)):
+            for x in range(len(self.map[y])):
+                self.map[y][x].draging *= 0.8
 
         self.global_particle_system.emit_per_time(self.down_particle, self.down_particle_emmiter, 0.01, 10)
         self.global_particle_system.update(window.get_render_time())
@@ -495,7 +501,8 @@ class Game:
                 self.data['mine_sprite'].set_position(pos_x, pos_y)
                 texture.draw(self.data['mine_sprite'])
             elif cell.mine_count > 0:
-                self.data[str(cell.mine_count)].set_position(pos_x, pos_y)
+                v = Vector2f(cell.draging, 0).rotate_at(random.randint(0, 360))
+                self.data[str(cell.mine_count)].set_position(pos_x + v.x, pos_y + v.y)
                 texture.draw(self.data[str(cell.mine_count)])
         else:
             # Всегда рисуем закрытую клетку
@@ -520,7 +527,8 @@ class Game:
             
             # Если есть флаг, рисуем его поверх закрытой клетки
             if cell.flagged:
-                self.data['flag'].set_position(pos_x, pos_y)
+                v = Vector2f(cell.draging, 0).rotate_at(random.randint(0, 360))
+                self.data['flag'].set_position(pos_x + v.x, pos_y + v.y)
                 texture.draw(self.data['flag'])
             if cell.start:
                 self.start_circle.set_position(pos_x + self.map_cell_size / 2, pos_y + self.map_cell_size / 2)
