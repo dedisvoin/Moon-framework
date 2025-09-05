@@ -9,8 +9,6 @@ window.set_wait_fps(FPS_UNLIMIT_CONST)
 
 events = WindowEvents()
 
-
-
 poly = PolygoneShape([], COLOR_RED)
 
 while window.is_open():

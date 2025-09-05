@@ -401,6 +401,41 @@ class Mouse:
             return False
         except Exception as e:
             raise InputError(f"Failed to get mouse click: {e}")
+        
+    def get_release(self, button: Union[Literal["left", "right", "middle"], MouseButtons]) -> bool:
+        """
+        #### Проверяет, была ли кнопка только что отпущена
+        
+        ---
+        
+        :Arguments:
+            button: Кнопка для проверки
+            
+        ---
+        
+        :Returns:
+            bool: Был ли отпуск
+        
+        ---
+        
+        :Raises:
+            InputError: Ошибка при проверке состояния
+        """
+        try:
+            current_state = self.get_press(button)
+            button_name = button if isinstance(button, str) else button.name.lower()
+
+            # Если кнопка не нажата сейчас, но была нажата в прошлом кадре
+            if not current_state and self._last_click_state[button_name]:
+                self._last_click_state[button_name] = False
+                return True
+            elif current_state:
+                self._last_click_state[button_name] = True
+            return False
+        except Exception as e:
+            raise InputError(f"Failed to get mouse release: {e}")
+
+        
 
     @classmethod
     def get_position_in_window(cls, window: Any) -> Vector2i:

@@ -10,7 +10,7 @@ from Moon.python.Engine.ParticleSystem import *
 import random
 
 
-window = Window(1920, 1080, title="Minesweeper", context_settings=ContextSettings().set_antialiasing_level(8), vsync=True, style=Window.Style.FullScreenDesktop).set_view_info()
+window = Window(1920, 1080, title="Minesweeper", context_settings=ContextSettings().set_antialiasing_level(8), vsync=True).set_view_info()
 window.enable_fpsmonitor_keybinding()
 window.set_fpsmonitor_keybinding('shift+m')
 window.enable_ghosting()
