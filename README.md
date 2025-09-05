@@ -10,7 +10,7 @@ Moon — это современный игровой фреймворк для 
 
 **Автор:** Павлов Иван (Pavlov Ivan)  
 **Лицензия:** MIT  
-**Версия:** 1.0.0
+**Версия:** 1.8.0
 
 ---
 
@@ -128,7 +128,7 @@ from Moon.python.Rendering.Shapes import *
 window = Window()
 events = WindowEvents()
 
-# Создаем красный прямоугольник с поворотом
+# Создаем красный прямоугольник
 rect = RectangleShape(200, 200)\
     .set_origin(100, 100)\
     .set_color(COLOR_RED)\
