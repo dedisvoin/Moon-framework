@@ -763,6 +763,13 @@ DEFAULT_WINDOW_TITLE_COLOR:  Final[Color] = Color(255, 255, 255)
 DEFAULT_WINDOW_ICON_PATH:    Final[str]   = "Moon\data\icons\default_app_icon.png" 
 DEFAULT_WINDOW_ICON_LOCAL_PATH: Final[str] = "./icons/default_app_icon.png"
 
+
+class _CustomWindowButton:
+    def __init__(self, size: TwoNumberList, color: Color) -> None:
+        self.__size = size
+        self.__color = color
+        self.position = [0, 0]
+
 @final
 class Window:
     """
@@ -970,6 +977,7 @@ class Window:
 
         # Флаг который будет реализован в будщем 
         self.__using_custom_window: bool = False
+        
 
         self.__title_color: Color | None = None
         self.__header_color: Color | None = None
@@ -985,6 +993,9 @@ class Window:
             self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
         except:
             self.set_icon_from_path(DEFAULT_WINDOW_ICON_LOCAL_PATH)
+
+    def set_fullscreen_desktop(self) -> Self:
+        ctypes.windll.user32.ShowWindow(self.__window_descriptor, 3)
 
     def set_fps_monitor_opened(self, value: bool) -> Self:
         self.__fps_monitor_opened = value

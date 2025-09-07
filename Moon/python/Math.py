@@ -221,10 +221,12 @@ def rects_collision(x1, y1, w1, h1, x2=None, y2=None, w2=None, h2=None) -> bool:
 # Новые полезные методы
 # ==============================================================
 
-def point_in_rect(point_x: Union[float, VectorType], 
-                 rect_x: Union[float, VectorType], 
-                 rect_w: Union[float, VectorType], 
-                 rect_h: float = None) -> bool:
+def point_in_rect(  point_x: float, 
+                    point_y: float, 
+                    rect_x: float, 
+                    rect_y: float, 
+                    rect_w: float, 
+                    rect_h: float) -> bool:
     """
     #### Проверяет, находится ли точка внутри прямоугольника.
 
@@ -239,14 +241,7 @@ def point_in_rect(point_x: Union[float, VectorType],
     :Returns:
     - bool: True если точка внутри прямоугольника
     """
-    if isinstance(point_x, VectorType):
-        point, rect_pos, rect_size = point_x, rect_x, rect_w
-        return (rect_pos.x <= point.x <= rect_pos.x + rect_size.x and 
-                rect_pos.y <= point.y <= rect_pos.y + rect_size.y)
-    else:
-        return (rect_x <= point_x <= rect_x + rect_w and 
-                rect_w <= rect_h <= rect_w + rect_h)
-
+    return rect_x <= point_x <= rect_x + rect_w and rect_y <= point_y <= rect_y + rect_h
 
 def line_intersection(x1: float, y1: float, x2: float, y2: float,
                      x3: float, y3: float, x4: float, y4: float) -> Union[Tuple[float, float], None]:
