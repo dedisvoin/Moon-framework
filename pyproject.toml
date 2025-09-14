@@ -10,7 +10,7 @@ Moon = ["**/*"]
 
 [project]
 name = "MoonFramework"
-version = "0.1.2"
+version = "0.1.6"
 description = "Moon"
 readme = "README.md"
 authors = [
@@ -20,6 +20,9 @@ license = "MIT AND (Apache-2.0 OR BSD-2-Clause)"
 
 dependencies = [
     "requests>=2.25.0",
+    "colorama",
+    "keyboard", 
+    "typing_extensions", 
+    "tripy"
 ]
 
-[project.urls]

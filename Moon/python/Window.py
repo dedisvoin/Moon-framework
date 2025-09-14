@@ -94,44 +94,13 @@ from Moon.python.Rendering.Shapes import *
 from Moon.python.Rendering.Shaders import Shader
 from Moon.python.Rendering.RenderStates import RenderStates
 
-@final
-class LibraryLoadError(Exception):
-    """Ошибка загрузки нативной библиотеки"""
-    pass
+from Moon.python.utils import find_library, LibraryLoadError, find_module_installation_path
 
-
-def _find_library() -> str:
-    """
-    #### Поиск пути к нативной библиотеке Moon.dll
-
-    ---
-
-    :Returns:
-        str: Абсолютный путь к библиотеке
-
-    ---
-
-    :Raises:
-        LibraryLoadError: Если библиотека не найдена
-    """
-    try:
-        # Поиск в папке dlls относительно корня пакета
-
-        lib_path = DLL_FOUND_PATH
-        if not os.path.exists(lib_path):
-            print("Library not found at", lib_path)
-            lib_path = DLL_LOCAL_FOUND_PATH
-            if not os.path.exists(lib_path):
-                print("Library not found at", lib_path)
-                raise FileNotFoundError(f"Library not found at {lib_path}")
-
-        return lib_path
-    except Exception as e:
-        raise LibraryLoadError(f"Library search failed: {e}")
 
 # Загружаем DLL библиотеку
+
 try:
-    LIB_MOON: Final[ctypes.CDLL] = ctypes.CDLL(_find_library())
+    LIB_MOON: Final[ctypes.CDLL] = ctypes.CDLL(find_library())
 except Exception as e:
     raise ImportError(f"Failed to load Moon library: {e}")
 
@@ -760,7 +729,7 @@ DEFAULT_WINDOW_BORDER_COLOR: Final[Color] = Color(98, 134, 248).lighten(0.2)  # 
 DEFAULT_WINDOW_TITLE_COLOR:  Final[Color] = Color(255, 255, 255)
 
 # Путь к стандартной иконке приложения, используемой если не задана пользовательская
-DEFAULT_WINDOW_ICON_PATH:    Final[str]   = "Moon\data\icons\default_app_icon.png"
+DEFAULT_WINDOW_ICON_PATH:    Final[str]   = "Moon/data/icons/default_app_icon.png"
 DEFAULT_WINDOW_ICON_LOCAL_PATH: Final[str] = "./icons/default_app_icon.png"
 
 
@@ -986,7 +955,14 @@ class Window:
         try:
             self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
         except:
-            self.set_icon_from_path(DEFAULT_WINDOW_ICON_LOCAL_PATH)
+            try:
+                self.set_icon_from_path(DEFAULT_WINDOW_ICON_LOCAL_PATH)
+            except:
+                try:
+                    path = find_module_installation_path('Moon') + "/data/icons/default_app_icon.png"
+                    self.set_icon_from_path(path)
+                except:
+                    raise "App Icon path not found"
 
     def set_fullscreen_desktop(self) -> Self:
         ctypes.windll.user32.ShowWindow(self.__window_descriptor, 3)

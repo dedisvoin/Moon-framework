@@ -28,9 +28,9 @@ p.min_velocity_rotation_speed = 0
 
 p2 = CPU_Particle(color=Color(155*0.5, 250*0.5, 150*0.5, 255), size=100, shape=ParticleShapes.LightCircle)
 p2.spreading_angle = 100
-p2.max_speed = 160
+p2.max_speed = 16
 p2.min_speed = 10
-p2.resize = -10
+p2.resize = -3
 p2.angular_distribution_area = 100
 p2.resistance = 2
 p2.max_size = 40
