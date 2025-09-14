@@ -1,3 +1,4 @@
+from typing_extensions import Sequence
 from Moon.python.Colors import Color
 from enum import Enum, auto
 from typing import NoReturn, Optional, Callable, TypeAlias, Union, overload, Self, Literal, Final, Generic
@@ -16,7 +17,7 @@ type OptionalNumber = Optional[Number]    #
 # ======================================= +
 
 # Тип обозначающий список из двух чисел (int или float) ==== +
-type TwoNumberList = list[Number] | tuple[Number, Number]    #
+type TwoNumberList = Sequence[Number] | tuple[Number, Number]    #
 # ========================================================== +
 
 # Тип обозначающий список из двух целых чисел ====== +
@@ -69,4 +70,3 @@ class OriginTypes(Enum):
     TOP_RIGHT =         auto()
     DOWN_LEFT =         auto()
     DOWN_RIGHT =        auto()
-

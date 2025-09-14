@@ -74,51 +74,16 @@ import ctypes
 from contextlib import contextmanager
 from typing import Self, Optional, Final, final
 
-# ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
-from Moon import DLL_FOUND_PATH               #
-from Moon import DLL_LOCAL_FOUND_PATH         #
-# =========================================== +
-
-@final
-class LibraryLoadError(Exception):
-    """Ошибка загрузки нативной библиотеки"""
-    pass
+from Moon.python.utils import find_library, LibraryLoadError
 
 @final
 class ViewError(Exception):
     """Ошибка работы с View"""
     pass
 
-@final
-def _find_library() -> str:
-    """
-    #### Поиск пути к нативной библиотеке Moon.dll
-    
-    ---
-    
-    :Returns:
-        str: Абсолютный путь к библиотеке
-        
-    ---
-    
-    :Raises:
-        LibraryLoadError: Если библиотека не найдена
-    """
-    search_paths = [
-        DLL_FOUND_PATH,
-        DLL_LOCAL_FOUND_PATH,
-        os.path.join(os.path.dirname(__file__), "..", "dlls", "Moon.dll")
-    ]
-    
-    for lib_path in search_paths:
-        if os.path.exists(lib_path):
-            return os.path.abspath(lib_path)
-    
-    raise LibraryLoadError(f"Moon library not found in paths: {search_paths}")
-
 # Загружаем DLL библиотеку
 try:
-    LIB_MOON: Final[ctypes.CDLL] = ctypes.CDLL(_find_library())
+    LIB_MOON: Final[ctypes.CDLL] = ctypes.CDLL(find_library())
 except Exception as e:
     raise ImportError(f"Failed to load Moon library: {e}")
 

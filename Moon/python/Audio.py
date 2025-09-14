@@ -75,48 +75,11 @@ from typing import final
 
 from Moon.python.Types import *
 
-# ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
-from Moon import DLL_FOUND_PATH               #
-from Moon import DLL_LOCAL_FOUND_PATH         #
-# =========================================== +
-
-class LibraryLoadError(Exception):
-    """Ошибка загрузки нативной библиотеки"""
-    pass
-
-@final
-def _find_library() -> str:
-    """
-    #### Поиск пути к нативной библиотеке BUILD.dll
-    
-    ---
-    
-    :Returns:
-        str: Абсолютный путь к библиотеке
-        
-    ---
-    
-    :Raises:
-        LibraryLoadError: Если библиотека не найдена
-    """
-    try:
-        # Поиск в папке dlls относительно корня пакета
-        
-        lib_path = DLL_FOUND_PATH
-        if not os.path.exists(lib_path):
-            print("Library not found at", lib_path)
-            lib_path = DLL_LOCAL_FOUND_PATH
-            if not os.path.exists(lib_path):
-                print("Library not found at", lib_path)
-                raise FileNotFoundError(f"Library not found at {lib_path}")
-        
-        return lib_path
-    except Exception as e:
-        raise LibraryLoadError(f"Library search failed: {e}")
+from Moon.python.utils import find_library, LibraryLoadError
 
 # Загружаем DLL библиотеку
 try:
-    LIB_MOON = ctypes.CDLL(_find_library())
+    LIB_MOON = ctypes.CDLL(find_library())
 except Exception as e:
     raise ImportError(f"Failed to load Moon library: {e}")
 

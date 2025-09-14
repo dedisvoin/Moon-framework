@@ -78,8 +78,7 @@ import os
 from Moon.python.Vectors import Vector2f, Vector2i
 from Moon.python.Colors import Color
 
-from Moon import DLL_FOUND_PATH
-from Moon import DLL_LOCAL_FOUND_PATH
+from Moon.python.utils import find_library, LibraryLoadError
 
 ##################################################################
 #                   `C / C++` Bindings                           #
@@ -87,44 +86,9 @@ from Moon import DLL_LOCAL_FOUND_PATH
 #   из нативной DLL библиотеки PySGL, используемых через ctypes. #
 ##################################################################
 
-# Загрузка нативной библиотеки
-class LibraryLoadError(Exception):
-    """Ошибка загрузки нативной библиотеки"""
-    pass
-
-
-def _find_library() -> str:
-    """
-    #### Поиск пути к нативной библиотеке BUILD.dll
-    
-    ---
-    
-    :Returns:
-        str: Абсолютный путь к библиотеке
-        
-    ---
-    
-    :Raises:
-        LibraryLoadError: Если библиотека не найдена
-    """
-    try:
-        # Поиск в папке dlls относительно корня пакета
-        
-        lib_path = DLL_FOUND_PATH
-        if not os.path.exists(lib_path):
-            print("PySGL.Shaders: Library not found at", lib_path)
-            lib_path = DLL_LOCAL_FOUND_PATH
-            if not os.path.exists(lib_path):
-                print("Library not found at", lib_path)
-                raise FileNotFoundError(f"Library not found at {lib_path}")
-        
-        return lib_path
-    except Exception as e:
-        raise LibraryLoadError(f"Library search failed: {e}")
-
 # Загружаем DLL библиотеку
 try:
-    LIB_MOON = ctypes.CDLL(_find_library())
+    LIB_MOON = ctypes.CDLL(find_library())
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 

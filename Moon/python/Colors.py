@@ -8,7 +8,7 @@
 *Автор: Павлов Иван (Pavlov Ivan)*
 
 *Лицензия: MIT*
-##### Реализованно на 100% 
+##### Реализованно на 100%
 
 ---
 
@@ -59,22 +59,22 @@
 [MIT License]
 Copyright (c) 2025 Pavlov Ivan
 
-Данная лицензия разрешает лицам, получившим копию данного программного обеспечения 
-и сопутствующей документации (в дальнейшем именуемыми «Программное Обеспечение»), 
-безвозмездно использовать Программное Обеспечение без ограничений, включая неограниченное 
-право на использование, копирование, изменение, слияние, публикацию, распространение, 
-сублицензирование и/или продажу копий Программного Обеспечения, а также лицам, которым 
+Данная лицензия разрешает лицам, получившим копию данного программного обеспечения
+и сопутствующей документации (в дальнейшем именуемыми «Программное Обеспечение»),
+безвозмездно использовать Программное Обеспечение без ограничений, включая неограниченное
+право на использование, копирование, изменение, слияние, публикацию, распространение,
+сублицензирование и/или продажу копий Программного Обеспечения, а также лицам, которым
 предоставляется данное Программное Обеспечение, при соблюдении следующих условий:
 
 [ Уведомление об авторском праве и данные условия должны быть включены во все копии ]
 [                 или значительные части Программного Обеспечения.                  ]
 
-ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО 
-ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ 
-ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ ПРАВ. 
-НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО ИСКАМ О 
-ВОЗМЕЩЕНИИ УЩЕРБА, УБЫТКОВ ИЛИ ДРУГИХ ТРЕБОВАНИЙ ПО ДЕЙСТВУЮЩЕМУ ПРАВУ ИЛИ ИНОМУ, 
-ВОЗНИКШИМ ИЗ, ИМЕЮЩИМ ПРИЧИНОЙ ИЛИ СВЯЗАННЫМ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ 
+ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО
+ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ
+ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ ПРАВ.
+НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО ИСКАМ О
+ВОЗМЕЩЕНИИ УЩЕРБА, УБЫТКОВ ИЛИ ДРУГИХ ТРЕБОВАНИЙ ПО ДЕЙСТВУЮЩЕМУ ПРАВУ ИЛИ ИНОМУ,
+ВОЗНИКШИМ ИЗ, ИМЕЮЩИМ ПРИЧИНОЙ ИЛИ СВЯЗАННЫМ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
@@ -114,7 +114,7 @@ class Color:
 
         ---
 
-        :Return: 
+        :Return:
         - Color(r, g, b, 255) - Случайный цвет
 
         ---
@@ -155,11 +155,11 @@ class Color:
             random.randint(0, 255),
             random.randint(0, 255)
         )
-    
+
     def __init__(self, r: int, g: int, b: int, a: int = 255):
         """
         #### Инициализирует цвет в формате RGBA
-        
+
         ---
 
         :Args:
@@ -169,7 +169,7 @@ class Color:
         - a - Альфа-канал (0-255, по умолчанию 255)
 
         ---
-        
+
         :Raises:
         - ValueError: Если компоненты выходят за допустимый диапазон
 
@@ -219,11 +219,11 @@ class Color:
         """
         if not 0 <= factor <= 1:
             raise ValueError("Factor must be between 0 and 1")
-        
+
         r = int(self.r + (255 - self.r) * factor)
         g = int(self.g + (255 - self.g) * factor)
         b = int(self.b + (255 - self.b) * factor)
-        
+
         return Color(r, g, b, self.a)
 
     def darken(self, factor: float) -> "Color":
@@ -255,12 +255,12 @@ class Color:
         """
         if not 0 <= factor <= 1:
             raise ValueError("Factor must be between 0 and 1")
-        
+
         r = int(self.r * (1 - factor))
         g = int(self.g * (1 - factor))
         b = int(self.b * (1 - factor))
         return Color(r, g, b, self.a)
-    
+
     def lighten_hsv(self, factor: float) -> "Color":
         """
         #### Осветляет цвет через увеличение Value в HSV
@@ -290,11 +290,11 @@ class Color:
         """
         if not 0 <= factor <= 1:
             raise ValueError("Factor must be between 0 and 1")
-        
+
         h, s, v = colorsys.rgb_to_hsv(self.r/255, self.g/255, self.b/255)
         new_v = min(1.0, v + (1 - v) * factor)
         r, g, b = colorsys.hsv_to_rgb(h, s, new_v)
-        
+
         return Color(int(r*255), int(g*255), int(b*255), self.a)
 
     def darken_hsv(self, factor: float) -> "Color":
@@ -326,11 +326,11 @@ class Color:
         """
         if not 0 <= factor <= 1:
             raise ValueError("Factor must be between 0 and 1")
-        
+
         h, s, v = colorsys.rgb_to_hsv(self.r/255, self.g/255, self.b/255)
         new_v = max(0.0, v * (1 - factor))
         r, g, b = colorsys.hsv_to_rgb(h, s, new_v)
-        
+
         return Color(int(r*255), int(g*255), int(b*255), self.a)
 
     def invert(self) -> "Color":
@@ -351,7 +351,7 @@ class Color:
         ```
         """
         return Color(255 - self.r, 255 - self.g, 255 - self.b, self.a)
-    
+
     def invert_this(self) -> "Color":
         """
         #### Инвертирует компоненты данного цвета
@@ -404,7 +404,7 @@ class Color:
             raise ValueError("Alpha must be between 0 and 255")
         self.a = int(a)
         return self
-    
+
     def set_alpha_float(self, a: float) -> "Color":
         """
         #### Устанавливает альфа-канал в диапазоне 0.0-1.0
@@ -435,7 +435,7 @@ class Color:
             raise ValueError("Alpha must be between 0.0 and 1.0")
         self.a = int(255 * a)
         return self
-    
+
     def __mul__(self, number: float | int) -> "Color":
         """
         #### Умножает цвет на коэффициент (перегрузка оператора *)
@@ -470,7 +470,7 @@ class Color:
             g = (255 - self.g) * number
             b = (255 - self.b) * number
             return Color(int(round(r)), int(round(g)), int(round(b)), self.a)
-    
+
     def mul(self, number: float | int) -> "Color":
         """
         #### Умножает цвет на заданное число
@@ -520,7 +520,7 @@ class Color:
         ```
         """
         return (self.r, self.g, self.b)
-    
+
     @property
     def rgba(self) -> RGBAColorAsArrayType:
         """
@@ -540,7 +540,7 @@ class Color:
         ```
         """
         return (self.r, self.g, self.b, self.a)
-    
+
     @property
     def hex(self) -> str:
         """
@@ -560,7 +560,7 @@ class Color:
         ```
         """
         return "#{:02x}{:02x}{:02x}".format(self.r, self.g, self.b)
-    
+
     def __str__(self) -> str:
         """
         #### Строковое представление цвета
@@ -571,7 +571,7 @@ class Color:
         - str - Строка в формате "Color: (r, g, b, a)"
         """
         return f"Color: {self.rgba}"
-    
+
     def __repr__(self) -> str:
         """
         #### Официальное строковое представление объекта
@@ -582,17 +582,16 @@ class Color:
         - str - Строка, которую можно использовать для eval()
         """
         return self.__str__()
-    
+
 # Тип для хранения массива цветов ===================== +
 type ColorArrayType = list[Color] | tuple[Color, ...]
 # ===================================================== +
 
 # Функция реализует инструмент Coolors, будет возвращать набор связанных цветов по различным схемам.
 # Очень мощный инструмент!
-@final
 def generate_palette(
     color: Color,
-    scheme: Literal["analogous", "monochromatic", "complementary", "split_complementary", 
+    scheme: Literal["analogous", "monochromatic", "complementary", "split_complementary",
                    "triadic", "tetradic", "square"] = "complementary",
     num_colors: int = 5,
     saturation_range: tuple[float, float] = (0.7, 1.0),
@@ -634,25 +633,25 @@ def generate_palette(
     # Генерация триадной палитры из синего цвета
     blue = Color(0, 0, 255)
     palette = generate_palette(blue, scheme='triadic', num_colors=3)
-    
+
     # Генерация монохроматической палитры с 5 оттенками
     red_palette = generate_palette(Color(255, 0, 0), 'monochromatic', 5)
     ```
     """
     if num_colors < 2:
         raise ValueError("Number of colors must be at least 2")
-    
+
     if not (0 <= saturation_range[0] <= 1 and 0 <= saturation_range[1] <= 1):
         raise ValueError("Saturation range must be between 0 and 1")
-    
+
     if not (0 <= brightness_range[0] <= 1 and 0 <= brightness_range[1] <= 1):
         raise ValueError("Brightness range must be between 0 and 1")
 
     # Конвертация базового цвета в HSV
     h, s, v = colorsys.rgb_to_hsv(color.r/255, color.g/255, color.b/255)
-    
+
     colors = []
-    
+
     if scheme == "monochromatic":
         # Генерация вариаций насыщенности и яркости
         for i in range(num_colors):
@@ -660,7 +659,7 @@ def generate_palette(
             new_v = brightness_range[0] + (brightness_range[1]-brightness_range[0]) * (i/(num_colors-1))
             r, g, b = colorsys.hsv_to_rgb(h, new_s, new_v)
             colors.append(Color(int(r*255), int(g*255), int(b*255)))
-    
+
     elif scheme == "analogous":
         # Соседние цвета (±30° в цветовом круге)
         angles = [-30, -15, 0, 15, 30][:num_colors]
@@ -668,31 +667,31 @@ def generate_palette(
             new_h = (h + angle/360) % 1.0
             r, g, b = colorsys.hsv_to_rgb(new_h, s, v)
             colors.append(Color(int(r*255), int(g*255), int(b*255)))
-    
+
     elif scheme == "complementary":
         # Основной цвет + комплементарный (противоположный)
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
         colors.append(Color(int(r*255), int(g*255), int(b*255)))
         r, g, b = colorsys.hsv_to_rgb((h+0.5)%1.0, s, v)
         colors.append(Color(int(r*255), int(g*255), int(b*255)))
-    
+
     elif scheme == "split_complementary":
         # Основной цвет + два соседних к комплементарному
         base_r, base_g, base_b = colorsys.hsv_to_rgb(h, s, v)
         colors.append(Color(int(base_r*255), int(base_g*255), int(base_b*255)))
-        
+
         for angle in [150, 210]:  # ±30° от комплементарного
             new_h = (h + angle/360) % 1.0
             r, g, b = colorsys.hsv_to_rgb(new_h, s, v)
             colors.append(Color(int(r*255), int(g*255), int(b*255)))
-    
+
     elif scheme == "triadic":
         # Три равноудаленных цвета (через 120°)
         for i in range(3):
             new_h = (h + i/3) % 1.0
             r, g, b = colorsys.hsv_to_rgb(new_h, s, v)
             colors.append(Color(int(r*255), int(g*255), int(b*255)))
-    
+
     elif scheme == "tetradic":
         # Две комплементарные пары (4 цвета)
         angles = [0, 0.25, 0.5, 0.75][:num_colors]
@@ -700,14 +699,14 @@ def generate_palette(
             new_h = (h + angle) % 1.0
             r, g, b = colorsys.hsv_to_rgb(new_h, s, v)
             colors.append(Color(int(r*255), int(g*255), int(b*255)))
-    
+
     elif scheme == "square":
         # Четыре цвета через 90°
         for i in range(4):
             new_h = (h + i*0.25) % 1.0
             r, g, b = colorsys.hsv_to_rgb(new_h, s, v)
             colors.append(Color(int(r*255), int(g*255), int(b*255)))
-    
+
     # Добавление случайных вариаций насыщенности и яркости
     if scheme != "monochromatic":
         for i in range(len(colors)):
@@ -716,7 +715,7 @@ def generate_palette(
             new_v = max(0, min(1, v2 * random.uniform(*brightness_range)))
             r, g, b = colorsys.hsv_to_rgb(h2, new_s, new_v)
             colors[i] = Color(int(r*255), int(g*255), int(b*255))
-    
+
     return colors[:num_colors]
 
 
@@ -817,8 +816,7 @@ COLOR_VIOLET_RED: Final[Color] = Color(208, 32, 144)
 # Специальный цвет для прозрачности
 COLOR_TRANSPARENT: Final[Color] = Color(0, 0, 0, 0)
 # /////////////////////////////////////////////////////
-    
-@final
+
 def mix(color_1: Color, color_2: Color, amount: float | int) -> Color:
     """
     #### Смешивает два цвета в заданной пропорции
@@ -851,13 +849,13 @@ def mix(color_1: Color, color_2: Color, amount: float | int) -> Color:
     """
     if not 0 <= amount <= 1:
         raise ValueError("Amount must be between 0 and 1")
-    
+
     r = int(color_1.r * (1 - amount) + color_2.r * amount)
     g = int(color_1.g * (1 - amount) + color_2.g * amount)
     b = int(color_1.b * (1 - amount) + color_2.b * amount)
     return Color(r, g, b)
 
-@final
+
 def middle(color_1: Color, color_2: Color) -> Color:
     """
     #### Находит средний цвет между двумя цветами
@@ -955,7 +953,7 @@ class BaseColorGradient:
         ```
         """
         return self.__color_1
-    
+
     def get_color_2(self) -> Color:
         """
         #### Возвращает конечный цвет градиента
@@ -973,7 +971,7 @@ class BaseColorGradient:
         ```
         """
         return self.__color_2
-    
+
     def set_color_1(self, color: Color) -> "BaseColorGradient":
         """
         #### Устанавливает начальный цвет градиента
@@ -997,7 +995,7 @@ class BaseColorGradient:
         """
         self.__color_1 = color
         return self
-    
+
     def set_color_2(self, color: Color) -> "BaseColorGradient":
         """
         #### Устанавливает конечный цвет градиента
@@ -1021,11 +1019,11 @@ class BaseColorGradient:
         """
         self.__color_2 = color
         return self
-    
+
 # Тип для представления массива градиентов из двух цветов ========================== +
 type BaseGradientsArrayType = list[BaseColorGradient] | tuple[BaseColorGradient, ...]
 # ================================================================================== +
-    
+
 @final
 class ColorGradient:
     __slots__ = ('__colors', '__gradients')
@@ -1053,8 +1051,8 @@ class ColorGradient:
         """
         if len(colors) < 2:
             raise ValueError("At least 2 colors are required to create a gradient")
-            
-        self.__colors = colors
+
+        self.__colors = list(colors)
         self.__gradients = []
         for i in range(len(colors) - 1):
             self.__gradients.append(BaseColorGradient(colors[i], colors[i + 1]))
@@ -1076,7 +1074,7 @@ class ColorGradient:
         ```
         """
         return self.__colors
-    
+
     def get_gradients(self) -> BaseGradientsArrayType:
         """
         #### Возвращает список базовых градиентов между цветами
@@ -1121,7 +1119,7 @@ class ColorGradient:
             return self.__colors[0]
         elif amount >= 1:
             return self.__colors[-1]
-        
+
         index = int(amount * len(self.__gradients))
         relative_pos = amount * len(self.__gradients) - index
         return self.__gradients[index].get(relative_pos)
@@ -1143,7 +1141,7 @@ class ColorGradient:
         ```
         """
         return [color.rgba for color in self.__colors]
-    
+
     def to_list_rgb(self) -> RGBColorsArrayType:
         """
         #### Возвращает цвета в формате RGB
@@ -1161,7 +1159,7 @@ class ColorGradient:
         ```
         """
         return [color.rgb for color in self.__colors]
-    
+
     def reverse(self) -> Self:
         """
         #### Обращает порядок цветов в градиенте
@@ -1180,12 +1178,12 @@ class ColorGradient:
         """
         self.__colors.reverse()
         self.__gradients = []
-    
+
         for i in range(len(self.__colors) - 1):
             self.__gradients.append(BaseColorGradient(self.__colors[i], self.__colors[i + 1]))
 
         return self
-    
+
     def add_color(self, color: Color) -> Self:
         """
         #### Добавляет цвет в конец градиента
@@ -1210,7 +1208,7 @@ class ColorGradient:
         self.__colors.append(color)
         self.__rebuild_gradients()
         return self
-    
+
     def insert_color(self, index: int, color: Color) -> Self:
         """
         #### Вставляет цвет в указанную позицию градиента
@@ -1241,7 +1239,7 @@ class ColorGradient:
         self.__colors.insert(index, color)
         self.__rebuild_gradients()
         return self
-    
+
     def remove_color(self, index: int) -> Self:
         """
         #### Удаляет цвет из градиента по индексу
@@ -1271,7 +1269,7 @@ class ColorGradient:
         """
         if len(self.__colors) <= 2:
             raise ValueError("Gradient must contain at least 2 colors")
-            
+
         self.__colors.pop(index)
         self.__rebuild_gradients()
         return self
@@ -1321,7 +1319,7 @@ class ColorGradientEx:
         return cls.from_colors(colors)
 
     @classmethod
-    def from_integers(cls, colors: list[int], lengths: list[int | float]) -> "ColorGradientEx":
+    def from_integers(cls, colors: list[Color], lengths: list[int | float]) -> "ColorGradientEx":
         """
         #### Создает градиент из цветов с длинами участков, заданных в виде целых чисел
 
@@ -1353,11 +1351,11 @@ class ColorGradientEx:
         """
         if len(colors) != len(lengths) + 1:
             raise ValueError("Lengths count must be exactly one less than colors count")
-        
+
         total_length = sum(lengths)
         normalized_lengths = [l/total_length for l in lengths]
         return cls(colors, normalized_lengths)
-    
+
     @classmethod
     def from_colors(cls, colors: list[Color]) -> "ColorGradientEx":
         """
@@ -1382,7 +1380,7 @@ class ColorGradientEx:
         """
         if len(colors) < 2:
             raise ValueError("At least 2 colors are required")
-            
+
         lengths = [1.0 / (len(colors) - 1) for _ in range(len(colors) - 1)]
         return cls(colors, lengths)
 
@@ -1455,7 +1453,7 @@ class ColorGradientEx:
         ```
         """
         return self.__colors.copy()
-    
+
     def get_gradients(self) -> BaseGradientsArrayType:
         """
         #### Возвращает базовые градиенты между цветами
@@ -1504,7 +1502,7 @@ class ColorGradientEx:
             if start <= amount <= end:
                 relative = (amount - start) / (end - start)
                 return gradient.get(relative)
-        
+
         return self.__colors[-1]
 
     def to_list_rgba(self) -> RGBAColorsArrayType:
@@ -1524,7 +1522,7 @@ class ColorGradientEx:
         ```
         """
         return [color.rgba for color in self.__colors]
-    
+
     def to_list_rgb(self) -> RGBColorsArrayType:
         """
         #### Возвращает цвета в формате RGB
@@ -1542,7 +1540,7 @@ class ColorGradientEx:
         ```
         """
         return [color.rgb for color in self.__colors]
-    
+
     def reverse(self) -> Self:
         """
         #### Обращает порядок цветов и длин участков
@@ -1563,7 +1561,7 @@ class ColorGradientEx:
         self.__lengths.reverse()
         self.__rebuild_gradients()
         return self
-    
+
     def add_color(self, color: Color, length: float) -> Self:
         """
         #### Добавляет цвет в конец градиента
@@ -1596,12 +1594,12 @@ class ColorGradientEx:
             raise ValueError("Length must be between 0 and 1")
         if sum(self.__lengths) + length > 1:
             raise ValueError("Total length would exceed 1.0")
-        
+
         self.__colors.append(color)
         self.__lengths.append(length)
         self.__rebuild_gradients()
         return self
-    
+
     def insert_color(self, index: int, color: Color, length: float) -> Self:
         """
         #### Вставляет цвет в указанную позицию
@@ -1635,12 +1633,12 @@ class ColorGradientEx:
             raise ValueError("Length must be between 0 and 1")
         if sum(self.__lengths) + length > 1:
             raise ValueError("Total length would exceed 1.0")
-        
+
         self.__colors.insert(index, color)
         self.__lengths.insert(index, length)
         self.__rebuild_gradients()
         return self
-    
+
     def remove_color(self, index: int) -> Self:
         """
         #### Удаляет цвет по указанному индексу
@@ -1672,13 +1670,13 @@ class ColorGradientEx:
             raise ValueError("Cannot remove color - gradient must have at least 2 colors")
         if index >= len(self.__colors):
             raise IndexError("Index out of range")
-        
+
         self.__colors.pop(index)
         length_index = index if index < len(self.__lengths) else len(self.__lengths) - 1
         self.__lengths.pop(length_index)
         self.__rebuild_gradients()
         return self
-    
+
     def get_lengths(self) -> list[float]:
         """
         #### Возвращает длины участков градиента

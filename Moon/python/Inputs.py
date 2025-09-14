@@ -79,20 +79,12 @@ from typing import Any, Callable, Literal, Final, final, Optional, Union, Set, D
 from .Types import Self
 from .Vectors import Vector2i  # Векторные операции для позиций
 
-# ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
-from Moon import DLL_FOUND_PATH               #
-from Moon import DLL_LOCAL_FOUND_PATH         #
-# =========================================== +
-
 from functools import lru_cache
+from Moon.python.utils import find_library, LibraryLoadError
 
 # ==================== КЛАССЫ ОШИБОК ====================
 class InputError(Exception):
     """Базовый класс для всех ошибок модуля ввода"""
-    pass
-
-class LibraryLoadError(InputError):
-    """Ошибка загрузки нативной библиотеки"""
     pass
 
 class InvalidInputError(InputError):
@@ -100,38 +92,9 @@ class InvalidInputError(InputError):
     pass
 
 # ==================== НАТИВНЫЕ ФУНКЦИИ ====================
-def _find_library() -> str:
-    """
-    #### Поиск пути к нативной библиотеке Moon.dll
-    
-    ---
-    
-    :Returns:
-        str: Абсолютный путь к библиотеке
-        
-    ---
-    
-    :Raises:
-        LibraryLoadError: Если библиотека не найдена
-    """
-    try:
-        # Поиск в папке dlls относительно корня пакета
-        
-        lib_path = DLL_FOUND_PATH
-        if not os.path.exists(lib_path):
-            print("Library not found at", lib_path)
-            lib_path = DLL_LOCAL_FOUND_PATH
-            if not os.path.exists(lib_path):
-                print("Library not found at", lib_path)
-                raise FileNotFoundError(f"Library not found at {lib_path}")
-        
-        return lib_path
-    except Exception as e:
-        raise LibraryLoadError(f"Library search failed: {e}")
-
 # Загрузка библиотеки
 try:
-    _lib = ctypes.CDLL(_find_library())
+    _lib = ctypes.CDLL(find_library())
 except Exception as e:
     raise LibraryLoadError(f"Failed to load Moon library: {e}")
 
