@@ -14,7 +14,7 @@ __pycache__/
 
 .vscode/
 
-.game_data/
+
 .venv/
 .zed/
 build/
