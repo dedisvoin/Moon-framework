@@ -88,11 +88,6 @@ from Moon.python.utils import find_library, LibraryLoadError
 
 
 
-
-
-
-
-
 # ==================== КЛАССЫ ОШИБОК ====================
 class InputError(Exception):
     """Базовый класс для всех ошибок модуля ввода"""
@@ -137,10 +132,14 @@ class KeyboardLayout:
     def __str__(self) -> str:
         return f"Layout: {self.__name} ({self.__value})"
 
-    def __eq__(self, value: "KeyboardLayout"):
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, KeyboardLayout):
+            return NotImplemented
         return self.__value == value.get_value()
 
-    def __ne__(self, value: "KeyboardLayout"):
+    def __ne__(self, value: object) -> bool:
+        if not isinstance(value, KeyboardLayout):
+            return NotImplemented
         return self.__value != value.get_value()
 
     def __hash__(self) -> int:
@@ -157,7 +156,7 @@ def convert_ru_with_qwerty_layout(key: str) -> str:
 
 
 
-@final
+
 def get_keyboard_layout() -> KeyboardLayout:
     """
     #### Определяет текущую раскладку клавиатуры активного окна.
@@ -189,7 +188,7 @@ def get_keyboard_layout() -> KeyboardLayout:
     else:
         return LAYOUT_UNKNOWN
 
-@final
+
 def is_key_pressed(key: Union[int, str]) -> bool:
     """
     #### Проверяет нажатие клавиши через нативную библиотеку
@@ -226,7 +225,7 @@ def is_key_pressed(key: Union[int, str]) -> bool:
     except Exception as e:
         raise InputError(f"Key press check failed: {e}")
 
-@final
+
 def is_mouse_button_pressed(button: int) -> bool:
     """
     #### Проверяет нажатие кнопки мыши
@@ -257,7 +256,7 @@ def is_mouse_button_pressed(button: int) -> bool:
     except Exception as e:
         raise InputError(f"Mouse button check failed: {e}")
 
-@final
+
 def get_mouse_position() -> Vector2i:
     """
     #### Получает текущую позицию курсора на экране
@@ -279,7 +278,7 @@ def get_mouse_position() -> Vector2i:
     except Exception as e:
         raise InputError(f"Failed to get mouse position: {e}")
 
-@final
+
 def get_mouse_position_in_window(window: Any) -> Vector2i:
     """
     #### Получает позицию курсора относительно окна
@@ -327,7 +326,7 @@ class MouseButtons(Enum):
     RIGHT = 1   # Правая кнопка
     MIDDLE = 2  # Средняя кнопка (колесо)
 
-@final
+
 def convert_mouse_button(button: Union[Literal["left", "right", "middle"], MouseButtons]) -> int:
     """
     #### Конвертирует кнопку мыши в числовой код
@@ -350,10 +349,10 @@ def convert_mouse_button(button: Union[Literal["left", "right", "middle"], Mouse
     if isinstance(button, MouseButtons):
         return button.value
     elif isinstance(button, str):
-        button = button.lower()
-        if button == "left": return 0
-        elif button == "right": return 1
-        elif button == "middle": return 2
+        button_str = button.lower()
+        if button_str == "left": return 0
+        elif button_str == "right": return 1
+        elif button_str == "middle": return 2
 
     raise InvalidInputError(
         f"Invalid mouse button: {button}. Expected 'left', 'right', 'middle' or MouseButtons enum"
@@ -1075,6 +1074,7 @@ class InputEventsManager:
                 listener_obj = listener["listener"]
                 event_type = listener["type"]
                 listener_id = listener["id"]
+                value = False  # Initialize value to avoid "possibly unbound" error
 
                 # Обработка событий мыши
                 if isinstance(listener_obj, Mouse):

@@ -87,6 +87,7 @@ from Moon.python.Inputs import MouseInterface, KeyBoardInterface
 from Moon.python.Rendering.Text import *
 from Moon.python.Rendering.Shapes import *
 from Moon.python.Rendering.Shaders import Shader
+from Moon.python.Rendering.Drawable import Drawable
 from Moon.python.Rendering.RenderStates import RenderStates
 
 from Moon.python.utils import find_library, LibraryLoadError, find_module_installation_path
@@ -781,9 +782,9 @@ class Window:
 
 
     def __init__(self, width: int = 800, height: int = 600,
-                 title: str = "Moon Window", style: int = Style.Default,
-                 vsync: bool = False, alpha: float = 255,
-                 context_settings: ContextSettings | None = None):
+                    title: str = "Moon Window", style: int = Style.Default,
+                    vsync: bool = False, alpha: int = 255,
+                    context_settings: ContextSettings | None = None):
         """
         #### Инициализация нового окна приложения
 
@@ -795,7 +796,7 @@ class Window:
         - title (str): Заголовок окна (по умолчанию "Moon Window")
         - style (int): Комбинация стилей из Window.Style (по умолчанию Style.Default)
         - vsync (bool): Включение вертикальной синхронизации (по умолчанию False)
-        - alpha (float): Уровень прозрачности окна (0-255, по умолчанию 255 - непрозрачное)
+        - alpha (int): Уровень прозрачности окна (0-255, по умолчанию 255 - непрозрачное)
         - context_settings (ContextSettings | None): Настройки OpenGL контекста (по умолчанию None - стандартные настройки)
 
         ---
@@ -828,6 +829,7 @@ class Window:
             style = Window.Style.No # Переключаем на режим без ничего
 
         # Используем переданные настройки или создаем новые по умолчанию
+        temp_context_settings = None
         if context_settings is None:
             temp_context_settings = LIB_MOON._WindowContextSettings_Create()
             context_ptr = temp_context_settings
@@ -840,17 +842,17 @@ class Window:
         self.__window_ptr: WindowPtr = LIB_MOON._Window_Create(width, height, title.encode('utf-8'), style, context_ptr)
 
         # Освобождаем временные настройки контекста (только если мы их создали)
-        if should_delete_context:
+        if should_delete_context and temp_context_settings is not None:
             LIB_MOON._WindowContextSettings_Delete(temp_context_settings)
         self.__title = title
         self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
-        self.__window_alpha: int = alpha
+        self.__window_alpha: int | float = alpha
 
         #self.set_alpha(self.__window_alpha)
         # Получаем стандартную область отображения (View) и сохраняем указатель на нее
         self.__view = self.get_default_view()
 
-        # __wait_fps - ожидание кадров в секунду (максимальное число кадров в секунду, установленное пользователем)становленное пользователем)
+        # __wait_fps - ожидание кадров в секунду (максимальное число кадров в секунду, установленное пользователем)
         self.__wait_fps = 60
 
         # __target_fps - целевое число кадров в секунду (используется для вычисления delta-time)
@@ -868,9 +870,9 @@ class Window:
         self.__max_fps_in_fps_history: float = 0
         LIB_MOON._Window_SetWaitFps(self.__window_ptr, int(self.__wait_fps))
 
-        #////////////////////////////////////////////////////////////////////////////////
+        #/////////////////////////////////////////////////////////////////////////////////////
         # (             Переменные, необходимые для генерации графика фрейм-тайма            )
-        #////////////////////////////////////////////////////////////////////////////////
+        #/////////////////////////////////////////////////////////////////////////////////////
         self.__info_alpha = 0
         self.__target_info_alpha = 100
         self.__fps_update_timer = 0.0
@@ -924,23 +926,18 @@ class Window:
 
         self.__ghosting: bool = False
         self.__ghosting_min_value: int = 30
-        self.__ghosting_at_value: int = 255
+        # Константа для максимального значения прозрачности при использовании ghosting
         self.__ghosting_interpolation: float = 0.1
 
         self.__active: bool = True
-        self.__cursor: SystemCursors = SystemCursors.Arrow
+        self.__cursor = SystemCursors.Arrow
         self.__using_keybinding_for_open_fps_monitor: bool = False
         self.__fps_monitor_key_binding: str = "alt+f"
         self.__fps_monitor_opened: bool = True
 
         # Значения вычисляющиеся с кеширование
-        self.__cached_window_center: Vector2f = Vector2f(width / 2, height / 2)
-        self.__cached_window_size: Vector2f = Vector2f(width, height)
-
-
-        # Флаг который будет реализован в будщем
-        self.__using_custom_window: bool = False
-
+        self.__cached_window_center: Vector2f | Vector2i = Vector2f(width / 2, height / 2)
+        self.__cached_window_size: Vector2f | Vector2i = Vector2f(width, height)
 
         self.__title_color: Color | None = None
         self.__header_color: Color | None = None
@@ -962,10 +959,11 @@ class Window:
                     path = find_module_installation_path('Moon') + "/data/icons/default_app_icon.png"
                     self.set_icon_from_path(path)
                 except:
-                    raise "App Icon path not found"
+                    raise RuntimeError("App Icon path not found")
 
     def set_fullscreen_desktop(self) -> Self:
         ctypes.windll.user32.ShowWindow(self.__window_descriptor, 3)
+        return self
 
     def set_fps_monitor_opened(self, value: bool) -> Self:
         self.__fps_monitor_opened = value
@@ -1117,7 +1115,7 @@ class Window:
         """
         self.__title_color = color
         bgr_value = (color.b << 16) | (color.g << 8) | color.r
-        color_value = ctypes.wintypes.DWORD(bgr_value)
+        color_value = ctypes.wintypes.DWORD(bgr_value) # pyright: ignore
         ctypes.windll.dwmapi.DwmSetWindowAttribute(
             self.__window_descriptor,
             36,  # DWMWA_CAPTION_COLOR
@@ -1151,7 +1149,7 @@ class Window:
         """
         self.__header_color = color
         bgr_value = (color.b << 16) | (color.g << 8) | color.r
-        color_value = ctypes.wintypes.DWORD(bgr_value)
+        color_value = ctypes.wintypes.DWORD(bgr_value) # pyright: ignore
         ctypes.windll.dwmapi.DwmSetWindowAttribute(
             self.__window_descriptor,
             35,  # DWMWA_CAPTION_COLOR
@@ -1185,7 +1183,7 @@ class Window:
         """
         self.__border_color = color
         bgr_value = (color.b << 16) | (color.g << 8) | color.r
-        color_value = ctypes.wintypes.DWORD(bgr_value)
+        color_value = ctypes.wintypes.DWORD(bgr_value) # pyright: ignore
         ctypes.windll.dwmapi.DwmSetWindowAttribute(
             self.__window_descriptor,
             34,  # DWMWA_BORDER_COLOR
@@ -1306,7 +1304,7 @@ class Window:
         return self
 
     @final
-    def get_cursor(self) -> SystemCursors:
+    def get_cursor(self) -> SystemCursors | int:
         """
         #### Возвращает текущий системный курсор окна
 
@@ -1356,6 +1354,7 @@ class Window:
     def enable_vsync(self) -> Self:
         self.__vsync = True
         LIB_MOON._Window_SetVsync(self.__window_ptr, self.__vsync)
+        return self
 
     @final
     def enable_ghosting(self, value: bool = True) -> Self:
@@ -1463,7 +1462,7 @@ class Window:
         return self.__ghosting_min_value
 
     @final
-    def set_alpha(self, alpha: int):
+    def set_alpha(self, alpha: int | float):
         """
         #### Устанавливает глобальную прозрачность окна
 
@@ -1917,7 +1916,7 @@ class Window:
         return self.__window_ptr
 
     @final
-    def get_size(self, use_cache: bool = True) -> Vector2i:
+    def get_size(self, use_cache: bool = True) -> Vector2i | Vector2f:
         """
         #### Возвращает текущий размер клиентской области окна
 
@@ -1950,7 +1949,7 @@ class Window:
         )
 
     @final
-    def get_center(self, use_cache: bool = True) -> Vector2f:
+    def get_center(self, use_cache: bool = True) -> Vector2f | Vector2i:
         """
         #### Возвращает координаты центра окна
 
@@ -3027,9 +3026,9 @@ class Window:
         """
         return LIB_MOON._Window_IsOpen(self.__window_ptr)
 
-    @final
+
     @overload
-    def draw(self, shape, render_states: RenderStates) -> None:
+    def draw(self, shape: Drawable, arg: RenderStates) -> None:
         """
         #### Отрисовывает объект с пользовательскими параметрами рендеринга
 
@@ -3055,9 +3054,8 @@ class Window:
         """
         ...
 
-    @final
     @overload
-    def draw(self, shape, shader: Shader) -> None:
+    def draw(self, shape: Drawable, arg: Shader) -> None:
         """
         #### Отрисовывает объект с пользовательским шейдером
 
@@ -3083,9 +3081,8 @@ class Window:
         """
         ...
 
-    @final
     @overload
-    def draw(self, shape) -> None:
+    def draw(self, shape: Drawable, arg: None) -> None:
         """
         #### Отрисовывает объект с параметрами по умолчанию
 
@@ -3109,8 +3106,8 @@ class Window:
         """
         ...
 
-    @final
-    def draw(self, shape, render_states: RenderStates | Shader | None = None) -> None:
+
+    def draw(self, shape: Drawable, arg: RenderStates | Shader | None = None) -> None:
         """
         #### Основной метод отрисовки объектов
 
@@ -3155,56 +3152,24 @@ class Window:
         if not isinstance(shape.get_ptr(), int):
             # Специальные объекты с собственной логикой отрисовки
             try:
-                shape.special_draw(self, render_states)
+                shape.special_draw(self, arg)
             except:
                 shape.special_draw(self)
         else:
             # Стандартные объекты
-            if render_states is None:
+            if arg is None:
                 LIB_MOON._Window_Draw(self.__window_ptr, shape.get_ptr())
-            elif isinstance(render_states, RenderStates):
+            elif isinstance(arg, RenderStates):
                     LIB_MOON._Window_DrawWithRenderStates(
                         self.__window_ptr,
-                        render_states.get_ptr(),
+                        arg.get_ptr(),
                         shape.get_ptr()
                     )
-            elif isinstance(render_states, Shader):
+            elif isinstance(arg, Shader):
                 LIB_MOON._Window_DrawWithShader(
                     self.__window_ptr,
-                    render_states.get_ptr(),
+                    arg.get_ptr(),
                     shape.get_ptr()
                 )
 
-
-from Moon.python.Rendering.Sprites import BaseSprite, LoadSprite
-
-class _CustomWindowButton:
-    def __init__(self, size: TwoNumberList, color: Color, sprite: BaseSprite) -> None:
-        self.__size = size
-        self.__color = color
-        self.position = [0, 0]
-        self.__sprite = sprite
-
-
-
-    def render(self, window: Window):
-        ...
-
-CUSTOM_WINDOW_BUTTON_SIZE: Sequence[int] = [50, 31]
-CUSTOM_WINDOW_EXIT_BUTTON: Final[_CustomWindowButton] = _CustomWindowButton(CUSTOM_WINDOW_BUTTON_SIZE, COLOR_RED, LoadSprite(r"Moon\data\ui\close.png", 1))
-
-CUSTOM_WINDOW_HEAD_HEIGHT: int = 31
-
-
-class CustomWindow(Window):
-    def __init__(self, width: int = 800, height: int = 600, title: str = "Moon Window",
-        vsync: bool = False, alpha: float = 255, context_settings: ContextSettings | None = None):
-        super().__init__(width, height + CUSTOM_WINDOW_HEAD_HEIGHT, title, Window.Style.No, vsync, alpha, context_settings)
-        super().enable_rounded_corners()
-
-        self.__head_rectangle = RectangleShape(width, CUSTOM_WINDOW_HEAD_HEIGHT).set_color(DEFAULT_WINDOW_HEADER_COLOR)
-
-    def display(self):
-        super().draw(self.__head_rectangle)
-
-        super().display()
+# CUSTOM WINDOW IS NOT IMPLEMENTED YET

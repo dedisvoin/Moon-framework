@@ -74,11 +74,13 @@ import os
 import ctypes
 from colorama import Fore
 from typing import Any, Self
+from enum import Enum
 
 
 from Moon.python.Colors import *
 from Moon.python.Vectors import Vector2f
 from Moon.python.Types import OriginTypes
+
 
 from Moon.python.utils import find_library, LibraryLoadError
 
@@ -323,7 +325,7 @@ def system_fonts_inited() -> bool:
 
     :Description:
     - Проверяет наличие массива системных шрифтов
-    
+
     ---
 
     :Returns:
@@ -416,7 +418,7 @@ TextPtr =     ctypes.c_void_p                        #
 # ================================================== +
 
 
-class TextStyle:
+class TextStyle(Enum):
     """
     #### Перечисление стилей текста
 
@@ -783,7 +785,7 @@ class BaseText:
         """
         return self.__angle
 
-    def set_style(self, style: TextStyle) -> Self:
+    def set_style(self, style: Literal[TextStyle.BOLD, TextStyle.ITALIC, TextStyle.UNDERLINE, TextStyle.STRIKEOUT, TextStyle.REGULAR]) -> Self:
         """
         #### Устанавливает стиль текста
 
@@ -1031,7 +1033,7 @@ class BaseText:
         width = LIB_MOON.getTextWidth(self.__text_ptr)
         self.set_text(saved_text)
         return width
-    
+
     def get_text(self) -> str:
         """
         #### Возвращает текущий текст
@@ -1042,7 +1044,7 @@ class BaseText:
         - str: Текущий текст
         """
         return self.__text
-    
+
     def rotate(self, angle: float) -> Self:
         """
         #### Поворачивает текст на указанный угол
@@ -1060,11 +1062,12 @@ class BaseText:
         ---
 
         :Example:
-        ```python   
+        ```python
             text_obj.rotate(45)  # Поворот на 45 градусов
         ```
         """
         self.set_angle(self.get_angle() + angle)
+        return self
 
     def get_uninitialized_text_height(self, text: str) -> float:
         """
@@ -1293,4 +1296,3 @@ class Text(BaseText):
                 raise TypeError("Invalid origin type!")
 
         return self
-
