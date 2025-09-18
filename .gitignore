@@ -16,6 +16,10 @@ __pycache__/
 
 .game_data/
 .venv/
+.zed/
 build/
 
 update.py
+BaseGame.py
+Moon.Examples/
+game_data/
