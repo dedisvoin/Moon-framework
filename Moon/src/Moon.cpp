@@ -11,9 +11,9 @@
 // - Get current shape parameters
 // ===============================================================================
 
-#ifndef SFML_GRAPHICS_HPP
+
 #include "SFML/Graphics.hpp"
-#endif
+
 
 typedef sf::CircleShape* CirclePtr;
 // Create/delete circle shape
@@ -517,6 +517,7 @@ extern "C" {
 #ifndef SFML_SYSTEM_HPP
 #include "SFML/System.hpp"
 #endif
+#pragma execution_character_set("utf-8")
 
 // BUILTED_SGL_TEXT.cpp =========================================================================
 
@@ -526,7 +527,13 @@ typedef sf::Text* TextPtr;
 extern "C" {
     __declspec(dllexport) FontPtr loadSystemFont(const char* path) {
         FontPtr font = new sf::Font();
-        font->loadFromFile(path);
+        try {
+            if (!font->loadFromFile(path)) {
+                return nullptr;
+            }
+        } catch (const std::exception& e) {
+            return nullptr;
+        }
         font->setSmooth(false);
         return font;
     }
@@ -538,7 +545,8 @@ extern "C" {
     } 
 
     __declspec(dllexport) void setText(TextPtr text, const char* str) {
-        text->setString(str);
+        std::string std_str(str);
+        text->setString(sf::String::fromUtf8(std_str.begin(), std_str.end()));
     }
 
     __declspec(dllexport) void setTextSize(TextPtr text, int size) {

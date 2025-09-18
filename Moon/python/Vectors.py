@@ -163,7 +163,7 @@ class Vector2f:
         return Vector2f(point2[0] - point1[0], point2[1] - point1[1])
     
     @classmethod
-    def normal(self, vector: "Vector2f") -> "NormalisedVector":
+    def normal(self, vector: "Vector2f") -> "NormalizedVector":
         """
         #### Создает нормальный (перпендикулярный) вектор
         
@@ -190,7 +190,7 @@ class Vector2f:
         return vector.normalize().rotate(90)
 
     @classmethod
-    def random(self) -> "NormalisedVector":
+    def random(self) -> "NormalizedVector":
         vector = Vector2f(1, 0).rotate_at(uniform(0, 360))
         return vector
 
@@ -612,6 +612,10 @@ class Vector2f:
             self.x /= scalar
             self.y /= scalar
         return self
+    
+# Тип нормализованного вектора == +
+NormalizedVector = Vector2f       #
+# =============================== +
     
 
 class Vector2i:

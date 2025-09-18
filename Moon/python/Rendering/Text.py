@@ -70,17 +70,17 @@ Copyright (c) 2025 Pavlov Ivan
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
-
-import ctypes
 import os
-
+import ctypes
+from colorama import Fore
 from typing import Any, Self
 
-from ..Colors import *
-from ..Vectors import Vector2f
-from ..Types import OriginTypes
 
-from ..utils import find_library, LibraryLoadError
+from Moon.python.Colors import *
+from Moon.python.Vectors import Vector2f
+from Moon.python.Types import OriginTypes
+
+from Moon.python.utils import find_library, LibraryLoadError
 
 ##################################################################
 #                   `C / C++` Bindings                           #
@@ -97,51 +97,46 @@ except Exception as e:
 
 LIB_MOON.loadSystemFont.argtypes = [ctypes.c_char_p]
 LIB_MOON.loadSystemFont.restype = ctypes.c_void_p
-
 LIB_MOON.createText.argtypes = [ctypes.c_void_p]
 LIB_MOON.createText.restype =  ctypes.c_void_p
-
 LIB_MOON.setText.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
 LIB_MOON.setText.restype = None
-
 LIB_MOON.setTextSize.argtypes = [ctypes.c_void_p, ctypes.c_int]
 LIB_MOON.setTextSize.restype = None
-
 LIB_MOON.setTextColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
 LIB_MOON.setTextColor.restype = None
-
 LIB_MOON.setTextPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
 LIB_MOON.setTextPosition.restype = None
-
 LIB_MOON.setTextOfsset.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
 LIB_MOON.setTextOfsset.restype = None
-
 LIB_MOON.setTextAngle.argtypes = [ctypes.c_void_p, ctypes.c_float]
 LIB_MOON.setTextAngle.restype = None
-
 LIB_MOON.setStyle.argtypes = [ctypes.c_void_p, ctypes.c_int]
 LIB_MOON.setStyle.restype = None
-
 LIB_MOON.setOutlineColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
 LIB_MOON.setOutlineColor.restype = None
-
 LIB_MOON.setOutlineThickness.argtypes = [ctypes.c_void_p, ctypes.c_float]
 LIB_MOON.setOutlineThickness.restype = None
-
 LIB_MOON.setLetterSpacing.argtypes = [ctypes.c_void_p, ctypes.c_float]
 LIB_MOON.setLetterSpacing.restype = None
-
 LIB_MOON.getTextWidth.argtypes = [ctypes.c_void_p]
 LIB_MOON.getTextWidth.restype = ctypes.c_double
-
 LIB_MOON.getTextHeight.argtypes = [ctypes.c_void_p]
 LIB_MOON.getTextHeight.restype = ctypes.c_double
-
 LIB_MOON.setFont.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_MOON.setFont.restype = None
-
 LIB_MOON.setTextScale.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
 LIB_MOON.setTextScale.restype = None
+
+
+class FontLoadError(Exception):
+    """Базовый класс для всех ошибок модуля шрифтов"""
+    pass
+
+class FailedUnicodeCharacterSet(Exception):
+    """Ошибка, если набор символов Unicode не поддерживается"""
+    pass
+
 
 class Font:
     """
@@ -193,7 +188,7 @@ class Font:
         if os.path.isfile(font_path):
             return Font(font_path)
         else:
-            raise FileNotFoundError(f"Font file not found: {font_path}")
+            raise FileNotFoundError(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Font file not found: '{font_path}'")
 
     def __init__(self, font_path: str):
         """
@@ -211,8 +206,10 @@ class Font:
         """
         self.__font_path = font_path
         self.__font_ptr = LIB_MOON.loadSystemFont(self.__font_path.encode('utf-8'))
+        if self.__font_ptr is None:
+            raise FailedUnicodeCharacterSet()
 
-    def get_font_ptr(self):
+    def get_ptr(self):
         """
         #### Возвращает указатель на нативный объект шрифта
 
@@ -223,7 +220,7 @@ class Font:
         """
         return self.__font_ptr
 
-    def get_font_path(self):
+    def get_path(self):
         """
         #### Возвращает путь к файлу шрифта
 
@@ -235,7 +232,7 @@ class Font:
         return self.__font_path
 
 
-def get_all_system_font_names() -> list[str]:
+def get_system_font_names() -> list[str]:
     """
     #### Возвращает список имен всех системных шрифтов
 
@@ -294,15 +291,46 @@ def init_system_fonts():
     """
     global ARRAY_OF_SYSTEM_FONTS
     ARRAY_OF_SYSTEM_FONTS = []
-    for i, name in enumerate(get_all_system_font_names()):
+    detected_fonts = get_system_font_names()
+    print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] Detected {Fore.CYAN}{len(detected_fonts)}{Fore.RESET} fonts")
+    for i, name in enumerate(detected_fonts):
+        print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] Loading font '{name}'")
         try:
-            ARRAY_OF_SYSTEM_FONTS.append(Font.SystemFont(name))
+            font = Font.SystemFont(name)
+            ARRAY_OF_SYSTEM_FONTS.append(font)
         except:
-            print(f"FontLoader: Font '{name}' has not been loaded.")
-    print(f"FontLoader: Loaded {len(ARRAY_OF_SYSTEM_FONTS)} fonts.")
+            print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Font '{name}' has not been loaded.")
+    print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.BLACK}note{Fore.RESET} ] Loaded {Fore.CYAN}{len(ARRAY_OF_SYSTEM_FONTS)}/{len(detected_fonts)}{Fore.RESET} fonts.")
 
-init_system_fonts()
+def clear_system_fonts_cache():
+    """
+    #### Очищает кэш системных шрифтов
 
+    ---
+
+    :Description:
+    - Удаляет все загруженные шрифты из кэша
+    """
+
+    global ARRAY_OF_SYSTEM_FONTS
+    ARRAY_OF_SYSTEM_FONTS.clear()
+
+def system_fonts_inited() -> bool:
+    """
+    #### Проверяет, загружены ли системные шрифты
+
+    ---
+
+    :Description:
+    - Проверяет наличие массива системных шрифтов
+    
+    ---
+
+    :Returns:
+    - bool: True, если массив системных шрифтов загружен, иначе False
+    """
+    if ARRAY_OF_SYSTEM_FONTS: return True
+    return False
 
 def get_system_font(index: int):
     """
@@ -341,10 +369,51 @@ def get_system_font(index: int):
     try:
         return ARRAY_OF_SYSTEM_FONTS[index]
     except IndexError:
-        raise IndexError(f"Index out of range. Maximum index is {len(ARRAY_OF_SYSTEM_FONTS) - 1}")
+        raise ValueError(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] System font index {index} not found in the cache. Max index is {len(ARRAY_OF_SYSTEM_FONTS) - 1}.")
+
+def get_system_font_with_name(name: str):
+    """
+    #### Возвращает системный шрифт по имени
+
+    ---
+
+    :Desription:
+    - Ищет шрифт по имени в предзагруженном кэше
+    - Регистр символов не учитывается
+    - Возвращает первый найденный шрифт с таким именем
+
+    ---
+
+    :Args:
+    - name (str): Имя шрифта (например, "arial", "Times New Roman")
+
+    ---
+
+    :Returns:
+    - Font: Объект системного шрифта
+
+    ---
+
+    :Raises:
+    - ValueError: Если шрифт с указанным именем не найден
+
+    ---
+
+    :Example:
+    ```python
+    font = get_system_font_with_name("calibri")
+    ```
+"""
+    for font in ARRAY_OF_SYSTEM_FONTS:
+        if font.get_path().lower().endswith(name.lower() + ".ttf"):
+            return font
+    raise ValueError(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] System font '{name}' not found in the cache.")
 
 
-BaseTextPtr = ctypes.c_void_p
+# Тип указателя на обьект текста и базового текста = +
+BaseTextPtr = ctypes.c_void_p                        #
+TextPtr =     ctypes.c_void_p                        #
+# ================================================== +
 
 
 class TextStyle:
@@ -412,7 +481,7 @@ class BaseText:
         - Связывает с указанным шрифтом
         """
         self.__font = font
-        self.__text_ptr: BaseTextPtr = LIB_MOON.createText(self.__font.get_font_ptr())
+        self.__text_ptr: BaseTextPtr = LIB_MOON.createText(self.__font.get_ptr())
         self.__text: str = ""
         self.__scale: list[float] = [1, 1]
         self.__origin: Vector2f = Vector2f(0, 0)
@@ -467,7 +536,7 @@ class BaseText:
         ```
         """
         self.__text = text
-        LIB_MOON.setText(self.__text_ptr, text.encode())
+        LIB_MOON.setText(self.__text_ptr, text.encode("utf-8"))
         return self
 
     def set_text_scale_xy(self, x: float | None = None, y: float | None = None) -> Self:
@@ -761,7 +830,7 @@ class BaseText:
         text_obj.set_font(new_font)
         ```
         """
-        LIB_MOON.setFont(self.__text_ptr, font.get_font_ptr())
+        LIB_MOON.setFont(self.__text_ptr, font.get_ptr())
         return self
 
     def set_outline_color(self, color: Color) -> Self:
@@ -962,6 +1031,40 @@ class BaseText:
         width = LIB_MOON.getTextWidth(self.__text_ptr)
         self.set_text(saved_text)
         return width
+    
+    def get_text(self) -> str:
+        """
+        #### Возвращает текущий текст
+
+        ---
+
+        :Returns:
+        - str: Текущий текст
+        """
+        return self.__text
+    
+    def rotate(self, angle: float) -> Self:
+        """
+        #### Поворачивает текст на указанный угол
+
+        ---
+
+        :Args:
+        - angle (float): Угол поворота в градусах
+
+        ---
+
+        :Returns:
+        - Self: Возвращает self для цепочки вызовов
+
+        ---
+
+        :Example:
+        ```python   
+            text_obj.rotate(45)  # Поворот на 45 градусов
+        ```
+        """
+        self.set_angle(self.get_angle() + angle)
 
     def get_uninitialized_text_height(self, text: str) -> float:
         """
@@ -996,9 +1099,6 @@ class BaseText:
         height = LIB_MOON.getTextHeight(self.__text_ptr)
         self.set_text(saved_text)
         return height
-
-
-
 
 class Text(BaseText):
     """
@@ -1044,6 +1144,24 @@ class Text(BaseText):
         self.__typed_origin: OriginTypes = OriginTypes.TOP_LEFT
         self.__origin_padding: Vector2f = Vector2f.zero()
         self.set_origin(0, 0)
+
+    def get_ptr(self) -> TextPtr | BaseTextPtr:
+        """
+        #### Возвращает указатель на нативный объект текста
+
+        ---
+
+        :Description:
+        - Возвращает "сырой" указатель на внутренний объект текста, который используется движком.
+        - Этот метод является оберткой над `BaseText.get_ptr()` и предоставляет тот же функционал.
+
+        ---
+
+        :Returns:
+        - TextPtr | BaseTextPtr: Указатель на нативный объект для использования в системе рендеринга.
+        """
+        return super().get_ptr()
+
 
     def set_origin_padding(self, padding: float):
         """
@@ -1113,6 +1231,11 @@ class Text(BaseText):
         - Корректирует расчеты с учетом текущего масштаба
         - Поддерживает все стандартные позиции привязки
 
+        :Warning:
+        - `Типизированный ориджин необходимо устанавливать лишь после всех остальных трансформаций над текстом
+        иначе они не будут учитываться корректно`
+
+
         ---
 
         :Args:
@@ -1170,3 +1293,4 @@ class Text(BaseText):
                 raise TypeError("Invalid origin type!")
 
         return self
+

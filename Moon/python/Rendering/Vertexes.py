@@ -81,7 +81,7 @@ from typing import Self, final
 from Moon.python.Colors import Color
 from Moon.python.Vectors import Vector2f
 
-from ..utils import find_library, LibraryLoadError
+from Moon.python.utils import find_library, LibraryLoadError
 
 # Загружаем DLL библиотеку
 try:

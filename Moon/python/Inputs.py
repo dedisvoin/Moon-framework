@@ -8,7 +8,7 @@
 *Автор: Павлов Иван (Pavlov Ivan)*
 
 *Лицензия: MIT*
-##### Реализованно на 100% 
+##### Реализованно на 100%
 
 ---
 
@@ -50,37 +50,48 @@
 [MIT License]
 Copyright (c) 2025 Pavlov Ivan
 
-Данная лицензия разрешает лицам, получившим копию данного программного обеспечения 
-и сопутствующей документации (в дальнейшем именуемыми «Программное Обеспечение»), 
-безвозмездно использовать Программное Обеспечение без ограничений, включая неограниченное 
-право на использование, копирование, изменение, слияние, публикацию, распространение, 
-сублицензирование и/или продажу копий Программного Обеспечения, а также лицам, которым 
+Данная лицензия разрешает лицам, получившим копию данного программного обеспечения
+и сопутствующей документации (в дальнейшем именуемыми «Программное Обеспечение»),
+безвозмездно использовать Программное Обеспечение без ограничений, включая неограниченное
+право на использование, копирование, изменение, слияние, публикацию, распространение,
+сублицензирование и/или продажу копий Программного Обеспечения, а также лицам, которым
 предоставляется данное Программное Обеспечение, при соблюдении следующих условий:
 
 [ Уведомление об авторском праве и данные условия должны быть включены во все копии ]
 [                 или значительные части Программного Обеспечения.                  ]
 
-ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО 
-ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ 
-ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ ПРАВ. 
-НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО ИСКАМ О 
-ВОЗМЕЩЕНИИ УЩЕРБА, УБЫТКОВ ИЛИ ДРУГИХ ТРЕБОВАНИЙ ПО ДЕЙСТВУЮЩЕМУ ПРАВУ ИЛИ ИНОМУ, 
-ВОЗНИКШИМ ИЗ, ИМЕЮЩИМ ПРИЧИНОЙ ИЛИ СВЯЗАННЫМ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ 
+ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО
+ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ
+ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ ПРАВ.
+НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО ИСКАМ О
+ВОЗМЕЩЕНИИ УЩЕРБА, УБЫТКОВ ИЛИ ДРУГИХ ТРЕБОВАНИЙ ПО ДЕЙСТВУЮЩЕМУ ПРАВУ ИЛИ ИНОМУ,
+ВОЗНИКШИМ ИЗ, ИМЕЮЩИМ ПРИЧИНОЙ ИЛИ СВЯЗАННЫМ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
-import os
+import time
 import ctypes
 import keyboard
+import win32gui         # pyright: ignore[reportMissingModuleSource]
+import win32api         # pyright: ignore[reportMissingModuleSource]
+import win32process     # pyright: ignore[reportMissingModuleSource]
 
 from enum import Enum
+from functools import lru_cache
 from typing import Any, Callable, Literal, Final, final, Optional, Union, Set, Dict
 
-from .Types import Self
-from .Vectors import Vector2i  # Векторные операции для позиций
 
-from functools import lru_cache
+from Moon.python.Types import Self
+from Moon.python.Vectors import Vector2i  # Векторные операции для позиций
 from Moon.python.utils import find_library, LibraryLoadError
+
+
+
+
+
+
+
+
 
 # ==================== КЛАССЫ ОШИБОК ====================
 class InputError(Exception):
@@ -111,21 +122,88 @@ for func in REQUIRED_FUNCTIONS:
         raise LibraryLoadError(f"Required function {func} not found in library")
 
 # ==================== C/C++ БИНДИНГИ ====================
+
+class KeyboardLayout:
+    def __init__(self, name: str, value: int):
+        self.__name = name
+        self.__value = value
+
+    def get_name(self) -> str:
+        return self.__name
+
+    def get_value(self) -> int:
+        return self.__value
+
+    def __str__(self) -> str:
+        return f"Layout: {self.__name} ({self.__value})"
+
+    def __eq__(self, value: "KeyboardLayout"):
+        return self.__value == value.get_value()
+
+    def __ne__(self, value: "KeyboardLayout"):
+        return self.__value != value.get_value()
+
+    def __hash__(self) -> int:
+        return hash(self.__value)
+
+
+LAYOUT_EN =      KeyboardLayout("EN", 0x0409)
+LAYOUT_RU =      KeyboardLayout("RU", 0x0419)
+LAYOUT_UNKNOWN = KeyboardLayout("Unknown", 0xffff)
+
+
+def convert_ru_with_qwerty_layout(key: str) -> str:
+    return Keyboard.QWERTY_LAYOUT[key]
+
+
+
+@final
+def get_keyboard_layout() -> KeyboardLayout:
+    """
+    #### Определяет текущую раскладку клавиатуры активного окна.
+
+    ---
+
+    :Returns:
+        str: "RU" для русской раскладки, "EN" для английской,
+             или "Unknown" для любой другой.
+
+    ---
+
+    :Note:
+        Эта функция специфична для операционной системы Windows,
+        так как использует модули `win32gui`, `win32process`, `win32api`.
+    """
+
+    hwnd = win32gui.GetForegroundWindow()
+
+    thread_id, _ = win32process.GetWindowThreadProcessId(hwnd)
+    layout_id = win32api.GetKeyboardLayout(thread_id)
+
+    lang_id = layout_id & 0xFFFF
+
+    if lang_id == 0x0419: # Russian keyboard layout
+        return LAYOUT_RU
+    elif lang_id == 0x0409:
+        return LAYOUT_EN
+    else:
+        return LAYOUT_UNKNOWN
+
 @final
 def is_key_pressed(key: Union[int, str]) -> bool:
     """
     #### Проверяет нажатие клавиши через нативную библиотеку
 
     ---
-    
+
     :Arguments:
         key: Код клавиши (int) или символ (str)
-        
+
     ---
 
     :Returns:
         bool: Нажата ли клавиша
-        
+
     ---
 
     :Raises:
@@ -139,7 +217,7 @@ def is_key_pressed(key: Union[int, str]) -> bool:
         key = ord(key)
     elif not isinstance(key, int):
         raise InvalidInputError("Key must be either int (keycode) or str (single character)")
-    
+
     try:
         # Настройка и вызов нативной функции
         _lib.IsKeyPressed.restype = ctypes.c_bool
@@ -152,26 +230,26 @@ def is_key_pressed(key: Union[int, str]) -> bool:
 def is_mouse_button_pressed(button: int) -> bool:
     """
     #### Проверяет нажатие кнопки мыши
-    
+
     ---
-    
+
     :Arguments:
         button: Номер кнопки (0-левая, 1-правая, 2-средняя)
-        
+
     ---
-    
+
     :Returns:
         bool: Нажата ли кнопка
-        
+
     ---
-    
+
     :Raises:
         InvalidInputError: Некорректный номер кнопки
         InputError: Ошибка при проверке состояния
     """
     if not isinstance(button, int) or button < 0 or button > 2:
         raise InvalidInputError("Mouse button must be integer 0-2")
-    
+
     try:
         _lib.IsMouseButtonPressed.restype = ctypes.c_bool
         _lib.IsMouseButtonPressed.argtypes = [ctypes.c_int]
@@ -183,14 +261,14 @@ def is_mouse_button_pressed(button: int) -> bool:
 def get_mouse_position() -> Vector2i:
     """
     #### Получает текущую позицию курсора на экране
-    
+
     ---
-    
+
     :Returns:
         Vector2i: Позиция (x, y) в пикселях
-        
+
     ---
-    
+
     :Raises:
         InputError: Ошибка при получении позиции
     """
@@ -205,36 +283,36 @@ def get_mouse_position() -> Vector2i:
 def get_mouse_position_in_window(window: Any) -> Vector2i:
     """
     #### Получает позицию курсора относительно окна
-    
+
     ---
-    
+
     :Arguments:
         window: Объект окна с методом get_ptr()
-        
+
     ---
-    
+
     :Returns:
         Vector2i: Позиция (x, y) относительно окна
-        
+
     ---
-    
+
     :Raises:
         InvalidInputError: Некорректный объект окна
         InputError: Ошибка при получении позиции
     """
     if not hasattr(window, 'get_ptr'):
         raise InvalidInputError("Window object must have get_ptr() method")
-    
+
     try:
         window_ptr = window.get_ptr()
         if not isinstance(window_ptr, int):
             raise InvalidInputError("Window pointer must be integer")
-            
+
         _lib.GetMousePositionXWindow.restype = ctypes.c_int
         _lib.GetMousePositionYWindow.restype = ctypes.c_int
         _lib.GetMousePositionXWindow.argtypes = [ctypes.c_void_p]
         _lib.GetMousePositionYWindow.argtypes = [ctypes.c_void_p]
-        
+
         x = _lib.GetMousePositionXWindow(window_ptr)
         y = _lib.GetMousePositionYWindow(window_ptr)
         return Vector2i(x, y)
@@ -253,19 +331,19 @@ class MouseButtons(Enum):
 def convert_mouse_button(button: Union[Literal["left", "right", "middle"], MouseButtons]) -> int:
     """
     #### Конвертирует кнопку мыши в числовой код
-    
+
     ---
-    
+
     :Arguments:
         button: Название кнопки или элемент MouseButtons
-        
+
     ---
-    
+
     :Returns:
         int: Числовой код кнопки
-        
+
     ---
-    
+
     :Raises:
         InvalidInputError: Некорректное название кнопки
     """
@@ -276,7 +354,7 @@ def convert_mouse_button(button: Union[Literal["left", "right", "middle"], Mouse
         if button == "left": return 0
         elif button == "right": return 1
         elif button == "middle": return 2
-    
+
     raise InvalidInputError(
         f"Invalid mouse button: {button}. Expected 'left', 'right', 'middle' or MouseButtons enum"
     )
@@ -285,16 +363,16 @@ def convert_mouse_button(button: Union[Literal["left", "right", "middle"], Mouse
 class Mouse:
     """
     Основной класс для работы с мышью
-    
+
     Предоставляет:
     - Проверку нажатий кнопок
     - Отслеживание кликов
     - Получение позиции курсора
     - Расчет скорости движения
     """
-    
+
     Buttons = MouseButtons  # Доступ к перечислению кнопок
-    
+
     def __init__(self):
         """Инициализация состояния мыши"""
         self._last_click_state = {
@@ -308,19 +386,19 @@ class Mouse:
     def get_press(cls, button: Union[Literal["left", "right", "middle"], MouseButtons]) -> bool:
         """
         #### Проверяет, нажата ли кнопка мыши в текущий момент
-        
+
         ---
-        
+
         :Arguments:
             button: Кнопка для проверки
-            
+
         ---
-        
+
         :Returns:
             bool: Нажата ли кнопка
         """
         return is_mouse_button_pressed(convert_mouse_button(button))
-    
+
     def in_window(self, window) -> bool:
         mouse_position = self.get_position()
         window_pos = window.get_position()
@@ -331,30 +409,30 @@ class Mouse:
             return True
         return False
 
-    
+
     def get_click(self, button: Union[Literal["left", "right", "middle"], MouseButtons]) -> bool:
         """
         #### Проверяет, была ли кнопка только что нажата (в этом кадре)
-        
+
         ---
-        
+
         :Arguments:
             button: Кнопка для проверки
-            
+
         ---
-        
+
         :Returns:
             bool: Был ли клик
-            
+
         ---
-        
+
         :Raises:
             InputError: Ошибка при проверке состояния
         """
         try:
             current_state = self.get_press(button)
             button_name = button if isinstance(button, str) else button.name.lower()
-            
+
             # Если кнопка нажата сейчас, но не была нажата в прошлом кадре
             if current_state and not self._last_click_state[button_name]:
                 self._last_click_state[button_name] = True
@@ -364,23 +442,23 @@ class Mouse:
             return False
         except Exception as e:
             raise InputError(f"Failed to get mouse click: {e}")
-        
+
     def get_release(self, button: Union[Literal["left", "right", "middle"], MouseButtons]) -> bool:
         """
         #### Проверяет, была ли кнопка только что отпущена
-        
+
         ---
-        
+
         :Arguments:
             button: Кнопка для проверки
-            
+
         ---
-        
+
         :Returns:
             bool: Был ли отпуск
-        
+
         ---
-        
+
         :Raises:
             InputError: Ошибка при проверке состояния
         """
@@ -398,36 +476,36 @@ class Mouse:
         except Exception as e:
             raise InputError(f"Failed to get mouse release: {e}")
 
-        
+
 
     @classmethod
     def get_position_in_window(cls, window: Any) -> Vector2i:
         """
         #### Получает позицию курсора относительно окна
-        
+
         ---
-        
+
         :Arguments:
             window: Объект окна
-            
+
         ---
-        
+
         :Returns:
             Vector2i: Позиция относительно окна
         """
         return get_mouse_position_in_window(window)
-    
+
     def get_speed(self) -> Vector2i:
         """
         #### Рассчитывает скорость движения мыши (пикселей/кадр)
-        
+
         ---
-        
+
         :Returns:
             Vector2i: Вектор скорости (dx, dy)
-            
+
         ---
-        
+
         :Raises:
             InputError: Ошибка при расчете скорости
         """
@@ -438,14 +516,14 @@ class Mouse:
             return speed
         except Exception as e:
             raise InputError(f"Failed to calculate mouse speed: {e}")
-    
+
     @classmethod
     def get_position(cls) -> Vector2i:
         """
         #### Получает абсолютную позицию курсора на экране
-        
+
         ---
-        
+
         :Returns:
             Vector2i: Позиция (x, y)
         """
@@ -457,42 +535,83 @@ class Mouse:
 MouseInterface: Final[Mouse] = Mouse()
 # ////////////////////////////////////////////////////////////////////////////
 
+
 @final
 class Keyboard:
     """
     Оптимизированный класс для работы с клавиатурой
-    
+
     Предоставляет:
     - Проверку нажатий клавиш
     - Отслеживание кликов клавиш
     - Работу с комбинациями клавиш
     """
-    
+
     # Поддерживаемые клавиши с быстрым доступом
     KEYS_ARRAY: Final[list[str]] = [
+
+        # Специальные клавиши
+        "esc", "enter", "space", "backspace", "tab", "capslock",
+        "shift", "ctrl", "alt", "win", "menu", "pause",
+
         # Буквы
-        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", 
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
         "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-        "а", "б", "в","г","д","е","ё","ж","з","и","й","к","л","м","н","о","п","р","с","т","у","ф","х","ц","ч","щ","ъ","ь","э","ю","я",
+        "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л",
+        "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш",
+        "щ", "ъ", "ы", "ь", "э", "ю", "я",
+
         # Цифры
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
         # Функциональные клавиши
         "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12",
         # Клавиши управления
         "up", "down", "left", "right",
-        # Специальные клавиши
-        "esc", "enter", "space", "backspace", "tab", "capslock", 
-        "shift", "ctrl", "alt", "win", "menu", "pause",
+
         # Символы
         "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "=", "-"
         "`", "~", "{", "}", "[", "]", "|", ":", "\"", "<", ">", "?", "/", ".", ","
     ]
-    
+
+    QWERTY_LAYOUT: Final[dict[str, str]] = {
+        "q": "й",
+        "w": "ц",
+        "e": "у",
+        "r": "к",
+        "t": "е",
+        "y": "н",
+        "u": "г",
+        "i": "ш",
+        "o": "щ",
+        "p": "з",
+        "a": "ф",
+        "s": "ы",
+        "d": "в",
+        "f": "а",
+        "g": "п",
+        "h": "р",
+        "j": "о",
+        "k": "л",
+        "l": "д",
+        "z": "я",
+        "x": "ч",
+        "c": "с",
+        "v": "м",
+        "b": "и",
+        "n": "т",
+        "m": "ь",
+        "[": "х",
+        "]": "ъ",
+        "'": "э",
+    }
+
+    CHAR_SET: Final[str] = "qwertyuiopasdfghjklzxcvbnmёйцукенгшщзхфывапролджэячсмитьбю"
+
     # Кэш для быстрого доступа к нормализованным комбинациям
     _COMBINATION_CACHE: Dict[str, Set[str]] = {}
     _PRESSED_KEYS_CACHE: Set[str] = set()
     _LAST_UPDATE_TIME: float = 0
-    _CACHE_TTL: float = 0.01  # 10ms кэширование
+    _CACHE_TTL: float = 0.05 # кэширование
 
     def __init__(self):
         """Инициализация состояния клавиатуры"""
@@ -501,93 +620,124 @@ class Keyboard:
         self._last_combination_state: Dict[str, bool] = {}
 
     @classmethod
+    def _key_in_qwerty_layout(cls, key: str) -> bool:
+        return key in cls.QWERTY_LAYOUT.keys()
+
+    @classmethod
     def _update_pressed_cache(cls) -> None:
         """
         #### Обновляет кэш нажатых клавиш с ограничением по времени
-        
+
         ---
-        
+
         :Raises:
             InputError: Ошибка при обновлении кэша
         """
-        import time
         current_time = time.time()
-        
+
         if current_time - cls._LAST_UPDATE_TIME > cls._CACHE_TTL:
-            try:
-                cls._PRESSED_KEYS_CACHE.clear()
-                for key in cls.KEYS_ARRAY:
-                    try:
-                        if keyboard.is_pressed(key):
-                            cls._PRESSED_KEYS_CACHE.add(key)
-                    except: ...
-                cls._LAST_UPDATE_TIME = current_time
-            except Exception as e:
-                raise InputError(f"Failed to update pressed keys cache: {e}")
+            cls._PRESSED_KEYS_CACHE.clear()
+            for key in cls.KEYS_ARRAY:
+                try:
+                    if keyboard.is_pressed(key):
+                        if get_keyboard_layout() == LAYOUT_RU:
+
+                            if cls._key_in_qwerty_layout(key):
+                                key = cls.QWERTY_LAYOUT[key]
+
+                        cls._PRESSED_KEYS_CACHE.add(key)
+                except: ...
+            cls._LAST_UPDATE_TIME = current_time
+
 
     @classmethod
     def get_press(cls, keys: str) -> bool:
         """
         #### Проверяет, нажата ли клавиша/комбинация (оптимизированная версия)
-        
+
         ---
-        
+
         :Arguments:
             keys: Клавиша или комбинация (например "ctrl+c")
-            
+
         ---
-        
+
         :Returns:
             bool: Нажата ли клавиша
-            
+
         ---
-        
+
         :Raises:
             InvalidInputError: Некорректный формат клавиши
             InputError: Ошибка при проверке состояния
         """
         if not isinstance(keys, str):
             raise InvalidInputError("Keys must be a string")
-        
+
         # Для одиночных клавиш используем быструю проверку
         if '+' not in keys:
             cls._update_pressed_cache()
             return keys.lower() in cls._PRESSED_KEYS_CACHE
-        
+
         # Для комбинаций используем оптимизированный метод
         return cls.get_press_combination(keys)
+
+    def get_press_any(self) -> bool:
+        """
+        #### Проверяет, нажата ли хотя бы одна клавиша
+
+        ---
+
+        :Returns:
+            bool: Нажата ли хотя бы одна клавиша
+        """
+        press_array = [self.get_press(key) for key in self.KEYS_ARRAY]
+        return any(press_array)
+
+    def get_click_any(self) -> bool:
+        """
+        #### Проверяет, была ли хотя бы одна клавиша только что нажата
+
+        ---
+
+        :Returns:
+            bool: Была ли нажата хотя бы одна клавиша
+        """
+        click_array = [self.get_click(key) for key in self.KEYS_ARRAY]
+        return any(click_array)
+
 
     def get_click(self, keys: str) -> bool:
         """
         #### Проверяет, была ли клавиша только что нажата (оптимизированная версия)
-        
+
         ---
-        
+
         :Arguments:
             keys: Клавиша для проверки
-            
+
         ---
-        
+
         :Returns:
             bool: Был ли клик
-            
+
         ---
-        
+
         :Raises:
             InputError: Ошибка при проверке состояния
         """
         try:
             current_state = self.get_press(keys)
-            
+
             # Быстрая проверка состояния через локальный кэш
             was_pressed = self._last_click_state.get(keys, False)
-            
+
             if current_state and not was_pressed:
                 self._last_click_state[keys] = True
                 return True
             elif not current_state:
                 self._last_click_state[keys] = False
-            
+
             return False
         except Exception as e:
             raise InputError(f"Failed to get key click: {e}")
@@ -597,14 +747,14 @@ class Keyboard:
     def _normalize_combination(cls, keys: str) -> Set[str]:
         """
         #### Нормализует и кэширует комбинацию клавиш
-        
+
         ---
-        
+
         :Arguments:
             keys: Комбинация клавиш для нормализации
-            
+
         ---
-        
+
         :Returns:
             Set[str]: Нормализованное множество клавиш
         """
@@ -614,33 +764,33 @@ class Keyboard:
     def get_press_combination(cls, keys: str) -> bool:
         """
         #### Оптимизированная проверка комбинации клавиш
-        
+
         ---
-        
+
         :Arguments:
             keys: Комбинация клавиш через "+" (например "ctrl+shift+c")
-            
+
         ---
-        
+
         :Returns:
             bool: Нажата ли комбинация
-            
+
         ---
-        
+
         :Raises:
             InvalidInputError: Некорректный формат комбинации
             InputError: Ошибка при проверке состояния
         """
         if not isinstance(keys, str) or '+' not in keys:
             raise InvalidInputError("Key combination must be string with '+' separator")
-        
+
         try:
             # Используем кэшированную нормализацию
             keys_set = cls._normalize_combination(keys)
-            
+
             # Обновляем кэш нажатых клавиш
             cls._update_pressed_cache()
-            
+
             # Быстрая проверка подмножества
             return keys_set.issubset(cls._PRESSED_KEYS_CACHE)
         except Exception as e:
@@ -649,32 +799,32 @@ class Keyboard:
     def get_click_combination(self, keys: str) -> bool:
         """
         #### Проверяет, была ли комбинация только что нажата (оптимизированная версия)
-        
+
         ---
-        
+
         :Arguments:
             keys: Комбинация клавиш
-            
+
         ---
-        
+
         :Returns:
             bool: Была ли нажата комбинация
-            
+
         ---
-        
+
         :Raises:
             InputError: Ошибка при проверке состояния
         """
         try:
             current_state = self.get_press_combination(keys)
             was_pressed = self._last_combination_state.get(keys, False)
-            
+
             if current_state and not was_pressed:
                 self._last_combination_state[keys] = True
                 return True
             elif not current_state:
                 self._last_combination_state[keys] = False
-            
+
             return False
         except Exception as e:
             raise InputError(f"Failed to get combination click: {e}")
@@ -683,14 +833,14 @@ class Keyboard:
     def get_pressed_keys(cls) -> list[str]:
         """
         #### Оптимизированное получение списка нажатых клавиш
-        
+
         ---
-        
+
         :Returns:
             list[str]: Список нажатых клавиш
-            
+
         ---
-        
+
         :Raises:
             InputError: Ошибка при получении состояния
         """
@@ -719,18 +869,20 @@ class Keyboard:
 KeyBoardInterface: Final[Keyboard] = Keyboard()
 # ////////////////////////////////////////////////////////////////////////////
 
+
+
 # ==================== МЕНЕДЖЕР СОБЫТИЙ ====================
 @final
 class InputEventsManager:
     """
     Менеджер событий ввода
-    
+
     Позволяет:
     - Создавать слушатели событий ввода
     - Управлять подписками на события
     - Обрабатывать события через callback-функции
     """
-    
+
     class EventType(Enum):
         """Типы событий ввода"""
         MOUSE_CLICK = 0    # Клик кнопки мыши
@@ -744,34 +896,34 @@ class InputEventsManager:
         self.__events: list[dict] = []            # Текущие события
 
     def add_mouse_listener(
-        self, 
-        event_type: EventType, 
-        button: Union[Literal["left", "right", "middle"], MouseButtons], 
+        self,
+        event_type: EventType,
+        button: Union[Literal["left", "right", "middle"], MouseButtons],
         listener_id: Optional[Union[int, str]] = None
     ) -> Self:
         """
         #### Добавляет слушатель событий мыши
-        
+
         ---
-        
+
         :Arguments:
         - event_type: Тип события (клик/удержание)
         - button: Кнопка мыши
         - listener_id: Уникальный идентификатор слушателя
-            
+
         ---
-        
+
         :Returns:
             InputEventsManager: self для цепочки вызовов
-            
+
         ---
-        
+
         :Raises:
             InvalidInputError: Некорректный тип события
         """
         if not isinstance(event_type, self.EventType):
             raise InvalidInputError("Invalid event type")
-            
+
         self.__listened_objects.append({
             "type": event_type,
             "listener": Mouse(),
@@ -781,28 +933,28 @@ class InputEventsManager:
         return self
 
     def add_keyboard_listener(
-        self, 
-        event_type: EventType, 
-        keys: str, 
+        self,
+        event_type: EventType,
+        keys: str,
         listener_id: Optional[Union[int, str]] = None
     ) -> Self:
         """
         #### Добавляет слушатель событий клавиатуры
-        
+
         ---
-        
+
         :Arguments:
         - event_type: Тип события (клик/удержание)
         - keys: Клавиша или комбинация
         - listener_id: Уникальный идентификатор слушателя
-            
+
         ---
-        
+
         :Returns:
             InputEventsManager: self для цепочки вызовов
-            
+
         ---
-        
+
         :Raises:
             InvalidInputError: Некорректный тип события или клавиши
         """
@@ -810,7 +962,7 @@ class InputEventsManager:
             raise InvalidInputError("Invalid event type")
         if not isinstance(keys, str):
             raise InvalidInputError("Keys must be string")
-            
+
         self.__listened_objects.append({
             "type": event_type,
             "listener": Keyboard(),
@@ -818,18 +970,18 @@ class InputEventsManager:
             "id": listener_id or len(self.__listened_objects)
         })
         return self
-    
+
     def remove_listener(self, listener_id: Union[int, str]) -> None:
         """
         #### Удаляет слушатель по идентификатору
-        
+
         ---
-        
+
         :Arguments:
             listener_id: Идентификатор слушателя
-            
+
         ---
-        
+
         :Raises:
             ValueError: Слушатель не найден
         """
@@ -844,53 +996,53 @@ class InputEventsManager:
         self.__listened_objects.clear()
 
     def present_call(
-        self, 
-        listener_id: Union[int, str], 
-        callback: Callable, 
-        *args, 
+        self,
+        listener_id: Union[int, str],
+        callback: Callable,
+        *args,
         **kwargs
     ) -> None:
         """
         #### Вызывает callback-функцию при наступлении события
 
         Необходимо вызывать непосредственно в цикле
-        
+
         ---
-        
+
         :Arguments:
         - listener_id: Идентификатор слушателя
         - callback: Функция для вызова
         - args: Позиционные аргументы
         - kwargs: Именованные аргументы
-            
+
         ---
-        
+
         :Raises:
             InvalidInputError: Callback не является функцией
             ValueError: Слушатель не найден
         """
         if not callable(callback):
             raise InvalidInputError("Callback must be callable")
-            
+
         if self.get(listener_id):
             callback(*args, **kwargs)
 
     def get(self, listener_id: Union[int, str]) -> bool:
         """
         #### Проверяет, произошло ли событие
-        
+
         ---
-        
+
         :Arguments:
             listener_id: Идентификатор слушателя
-            
+
         ---
-        
+
         :Returns:
             bool: Произошло ли событие
-            
+
         ---
-        
+
         :Raises:
             ValueError: Слушатель не найден
         """
@@ -898,13 +1050,13 @@ class InputEventsManager:
             if event["id"] == listener_id:
                 return event["value"]
         raise ValueError(f"Event with id '{listener_id}' not found")
-            
+
     def get_all(self) -> list[tuple[Union[int, str], bool]]:
         """
         #### Возвращает все текущие события
-        
+
         ---
-        
+
         :Returns:
             list: Список кортежей (идентификатор, состояние)
         """
@@ -913,17 +1065,17 @@ class InputEventsManager:
     def update(self) -> None:
         """
         #### Обновляет состояние всех событий
-        
+
         Должен вызываться каждый кадр для корректной работы
         """
         self.__events.clear()
-        
+
         for listener in self.__listened_objects:
             try:
                 listener_obj = listener["listener"]
                 event_type = listener["type"]
                 listener_id = listener["id"]
-                
+
                 # Обработка событий мыши
                 if isinstance(listener_obj, Mouse):
                     button = listener["button"]
@@ -933,7 +1085,7 @@ class InputEventsManager:
                         value = listener_obj.get_press(button)
                     else:
                         continue
-                        
+
                 # Обработка событий клавиатуры
                 elif isinstance(listener_obj, Keyboard):
                     keys = listener["keys"]
@@ -943,9 +1095,9 @@ class InputEventsManager:
                         value = listener_obj.get_press(keys)
                     else:
                         continue
-                
+
                 # Сохранение результата проверки
                 self.__events.append({"id": listener_id, "value": value})
-                
+
             except Exception as e:
                 raise InputError(f"Failed to update input events: {e}")

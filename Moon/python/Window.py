@@ -77,11 +77,6 @@ import keyboard
 from time import time
 from typing import overload, Final, final, Self
 
-# ПУТЬ ДЛЯ ГЛОБАЛЬНОГО ЛОКАЛЬНОГО ПОИСКА ЯДРА +
-from Moon import DLL_FOUND_PATH               #
-from Moon import DLL_LOCAL_FOUND_PATH         #
-# =========================================== +
-
 from Moon.python.Colors import *
 from Moon.python.Time import Clock
 from Moon.python.Views import View
@@ -937,6 +932,11 @@ class Window:
         self.__using_keybinding_for_open_fps_monitor: bool = False
         self.__fps_monitor_key_binding: str = "alt+f"
         self.__fps_monitor_opened: bool = True
+
+        # Значения вычисляющиеся с кеширование
+        self.__cached_window_center: Vector2f = Vector2f(width / 2, height / 2)
+        self.__cached_window_size: Vector2f = Vector2f(width, height)
+
 
         # Флаг который будет реализован в будщем
         self.__using_custom_window: bool = False
@@ -1880,6 +1880,7 @@ class Window:
         """
         if width <= 0 or height <= 0:
             raise ValueError("Window dimensions must be positive")
+        self.__cached_window_size = Vector2i(width, height)
         LIB_MOON._Window_SetSize(self.__window_ptr, width, height)
         return self
 
@@ -1916,7 +1917,7 @@ class Window:
         return self.__window_ptr
 
     @final
-    def get_size(self) -> Vector2i:
+    def get_size(self, use_cache: bool = True) -> Vector2i:
         """
         #### Возвращает текущий размер клиентской области окна
 
@@ -1941,13 +1942,15 @@ class Window:
         print(f"Ширина: {size.x}, Высота: {size.y}")
         ```
         """
+        if use_cache:
+            return self.__cached_window_size
         return Vector2i(
             LIB_MOON._Window_GetSizeWidth(self.__window_ptr),
             LIB_MOON._Window_GetSizeHeight(self.__window_ptr)
         )
 
     @final
-    def get_center(self) -> Vector2f:
+    def get_center(self, use_cache: bool = True) -> Vector2f:
         """
         #### Возвращает координаты центра окна
 
@@ -1957,6 +1960,11 @@ class Window:
         - Вычисляет центр относительно клиентской области
         - Возвращает координаты в пикселях
         - Полезно для центрирования элементов
+
+        ---
+
+        :Args:
+        - use_cache: bool - использовать ли кэш ( не обращаться каждый раз к системе для получения данных об окне )
 
         ---
 
@@ -1971,6 +1979,8 @@ class Window:
         sprite.position = window.get_center()
         ```
         """
+        if use_cache:
+            return self.__cached_window_center
         size = self.get_size()
         return Vector2f(
             size.x / 2,
@@ -2690,6 +2700,11 @@ class Window:
 
         # Обновление флага изменения размера
         self.__update_resize_status()
+
+        if self.get_resized():
+            size = self.get_size(False)
+            self.__cached_window_size = size
+            self.__cached_window_center = Vector2f(size.x / 2, size.y / 2)
 
         return True
 

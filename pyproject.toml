@@ -10,7 +10,7 @@ Moon = ["**/*"]
 
 [project]
 name = "MoonFramework"
-version = "0.1.6"
+version = "0.1.19"
 description = "Moon"
 readme = "README.md"
 authors = [
@@ -23,6 +23,6 @@ dependencies = [
     "colorama",
     "keyboard", 
     "typing_extensions", 
-    "tripy"
+    "tripy", "pywin32"
 ]
 

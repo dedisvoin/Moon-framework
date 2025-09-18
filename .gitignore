@@ -17,3 +17,5 @@ __pycache__/
 .game_data/
 .venv/
 build/
+
+update.py
