@@ -18,7 +18,5 @@ __pycache__/
 .zed/
 build/
 
-update.py
-BaseGame.py
-Moon.Examples/
-game_data/
+update.py       # скрипт для обновления пакета на pypi
+Moon.Examples/  # примеры использования пакета
