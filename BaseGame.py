@@ -8,8 +8,6 @@ from Moon.python.Inputs import *
 from Moon.python.Math import distance
 from Moon.python.Engine.ParticleSystem import *
 import random
-
-
 window = Window(1920, 1080, title="Minesweeper", context_settings=ContextSettings().set_antialiasing_level(8), vsync=False).set_view_info()
 window.enable_fpsmonitor_keybinding()
 window.set_fpsmonitor_keybinding('shift+m')
