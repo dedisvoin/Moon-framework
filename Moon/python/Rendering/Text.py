@@ -109,8 +109,8 @@ LIB_MOON.setTextColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, c
 LIB_MOON.setTextColor.restype = None
 LIB_MOON.setTextPosition.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
 LIB_MOON.setTextPosition.restype = None
-LIB_MOON.setTextOfsset.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
-LIB_MOON.setTextOfsset.restype = None
+LIB_MOON.setTextOffset.argtypes = [ctypes.c_void_p, ctypes.c_float, ctypes.c_float]
+LIB_MOON.setTextOffset.restype = None
 LIB_MOON.setTextAngle.argtypes = [ctypes.c_void_p, ctypes.c_float]
 LIB_MOON.setTextAngle.restype = None
 LIB_MOON.setStyle.argtypes = [ctypes.c_void_p, ctypes.c_int]
@@ -733,7 +733,7 @@ class BaseText:
         text_obj.set_origin(text_width/2, text_height/2)
         ```
         """
-        LIB_MOON.setTextOfsset(self.__text_ptr, x, y)
+        LIB_MOON.setTextOffset(self.__text_ptr, x, y)
         self.__origin.x = x
         self.__origin.y = y
         return self

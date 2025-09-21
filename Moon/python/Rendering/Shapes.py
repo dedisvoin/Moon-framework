@@ -1,5 +1,4 @@
 import ctypes
-import os
 from typing import Self, Final, final
 
 from Moon.python.Types import *
@@ -7,13 +6,15 @@ from Moon.python.Colors import *
 from Moon.python.Vectors import Vector2f, Vector2i
 from Moon.python.Rendering.Vertexes import VertexArray, Vertex
 
-from ..utils import find_library, LibraryLoadError
+from Moon.python.utils import find_library
 
 # Псевдоним для типа указателя на шейп прямоугольника ======= +
 RectanglePtr: Final[type[ctypes.c_void_p]] = ctypes.c_void_p  #
 # =========================================================== +
 
-RectanglePtrType = type[RectanglePtr]
+# Тип указателя на шейп прямоугольника ====================== +
+RectanglePtrType = type[RectanglePtr]                         #
+# =========================================================== +
 
 # Загружаем DLL библиотеку
 try:

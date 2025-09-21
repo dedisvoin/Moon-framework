@@ -1,98 +1,105 @@
 // ===============================================================================
-// File: BUILDED_SGL_CIRCLE_SHAPE.cpp 
+// File: BUILDED_SGL_CIRCLE_SHAPE.cpp
 // SFML Circle Shape API implementation
 // Part of DLL library
 //
 // Features:
 // - Create/delete circles
-// - Position/radius/rotation control  
+// - Position/radius/rotation control
 // - Fill/outline color settings
 // - Scaling and origin adjustment
 // - Get current shape parameters
 // ===============================================================================
 
-
 #include "SFML/Graphics.hpp"
 
-
-typedef sf::CircleShape* CirclePtr;
+typedef sf::CircleShape *CirclePtr;
 // Create/delete circle shape
-extern "C" __declspec(dllexport) CirclePtr _Circle_Create(float radius, int point_count) {
-    return new sf::CircleShape(radius, point_count);
+extern "C" __declspec(dllexport) CirclePtr _Circle_Create(float radius,
+                                                          int point_count) {
+  return new sf::CircleShape(radius, point_count);
 }
 
 extern "C" __declspec(dllexport) void _Circle_Delete(CirclePtr circle) {
-    delete circle;
+  delete circle;
 }
 
 // Position control
-extern "C" __declspec(dllexport) void _Circle_SetPosition(CirclePtr circle, float x, float y) {
-    circle->setPosition(x, y);
+extern "C" __declspec(dllexport) void _Circle_SetPosition(CirclePtr circle,
+                                                          float x, float y) {
+  circle->setPosition(x, y);
 }
 
 extern "C" __declspec(dllexport) float _Circle_GetPositionX(CirclePtr circle) {
-    return circle->getPosition().x;
+  return circle->getPosition().x;
 }
 
 extern "C" __declspec(dllexport) float _Circle_GetPositionY(CirclePtr circle) {
-    return circle->getPosition().y;
+  return circle->getPosition().y;
 }
 
 // Radius control
-extern "C" __declspec(dllexport) void _Circle_SetRadius(CirclePtr circle, float radius) {
-    circle->setRadius(radius);
+extern "C" __declspec(dllexport) void _Circle_SetRadius(CirclePtr circle,
+                                                        float radius) {
+  circle->setRadius(radius);
 }
 
 extern "C" __declspec(dllexport) float _Circle_GetRadius(CirclePtr circle) {
-    return circle->getRadius();
+  return circle->getRadius();
 }
 
 // Rotation
-extern "C" __declspec(dllexport) void _Circle_SetRotation(CirclePtr circle, float angle) {
-    circle->setRotation(angle);
+extern "C" __declspec(dllexport) void _Circle_SetRotation(CirclePtr circle,
+                                                          float angle) {
+  circle->setRotation(angle);
 }
 
 extern "C" __declspec(dllexport) float _Circle_GetRotation(CirclePtr circle) {
-    return circle->getRotation();
+  return circle->getRotation();
 }
 
 // Colors
-extern "C" __declspec(dllexport) void _Circle_SetFillColor(CirclePtr circle, int r, int g, int b, int a) {
-    circle->setFillColor(sf::Color(r, g, b, a));
+extern "C" __declspec(dllexport) void
+_Circle_SetFillColor(CirclePtr circle, int r, int g, int b, int a) {
+  circle->setFillColor(sf::Color(r, g, b, a));
 }
 
-extern "C" __declspec(dllexport) void _Circle_SetOutlineColor(CirclePtr circle, int r, int g, int b, int a) {
-    circle->setOutlineColor(sf::Color(r, g, b, a));
+extern "C" __declspec(dllexport) void
+_Circle_SetOutlineColor(CirclePtr circle, int r, int g, int b, int a) {
+  circle->setOutlineColor(sf::Color(r, g, b, a));
 }
 
-extern "C" __declspec(dllexport) void _Circle_SetOutlineThickness(CirclePtr circle, float thickness) {
-    circle->setOutlineThickness(thickness);
+extern "C" __declspec(dllexport) void
+_Circle_SetOutlineThickness(CirclePtr circle, float thickness) {
+  circle->setOutlineThickness(thickness);
 }
 
 // Scale
-extern "C" __declspec(dllexport) void _Circle_SetScale(CirclePtr circle, float scaleX, float scaleY) {
-    circle->setScale(scaleX, scaleY);
+extern "C" __declspec(dllexport) void
+_Circle_SetScale(CirclePtr circle, float scaleX, float scaleY) {
+  circle->setScale(scaleX, scaleY);
 }
 
 extern "C" __declspec(dllexport) float _Circle_GetScaleX(CirclePtr circle) {
-    return circle->getScale().x;
+  return circle->getScale().x;
 }
 
 extern "C" __declspec(dllexport) float _Circle_GetScaleY(CirclePtr circle) {
-    return circle->getScale().y;
+  return circle->getScale().y;
 }
 
 // Origin
-extern "C" __declspec(dllexport) void _Circle_SetOrigin(CirclePtr circle, float x, float y) {
-    circle->setOrigin(x, y);
+extern "C" __declspec(dllexport) void _Circle_SetOrigin(CirclePtr circle,
+                                                        float x, float y) {
+  circle->setOrigin(x, y);
 }
 
 extern "C" __declspec(dllexport) float _Circle_GetOriginX(CirclePtr circle) {
-    return circle->getOrigin().x;
+  return circle->getOrigin().x;
 }
 
 extern "C" __declspec(dllexport) float _Circle_GetOriginY(CirclePtr circle) {
-    return circle->getOrigin().y;
+  return circle->getOrigin().y;
 }
 // ===============================================================================
 #include "SFML/Graphics.hpp"
@@ -113,44 +120,115 @@ extern "C" {
         return clock->getElapsedTime().asSeconds();
     }
 }
-#ifndef SFML_GRAPHICS_HPP
-#include "SFML/Graphics.hpp"
-#endif
-#ifndef SFML_WINDOW_HPP
-#include "SFML/Window.hpp"
-#endif
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/// Модуль предоставляющий базовый интерфейс для работы с вводом
+/////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+#include "SFML/Graphics/RenderWindow.hpp"
+#include "SFML/System/Vector2.hpp"
 
-// BUILTED_SGL_INPUTS.cpp =========================================================================
+#define MOON_API __declspec(dllexport)
+
+// ==============================================================================================
+// БЛОК ВНЕШНЕГО C-ИНТЕРФЕЙСА (экспортируемые функции)
+// ==============================================================================================
+
 extern "C" {
-    __declspec(dllexport) bool IsKeyPressed(int key) {
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ РАБОТЫ С КЛАВИАТУРОЙ
+    // ==========================================================================================
+
+    /**
+     * @brief Проверяет, нажата ли указанная клавиша в данный момент
+     * @param key Код клавиши (из перечисления sf::Keyboard::Key)
+     * @return true если клавиша нажата, false в противном случае
+     */
+    MOON_API bool _Keyboard_IsKeyPressed(int key) {
         return sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(key));
     }
-}
 
-extern "C" {
-    __declspec(dllexport) bool IsMouseButtonPressed(int button) {
+    /**
+     * @brief Показывает или скрывает виртуальную клавиатуру (актуально для мобильных устройств)
+     * @param visible true - показать клавиатуру, false - скрыть
+     */
+    MOON_API void _Keyboard_SetVirtualKeyboardVisible(bool visible) {
+        sf::Keyboard::setVirtualKeyboardVisible(visible);
+    }
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ РАБОТЫ С МЫШЬЮ
+    // ==========================================================================================
+
+    /**
+     * @brief Проверяет, нажата ли указанная кнопка мыши в данный момент
+     * @param button Код кнопки мыши (из перечисления sf::Mouse::Button)
+     * @return true если кнопка нажата, false в противном случае
+     */
+    MOON_API bool _Mouse_IsButtonPressed(int button) {
         return sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(button));
     }
 
-    __declspec(dllexport) int GetMousePositionX() {
+    /**
+     * @brief Возвращает текущую координату X курсора мыши в глобальных координатах экрана
+     * @return Координата X курсора мыши
+     */
+    MOON_API int _Mouse_GetPositionX() {
         return sf::Mouse::getPosition().x;
     }
 
-    __declspec(dllexport) int GetMousePositionY() {
+    /**
+     * @brief Возвращает текущую координату Y курсора мыши в глобальных координатах экрана
+     * @return Координата Y курсора мыши
+     */
+    MOON_API int _Mouse_GetPositionY() {
         return sf::Mouse::getPosition().y;
     }
 
-    __declspec(dllexport) int GetMousePositionXWindow(sf::RenderWindow* window) {
+    /**
+     * @brief Возвращает текущую координату X курсора мыши относительно окна
+     * @param window Указатель на объект окна RenderWindow
+     * @return Координата X курсора мыши относительно окна
+     */
+    MOON_API int _Mouse_GetPositionXWindow(sf::RenderWindow* window) {
         return sf::Mouse::getPosition(*window).x;
     }
 
-    __declspec(dllexport) int GetMousePositionYWindow(sf::RenderWindow* window) {
+    /**
+     * @brief Возвращает текущую координату Y курсора мыши относительно окна
+     * @param window Указатель на объект окна RenderWindow
+     * @return Координата Y курсора мыши относительно окна
+     */
+    MOON_API int _Mouse_GetPositionYWindow(sf::RenderWindow* window) {
         return sf::Mouse::getPosition(*window).y;
     }
 
-    
-}
-// BUILDED_SGL_INPUTS.cpp =========================================================================
+    /**
+     * @brief Устанавливает позицию курсора мыши в глобальных координатах экрана
+     * @param x Координата X для установки
+     * @param y Координата Y для установки
+     */
+    MOON_API void _Mouse_SetPosition(int x, int y) {
+        sf::Mouse::setPosition(sf::Vector2i(x, y));
+    }
+
+    /**
+     * @brief Устанавливает позицию курсора мыши относительно окна
+     * @param x Координата X для установки относительно окна
+     * @param y Координата Y для установки относительно окна
+     * @param window Указатель на объект окна RenderWindow
+     */
+    MOON_API void _Mouse_SetPositionWindow(int x, int y, sf::RenderWindow* window) {
+        sf::Mouse::setPosition(sf::Vector2i(x, y), *window);
+    }
+
+
+} // extern "C"
+
+// ==============================================================================================
+// КОНЕЦ ФАЙЛА
+// ==============================================================================================
 // ===============================================================================
 // File: BUILDED_SGL_RECTANGLE_SHAPE.cpp
 // SFML Rectangle Shape API implementation
@@ -508,6 +586,7 @@ extern "C" {
         music->setAttenuation(attenuation);
     }
 }
+// Подключение необходимых заголовочных файлов SFML
 #ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
 #endif
@@ -517,91 +596,215 @@ extern "C" {
 #ifndef SFML_SYSTEM_HPP
 #include "SFML/System.hpp"
 #endif
+
+// Установка кодировки для корректного отображения русских символов
 #pragma execution_character_set("utf-8")
 
-// BUILTED_SGL_TEXT.cpp =========================================================================
+// ==============================================================================================
+// БЛОК ОПРЕДЕЛЕНИЯ ТИПОВ ДАННЫХ
+// ==============================================================================================
 
-typedef sf::Font* FontPtr;
-typedef sf::Text* TextPtr;
+// Определение псевдонимов типов для удобства работы с указателями SFML
+typedef sf::Font* FontPtr;    // Указатель на объект шрифта
+typedef sf::Text* TextPtr;    // Указатель на объект текста
+
+// ==============================================================================================
+// БЛОК ВНЕШНЕГО C-ИНТЕРФЕЙСА (экспортируемые функции)
+// ==============================================================================================
 
 extern "C" {
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ РАБОТЫ СО ШРИФТАМИ
+    // ==========================================================================================
+
+    /**
+     * @brief Загружает шрифт из файла
+     * @param path Путь к файлу шрифта
+     * @return Указатель на загруженный шрифт или nullptr в случае ошибки
+     */
     __declspec(dllexport) FontPtr loadSystemFont(const char* path) {
         FontPtr font = new sf::Font();
         try {
+            // Попытка загрузки шрифта из файла
             if (!font->loadFromFile(path)) {
+                delete font;  // Важно: освобождаем память при неудачной загрузке
                 return nullptr;
             }
         } catch (const std::exception& e) {
+            delete font;  // Освобождаем память в случае исключения
             return nullptr;
         }
+        // Отключаем сглаживание для более четкого отображения
         font->setSmooth(false);
         return font;
     }
 
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ СОЗДАНИЯ И УПРАВЛЕНИЯ ТЕКСТОМ
+    // ==========================================================================================
+
+    /**
+     * @brief Создает объект текста с указанным шрифтом
+     * @param font Указатель на шрифт
+     * @return Указатель на созданный объект текста
+     */
     __declspec(dllexport) TextPtr createText(FontPtr font) {
         TextPtr text = new sf::Text();
         text->setFont(*font);
         return text;
-    } 
+    }
 
+    /**
+     * @brief Устанавливает текстовое содержимое
+     * @param text Указатель на объект текста
+     * @param str Строка для отображения (в кодировке UTF-8)
+     */
     __declspec(dllexport) void setText(TextPtr text, const char* str) {
         std::string std_str(str);
+        // Преобразование из UTF-8 в внутренний формат SFML
         text->setString(sf::String::fromUtf8(std_str.begin(), std_str.end()));
     }
 
+    /**
+     * @brief Устанавливает размер символов текста
+     * @param text Указатель на объект текста
+     * @param size Размер шрифта в пикселях
+     */
     __declspec(dllexport) void setTextSize(TextPtr text, int size) {
         text->setCharacterSize(size);
     }
 
+    /**
+     * @brief Устанавливает масштаб текста
+     * @param text Указатель на объект текста
+     * @param scaleX Масштаб по оси X
+     * @param scaleY Масштаб по оси Y
+     */
     __declspec(dllexport) void setTextScale(TextPtr text, float scaleX, float scaleY) {
         text->setScale(scaleX, scaleY);
     }
 
+    /**
+     * @brief Устанавливает цвет текста
+     * @param text Указатель на объект текста
+     * @param r Красная компонента цвета (0-255)
+     * @param g Зеленая компонента цвета (0-255)
+     * @param b Синяя компонента цвета (0-255)
+     * @param a Альфа-компонента (прозрачность, 0-255)
+     */
     __declspec(dllexport) void setTextColor(TextPtr text, int r, int g, int b, int a) {
         text->setFillColor(sf::Color(r, g, b, a));
     }
 
+    /**
+     * @brief Устанавливает позицию текста на экране
+     * @param text Указатель на объект текста
+     * @param x Координата X
+     * @param y Координата Y
+     */
     __declspec(dllexport) void setTextPosition(TextPtr text, float x, float y) {
         text->setPosition(x, y);
     }
 
-    __declspec(dllexport) void setTextOfsset(TextPtr text, float x, float y) {
+    /**
+     * @brief Устанавливает точку отсчета (origin) для трансформаций текста
+     * @param text Указатель на объект текста
+     * @param x Смещение по X относительно левого верхнего угла
+     * @param y Смещение по Y относительно левого верхнего угла
+     */
+    __declspec(dllexport) void setTextOffset(TextPtr text, float x, float y) {
         text->setOrigin(x, y);
     }
 
+    /**
+     * @brief Устанавливает угол поворота текста
+     * @param text Указатель на объект текста
+     * @param angle Угол поворота в градусах
+     */
     __declspec(dllexport) void setTextAngle(TextPtr text, float angle) {
         text->setRotation(angle);
     }
 
+    /**
+     * @brief Устанавливает стиль текста (жирный, курсив, подчеркнутый)
+     * @param text Указатель на объект текста
+     * @param style Комбинация флагов стиля из sf::Text::Style
+     */
     __declspec(dllexport) void setStyle(TextPtr text, sf::Text::Style style) {
         text->setStyle(style);
     }
 
+    /**
+     * @brief Устанавливает цвет контура текста
+     * @param text Указатель на объект текста
+     * @param r Красная компонента цвета (0-255)
+     * @param g Зеленая компонента цвета (0-255)
+     * @param b Синяя компонента цвета (0-255)
+     * @param a Альфа-компонента (прозрачность, 0-255)
+     */
     __declspec(dllexport) void setOutlineColor(TextPtr text, int r, int g, int b, int a) {
         text->setOutlineColor(sf::Color(r, g, b, a));
     }
 
+    /**
+     * @brief Устанавливает толщину контура текста
+     * @param text Указатель на объект текста
+     * @param thickness Толщина контура в пикселях
+     */
     __declspec(dllexport) void setOutlineThickness(TextPtr text, float thickness) {
         text->setOutlineThickness(thickness);
     }
 
+    /**
+     * @brief Устанавливает межбуквенное расстояние
+     * @param text Указатель на объект текста
+     * @param spacing Коэффициент межбуквенного расстояния
+     */
     __declspec(dllexport) void setLetterSpacing(TextPtr text, float spacing) {
         text->setLetterSpacing(spacing);
     }
 
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ ПОЛУЧЕНИЯ ИНФОРМАЦИИ О ТЕКСТЕ
+    // ==========================================================================================
+
+    /**
+     * @brief Возвращает ширину текста в пикселях
+     * @param text Указатель на объект текста
+     * @return Ширина текста с учетом всех трансформаций
+     */
     __declspec(dllexport) double getTextWidth(TextPtr text) {
         return text->getGlobalBounds().width;
     }
 
+    /**
+     * @brief Возвращает высоту текста в пикселях
+     * @param text Указатель на объект текста
+     * @return Высота текста с учетом всех трансформаций
+     */
     __declspec(dllexport) double getTextHeight(TextPtr text) {
         return text->getGlobalBounds().height;
     }
 
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ ИЗМЕНЕНИЯ СВОЙСТВ ТЕКСТА
+    // ==========================================================================================
+
+    /**
+     * @brief Изменяет шрифт для текста
+     * @param text Указатель на объект текста
+     * @param font Указатель на новый шрифт
+     */
     __declspec(dllexport) void setFont(TextPtr text, FontPtr font) {
         text->setFont(*font);
     }
-}
-// BUILTED_SGL_TEXT.cpp =========================================================================
+
+} // extern "C"
+
+// ==============================================================================================
+// КОНЕЦ ФАЙЛА
+// ==============================================================================================
 #ifndef SFML_GRAPHICS_HPP
 #include "SFML/Graphics.hpp"
 #endif

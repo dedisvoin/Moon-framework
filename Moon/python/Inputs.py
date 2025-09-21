@@ -69,20 +69,23 @@ Copyright (c) 2025 Pavlov Ivan
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
+import os
 import time
+import mouse
 import ctypes
 import keyboard
 import win32gui         # pyright: ignore[reportMissingModuleSource]
 import win32api         # pyright: ignore[reportMissingModuleSource]
 import win32process     # pyright: ignore[reportMissingModuleSource]
 
-from enum import Enum
+from enum import STRICT, Enum
 from functools import lru_cache
+from threading import Event, Thread
 from typing import Any, Callable, Literal, Final, final, Optional, Union, Set, Dict
 
 
-from Moon.python.Types import Self
-from Moon.python.Vectors import Vector2i  # Векторные операции для позиций
+from Moon.python.Types import AutoIdentifier, Self
+from Moon.python.Vectors import Vector2f, Vector2i  # Векторные операции для позиций
 from Moon.python.utils import find_library, LibraryLoadError
 
 
@@ -97,7 +100,7 @@ class InvalidInputError(InputError):
     """Некорректные параметры ввода"""
     pass
 
-# ==================== НАТИВНЫЕ ФУНКЦИИ ====================
+
 # Загрузка библиотеки
 try:
     _lib = ctypes.CDLL(find_library())
@@ -106,88 +109,135 @@ except Exception as e:
 
 # Проверка наличия обязательных функций
 REQUIRED_FUNCTIONS = [
-    'IsKeyPressed', 'IsMouseButtonPressed',
-    'GetMousePositionX', 'GetMousePositionY',
-    'GetMousePositionXWindow', 'GetMousePositionYWindow'
+    '_Keyboard_IsKeyPressed', '_Mouse_IsButtonPressed',
+    '_Mouse_GetPositionX', '_Mouse_GetPositionY',
+    '_Mouse_GetPositionXWindow', '_Mouse_GetPositionYWindow',
+    '_Mouse_SetPosition', '_Mouse_SetPositionWindow'
 ]
-
 
 for func in REQUIRED_FUNCTIONS:
     if not hasattr(_lib, func):
         raise LibraryLoadError(f"Required function {func} not found in library")
 
-# ==================== C/C++ БИНДИНГИ ====================
 
 class KeyboardLayout:
+    """Класс для представления раскладки клавиатуры"""
     def __init__(self, name: str, value: int):
-        self.__name = name
-        self.__value = value
+        self.__name = name     # Имя раскладки
+        self.__value = value   # Значение раскладки (id)
 
     def get_name(self) -> str:
+        """Возвращает имя раскладки"""
         return self.__name
 
     def get_value(self) -> int:
+        """Возвращает значение раскладки"""
         return self.__value
 
     def __str__(self) -> str:
+        """Возвращает строковое представление раскладки"""
         return f"Layout: {self.__name} ({self.__value})"
 
     def __eq__(self, value: object) -> bool:
+        """Сравнивает раскладки"""
         if not isinstance(value, KeyboardLayout):
             return NotImplemented
         return self.__value == value.get_value()
 
     def __ne__(self, value: object) -> bool:
+        """Сравнивает раскладки"""
         if not isinstance(value, KeyboardLayout):
             return NotImplemented
         return self.__value != value.get_value()
 
     def __hash__(self) -> int:
+        """Возвращает хэш-код раскладки"""
         return hash(self.__value)
 
-
-LAYOUT_EN =      KeyboardLayout("EN", 0x0409)
-LAYOUT_RU =      KeyboardLayout("RU", 0x0419)
-LAYOUT_UNKNOWN = KeyboardLayout("Unknown", 0xffff)
+# Layouts ===========================================================
+LAYOUT_EN =       KeyboardLayout("EN", 0x0409)       # English layout
+LAYOUT_RU =       KeyboardLayout("RU", 0x0419)       # Russian layout
+LAYOUT_UNKNOWN =  KeyboardLayout("Unknown", 0xffff)  # Unknown layout
+# ===================================================================
 
 
 def convert_ru_with_qwerty_layout(key: str) -> str:
+    """
+    #### Метод для конвертации русских букв в английские с использованием QWERTY раскладки.
+
+    ---
+
+    :Args:
+        key (str): Ключ для конвертации.
+
+    :Returns:
+        str: Конвертированный символ.
+
+    """
     return Keyboard.QWERTY_LAYOUT[key]
 
 
+# Метод для получения текущей раскладки клавиатуры на Windows
+if os.name == 'nt':
+    def get_keyboard_layout() -> KeyboardLayout:
+        """
+        #### Определяет текущую раскладку клавиатуры активного окна.
 
+        ---
 
-def get_keyboard_layout() -> KeyboardLayout:
-    """
-    #### Определяет текущую раскладку клавиатуры активного окна.
+        :Returns:
+            str: "RU" для русской раскладки, "EN" для английской,
+                или "Unknown" для любой другой.
 
-    ---
+        ---
 
-    :Returns:
-        str: "RU" для русской раскладки, "EN" для английской,
-             или "Unknown" для любой другой.
+        :Note:
+            Эта функция специфична для операционной системы Windows,
+            так как использует модули `win32gui`, `win32process`, `win32api`.
+        """
 
-    ---
+        hwnd = win32gui.GetForegroundWindow()
 
-    :Note:
-        Эта функция специфична для операционной системы Windows,
-        так как использует модули `win32gui`, `win32process`, `win32api`.
-    """
+        thread_id, _ = win32process.GetWindowThreadProcessId(hwnd)
+        layout_id = win32api.GetKeyboardLayout(thread_id)
 
-    hwnd = win32gui.GetForegroundWindow()
+        lang_id = layout_id & 0xFFFF
 
-    thread_id, _ = win32process.GetWindowThreadProcessId(hwnd)
-    layout_id = win32api.GetKeyboardLayout(thread_id)
+        if lang_id == 0x0419: # Russian keyboard layout
+            return LAYOUT_RU
+        elif lang_id == 0x0409:
+            return LAYOUT_EN
+        else:
+            return LAYOUT_UNKNOWN
+# Метод для определения раскладки клавиатуры на Linux
+if os.name == 'linux':
+    def get_keyboard_layout() -> KeyboardLayout:
+        """
+        #### Определяет текущую раскладку клавиатуры на Linux.
 
-    lang_id = layout_id & 0xFFFF
+        ---
 
-    if lang_id == 0x0419: # Russian keyboard layout
-        return LAYOUT_RU
-    elif lang_id == 0x0409:
-        return LAYOUT_EN
-    else:
-        return LAYOUT_UNKNOWN
+        :Returns:
+            KeyboardLayout: Текущая раскладка клавиатуры
 
+        ---
+
+        :Raises:
+            InputError: Ошибка при определении раскладки
+        """
+        try:
+            with open('/etc/default/keyboard', 'r') as f:
+                for line in f:
+                    if line.startswith('XKBLAYOUT='):
+                        layout = line.split('=')[1].strip().strip('"')
+                        if layout == 'ru':
+                            return LAYOUT_RU
+                        elif layout == 'us':
+                            return LAYOUT_EN
+                        else:
+                            return LAYOUT_UNKNOWN
+        except Exception as e:
+            raise InputError(f"Error getting keyboard layout: {e}")
 
 def is_key_pressed(key: Union[int, str]) -> bool:
     """
@@ -219,12 +269,11 @@ def is_key_pressed(key: Union[int, str]) -> bool:
 
     try:
         # Настройка и вызов нативной функции
-        _lib.IsKeyPressed.restype = ctypes.c_bool
-        _lib.IsKeyPressed.argtypes = [ctypes.c_int]
-        return _lib.IsKeyPressed(key)
+        _lib._Keyboard_IsKeyPressed.restype = ctypes.c_bool
+        _lib._Keyboard_IsKeyPressed.argtypes = [ctypes.c_int]
+        return _lib._Keyboard_IsKeyPressed(key)
     except Exception as e:
         raise InputError(f"Key press check failed: {e}")
-
 
 def is_mouse_button_pressed(button: int) -> bool:
     """
@@ -250,12 +299,11 @@ def is_mouse_button_pressed(button: int) -> bool:
         raise InvalidInputError("Mouse button must be integer 0-2")
 
     try:
-        _lib.IsMouseButtonPressed.restype = ctypes.c_bool
-        _lib.IsMouseButtonPressed.argtypes = [ctypes.c_int]
-        return _lib.IsMouseButtonPressed(button)
+        _lib._Mouse_IsButtonPressed.restype = ctypes.c_bool
+        _lib._Mouse_IsButtonPressed.argtypes = [ctypes.c_int]
+        return _lib._Mouse_IsButtonPressed(button)
     except Exception as e:
         raise InputError(f"Mouse button check failed: {e}")
-
 
 def get_mouse_position() -> Vector2i:
     """
@@ -272,12 +320,11 @@ def get_mouse_position() -> Vector2i:
         InputError: Ошибка при получении позиции
     """
     try:
-        _lib.GetMousePositionX.restype = ctypes.c_int
-        _lib.GetMousePositionY.restype = ctypes.c_int
-        return Vector2i(_lib.GetMousePositionX(), _lib.GetMousePositionY())
+        _lib._Mouse_GetPositionX.restype = ctypes.c_int
+        _lib._Mouse_GetPositionY.restype = ctypes.c_int
+        return Vector2i(_lib._Mouse_GetPositionX(), _lib._Mouse_GetPositionY())
     except Exception as e:
         raise InputError(f"Failed to get mouse position: {e}")
-
 
 def get_mouse_position_in_window(window: Any) -> Vector2i:
     """
@@ -307,18 +354,74 @@ def get_mouse_position_in_window(window: Any) -> Vector2i:
         if not isinstance(window_ptr, int):
             raise InvalidInputError("Window pointer must be integer")
 
-        _lib.GetMousePositionXWindow.restype = ctypes.c_int
-        _lib.GetMousePositionYWindow.restype = ctypes.c_int
-        _lib.GetMousePositionXWindow.argtypes = [ctypes.c_void_p]
-        _lib.GetMousePositionYWindow.argtypes = [ctypes.c_void_p]
+        _lib._Mouse_GetPositionXWindow.restype = ctypes.c_int
+        _lib._Mouse_GetPositionYWindow.restype = ctypes.c_int
+        _lib._Mouse_GetPositionXWindow.argtypes = [ctypes.c_void_p]
+        _lib._Mouse_GetPositionYWindow.argtypes = [ctypes.c_void_p]
 
-        x = _lib.GetMousePositionXWindow(window_ptr)
-        y = _lib.GetMousePositionYWindow(window_ptr)
+        x = _lib._Mouse_GetPositionXWindow(window_ptr)
+        y = _lib._Mouse_GetPositionYWindow(window_ptr)
         return Vector2i(x, y)
     except Exception as e:
         raise InputError(f"Failed to get window mouse position: {e}")
 
-# ==================== КЛАССЫ ВВОДА ====================
+def set_mouse_position(position: Vector2i | Vector2f) -> None:
+    """
+    #### Устанавливает позицию курсора мыши на экране
+
+    ---
+
+    :Arguments:
+        position: Vector2i - Позиция (x, y) в глобальных координатах экрана
+
+    ---
+
+    :Raises:
+        InputError: Ошибка при установке позиции мыши
+
+    :Note:
+        Позиция устанавливается в глобальных координатах экрана,
+        а не относительно какого-либо окна
+    """
+    try:
+        _lib._Mouse_SetPosition.argtypes = [ctypes.c_int, ctypes.c_int]
+        _lib._Mouse_SetPosition(int(position.x), int(position.y))
+    except Exception as e:
+        raise InputError(f"Failed to set mouse position: {e}")
+
+def set_mouse_position_in_window(window: Any, position: Vector2i | Vector2f) -> None:
+    """
+    #### Устанавливает позицию курсора мыши относительно окна
+
+    ---
+
+    :Arguments:
+        window: Any - Объект окна с методом get_ptr()
+        position: Vector2i - Позиция (x, y) относительно окна
+
+    ---
+
+    :Raises:
+        InvalidInputError: Некорректный объект окна или указатель
+        InputError: Ошибка при установке позиции мыши
+
+    :Note:
+        Позиция устанавливается относительно левого верхнего угла окна.
+        Для работы функции объект окна должен иметь метод get_ptr(),
+        возвращающий указатель на sf::RenderWindow
+    """
+
+    if not hasattr(window, 'get_ptr'):
+        raise InvalidInputError("Window object must have get_ptr() method")
+
+    window_ptr = window.get_ptr()
+    if not isinstance(window_ptr, int):
+        raise InvalidInputError("Window pointer must be integer")
+
+    _lib._Mouse_SetPositionWindow.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
+    _lib._Mouse_SetPositionWindow(int(position.x), int(position.y), window_ptr)
+
+
 @final
 class MouseButtons(Enum):
     """Перечисление кнопок мыши"""
@@ -368,6 +471,10 @@ class Mouse:
     - Отслеживание кликов
     - Получение позиции курсора
     - Расчет скорости движения
+    - Перемещение мыши
+    - Установка координат
+    - Одиночный клик
+    - Двойной клик
     """
 
     Buttons = MouseButtons  # Доступ к перечислению кнопок
@@ -398,16 +505,29 @@ class Mouse:
         """
         return is_mouse_button_pressed(convert_mouse_button(button))
 
-    def in_window(self, window) -> bool:
-        mouse_position = self.get_position()
+    @classmethod
+    def in_window(cls, window: Any) -> bool:
+        """
+        Проверяет, находится ли курсор мыши внутри окна
+
+        ---
+
+        :Arguments:
+            window: Окно для проверки
+
+        ---
+
+        :Returns:
+            bool: Внутри ли окна
+        """
+        mouse_position = cls.get_position()
         window_pos = window.get_position()
         window_size = window.get_size()
 
         if (window_pos.x <= mouse_position.x <= window_pos.x + window_size.x and
-            window_pos.y <= mouse_position.y <= window_pos.y + window_size.y):
+            window_pos.y <= mouse_position.y <= window_pos.y + window_size.y + 31):
             return True
         return False
-
 
     def get_click(self, button: Union[Literal["left", "right", "middle"], MouseButtons]) -> bool:
         """
@@ -475,8 +595,6 @@ class Mouse:
         except Exception as e:
             raise InputError(f"Failed to get mouse release: {e}")
 
-
-
     @classmethod
     def get_position_in_window(cls, window: Any) -> Vector2i:
         """
@@ -527,6 +645,101 @@ class Mouse:
             Vector2i: Позиция (x, y)
         """
         return get_mouse_position()
+
+    @classmethod
+    def set_position(cls, position: Vector2i | Vector2f) -> None:
+        """
+        #### Устанавливает абсолютную позицию курсора на экране
+
+        :Args:
+            position (Vector2i | Vector2f): Новая позиция курсора
+
+        :Raises:
+            InputError: Если не удалось установить позицию курсора
+        """
+        set_mouse_position(position)
+
+    @classmethod
+    def set_position_in_window(cls, window: Any,  position: Vector2i | Vector2f) -> None:
+        """
+        #### Устанавливает абсолютную позицию курсора в окне
+
+        :Args:
+            position (Vector2i | Vector2f): Новая позиция курсора
+
+        :Raises:
+            InputError: Если не удалось установить позицию курсора
+        """
+        set_mouse_position_in_window(window, position)
+
+    @classmethod
+    def click(cls, button: Union[Literal["left", "right", "middle"], MouseButtons]) -> None:
+        mouse.click(str(button))
+
+    @classmethod
+    def double_click(cls, button: Union[Literal["left", "right", "middle"], MouseButtons]) -> None:
+        mouse.double_click(str(button))
+
+    @classmethod
+    def move(cls, position: Vector2i | Vector2f, duration: float | int = 0) -> None:
+        """
+        Перемещает курсор в указанную позицию с заданным временем перемещения.
+
+        :Args:
+            position (Vector2i | Vector2f): Новая позиция курсора
+            duration (float | int): Время перемещения в секундах или миллисекундах
+
+        :Raises:
+            InputError: Если не удалось переместить курсор
+
+        :Warning:
+            Если время перемещения слишком короткое, курсор может не успеть переместиться до окончания выполнения программы.
+            Метод блокирует поток до окончания перемещения. (рекомендуется использовать в другом потоке, для того чтобы не блокировать основной поток)
+        """
+        mouse.move(position.x, position.y, True, duration) # pyright: ignore
+
+    @classmethod
+    def _move_thread(cls, position: Vector2i | Vector2f, duration: float | int):
+        mouse.move(position.x, position.y, True, duration) # pyright: ignore
+
+    @classmethod
+    def daemon_move(cls, position: Vector2i | Vector2f, duration: float | int):
+        """
+        #### Демонизированный метод для перемещения курсора
+
+        ---
+
+        :Logic:
+            1. Создается новый поток, который вызывает метод _move_thread с переданными параметрами.
+            2. Метод _move_thread перемещает курсор на заданную позицию с заданным временем.
+            3. После завершения работы метода _move_thread, поток завершается.
+
+        :Warning:
+            Этот метод не блокирует поток, а создает новый поток для перемещения курсора.
+            Если несколько раз подряд будет создаваться нвоый поток то курсор будет перемещаться не коррктно
+            пытаясь успеть за логикой перемещения каждого потока.
+
+        :Args:
+            - position: Vector2i | Vector2f - Позиция, на которую нужно переместить курсор.
+            - duration: float | int - Время, за которое нужно переместить курсор.
+
+        :Returns:
+            None
+
+        :Raises:
+            None
+
+        :Example:
+            ```py
+             Mouse.daemon_move(Vector2i(100, 100), 1)
+             Mouse.daemon_move(Vector2f(100.0, 100.0), 1)
+            ```
+
+
+        """
+        Thread(target=cls._move_thread, args=(position, duration)).start()
+
+
 
 # ////////////////////////////////////////////////////////////////////////////
 # Глобальный экземпляр интерфейса мыши
@@ -868,236 +1081,74 @@ class Keyboard:
 KeyBoardInterface: Final[Keyboard] = Keyboard()
 # ////////////////////////////////////////////////////////////////////////////
 
+type MouseButtonsLiterals = Literal["left", "right", "middle"]
 
-
-# ==================== МЕНЕДЖЕР СОБЫТИЙ ====================
-@final
-class InputEventsManager:
-    """
-    Менеджер событий ввода
-
-    Позволяет:
-    - Создавать слушатели событий ввода
-    - Управлять подписками на события
-    - Обрабатывать события через callback-функции
-    """
+class Listener:
+    class ObjectType(Enum):
+        MOUSE = "mouse"
+        KEYBOARD = "keyboard"
 
     class EventType(Enum):
-        """Типы событий ввода"""
-        MOUSE_CLICK = 0    # Клик кнопки мыши
-        MOUSE_PRESS = 1    # Удержание кнопки мыши
-        KEYBOARD_CLICK = 2 # Нажатие клавиши
-        KEYBOARD_PRESS = 3 # Удержание клавиши
+        CLICK = "click"
+        PRESS = "press"
 
-    def __init__(self):
-        """Инициализация менеджера событий"""
-        self.__listened_objects: list[dict] = []  # Список слушателей
-        self.__events: list[dict] = []            # Текущие события
+    def __init__(self, obj: ObjectType, event: EventType, id: str | int | None = None,
+        arg: str | MouseButtonsLiterals | None = None) -> None:
+        self.__obj: Mouse | Keyboard | None = Mouse() if obj == Listener.ObjectType.MOUSE else Keyboard() \
+                                                      if obj == Listener.ObjectType.KEYBOARD else None
 
-    def add_mouse_listener(
-        self,
-        event_type: EventType,
-        button: Union[Literal["left", "right", "middle"], MouseButtons],
-        listener_id: Optional[Union[int, str]] = None
-    ) -> Self:
-        """
-        #### Добавляет слушатель событий мыши
+        self.__event: Listener.EventType = event
+        self.__id: str | int = AutoIdentifier() if id is None else id
 
-        ---
+        self.__arg = arg
 
-        :Arguments:
-        - event_type: Тип события (клик/удержание)
-        - button: Кнопка мыши
-        - listener_id: Уникальный идентификатор слушателя
+    def get_arg(self) -> str | MouseButtonsLiterals | None:
+        return self.__arg
 
-        ---
+    def get_id(self) -> str | int:
+        return self.__id
 
-        :Returns:
-            InputEventsManager: self для цепочки вызовов
+    def get_object(self) -> Mouse | Keyboard | None:
+        return self.__obj
 
-        ---
+    def get_event(self) -> EventType:
+        return self.__event
 
-        :Raises:
-            InvalidInputError: Некорректный тип события
-        """
-        if not isinstance(event_type, self.EventType):
-            raise InvalidInputError("Invalid event type")
+    def __str__(self) -> str:
+        return f'Listener: obj({self.__obj.__class__.__name__}), event({self.__event.name}), id = {self.__id}'
 
-        self.__listened_objects.append({
-            "type": event_type,
-            "listener": Mouse(),
-            "button": button,
-            "id": listener_id or len(self.__listened_objects)
-        })
+class ListenersManager:
+    def __init__(self) -> None:
+        self.__listeners: list[Listener] = []
+        self.__event_results: dict[str | int, bool] = {}
+
+    def add_listener(self, listener: Listener) -> Self:
+        self.__listeners.append(listener)
         return self
 
-    def add_keyboard_listener(
-        self,
-        event_type: EventType,
-        keys: str,
-        listener_id: Optional[Union[int, str]] = None
-    ) -> Self:
-        """
-        #### Добавляет слушатель событий клавиатуры
+    def get_listener_by_id(self, id: str | int) -> Optional[Listener]:
+        for l in self.__listeners:
+            if l.get_id() == id: return l
+        return None
 
-        ---
+    def get(self, key: str | int) -> Optional[bool]:
+        for _key in self.__event_results:
+            if key == _key: return self.__event_results[key]
+        return None
 
-        :Arguments:
-        - event_type: Тип события (клик/удержание)
-        - keys: Клавиша или комбинация
-        - listener_id: Уникальный идентификатор слушателя
+    def update(self):
 
-        ---
+        for l in self.__listeners:
+            if l.get_event() == Listener.EventType.PRESS:
+                arg = l.get_arg()
+                if arg is not None:
+                    self.__event_results[l.get_id()] = l.get_object().get_press(arg) # pyright: ignore
+                else:
+                    raise AttributeError("Waited argument for listener!")
 
-        :Returns:
-            InputEventsManager: self для цепочки вызовов
-
-        ---
-
-        :Raises:
-            InvalidInputError: Некорректный тип события или клавиши
-        """
-        if not isinstance(event_type, self.EventType):
-            raise InvalidInputError("Invalid event type")
-        if not isinstance(keys, str):
-            raise InvalidInputError("Keys must be string")
-
-        self.__listened_objects.append({
-            "type": event_type,
-            "listener": Keyboard(),
-            "keys": keys,
-            "id": listener_id or len(self.__listened_objects)
-        })
-        return self
-
-    def remove_listener(self, listener_id: Union[int, str]) -> None:
-        """
-        #### Удаляет слушатель по идентификатору
-
-        ---
-
-        :Arguments:
-            listener_id: Идентификатор слушателя
-
-        ---
-
-        :Raises:
-            ValueError: Слушатель не найден
-        """
-        for i, listener in enumerate(self.__listened_objects):
-            if listener["id"] == listener_id:
-                self.__listened_objects.pop(i)
-                return
-        raise ValueError(f"Listener with id '{listener_id}' not found")
-
-    def remove_all_listeners(self) -> None:
-        """Удаляет все слушатели"""
-        self.__listened_objects.clear()
-
-    def present_call(
-        self,
-        listener_id: Union[int, str],
-        callback: Callable,
-        *args,
-        **kwargs
-    ) -> None:
-        """
-        #### Вызывает callback-функцию при наступлении события
-
-        Необходимо вызывать непосредственно в цикле
-
-        ---
-
-        :Arguments:
-        - listener_id: Идентификатор слушателя
-        - callback: Функция для вызова
-        - args: Позиционные аргументы
-        - kwargs: Именованные аргументы
-
-        ---
-
-        :Raises:
-            InvalidInputError: Callback не является функцией
-            ValueError: Слушатель не найден
-        """
-        if not callable(callback):
-            raise InvalidInputError("Callback must be callable")
-
-        if self.get(listener_id):
-            callback(*args, **kwargs)
-
-    def get(self, listener_id: Union[int, str]) -> bool:
-        """
-        #### Проверяет, произошло ли событие
-
-        ---
-
-        :Arguments:
-            listener_id: Идентификатор слушателя
-
-        ---
-
-        :Returns:
-            bool: Произошло ли событие
-
-        ---
-
-        :Raises:
-            ValueError: Слушатель не найден
-        """
-        for event in self.__events:
-            if event["id"] == listener_id:
-                return event["value"]
-        raise ValueError(f"Event with id '{listener_id}' not found")
-
-    def get_all(self) -> list[tuple[Union[int, str], bool]]:
-        """
-        #### Возвращает все текущие события
-
-        ---
-
-        :Returns:
-            list: Список кортежей (идентификатор, состояние)
-        """
-        return [(event["id"], event["value"]) for event in self.__events]
-
-    def update(self) -> None:
-        """
-        #### Обновляет состояние всех событий
-
-        Должен вызываться каждый кадр для корректной работы
-        """
-        self.__events.clear()
-
-        for listener in self.__listened_objects:
-            try:
-                listener_obj = listener["listener"]
-                event_type = listener["type"]
-                listener_id = listener["id"]
-                value = False  # Initialize value to avoid "possibly unbound" error
-
-                # Обработка событий мыши
-                if isinstance(listener_obj, Mouse):
-                    button = listener["button"]
-                    if event_type == self.EventType.MOUSE_CLICK:
-                        value = listener_obj.get_click(button)
-                    elif event_type == self.EventType.MOUSE_PRESS:
-                        value = listener_obj.get_press(button)
-                    else:
-                        continue
-
-                # Обработка событий клавиатуры
-                elif isinstance(listener_obj, Keyboard):
-                    keys = listener["keys"]
-                    if event_type == self.EventType.KEYBOARD_CLICK:
-                        value = listener_obj.get_click(keys)
-                    elif event_type == self.EventType.KEYBOARD_PRESS:
-                        value = listener_obj.get_press(keys)
-                    else:
-                        continue
-
-                # Сохранение результата проверки
-                self.__events.append({"id": listener_id, "value": value})
-
-            except Exception as e:
-                raise InputError(f"Failed to update input events: {e}")
+            if l.get_event() == Listener.EventType.CLICK:
+                arg = l.get_arg()
+                if arg is not None:
+                    self.__event_results[l.get_id()] = l.get_object().get_click(arg) # pyright: ignore
+                else:
+                    raise AttributeError("Waited argument for listener!")
