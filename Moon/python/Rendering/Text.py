@@ -807,7 +807,7 @@ class BaseText:
         text_obj.set_style(TextStyle.BOLD | TextStyle.ITALIC)
         ```
         """
-        LIB_MOON.setStyle(self.__text_ptr, style)
+        LIB_MOON.setStyle(self.__text_ptr, style.value)
         return self
 
     def set_font(self, font: Font) -> Self:

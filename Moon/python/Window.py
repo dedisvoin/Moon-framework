@@ -84,8 +84,8 @@ from Moon.python.Types import TwoIntegerList
 from Moon.python.Vectors import Vector2i, Vector2f
 from Moon.python.Inputs import MouseInterface, KeyBoardInterface
 
-from Moon.python.Rendering.Text import *
-from Moon.python.Rendering.Shapes import *
+from Moon.python.Rendering.Text import *   # pyright: ignore
+from Moon.python.Rendering.Shapes import * # pyright: ignore
 from Moon.python.Rendering.Shaders import Shader
 from Moon.python.Rendering.Drawable import Drawable
 from Moon.python.Rendering.RenderStates import RenderStates
@@ -478,7 +478,7 @@ FPS_UNLIMIT_CONST: Final[Union[int, float]] = 1000000                           
 # =============================================================================== +
 
 @final
-class SystemCursors:
+class SystemCursors(Enum):
     """Класс, представляющий системные курсоры. Каждая константа соответствует определенному типу курсора."""
 
     Arrow = 0                     # Стандартный курсор (стрелка)
@@ -961,6 +961,25 @@ class Window:
                 except:
                     raise RuntimeError("App Icon path not found")
 
+    def get_width(self) -> int:
+        return LIB_MOON._Window_GetSizeWidth(self.__window_ptr)
+
+    def get_height(self) ->  int:
+        return LIB_MOON._Window_GetSizeHeight(self.__window_ptr)
+
+    def get_fps_history(self) -> list[Number]:
+        return self.__fps_history
+
+    def get_fps_history_max(self) -> Number:
+        try:
+            return max(self.__fps_history)
+        except: return self.__target_fps
+
+    def  get_fps_history_min(self) -> Number:
+        try:
+            return min(self.__fps_history)
+        except: return self.__target_fps
+
     def set_fullscreen_desktop(self) -> Self:
         ctypes.windll.user32.ShowWindow(self.__window_descriptor, 3)
         return self
@@ -1278,7 +1297,7 @@ class Window:
         return self
 
     @final
-    def set_system_cursor(self, cursor: SystemCursors) -> Self:
+    def set_system_cursor(self, cursor: SystemCursors | int) -> Self:
         """
         #### Устанавливает системный курсор для окна
 
@@ -1299,8 +1318,9 @@ class Window:
         window.set_system_cursor(SystemCursors.Hand)  # Курсор в виде руки
         ```
         """
-        self.__cursor = cursor
-        LIB_MOON._Window_SetSystemCursor(self.__window_ptr, cursor)
+
+        self.__cursor = cursor.value if type(cursor) == SystemCursors else cursor
+        LIB_MOON._Window_SetSystemCursor(self.__window_ptr, self.__cursor)
         return self
 
     @final
@@ -3082,7 +3102,7 @@ class Window:
         ...
 
     @overload
-    def draw(self, shape: Drawable, arg: None) -> None:
+    def draw(self, shape: Drawable, arg: None = None) -> None:
         """
         #### Отрисовывает объект с параметрами по умолчанию
 

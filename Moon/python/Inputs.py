@@ -78,10 +78,10 @@ import win32gui         # pyright: ignore[reportMissingModuleSource]
 import win32api         # pyright: ignore[reportMissingModuleSource]
 import win32process     # pyright: ignore[reportMissingModuleSource]
 
-from enum import STRICT, Enum
+from enum import Enum
 from functools import lru_cache
-from threading import Event, Thread
-from typing import Any, Callable, Literal, Final, final, Optional, Union, Set, Dict
+from threading import Thread
+from typing import Any, Literal, Final, final, Optional, Union, Set, Dict
 
 
 from Moon.python.Types import AutoIdentifier, Self
@@ -1084,60 +1084,153 @@ KeyBoardInterface: Final[Keyboard] = Keyboard()
 type MouseButtonsLiterals = Literal["left", "right", "middle"]
 
 class Listener:
+    """
+    Класс-слушатель событий ввода
+
+    Отслеживает события мыши или клавиатуры с возможностью
+    настройки типа события и идентификатора
+    """
+
     class ObjectType(Enum):
+        """Типы объектов для отслеживания"""
         MOUSE = "mouse"
         KEYBOARD = "keyboard"
 
     class EventType(Enum):
-        CLICK = "click"
-        PRESS = "press"
+        """Типы отслеживаемых событий"""
+        CLICK = "click"  # Однократное нажатие
+        PRESS = "press"  # Удержание клавиши/кнопки
 
     def __init__(self, obj: ObjectType, event: EventType, id: str | int | None = None,
         arg: str | MouseButtonsLiterals | None = None) -> None:
+        """
+        Инициализация слушателя событий
+
+        :Arguments:
+            obj: Тип объекта для отслеживания (мышь/клавиатура)
+            event: Тип события (клик/удержание)
+            id: Уникальный идентификатор слушателя
+            arg: Аргумент события (кнопка/клавиша)
+        """
+        # Создание объекта для отслеживания
         self.__obj: Mouse | Keyboard | None = Mouse() if obj == Listener.ObjectType.MOUSE else Keyboard() \
                                                       if obj == Listener.ObjectType.KEYBOARD else None
 
         self.__event: Listener.EventType = event
+        # Автогенерация ID если не указан
         self.__id: str | int = AutoIdentifier() if id is None else id
 
         self.__arg = arg
 
     def get_arg(self) -> str | MouseButtonsLiterals | None:
+        """
+        Получение аргумента события
+
+        :Returns:
+            str | MouseButtonsLiterals | None: Аргумент события
+        """
         return self.__arg
 
     def get_id(self) -> str | int:
+        """
+        Получение идентификатора слушателя
+
+        :Returns:
+            str | int: Уникальный идентификатор
+        """
         return self.__id
 
     def get_object(self) -> Mouse | Keyboard | None:
+        """
+        Получение объекта отслеживания
+
+        :Returns:
+            Mouse | Keyboard | None: Объект мыши или клавиатуры
+        """
         return self.__obj
 
     def get_event(self) -> EventType:
+        """
+        Получение типа события
+
+        :Returns:
+            EventType: Тип отслеживаемого события
+        """
         return self.__event
 
     def __str__(self) -> str:
+        """
+        Строковое представление слушателя
+
+        :Returns:
+            str: Информация о слушателе
+        """
         return f'Listener: obj({self.__obj.__class__.__name__}), event({self.__event.name}), id = {self.__id}'
 
 class ListenersManager:
+    """
+    Менеджер для управления слушателями событий ввода
+
+    Обеспечивает централизованное управление и обновление
+    состояния всех зарегистрированных слушателей
+    """
+
     def __init__(self) -> None:
+        """Инициализация менеджера слушателей"""
         self.__listeners: list[Listener] = []
         self.__event_results: dict[str | int, bool] = {}
 
     def add_listener(self, listener: Listener) -> Self:
+        """
+        Добавление слушателя в менеджер
+
+        :Arguments:
+            listener: Слушатель для добавления
+
+        :Returns:
+            Self: Возвращает self для цепочки вызовов
+        """
         self.__listeners.append(listener)
         return self
 
     def get_listener_by_id(self, id: str | int) -> Optional[Listener]:
+        """
+        Поиск слушателя по идентификатору
+
+        :Arguments:
+            id: Идентификатор слушателя
+
+        :Returns:
+            Optional[Listener]: Найденный слушатель или None
+        """
         for l in self.__listeners:
             if l.get_id() == id: return l
         return None
 
     def get(self, key: str | int) -> Optional[bool]:
+        """
+        Получение результата события по идентификатору
+
+        :Arguments:
+            key: Идентификатор слушателя
+
+        :Returns:
+            Optional[bool]: Состояние события или None
+        """
         for _key in self.__event_results:
             if key == _key: return self.__event_results[key]
         return None
 
     def update(self):
+        """
+        Обновление состояния всех слушателей
 
+        Проверяет текущее состояние событий для всех
+        зарегистрированных слушателей и обновляет результаты
+
+        :Raises:
+            AttributeError: Если для слушателя не указан аргумент
+        """
         for l in self.__listeners:
             if l.get_event() == Listener.EventType.PRESS:
                 arg = l.get_arg()

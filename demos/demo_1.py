@@ -5,8 +5,10 @@ sys.path.append('./')
 from Moon.python.Inputs import *
 from Moon.python.Window import *
 
-window = Window()
+window = Window(title="Прив")
 window_events = WindowEvents()
+
+window.set_system_cursor(SystemCursors.SizeAll)
 
 
 while window.update(window_events):
@@ -28,10 +30,7 @@ while window.update(window_events):
 
     if KeyBoardInterface.get_click('s'):
         set_mouse_position_in_window(window, Vector2i(100, 100))
-    if MouseInterface.in_window(window):
-        print("Mouse is in window")
-    else:
-        print("Mouse is not in window")
+
 
     if KeyBoardInterface.get_click('m'):
         MouseInterface.daemon_move(Vector2i(100, 100), 1)

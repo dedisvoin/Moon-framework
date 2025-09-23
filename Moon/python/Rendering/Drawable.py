@@ -4,4 +4,4 @@ from Moon.python.Rendering.Shapes import (
     LineThinShape, LinesThinShape
 )
 
-type Drawable = CircleShape | RectangleShape | LineShape | PolygoneShape | LineThinShape | LinesThinShape
+type Drawable = CircleShape | RectangleShape | LineShape | PolygoneShape | LineThinShape | LinesThinShape |  Text | BaseText

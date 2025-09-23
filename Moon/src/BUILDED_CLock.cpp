@@ -1,18 +1,18 @@
-#include "SFML/Graphics.hpp"
-#include "SFML/Window.hpp"
+#include "SFML/System/Clock.hpp"
+#define MOON_API __declspec(dllexport)
 
 typedef sf::Clock* ClockPtr;
 
 extern "C" {
-    __declspec(dllexport) ClockPtr createClock() {
+    MOON_API ClockPtr createClock() {
         return new sf::Clock();
     }
 
-    __declspec(dllexport) void clockRestart(ClockPtr clock) {
+    MOON_API void clockRestart(ClockPtr clock) {
         clock->restart();
     }
 
-    __declspec(dllexport) double getClockElapsedTime(ClockPtr clock) {
+    MOON_API double getClockElapsedTime(ClockPtr clock) {
         return clock->getElapsedTime().asSeconds();
     }
 }

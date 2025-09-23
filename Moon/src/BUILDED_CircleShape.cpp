@@ -11,9 +11,11 @@
 // - Get current shape parameters
 // ===============================================================================
 
-#include "SFML/Graphics.hpp"
+#include "SFML/Graphics/CircleShape.hpp"
+#include "SFML/Graphics/Color.hpp"
 
-typedef sf::CircleShape *CirclePtr;
+typedef sf::CircleShape* CirclePtr;
+
 // Create/delete circle shape
 extern "C" __declspec(dllexport) CirclePtr _Circle_Create(float radius,
                                                           int point_count) {

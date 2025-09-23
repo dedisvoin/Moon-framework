@@ -1,30 +1,33 @@
-#ifndef SFML_GRAPHICS_HPP
-#include "SFML/Graphics.hpp"
-#endif
-#ifndef STRING_H
+
+#include "SFML/Graphics/BlendMode.hpp"
+#include "SFML/Graphics/Shader.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/Texture.hpp"
+
+#include "SFML/Graphics/Glsl.hpp"
+
+#include <cstddef>
+
 #include "string"
-#endif
-#ifndef IOSTREAM_H
-#include "iostream"
-#endif
 
-using std::endl, std::cout;
+#define MOON_API __declspec(dllexport)
 
-using std::string;
+using namespace std;
+
 
 
 extern "C" {
     typedef sf::BlendMode* BlendModePtr;
 
     __declspec(dllexport) BlendModePtr _BlendMode_CreateFull(
-                                                sf::BlendMode::Factor ColorSourceFactor, 
+                                                sf::BlendMode::Factor ColorSourceFactor,
                                                 sf::BlendMode::Factor ColorDestinationFactor,
                                                 sf::BlendMode::Equation ColorBlendEquation,
-                                                sf::BlendMode::Factor AlphaSourceFactor, 
+                                                sf::BlendMode::Factor AlphaSourceFactor,
                                                 sf::BlendMode::Factor AlphaDestinationFactor,
                                                 sf::BlendMode::Equation AlphaBlendEquation
                                             ) {
-        return new sf::BlendMode(ColorSourceFactor, ColorDestinationFactor, ColorBlendEquation, 
+        return new sf::BlendMode(ColorSourceFactor, ColorDestinationFactor, ColorBlendEquation,
                                  AlphaSourceFactor, AlphaDestinationFactor, AlphaBlendEquation);
     }
 
@@ -89,6 +92,7 @@ extern "C" {
         } else if (type == 0) {
             return shader->loadFromMemory(shader_string, sf::Shader::Vertex);
         }
+        return false;
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -107,7 +111,7 @@ extern "C" {
 
     __declspec(dllexport) void
     _Shader_SetUniformBool(ShaderPtr shader, char* name, bool value) {
-        shader->setUniform(name, value); 
+        shader->setUniform(name, value);
     }
 
     __declspec(dllexport) void

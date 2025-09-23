@@ -15,12 +15,29 @@
 //
 // ================================================================================
 
-#ifndef SFML_GRAPHICS_HPP
-#include "SFML/Graphics.hpp"
-#endif
+#include "SFML/Graphics/Shader.hpp"
+#include "SFML/System/Vector2.hpp"
+
+#include "SFML/Graphics/RenderWindow.hpp"
+#include "SFML/Graphics/View.hpp"
+#include "SFML/Graphics/Image.hpp"
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/RenderTarget.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
+
+#include "SFML/System/String.hpp"
+
 #ifndef SFML_WINDOW_HPP
 #include "SFML/Window.hpp"
+#include "SFML/Window/Window.hpp"
+#include "SFML/Window/ContextSettings.hpp"
+#include "SFML/Window/VideoMode.hpp"
+#include "SFML/Window/Cursor.hpp"
 #endif
+
+#include "string"
+using namespace std;
+
 
 // ================================================================================
 //                              ОПРЕДЕЛЕНИЯ ТИПОВ
@@ -29,7 +46,13 @@
 typedef sf::RenderWindow* WindowPtr;        // Указатель на окно рендеринга
 typedef sf::Event* EventPtr;                // Указатель на событие
 typedef sf::View* ViewPtr;                  // Указатель на вид (камеру)
+typedef sf::ContextSettings* ContextSettingsPtr;
+typedef sf::Drawable* DrawablePtr;
+typedef sf::RenderStates* RenderStatesPtr;
+typedef sf::Shader* ShaderPtr;
 
+
+#define MOON_API __declspec(dllexport)
 
 // ================================================================================
 //                        НАСТРОЙКИ КОНТЕКСТА OPENGL
@@ -42,50 +65,50 @@ typedef sf::View* ViewPtr;                  // Указатель на вид (�
 // ================================================================================
 
 extern "C" {
-    typedef sf::ContextSettings* ContextSettingsPtr;
+
 
     // Создание нового объекта настроек контекста
-    __declspec(dllexport) ContextSettingsPtr _WindowContextSettings_Create() {
+    MOON_API ContextSettingsPtr _WindowContextSettings_Create() {
         return new sf::ContextSettings();
     }
 
     // Установка флагов атрибутов контекста
-    __declspec(dllexport) void _WindowContextSettings_SetAttributeFlags(ContextSettingsPtr contextSettings, int flags) {
+    MOON_API void _WindowContextSettings_SetAttributeFlags(ContextSettingsPtr contextSettings, int flags) {
         contextSettings->attributeFlags = flags;
     }
 
     // Установка уровня антиалиасинга (0, 2, 4, 8, 16)
-    __declspec(dllexport) void _WindowContextSettings_SetAntialiasingLevel(ContextSettingsPtr contextSettings, int level) {
+    MOON_API void _WindowContextSettings_SetAntialiasingLevel(ContextSettingsPtr contextSettings, int level) {
         contextSettings->antialiasingLevel = level;
     }
 
     // Установка количества бит для буфера глубины
-    __declspec(dllexport) void _WindowContextSettings_SetDepthBits(ContextSettingsPtr contextSettings, int bits) {
+    MOON_API void _WindowContextSettings_SetDepthBits(ContextSettingsPtr contextSettings, int bits) {
         contextSettings->depthBits = bits;
     }
 
     // Установка основной версии OpenGL
-    __declspec(dllexport) void _WindowContextSettings_SetMajorVersion(ContextSettingsPtr contextSettings, int version) {
+    MOON_API void _WindowContextSettings_SetMajorVersion(ContextSettingsPtr contextSettings, int version) {
         contextSettings->majorVersion = version;
     }
 
     // Установка дополнительной версии OpenGL
-    __declspec(dllexport) void _WindowContextSettings_SetMinorVersion(ContextSettingsPtr contextSettings, int version) {
+    MOON_API void _WindowContextSettings_SetMinorVersion(ContextSettingsPtr contextSettings, int version) {
         contextSettings->minorVersion = version;
     }
 
     // Установка количества бит для буфера трафарета
-    __declspec(dllexport) void _WindowContextSettings_SetStencilBits(ContextSettingsPtr contextSettings, int bits) {
+    MOON_API void _WindowContextSettings_SetStencilBits(ContextSettingsPtr contextSettings, int bits) {
         contextSettings->stencilBits = bits;
     }
 
     // Включение/выключение поддержки sRGB цветового пространства
-    __declspec(dllexport) void _WindowContextSettings_SetSrgbCapable(ContextSettingsPtr contextSettings, bool capable) {
+    MOON_API void _WindowContextSettings_SetSrgbCapable(ContextSettingsPtr contextSettings, bool capable) {
         contextSettings->sRgbCapable = capable;
     }
 
     // Удаление объекта настроек контекста
-    __declspec(dllexport) void _WindowContextSettings_Delete(ContextSettingsPtr contextSettings) {
+    MOON_API void _WindowContextSettings_Delete(ContextSettingsPtr contextSettings) {
         delete contextSettings;
     }
 }
@@ -102,50 +125,53 @@ extern "C" {
 
 extern "C" {
     // Создание нового окна с указанными параметрами
-    __declspec(dllexport) WindowPtr _Window_Create(const int width, const int height, 
+    MOON_API WindowPtr _Window_Create(const int width, const int height,
         const char* title, int style, ContextSettingsPtr settings) {
-        return new sf::RenderWindow(sf::VideoMode(width, height), title, style, *settings);
+        string std_str(title);
+        return new sf::RenderWindow(sf::VideoMode(width, height), sf::String::fromUtf8(std_str.begin(), std_str.end()), style, *settings);
     }
 
     // Закрытие окна (окно становится недоступным для взаимодействия)
-    __declspec(dllexport) void _Window_Close(WindowPtr window) {
+    MOON_API void _Window_Close(WindowPtr window) {
         window->close();
     }
 
     // Управление видимостью курсора мыши
-    __declspec(dllexport) void _Window_SetCursorVisibility(WindowPtr window, bool value) {
+    MOON_API void _Window_SetCursorVisibility(WindowPtr window, bool value) {
         window->setMouseCursorVisible(value);
     }
 
     // Установка заголовка окна
-    __declspec(dllexport) void _Window_SetTitle(WindowPtr window, const char* title) {
-        window->setTitle(title);
+    MOON_API void _Window_SetTitle(WindowPtr window, const char* title) {
+        std::string std_str(title);
+        window->setTitle(sf::String::fromUtf8(std_str.begin(), std_str.end()));
     }
 
     // Включение/выключение вертикальной синхронизации
-    __declspec(dllexport) void _Window_SetVsync(WindowPtr window, bool enable) {
+    MOON_API void _Window_SetVsync(WindowPtr window, bool enable) {
         window->setVerticalSyncEnabled(enable);
     }
 
     // Установка системного курсора для окна
-    __declspec(dllexport) void _Window_SetSystemCursor(WindowPtr window, sf::Cursor::Type cursor) {
-        sf::Cursor c = sf::Cursor();
-        c.loadFromSystem(cursor);
-        window->setMouseCursor(c);
+    MOON_API void _Window_SetSystemCursor(WindowPtr window, sf::Cursor::Type cursor) {
+        auto _cursor = new sf::Cursor;
+        _cursor->loadFromSystem(cursor);
+        window->setMouseCursor(*_cursor);
+        delete _cursor;
     }
 
     // Проверка, открыто ли окно и доступно ли для взаимодействия
-    __declspec(dllexport) bool _Window_IsOpen(WindowPtr window) {
+    MOON_API bool _Window_IsOpen(WindowPtr window) {
         return window->isOpen();
     }
 
     // Полное удаление окна и освобождение памяти
-    __declspec(dllexport) void _Window_Delete(WindowPtr window) {
+    MOON_API void _Window_Delete(WindowPtr window) {
         window->close();
         delete window;
     }
 
-    __declspec(dllexport) bool _Window_SetIconFromPath(WindowPtr window, const char* path) {
+    MOON_API bool _Window_SetIconFromPath(WindowPtr window, const char* path) {
         sf::Image image;
         if (!image.loadFromFile(path)) {
             return false;
@@ -157,42 +183,42 @@ extern "C" {
     // ================================================================================
     //                    ПОЛУЧЕНИЕ РАЗМЕРА ОКНА
     // ================================================================================
-    
+
     // Получение ширины окна в пикселях
-    __declspec(dllexport) int _Window_GetSizeWidth(WindowPtr window) {
+    MOON_API int _Window_GetSizeWidth(WindowPtr window) {
         return window->getSize().x;
     }
-    
+
     // Получение высоты окна в пикселях
-    __declspec(dllexport) int _Window_GetSizeHeight(WindowPtr window) {
+    MOON_API int _Window_GetSizeHeight(WindowPtr window) {
         return window->getSize().y;
     }
 
     // ================================================================================
     //                    ПОЛУЧЕНИЕ ПОЗИЦИИ ОКНА
     // ================================================================================
-    
+
     // Получение X-координаты окна на экране
-    __declspec(dllexport) int _Window_GetPositionX(WindowPtr window) {
+    MOON_API int _Window_GetPositionX(WindowPtr window) {
         return window->getPosition().x;
     }
-    
+
     // Получение Y-координаты окна на экране
-    __declspec(dllexport) int _Window_GetPositionY(WindowPtr window) {
+    MOON_API int _Window_GetPositionY(WindowPtr window) {
         return window->getPosition().y;
     }
 
     // ================================================================================
     //              УСТАНОВКА ПОЗИЦИИ И РАЗМЕРА ОКНА
     // ================================================================================
-    
+
     // Установка позиции окна на экране
-    __declspec(dllexport) void _Window_SetPosition(WindowPtr window, int x, int y) {
+    MOON_API void _Window_SetPosition(WindowPtr window, int x, int y) {
         window->setPosition(sf::Vector2i(x, y));
     }
 
     // Установка размера окна
-    __declspec(dllexport) void _Window_SetSize(WindowPtr window, int width, int height) {
+    MOON_API void _Window_SetSize(WindowPtr window, int width, int height) {
         window->setSize(sf::Vector2u(width, height));
     }
 
@@ -200,24 +226,24 @@ extern "C" {
     //                  ПРЕОБРАЗОВАНИЕ КООРДИНАТ
     // ================================================================================
     // Преобразование между экранными пикселями и мировыми координатами
-    
+
     // Преобразование пикселей в мировые координаты (X)
-    __declspec(dllexport) float _Window_MapPixelToCoordsX(WindowPtr window, double x, double y, ViewPtr view) {
+    MOON_API float _Window_MapPixelToCoordsX(WindowPtr window, double x, double y, ViewPtr view) {
         return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).x;
     }
 
     // Преобразование пикселей в мировые координаты (Y)
-    __declspec(dllexport) float _Window_MapPixelToCoordsY(WindowPtr window, double x, double y, ViewPtr view) {
+    MOON_API float _Window_MapPixelToCoordsY(WindowPtr window, double x, double y, ViewPtr view) {
         return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).y;
     }
 
     // Преобразование мировых координат в пиксели (X)
-    __declspec(dllexport) float _Window_MapCoordsToPixelX(WindowPtr window, double x, double y, ViewPtr view) {
+    MOON_API float _Window_MapCoordsToPixelX(WindowPtr window, double x, double y, ViewPtr view) {
         return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).x;
     }
 
     // Преобразование мировых координат в пиксели (Y)
-    __declspec(dllexport) float _Window_MapCoordsToPixelY(WindowPtr window, double x, double y, ViewPtr view) {
+    MOON_API float _Window_MapCoordsToPixelY(WindowPtr window, double x, double y, ViewPtr view) {
         return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).y;
     }
 
@@ -225,29 +251,29 @@ extern "C" {
     //                            РЕНДЕРИНГ
     // ================================================================================
     // Основные функции для отрисовки графики
-    
+
     // Очистка окна указанным цветом
-    __declspec(dllexport) void _Window_Clear(WindowPtr window, int r, int g, int b, int a) {
+    MOON_API void _Window_Clear(WindowPtr window, int r, int g, int b, int a) {
         window->clear(sf::Color(r, g, b, a));
     }
 
     // Отображение всех нарисованных объектов на экране
-    __declspec(dllexport) void _Window_Display(WindowPtr window) {
+    MOON_API void _Window_Display(WindowPtr window) {
         window->display();
     }
 
     // Отрисовка объекта с настройками по умолчанию
-    __declspec(dllexport) void _Window_Draw(WindowPtr window, sf::Drawable* drawable) {
+    MOON_API void _Window_Draw(WindowPtr window, DrawablePtr drawable) {
         window->draw(*drawable);
     }
 
     // Отрисовка объекта с пользовательскими настройками рендеринга
-    __declspec(dllexport) void _Window_DrawWithRenderStates(WindowPtr window, sf::RenderStates* render_states, sf::Drawable* drawable)  {
+    MOON_API void _Window_DrawWithRenderStates(WindowPtr window, RenderStatesPtr render_states, DrawablePtr drawable)  {
         window->draw(*drawable, *render_states);
     }
 
     // Отрисовка объекта с применением шейдера
-    __declspec(dllexport) void _Window_DrawWithShader(WindowPtr window, sf::Shader* shader, sf::Drawable* drawable) {
+    MOON_API void _Window_DrawWithShader(WindowPtr window, ShaderPtr shader, DrawablePtr drawable) {
         window->draw(*drawable, shader);
     }
 
@@ -255,7 +281,7 @@ extern "C" {
     //                      УПРАВЛЕНИЕ ВИДОМ (VIEW/КАМЕРОЙ)
     // ================================================================================
     // Функции для управления камерой и областью просмотра
-    
+
     // Применение вида к окну (установка активной камеры)
     __declspec(dllexport) void _Window_SetView(WindowPtr window, ViewPtr view) {
         window->setView(*view);
@@ -269,7 +295,7 @@ extern "C" {
     // ================================================================================
     //                      НАСТРОЙКИ ПРОИЗВОДИТЕЛЬНОСТИ
     // ================================================================================
-    
+
     // Установка ограничения кадров в секунду (FPS)
     __declspec(dllexport) void _Window_SetWaitFps(WindowPtr window, unsigned int fps) {
         window->setFramerateLimit(fps);
@@ -279,7 +305,7 @@ extern "C" {
     //                        ОБРАБОТКА СОБЫТИЙ
     // ================================================================================
     // Функции для работы с событиями окна (клавиатура, мышь, изменение размера)
-    
+
     // Получение следующего события из очереди
     __declspec(dllexport) int _Window_GetCurrentEventType(WindowPtr window, sf::Event* event) {
         if (window->pollEvent(*event)) {
