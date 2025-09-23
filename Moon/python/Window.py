@@ -3172,9 +3172,9 @@ class Window:
         if not isinstance(shape.get_ptr(), int):
             # Специальные объекты с собственной логикой отрисовки
             try:
-                shape.special_draw(self, arg)
+                shape.special_draw(self, arg) # pyright: ignore
             except:
-                shape.special_draw(self)
+                shape.special_draw(self)      # pyright: ignore
         else:
             # Стандартные объекты
             if arg is None:
