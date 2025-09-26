@@ -1,9 +1,10 @@
+
 import ctypes
 from typing import Self, Final, final
 
 from Moon.python.Types import *
 from Moon.python.Colors import *
-from Moon.python.Vectors import Vector2f, Vector2i
+from Moon.python.Vectors import Vector2f, Vector2i, VectorType, _VectorType
 from Moon.python.Rendering.Vertexes import VertexArray, Vertex
 
 from Moon.python.utils import find_library
@@ -1130,7 +1131,6 @@ class RectangleShape:
 
 
 
-
 # --- Привязки C++ функций для кругов ---
 # Эти строки определяют типы аргументов (argtypes) и возвращаемых значений (restype)
 # для C++ функций, связанных с кругами.
@@ -1239,13 +1239,13 @@ class CircleShape:
             raise ValueError("Circle must have at least 3 points")
 
         self.__approximation = int(approximation)
-        self._ptr = LIB_MOON._Circle_Create(100, int(approximation))
+        self._ptr: ctypes.c_void_p | None = LIB_MOON._Circle_Create(100, int(approximation))
         self.set_origin(100, 100)  # Центрируем точку отсчета
 
         # Инициализация атрибутов
         self.__outline_color: Color | None = None
-        self.__outline_thickness: float = 1
-        self.__color: Color | None = None
+        self.__outline_thickness: float = 0
+        self.__color: Color | None = COLOR_GRAY
 
 
 
@@ -1440,7 +1440,7 @@ class CircleShape:
         self.set_origin(radius, radius)
         return self
 
-    def get_ptr(self) -> int:
+    def get_ptr(self) -> ctypes.c_void_p | None:
         """
         #### Возвращает указатель на нативный объект C++
 
@@ -1471,7 +1471,7 @@ class CircleShape:
         return self._ptr
 
     @overload
-    def set_position(self, x: float, y: float) -> Self:
+    def set_position(self, arg1: float, arg2: float) -> Self:
         """
         #### Устанавливает позицию круга через координаты
 
@@ -1507,7 +1507,7 @@ class CircleShape:
         ...
 
     @overload
-    def set_position(self, position: Vector2f) -> Self:
+    def set_position(self, arg1: Vector2f, arg2: None = None) -> Self:
         """
         #### Устанавливает позицию круга через вектор
 
@@ -1775,7 +1775,7 @@ class CircleShape:
         self.__color = color
         return self
 
-    def get_color(self) -> Color:
+    def get_color(self) -> Color | None:
         """
         #### Возвращает текущий цвет заливки
 
@@ -1838,7 +1838,7 @@ class CircleShape:
         self.__outline_color = color
         return self
 
-    def get_outline_color(self) -> Color:
+    def get_outline_color(self) -> Color | None:
         """
         #### Возвращает текущий цвет границы
 
@@ -1934,7 +1934,7 @@ class CircleShape:
         return self.__outline_thickness
 
     @overload
-    def set_scale(self, scale: float) -> Self:
+    def set_scale(self, arg1: float, arg2: None = None) -> Self:
         """
         #### Равномерно масштабирует круг
 
@@ -1971,7 +1971,7 @@ class CircleShape:
         ...
 
     @overload
-    def set_scale(self, scale_x: float, scale_y: float) -> Self:
+    def set_scale(self, arg1: float, arg2: float) -> Self:
         """
         #### Масштабирует круг по осям
 
@@ -2063,7 +2063,7 @@ class CircleShape:
         )
 
     @overload
-    def set_origin(self, origin: Vector2f) -> Self:
+    def set_origin(self, arg1: Vector2f, arg2: None = None) -> Self:
         """
         #### Устанавливает точку отсчета через вектор
 
@@ -2094,7 +2094,7 @@ class CircleShape:
         ...
 
     @overload
-    def set_origin(self, x: float, y: float) -> Self:
+    def set_origin(self, arg1: float, arg2: float) -> Self:
         """
         #### Устанавливает точку отсчета через координаты
 
@@ -2214,7 +2214,10 @@ class CircleShape:
         self.set_position(new_pos)
         return self
 
-@final
+
+# Финальная реализация класса BaseLineShape
+# Не рекомендуется менять атрибуты
+# ? Наследование разрешено и типобезопасно
 class BaseLineShape:
     """
     #### Базовый класс для работы с толстыми линиями
@@ -2261,8 +2264,8 @@ class BaseLineShape:
         - __rectangle_shape: Внутренний прямоугольник для тела линии
         - __round_circles: Круги для скругленных концов (если включены)
         """
-        self.__start_pos = [0, 0]
-        self.__end_pos = [0, 0]
+        self.__start_pos: list[Number] = [0, 0]
+        self.__end_pos: list[Number] = [0, 0]
         self.__color = color
         self.__width = 1
 
@@ -2273,9 +2276,9 @@ class BaseLineShape:
         self.__round_circles = CircleShape(15)
         self.__round_circles.set_color(COLOR_BLACK)
 
-    @final
+
     @overload
-    def set_points(self, start: Vector2f, end: Vector2f) -> Self:
+    def set_points(self, arg1: Vector2f, arg2: Vector2f, /, arg3: None = None, arg4: None = None) -> Self:
         """
         #### Устанавливает точки линии через векторы
 
@@ -2306,9 +2309,9 @@ class BaseLineShape:
         """
         ...
 
-    @final
+
     @overload
-    def set_points(self, x1: float, y1: float, x2: float, y2: float) -> Self:
+    def set_points(self, arg1: Number, arg2: Number, arg3: Number, arg4: Number) -> Self:
         """
         #### Устанавливает точки линии через координаты
 
@@ -2342,8 +2345,8 @@ class BaseLineShape:
         ...
 
     @final
-    def set_points(self, arg1: Union[Vector2f, float], arg2: Union[Vector2f, float],
-                  arg3: Optional[float] = None, arg4: Optional[float] = None) -> Self:
+    def set_points(self, arg1: Union[Vector2f, Number], arg2: Union[Vector2f, Number],
+                  arg3: Optional[Number] = None, arg4: Optional[Number] = None) -> Self:
         """
         #### Основная реализация установки точек линии
 
@@ -2360,7 +2363,7 @@ class BaseLineShape:
         if isinstance(arg1, Vector2f) and isinstance(arg2, Vector2f):
             self.__start_pos = [arg1.x, arg1.y]
             self.__end_pos = [arg2.x, arg2.y]
-        elif all(isinstance(x, (int, float)) for x in [arg1, arg2, arg3, arg4]):
+        elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)) and isinstance(arg3, (int, float)) and isinstance(arg4, (int, float)):
             self.__start_pos = [float(arg1), float(arg2)]
             self.__end_pos = [float(arg3), float(arg4)]
         else:
@@ -2431,9 +2434,9 @@ class BaseLineShape:
         """
         return self.__rounded_corners
 
-    @final
+
     @overload
-    def set_start_point(self, point: Vector2f) -> Self:
+    def set_start_point(self, arg1: Vector2f, /, arg2: None = None) -> Self:
         """
         #### Устанавливает начальную точку линии через вектор
 
@@ -2463,9 +2466,9 @@ class BaseLineShape:
         """
         ...
 
-    @final
+
     @overload
-    def set_start_point(self, x: float, y: float) -> Self:
+    def set_start_point(self, arg1: float, arg2: float) -> Self:
         """
         #### Устанавливает начальную точку линии через координаты
 
@@ -2520,9 +2523,9 @@ class BaseLineShape:
 
         return self
 
-    @final
+
     @overload
-    def set_end_point(self, point: Vector2f) -> Self:
+    def set_end_point(self, arg1: Vector2f, /, arg2: None = None) -> Self:
         """
         #### Устанавливает конечную точку линии через вектор
 
@@ -2552,9 +2555,8 @@ class BaseLineShape:
         """
         ...
 
-    @final
     @overload
-    def set_end_point(self, x: float, y: float) -> Self:
+    def set_end_point(self, arg1: float, arg2: float) -> Self:
         """
         #### Устанавливает конечную точку линии через координаты
 
@@ -2585,7 +2587,6 @@ class BaseLineShape:
         """
         ...
 
-    @final
     def set_end_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
         """
         #### Основная реализация установки конечной точки
@@ -2830,7 +2831,7 @@ class BaseLineShape:
         - Для оптимальной производительности избегайте прямых вызовов
         """
         # Вычисляем вектор направления
-        vector = Vector2f.between(self.__start_pos, self.__end_pos)
+        vector = Vector2f.between(list(self.__start_pos), list(self.__end_pos))
         length = vector.get_lenght()
         normal = vector.normalize()
         angle = normal.get_angle()
@@ -2939,9 +2940,9 @@ class BaseLineShape:
         """
         return self
 
-    @final
+
     @overload
-    def move_start_point(self, vector: Vector2f) -> Self:
+    def move_start_point(self, arg1: Union[float, VectorType], /, arg2: Optional[float] = None) -> Self:
         """
         #### Перемещает начальную точку линии по вектору
 
@@ -2972,9 +2973,9 @@ class BaseLineShape:
         """
         ...
 
-    @final
+
     @overload
-    def move_start_point(self, dx: float, dy: float) -> Self:
+    def move_start_point(self, arg1: float, arg2: float) -> Self:
         """
         #### Перемещает начальную точку линии по координатам
 
@@ -3007,7 +3008,7 @@ class BaseLineShape:
         ...
 
     @final
-    def move_start_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
+    def move_start_point(self, arg1: Union[VectorType, float], arg2: Optional[float] = None) -> Self:
         """
         #### Основная реализация перемещения начальной точки
 
@@ -3022,20 +3023,19 @@ class BaseLineShape:
         - Изменяет только начальную точку, конечная остается на месте
         - Приводит к изменению длины и направления линии
         """
-        if isinstance(arg1, Vector2f):
+        if isinstance(arg1, _VectorType):
             dx, dy = arg1.x, arg1.y
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             dx, dy = float(arg1), float(arg2)
         else:
             raise TypeError("Invalid argument types for move_start_point")
 
-        self.__start_pos[0] += dx
+        self.__start_pos[0] = self.__start_pos[0] + dx
         self.__start_pos[1] += dy
         return self
 
-    @final
     @overload
-    def move_end_point(self, vector: Vector2f) -> Self:
+    def move_end_point(self, arg1: Union[VectorType, float], /, arg2: Optional[float] = None) -> Self:
         """
         #### Перемещает конечную точку линии по вектору
 
@@ -3066,9 +3066,9 @@ class BaseLineShape:
         """
         ...
 
-    @final
+
     @overload
-    def move_end_point(self, dx: float, dy: float) -> Self:
+    def move_end_point(self, arg1: float, arg2: float) -> Self:
         """
         #### Перемещает конечную точку линии по координатам
 
@@ -3101,7 +3101,7 @@ class BaseLineShape:
         ...
 
     @final
-    def move_end_point(self, arg1: Union[Vector2f, float], arg2: Optional[float] = None) -> Self:
+    def move_end_point(self, arg1: Union[VectorType, float], arg2: Optional[float] = None) -> Self:
         """
         #### Основная реализация перемещения конечной точки
 
@@ -3117,7 +3117,7 @@ class BaseLineShape:
         - Приводит к изменению длины и направления линии
         - Для одновременного перемещения всей линии используйте `move()`
         """
-        if isinstance(arg1, Vector2f):
+        if isinstance(arg1, _VectorType):
             dx, dy = arg1.x, arg1.y
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             dx, dy = float(arg1), float(arg2)
@@ -3128,7 +3128,7 @@ class BaseLineShape:
         self.__end_pos[1] += dy
         return self
 
-@final
+
 class LineShape(BaseLineShape):
     """
     #### Класс линии с поддержкой контурной обводки

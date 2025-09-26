@@ -66,10 +66,11 @@ Copyright (c) 2025 Pavlov Ivan
 
 import math
 
+
 from typing import Self
 from random import uniform
 from typing_extensions import Iterator
-
+from Moon.python.Types import Number
 
 
 
@@ -195,7 +196,7 @@ class Vector2f(object):
         vector = Vector2f(1, 0).rotate_at(uniform(0, 360))
         return vector
 
-    def __init__(self, x: float | int, y: float | int) -> None:
+    def __init__(self, x: Number, y: Number) -> None:
         """
         #### Инициализация вектора с координатами
 
@@ -258,7 +259,7 @@ class Vector2f(object):
         return (self.x, self.y)
 
     @xy.setter
-    def xy(self, value: tuple[float, float]) -> None:
+    def xy(self, value: tuple[Number, Number]) -> None:
         """
         #### Устанавливает координаты из кортежа
 
@@ -553,13 +554,13 @@ class Vector2f(object):
     def __str__(self) -> str:
         return self.__repr__()
 
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, Vector2f):
+    def __eq__(self, other: "VectorType | object") -> bool:
+        if isinstance(other, _VectorType):
             return self.x == other.x and self.y == other.y
         else:
             return False
 
-    def __ne__(self, other: object) -> bool:
+    def __ne__(self, other: "VectorType | object") -> bool:
         return not self.__eq__(other)
 
     def __neg__(self) -> 'Vector2f':
@@ -568,39 +569,39 @@ class Vector2f(object):
     def __abs__(self) -> 'Vector2f':
         return Vector2f(abs(self.x), abs(self.y))
 
-    def __add__(self, other: "Vector2f") -> 'Vector2f':
+    def __add__(self, other: "Vector2f | Vector2i") -> 'Vector2f':
         return Vector2f(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other: "Vector2f") -> 'Vector2f':
+    def __sub__(self, other: "Vector2f | Vector2i") -> 'Vector2f':
         return Vector2f(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, scalar: float | int) -> 'Vector2f':
-        if isinstance(scalar, Vector2f):
+    def __mul__(self, scalar: "float | int | VectorType") -> 'Vector2f':
+        if isinstance(scalar, _VectorType):
             return Vector2f(self.x * scalar.x, self.y * scalar.y)
         return Vector2f(self.x * scalar, self.y * scalar)
 
-    def __pow__(self, scalar: float | int) -> 'Vector2f':
-        if isinstance(scalar, Vector2f):
+    def __pow__(self, scalar: "float | int | VectorType") -> 'Vector2f':
+        if isinstance(scalar, _VectorType):
             return Vector2f(self.x ** scalar.x, self.y ** scalar.y)
         return Vector2f(self.x ** scalar, self.y ** scalar)
 
-    def __truediv__(self, scalar: float | int) -> 'Vector2f':
-        if isinstance(scalar, Vector2f):
+    def __truediv__(self, scalar: "float | int | VectorType") -> 'Vector2f':
+        if isinstance(scalar, _VectorType):
             return Vector2f(self.x / scalar.x, self.y / scalar.y)
         return Vector2f(self.x / scalar, self.y / scalar)
 
-    def __iadd__(self, other: Self) -> Self:
+    def __iadd__(self, other: "Vector2f | Vector2i") -> Self:
         self.x += other.x
         self.y += other.y
         return self
 
-    def __isub__(self, other: Self) -> Self:
+    def __isub__(self, other: "Vector2f | Vector2i") -> Self:
         self.x -= other.x
         self.y -= other.y
         return self
 
-    def __imul__(self, scalar: float | int) -> Self:
-        if isinstance(scalar, Vector2f):
+    def __imul__(self, scalar: "float | int | VectorType") -> Self:
+        if isinstance(scalar, _VectorType):
             self.x *= scalar.x
             self.y *= scalar.y
         else:
@@ -608,8 +609,8 @@ class Vector2f(object):
             self.y *= scalar
         return self
 
-    def __itruediv__(self, scalar: float | int) -> Self:
-        if isinstance(scalar, Vector2f):
+    def __itruediv__(self, scalar: "float | int | VectorType") -> Self:
+        if isinstance(scalar, _VectorType):
             self.x /= scalar.x
             self.y /= scalar.y
         else:
@@ -979,4 +980,8 @@ def dot(v1: "VectorType", v2: "VectorType") -> float:
 
 # Union подобный веткорый тип ========= +
 type VectorType = Vector2f | Vector2i   #
+# ===================================== +
+
+# Кортеж из двух типов векторов ======= +
+_VectorType = (Vector2f, Vector2i)      #
 # ===================================== +

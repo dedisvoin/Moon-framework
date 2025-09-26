@@ -70,12 +70,15 @@ Copyright (c) 2025 Pavlov Ivan
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
+# pyright: basic
+
 import os
 import ctypes
+from string import printable
 import keyboard
 
 from time import time
-from typing import overload, Final, final, Self
+from typing import overload, Final, final, Self, Any
 
 from Moon.python.Colors import *
 from Moon.python.Time import Clock
@@ -84,19 +87,19 @@ from Moon.python.Types import TwoIntegerList
 from Moon.python.Vectors import Vector2i, Vector2f
 from Moon.python.Inputs import MouseInterface, KeyBoardInterface
 
-from Moon.python.Rendering.Text import *   # pyright: ignore
-from Moon.python.Rendering.Shapes import * # pyright: ignore
+from Moon.python.Rendering.Text import *                                                                                # pyright: ignore [ reportGeneralTypeIssues ]
+from Moon.python.Rendering.Shapes import *                                                                              # pyright: ignore [ reportGeneralTypeIssues ]
 from Moon.python.Rendering.Shaders import Shader
 from Moon.python.Rendering.Drawable import Drawable
 from Moon.python.Rendering.RenderStates import RenderStates
 
-from Moon.python.utils import find_library, LibraryLoadError, find_module_installation_path
+from Moon.python.utils import find_library, find_module_installation_path
 
 
 # Загружаем DLL библиотеку
 
 try:
-    LIB_MOON: Final[ctypes.CDLL] = ctypes.CDLL(find_library())
+    LIB_MOON: Final[ctypes.CDLL] = ctypes.CDLL(find_library())                                                          # pyright: ignore [ reportConstantRedefinition ]
 except Exception as e:
     raise ImportError(f"Failed to load Moon library: {e}")
 
@@ -110,10 +113,13 @@ def get_screen_resolution() -> TwoIntegerList:
     :Returns:
     - tuple: Кортеж, содержащий ширину и высоту экрана в пикселях (ширина, высота).
     """
+
     user32 = ctypes.windll.user32
-    screen_width = user32.GetSystemMetrics(0)  # SM_CXSCREEN
-    screen_height = user32.GetSystemMetrics(1) # SM_CYSCREEN
-    return [screen_width, screen_height]
+    user32.SetProcessDPIAware()
+    width = user32.GetSystemMetrics(0)
+    height = user32.GetSystemMetrics(1)
+
+    return [width, height]
 
 
 ##################################################################
@@ -223,7 +229,7 @@ class WindowEvents:
     - Обработка сенсорного ввода и событий окна
     - Получение детальной информации о каждом событии
     """
-
+    @final
     class Type:
         """
         #### Перечисление типов событий окна
@@ -283,7 +289,7 @@ class WindowEvents:
         :Raises:
         - RuntimeError: При ошибке создания нативного объекта
         """
-        self.__event_ptr = LIB_MOON._Events_Create()
+        self.__event_ptr: ctypes.c_void_p = LIB_MOON._Events_Create()
 
     def __del__(self):
         """
@@ -313,7 +319,7 @@ class WindowEvents:
         """
         return self.__event_ptr
 
-    def poll(self, window) -> bool:
+    def poll(self, window: "Window") -> bool:
         """
         #### Проверка наличия событий в очереди
 
@@ -335,7 +341,7 @@ class WindowEvents:
             handle_event(events)
         ```
         """
-        return LIB_MOON._Window_GetCurrentEventType(window.get_ptr(), self.__event_ptr)
+        return LIB_MOON._Window_GetCurrentEventType(window.get_ptr(), self.__event_ptr)                                 # pyright: ignore [ reportAny ]
 
     def get_type(self) -> int:
         """
@@ -354,7 +360,7 @@ class WindowEvents:
             handle_key_press()
         ```
         """
-        return LIB_MOON._Events_GetType(self.__event_ptr)
+        return LIB_MOON._Events_GetType(self.__event_ptr)                                                               # pyright: ignore [ reportAny ]
 
     def get_key(self) -> int:
         """
@@ -370,7 +376,7 @@ class WindowEvents:
         :Note:
         - Только для KeyPressed/KeyReleased событий
         """
-        return LIB_MOON._Events_GetKey(self.__event_ptr)
+        return LIB_MOON._Events_GetKey(self.__event_ptr)                                                               # pyright: ignore [ reportAny ]
 
     def get_mouse_button(self) -> int:
         """
@@ -386,7 +392,7 @@ class WindowEvents:
         :Note:
         - Для MouseButtonPressed/MouseButtonReleased
         """
-        return LIB_MOON._Events_GetMouseButton(self.__event_ptr)
+        return LIB_MOON._Events_GetMouseButton(self.__event_ptr)                                                       # pyright: ignore [ reportAny ]
 
     def get_mouse_wheel(self) -> int:
         """
@@ -402,7 +408,7 @@ class WindowEvents:
         :Note:
         - Для MouseWheelMoved/MouseWheelScrolled
         """
-        return LIB_MOON._Events_GetMouseWheel(self.__event_ptr)
+        return LIB_MOON._Events_GetMouseWheel(self.__event_ptr)                                                        # pyright: ignore [ reportAny ]
 
     def get_mouse_x(self) -> int:
         """
@@ -418,7 +424,7 @@ class WindowEvents:
         :Note:
         - Для событий связанных с положением мыши
         """
-        return LIB_MOON._Events_GetMouseX(self.__event_ptr)
+        return LIB_MOON._Events_GetMouseX(self.__event_ptr)                                                            # pyright: ignore [ reportAny ]
 
     def get_mouse_y(self) -> int:
         """
@@ -434,7 +440,7 @@ class WindowEvents:
         :Note:
         - Для событий связанных с положением мыши
         """
-        return LIB_MOON._Events_GetMouseY(self.__event_ptr)
+        return LIB_MOON._Events_GetMouseY(self.__event_ptr)                                                            # pyright: ignore [ reportAny ]
 
     def get_size_width(self) -> int:
         """
@@ -450,7 +456,7 @@ class WindowEvents:
         :Note:
         - Только для Resized события
         """
-        return LIB_MOON._Events_GetSizeWidth(self.__event_ptr)
+        return LIB_MOON._Events_GetSizeWidth(self.__event_ptr)                                                         # pyright: ignore [ reportAny ]
 
     def get_size_height(self) -> int:
         """
@@ -466,7 +472,8 @@ class WindowEvents:
         :Note:
         - Только для Resized события
         """
-        return LIB_MOON._Events_GetSizeHeight(self.__event_ptr)
+        return LIB_MOON._Events_GetSizeHeight(self.__event_ptr)                                                        # pyright: ignore [ reportAny ]
+
 
 
 # Тип для хранения указателя на объект окна ===== +
@@ -474,7 +481,7 @@ type WindowPtr = ctypes.c_void_p
 # =============================================== +
 
 # Константа для обозначения неограниченного FPS (представляется большим числом) = +
-FPS_UNLIMIT_CONST: Final[Union[int, float]] = 1000000                             #
+FPS_UNLIMIT_CONST: Final[int | float] = 1000000                                   #
 # =============================================================================== +
 
 @final
@@ -568,7 +575,7 @@ class ContextSettings:
         - Создает объект с базовыми настройками OpenGL
         - Все параметры устанавливаются в значения по умолчанию
         """
-        self.__context_ptr = LIB_MOON._WindowContextSettings_Create()
+        self.__context_ptr: ctypes.c_void_p = LIB_MOON._WindowContextSettings_Create()
 
     def __del__(self):
         """
@@ -829,9 +836,9 @@ class Window:
             style = Window.Style.No # Переключаем на режим без ничего
 
         # Используем переданные настройки или создаем новые по умолчанию
-        temp_context_settings = None
+        temp_context_settings: ctypes.c_void_p | None = None
         if context_settings is None:
-            temp_context_settings = LIB_MOON._WindowContextSettings_Create()
+            temp_context_settings = LIB_MOON._WindowContextSettings_Create()                                           # pyright: ignore [ reportAny ]
             context_ptr = temp_context_settings
             should_delete_context = True
         else:
@@ -845,7 +852,7 @@ class Window:
         if should_delete_context and temp_context_settings is not None:
             LIB_MOON._WindowContextSettings_Delete(temp_context_settings)
         self.__title = title
-        self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
+        self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)                                 # pyright: ignore [ reportAny ]
         self.__window_alpha: int | float = alpha
 
         #self.set_alpha(self.__window_alpha)
@@ -876,7 +883,7 @@ class Window:
         self.__info_alpha = 0
         self.__target_info_alpha = 100
         self.__fps_update_timer = 0.0
-        self.__fps_history = [] # История значений FPS для построения графика
+        self.__fps_history: list[float | int] = [] # История значений FPS для построения графика
         self.__max_history = 40 # Максимальное количество точек в истории FPS
 
         # Настройка шрифта и текстовых элементов для отображения отладочной информации
@@ -922,7 +929,7 @@ class Window:
 
         self.__cursor_visibility: bool = True   # Флаг видимости курсора мыши
 
-        self.set_vertical_sync(vsync)           # Устанавливает вертикальную синхронизацию при инициализации
+        _ = self.set_vertical_sync(vsync)       # Устанавливает вертикальную синхронизацию при инициализации
 
         self.__ghosting: bool = False
         self.__ghosting_min_value: int = 30
@@ -945,46 +952,107 @@ class Window:
         self.__icon_path: str | None = None
 
 
-        self.set_title_color(DEFAULT_WINDOW_TITLE_COLOR)
-        self.set_header_color(DEFAULT_WINDOW_HEADER_COLOR)
-        self.set_border_color(DEFAULT_WINDOW_BORDER_COLOR)
+        _ = self.set_title_color(DEFAULT_WINDOW_TITLE_COLOR)
+        _ = self.set_header_color(DEFAULT_WINDOW_HEADER_COLOR)
+        _ = self.set_border_color(DEFAULT_WINDOW_BORDER_COLOR)
 
         try:
-            self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
+            _ = self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
         except:
             try:
-                self.set_icon_from_path(DEFAULT_WINDOW_ICON_LOCAL_PATH)
+                _ = self.set_icon_from_path(DEFAULT_WINDOW_ICON_LOCAL_PATH)
             except:
                 try:
                     path = find_module_installation_path('Moon') + "/data/icons/default_app_icon.png"
-                    self.set_icon_from_path(path)
+                    _ = self.set_icon_from_path(path)
                 except:
                     raise RuntimeError("App Icon path not found")
 
     def get_width(self) -> int:
-        return LIB_MOON._Window_GetSizeWidth(self.__window_ptr)
+        """
+        Получить ширину окна
 
-    def get_height(self) ->  int:
-        return LIB_MOON._Window_GetSizeHeight(self.__window_ptr)
+        ---
+
+        :Returns:
+            int: Ширина окна
+        """
+        return LIB_MOON._Window_GetSizeWidth(self.__window_ptr)                                                         # pyright: ignore [ reportAny ]
+
+    def get_height(self) -> int:
+        """
+        Получить высоту окна
+
+        ---
+
+        :Returns:
+            int: Высота окна
+        """
+        return LIB_MOON._Window_GetSizeHeight(self.__window_ptr)                                                        # pyright: ignore [ reportAny ]
 
     def get_fps_history(self) -> list[Number]:
+        """
+        Получить историю FPS
+
+        ---
+
+        :Returns:
+            list[Number]: История FPS
+        """
         return self.__fps_history
 
     def get_fps_history_max(self) -> Number:
+        """
+        Получить максимальное значение FPS в истории
+
+        ---
+
+        :Returns:
+            Number: Максимальное значение FPS
+        """
         try:
             return max(self.__fps_history)
         except: return self.__target_fps
 
     def  get_fps_history_min(self) -> Number:
+        """
+        Получить минимальное значение FPS в истории
+
+        ---
+
+        :Returns:
+            Number: Минимальное значение FPS
+        """
         try:
             return min(self.__fps_history)
         except: return self.__target_fps
 
-    def set_fullscreen_desktop(self) -> Self:
-        ctypes.windll.user32.ShowWindow(self.__window_descriptor, 3)
+    def set_fullscreen(self) -> Self | None:
+        """
+        Переключить окно в полноэкранный режим на весь экран
+
+        ---
+
+        :Returns:
+            Self: Возвращает self для цепочки вызовов
+        """
+        ctypes.windll.user32.ShowWindow(self.__window_descriptor, 3)                                                    # pyright: ignore [ reportAny ]
         return self
 
     def set_fps_monitor_opened(self, value: bool) -> Self:
+        """
+        Открыть/закрыть FPS монитор
+
+        ---
+
+        :Args:
+        - value (bool): True - открыть, False - закрыть
+
+        ---
+
+        :Returns:
+            Self: Возвращает self для цепочки вызовов
+        """
         self.__fps_monitor_opened = value
         return self
 
@@ -1086,7 +1154,7 @@ class Window:
         """
         if os.path.exists(path) is False:
             raise FileNotFoundError(f"Icon file not found: {path}")
-        result = LIB_MOON._Window_SetIconFromPath(self.__window_ptr, path.encode('utf-8'))
+        result: bool = LIB_MOON._Window_SetIconFromPath(self.__window_ptr, path.encode('utf-8'))                        # pyright: ignore [ reportAny ]
         if result:
             self.__icon_path = path
         return result
@@ -1134,12 +1202,12 @@ class Window:
         """
         self.__title_color = color
         bgr_value = (color.b << 16) | (color.g << 8) | color.r
-        color_value = ctypes.wintypes.DWORD(bgr_value) # pyright: ignore
+        color_value = ctypes.wintypes.DWORD(bgr_value)                                                                  # pyright: ignore [ reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownVariableType ]
         ctypes.windll.dwmapi.DwmSetWindowAttribute(
-            self.__window_descriptor,
+            self.__window_descriptor,                                                                                   # pyright: ignore [ reportAny ]
             36,  # DWMWA_CAPTION_COLOR
-            ctypes.byref(color_value),
-            ctypes.sizeof(color_value)
+            ctypes.byref(color_value),                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
+            ctypes.sizeof(color_value)                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
         )
         return self
 
@@ -1168,12 +1236,12 @@ class Window:
         """
         self.__header_color = color
         bgr_value = (color.b << 16) | (color.g << 8) | color.r
-        color_value = ctypes.wintypes.DWORD(bgr_value) # pyright: ignore
+        color_value = ctypes.wintypes.DWORD(bgr_value)                                                                  # pyright: ignore [ reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownVariableType ]
         ctypes.windll.dwmapi.DwmSetWindowAttribute(
-            self.__window_descriptor,
+            self.__window_descriptor,                                                                                   # pyright: ignore [ reportAny ]
             35,  # DWMWA_CAPTION_COLOR
-            ctypes.byref(color_value),
-            ctypes.sizeof(color_value)
+            ctypes.byref(color_value),                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
+            ctypes.sizeof(color_value)                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
         )
         return self
 
@@ -2072,7 +2140,7 @@ class Window:
             return
 
         # Устанавливаем представление по умолчанию, чтобы информация отображалась в экранных координатах
-        self.set_view(self.get_default_view().set_size(*self.get_size().xy).set_center(*self.get_center().xy))
+        self.set_view(self.get_default_view().set_size(*self.get_size().xy).set_center(*self.get_center(False).xy))
 
         # Изменяем прозрачность информационного блока в зависимости от положения курсора
         mp = MouseInterface.get_position_in_window(self)

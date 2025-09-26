@@ -179,7 +179,7 @@ def convert_ru_with_qwerty_layout(key: str) -> str:
 
 # Метод для получения текущей раскладки клавиатуры на Windows
 if os.name == 'nt':
-    def get_keyboard_layout() -> KeyboardLayout:
+    def get_keyboard_layout() -> KeyboardLayout | None:
         """
         #### Определяет текущую раскладку клавиатуры активного окна.
 
@@ -211,7 +211,7 @@ if os.name == 'nt':
             return LAYOUT_UNKNOWN
 # Метод для определения раскладки клавиатуры на Linux
 if os.name == 'linux':
-    def get_keyboard_layout() -> KeyboardLayout:
+    def get_keyboard_layout() -> KeyboardLayout | None:
         """
         #### Определяет текущую раскладку клавиатуры на Linux.
 
