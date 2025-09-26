@@ -7,6 +7,5 @@ from Moon.python.Rendering.Shapes import (
 type Drawable = CircleShape | RectangleShape | LineShape | BaseLineShape | \
                 PolygoneShape | LineThinShape | LinesThinShape | Text | BaseText
 
-
 _Drawable = (CircleShape | RectangleShape | LineShape | BaseLineShape | \
              PolygoneShape | LineThinShape | LinesThinShape | Text | BaseText)
