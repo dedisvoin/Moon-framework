@@ -15,25 +15,23 @@
 //
 // ================================================================================
 
-#include "SFML/Graphics/Shader.hpp"
-#include "SFML/System/Vector2.hpp"
+#include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 
-#include "SFML/Graphics/RenderWindow.hpp"
-#include "SFML/Graphics/View.hpp"
-#include "SFML/Graphics/Image.hpp"
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/RenderTarget.hpp"
-#include "SFML/Graphics/RenderStates.hpp"
+#include <SFML/System/String.hpp>
+#include <SFML/System/Vector2.hpp>
 
-#include "SFML/System/String.hpp"
+#include <SFML/Window.hpp>
+#include <SFML/Window/Window.hpp>
+#include <SFML/Window/ContextSettings.hpp>
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/Cursor.hpp>
 
-#ifndef SFML_WINDOW_HPP
-#include "SFML/Window.hpp"
-#include "SFML/Window/Window.hpp"
-#include "SFML/Window/ContextSettings.hpp"
-#include "SFML/Window/VideoMode.hpp"
-#include "SFML/Window/Cursor.hpp"
-#endif
 
 #include "string"
 using namespace std;

@@ -551,7 +551,7 @@ class Vector2f(object):
         return self.__repr__()
 
     def __eq__(self, other: "Vector2Type | object") -> bool:
-        if isinstance(other, _Vector2Type):
+        if isinstance(other, Vector2TypeTuple):
             return self.x == other.x and self.y == other.y
         else:
             return False
@@ -572,17 +572,17 @@ class Vector2f(object):
         return Vector2f(self.x - other.x, self.y - other.y)
 
     def __mul__(self, scalar: "float | int | Vector2Type") -> 'Vector2f':
-        if isinstance(scalar, _Vector2Type):
+        if isinstance(scalar, Vector2TypeTuple):
             return Vector2f(self.x * scalar.x, self.y * scalar.y)
         return Vector2f(self.x * scalar, self.y * scalar)
 
     def __pow__(self, scalar: "float | int | Vector2Type") -> 'Vector2f':
-        if isinstance(scalar, _Vector2Type):
+        if isinstance(scalar, Vector2TypeTuple):
             return Vector2f(self.x ** scalar.x, self.y ** scalar.y)
         return Vector2f(self.x ** scalar, self.y ** scalar)
 
     def __truediv__(self, scalar: "float | int | Vector2Type") -> 'Vector2f':
-        if isinstance(scalar, _Vector2Type):
+        if isinstance(scalar, Vector2TypeTuple):
             return Vector2f(self.x / scalar.x, self.y / scalar.y)
         return Vector2f(self.x / scalar, self.y / scalar)
 
@@ -597,7 +597,7 @@ class Vector2f(object):
         return self
 
     def __imul__(self, scalar: "float | int | Vector2Type") -> Self:
-        if isinstance(scalar, _Vector2Type):
+        if isinstance(scalar, Vector2TypeTuple):
             self.x *= scalar.x
             self.y *= scalar.y
         else:
@@ -606,7 +606,7 @@ class Vector2f(object):
         return self
 
     def __itruediv__(self, scalar: "float | int | Vector2Type") -> Self:
-        if isinstance(scalar, _Vector2Type):
+        if isinstance(scalar, Vector2TypeTuple):
             self.x /= scalar.x
             self.y /= scalar.y
         else:
@@ -1000,7 +1000,7 @@ type Vector2Type = Vector2f | Vector2i  #
 # ===================================== +
 
 # Кортеж из двух типов векторов ======= +
-_Vector2Type = (Vector2f, Vector2i)     #
+Vector2TypeTuple = (Vector2f, Vector2i) #
 # ===================================== +
 
 

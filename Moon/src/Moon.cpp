@@ -1,3 +1,133 @@
+#ifndef SFML_AUDIO_HPP
+#include "SFML/Audio.hpp"
+#endif
+#ifndef IOSTREAM_H
+#include <iostream>
+#endif
+
+using std::cout, std::endl;
+extern "C" {
+    typedef sf::SoundBuffer* SoundBufferPtr;
+
+    __declspec(dllexport) SoundBufferPtr _SoundBuffer_loadFromFile(const char* path) {
+        SoundBufferPtr buffer = new sf::SoundBuffer();
+
+        if (buffer->loadFromFile(path))
+            cout << "Sound: " << path << " loaded." << endl;
+        else {
+            cout << "Sound: " << path << "error loading sound" << endl;
+        }
+        return buffer;
+    }
+
+    __declspec(dllexport) void _SoundBuffer_Destroy(SoundBufferPtr buffer) {
+        delete buffer;
+    }
+
+    __declspec(dllexport) int _SoundBuffer_GetChannelsCount(SoundBufferPtr buffer) {
+        return buffer->getChannelCount();
+    }
+
+    __declspec(dllexport) int _SoundBuffer_GetSampleRate(SoundBufferPtr buffer) {
+        return buffer->getSampleRate();
+    }
+}
+
+extern "C" {
+    typedef sf::Sound* SoundPtr;
+
+    __declspec(dllexport) SoundPtr _Sound_Create(SoundBufferPtr buffer) {
+        SoundPtr sound = new sf::Sound();
+        sound->setBuffer(*buffer);
+        return sound;
+    }
+
+    __declspec(dllexport) void _Sound_Destroy(SoundPtr sound) {
+        delete sound;
+    }
+
+    __declspec(dllexport) void _Sound_Play(SoundPtr sound) {
+        sound->play();
+    }
+
+    __declspec(dllexport) void _Sound_Pause(SoundPtr sound) {
+        sound->pause();
+    }
+
+    __declspec(dllexport) void _Sound_Stop(SoundPtr sound) {
+        sound->stop();
+    }
+
+    __declspec(dllexport) void _Sound_SetLoop(SoundPtr sound, bool loop) {
+        sound->setLoop(loop);
+    }
+
+    __declspec(dllexport) void _Sound_SetVolume(SoundPtr sound, float volume) {
+        sound->setVolume(volume);
+    }
+
+    __declspec(dllexport) void _Sound_SetPitch(SoundPtr sound, float pitch) {
+        sound->setPitch(pitch);
+    }
+
+    __declspec(dllexport) void _Sound_SetAttenuation(SoundPtr sound, float attenuation) {
+        sound->setAttenuation(attenuation);
+    }
+
+    __declspec(dllexport) void _Sound_ResetBuffer(SoundPtr sound) {
+        sound->resetBuffer();
+    }
+
+    __declspec(dllexport) void _Sound_SetPosition(SoundPtr sound, float x, float y, float z) {
+        sound->setPosition(x, y, z);
+    }
+
+    __declspec(dllexport) void _Sound_SetRelativeToListener(SoundPtr sound, bool relative) {
+        sound->setRelativeToListener(relative);
+    }
+    
+    __declspec(dllexport) int _Sound_GetStatus(SoundPtr sound) {
+        return sound->getStatus();
+    }
+}
+
+extern "C" {
+    typedef sf::Music* MusicPtr;
+
+    __declspec(dllexport) MusicPtr _Music_Create(const char* path) {
+        MusicPtr music = new sf::Music();
+        music->openFromFile(path);
+        return music;
+    }
+
+    __declspec(dllexport) void _Music_Play(MusicPtr music) {
+        music->play();
+    }
+
+    __declspec(dllexport) void _Music_Pause(MusicPtr music) {
+        music->pause();
+    }
+
+    __declspec(dllexport) void _Music_Stop(MusicPtr music) {
+        music->stop();
+    }
+
+    __declspec(dllexport) void _Music_SetLoop(MusicPtr music, bool loop) {
+        music->setLoop(loop);
+    }
+
+    __declspec(dllexport) void _Music_SetVolume(MusicPtr music, float volume) {
+        music->setVolume(volume);
+    }
+
+    __declspec(dllexport) void _Music_SetPitch(MusicPtr music, float pitch) {
+        music->setPitch(pitch);
+    }
+
+    __declspec(dllexport) void _Music_SetAttenuation(MusicPtr music, float attenuation) {
+        music->setAttenuation(attenuation);
+    }
+}
 // ===============================================================================
 // File: BUILDED_SGL_CIRCLE_SHAPE.cpp
 // SFML Circle Shape API implementation
@@ -245,8 +375,11 @@ extern "C" {
 // ===============================================================================
 
 #ifndef SFML_GRAPHICS_HPP
-#include "SFML/Graphics.hpp"
+#include <SFML/Graphics/RectangleShape.hpp>
 #endif
+
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 typedef sf::RectangleShape* RectanglePtr;
 
@@ -308,6 +441,21 @@ extern "C" {
     }
 }
 // ===============================================================================
+// ================================================================================
+//                           BUILDED_SGL_RENDERSTATES.cpp
+//                    Биндинги для работы с состоянием рендеринга
+// ================================================================================
+//
+// Этот файл содержит C++ функции для работы с состоянием рендеринга SFML,
+// которые экспортируются в Python через ctypes.
+//
+// Основные компоненты:
+// - Режимы смешивания цветов (BlendMode)
+// - Состояния рендеринга (RenderStates)
+// - Шейдеры и их настройка
+// - Униформы и параметры шейдеров
+//
+// ================================================================================
 
 #include "SFML/Graphics/BlendMode.hpp"
 #include "SFML/Graphics/Shader.hpp"
@@ -324,11 +472,19 @@ extern "C" {
 
 using namespace std;
 
-
+// ================================================================================
+//                           РЕЖИМЫ СМЕШИВАНИЯ (BLENDMODE)
+// ================================================================================
+// Функции для создания и управления режимами смешивания цветов:
+// - Настройка факторов смешивания для RGB и Alpha каналов
+// - Уравнения смешивания для различных визуальных эффектов
+// - Управление прозрачностью и наложением цветов
+// ================================================================================
 
 extern "C" {
     typedef sf::BlendMode* BlendModePtr;
 
+    // Создание полного режима смешивания с раздельными настройками для цветовых и альфа-каналов
     __declspec(dllexport) BlendModePtr _BlendMode_CreateFull(
                                                 sf::BlendMode::Factor ColorSourceFactor,
                                                 sf::BlendMode::Factor ColorDestinationFactor,
@@ -341,60 +497,90 @@ extern "C" {
                                  AlphaSourceFactor, AlphaDestinationFactor, AlphaBlendEquation);
     }
 
+    // Удаление объекта режима смешивания и освобождение памяти
     __declspec(dllexport) void _BlendMode_Delete(BlendModePtr blend_mode) {
         delete blend_mode;
     }
 }
 
+// ================================================================================
+//                       СОСТОЯНИЯ РЕНДЕРИНГА (RENDERSTATES)
+// ================================================================================
+// Функции для создания и управления состоянием рендеринга:
+// - Настройка шейдеров, текстур и преобразований
+// - Управление режимами смешивания
+// - Комбинирование различных параметров отрисовки
+// ================================================================================
+
 extern "C" {
     typedef sf::RenderStates* RenderStatesPtr;
 
+    // Создание нового объекта состояния рендеринга с параметрами по умолчанию
     __declspec(dllexport) RenderStatesPtr _RenderStates_Create() {
         RenderStatesPtr render_states = new sf::RenderStates();
         return render_states;
     }
 
+    // Удаление объекта состояния рендеринга и освобождение памяти
     __declspec(dllexport) void _RenderStates_Delete(RenderStatesPtr render_states) {
         delete render_states;
     }
 
+    // Установка шейдера для состояния рендеринга
     __declspec(dllexport) void _RenderStates_SetShader(RenderStatesPtr render_states, sf::Shader* shader) {
         render_states->shader = shader;
     }
 
+    // Установка режима смешивания для состояния рендеринга
     __declspec(dllexport) void _RenderStates_SetBlendMode(RenderStatesPtr render_states, BlendModePtr blend_mode) {
         render_states->blendMode = *blend_mode;
     }
 
+    // Установка текстуры для состояния рендеринга
     __declspec(dllexport) void _RenderStates_SetTexture(RenderStatesPtr render_states, sf::Texture *texture) {
         render_states->texture = texture;
     }
 
+    // Установка матрицы преобразования для состояния рендеринга
     __declspec(dllexport) void _RenderStates_SetTransform(RenderStatesPtr render_states, sf::Transform* transform) {
         render_states->transform = *transform;
     }
 }
 
+// ================================================================================
+//                               ШЕЙДЕРЫ (SHADER)
+// ================================================================================
+// Функции для работы с шейдерами GLSL:
+// - Загрузка шейдеров из файлов и строк
+// - Настройка униформ (параметров шейдеров)
+// - Управление состоянием шейдеров (привязка/отвязка)
+// - Работа с цветами, векторами и текстурами в шейдерах
+// ================================================================================
+
 extern "C" {
     typedef sf::Shader* ShaderPtr;
 
-    __declspec(dllexport) ShaderPtr
-    _Shader_Create() {
+    // Создание нового объекта шейдера
+    __declspec(dllexport) ShaderPtr _Shader_Create() {
         return new sf::Shader();
     }
 
-    __declspec(dllexport) bool
-    _Shader_LoadFromFile(ShaderPtr shader, char* vertex_file, char* fragment_file) {
+    // ================================================================================
+    //                   ЗАГРУЗКА ШЕЙДЕРОВ ИЗ РАЗЛИЧНЫХ ИСТОЧНИКОВ
+    // ================================================================================
+
+    // Загрузка шейдера из файлов (вершинный и фрагментный шейдеры)
+    __declspec(dllexport) bool _Shader_LoadFromFile(ShaderPtr shader, char* vertex_file, char* fragment_file) {
         return shader->loadFromFile(vertex_file, fragment_file);
     }
 
-    __declspec(dllexport) bool
-    _Shader_LoadFromStrings(ShaderPtr shader, char* vertex_string, char* fragment_string) {
+    // Загрузка шейдера из строк (вершинный и фрагментный шейдеры)
+    __declspec(dllexport) bool _Shader_LoadFromStrings(ShaderPtr shader, char* vertex_string, char* fragment_string) {
         return shader->loadFromMemory(vertex_string, fragment_string);
     }
 
-    __declspec(dllexport) bool
-    _Shader_LoadFromStringWithType(ShaderPtr shader, char* shader_string, sf::Shader::Type type) {
+    // Загрузка шейдера определенного типа из строки (вершинный, геометрический или фрагментный)
+    __declspec(dllexport) bool _Shader_LoadFromStringWithType(ShaderPtr shader, char* shader_string, sf::Shader::Type type) {
         if (type == 2) {
             return shader->loadFromMemory(shader_string, sf::Shader::Fragment);
         } else if (type == 1) {
@@ -405,206 +591,85 @@ extern "C" {
         return false;
     }
 
-    //////////////////////////////////////////////////////////////////////
-    // Uniforms
-    //////////////////////////////////////////////////////////////////////
+    // ================================================================================
+    //                   НАСТРОЙКА УНИФОРМ (ПАРАМЕТРОВ ШЕЙДЕРОВ)
+    // ================================================================================
 
-    __declspec(dllexport) void
-    _Shader_SetUniformInt(ShaderPtr shader, char* name, int value) {
+    // Установка целочисленной униформы
+    __declspec(dllexport) void _Shader_SetUniformInt(ShaderPtr shader, char* name, int value) {
         shader->setUniform(name, value);
     }
 
-    __declspec(dllexport) void
-    _Shader_SetUniformFloat(ShaderPtr shader, char* name, float value) {
+    // Установка униформы с плавающей точкой
+    __declspec(dllexport) void _Shader_SetUniformFloat(ShaderPtr shader, char* name, float value) {
         shader->setUniform(name, value);
     }
 
-    __declspec(dllexport) void
-    _Shader_SetUniformBool(ShaderPtr shader, char* name, bool value) {
+    // Установка булевой униформы
+    __declspec(dllexport) void _Shader_SetUniformBool(ShaderPtr shader, char* name, bool value) {
         shader->setUniform(name, value);
     }
 
-    __declspec(dllexport) void
-    _Shader_SetUniformTexture(ShaderPtr shader, char* name, sf::Texture texture) {
+    // Установка текстуры как униформы
+    __declspec(dllexport) void _Shader_SetUniformTexture(ShaderPtr shader, char* name, sf::Texture texture) {
         shader->setUniform(name, texture);
     }
 
-    __declspec(dllexport) void
-    _Shader_SetUniformIntVector(ShaderPtr shader, char* name, int x, int y) {
+    // Установка целочисленного векторной униформы (2 компонента)
+    __declspec(dllexport) void _Shader_SetUniformIntVector(ShaderPtr shader, char* name, int x, int y) {
         shader->setUniform(name, sf::Glsl::Ivec2(x, y));
     }
 
-    __declspec(dllexport) void
-    _Shader_SetUniformFloatVector(ShaderPtr shader, char* name, float x, float y) {
+    // Установка векторной униформы с плавающей точкой (2 компонента)
+    __declspec(dllexport) void _Shader_SetUniformFloatVector(ShaderPtr shader, char* name, float x, float y) {
         shader->setUniform(name, sf::Glsl::Vec2(x, y));
     }
 
-    __declspec(dllexport) void
-    _Shader_SetUniformColor(ShaderPtr shader, char* name, int r, int g, int b, int a) {
+    // Установка цветовой униформы (преобразование в нормализованные значения)
+    __declspec(dllexport) void _Shader_SetUniformColor(ShaderPtr shader, char* name, int r, int g, int b, int a) {
         shader->setUniform(name, sf::Glsl::Vec4(r/256.0f, g/256.0f, b/256.0f, a/256.0f));
     }
 
-    //////////////////////////////////////////////////////////////////////
-    // Uniforms
-    //////////////////////////////////////////////////////////////////////
+    // ================================================================================
+    //                   УПРАВЛЕНИЕ СОСТОЯНИЕМ ШЕЙДЕРОВ
+    // ================================================================================
 
-    __declspec(dllexport) void
-    _Shader_Bind(ShaderPtr shader, ShaderPtr new_shader) {
+    // Привязка шейдера для использования в рендеринге
+    __declspec(dllexport) void _Shader_Bind(ShaderPtr shader, ShaderPtr new_shader) {
         shader->bind(new_shader);
     }
 
-    __declspec(dllexport) void
-    _Shader_Unbind(ShaderPtr shader) {
+    // Отвязка текущего шейдера
+    __declspec(dllexport) void _Shader_Unbind(ShaderPtr shader) {
         shader->bind(NULL);
     }
 
+    // Получение указателя на специальную текстуру "CurrentTexture"
     __declspec(dllexport) void* _Shader_GetCurrentTexture() {
         return &sf::Shader::CurrentTexture;
     }
 }
-#ifndef SFML_AUDIO_HPP
-#include "SFML/Audio.hpp"
-#endif
-#ifndef IOSTREAM_H
-#include <iostream>
-#endif
 
-using std::cout, std::endl;
-extern "C" {
-    typedef sf::SoundBuffer* SoundBufferPtr;
-
-    __declspec(dllexport) SoundBufferPtr _SoundBuffer_loadFromFile(const char* path) {
-        SoundBufferPtr buffer = new sf::SoundBuffer();
-
-        if (buffer->loadFromFile(path))
-            cout << "Sound: " << path << " loaded." << endl;
-        else {
-            cout << "Sound: " << path << "error loading sound" << endl;
-        }
-        return buffer;
-    }
-
-    __declspec(dllexport) void _SoundBuffer_Destroy(SoundBufferPtr buffer) {
-        delete buffer;
-    }
-
-    __declspec(dllexport) int _SoundBuffer_GetChannelsCount(SoundBufferPtr buffer) {
-        return buffer->getChannelCount();
-    }
-
-    __declspec(dllexport) int _SoundBuffer_GetSampleRate(SoundBufferPtr buffer) {
-        return buffer->getSampleRate();
-    }
-}
-
-extern "C" {
-    typedef sf::Sound* SoundPtr;
-
-    __declspec(dllexport) SoundPtr _Sound_Create(SoundBufferPtr buffer) {
-        SoundPtr sound = new sf::Sound();
-        sound->setBuffer(*buffer);
-        return sound;
-    }
-
-    __declspec(dllexport) void _Sound_Destroy(SoundPtr sound) {
-        delete sound;
-    }
-
-    __declspec(dllexport) void _Sound_Play(SoundPtr sound) {
-        sound->play();
-    }
-
-    __declspec(dllexport) void _Sound_Pause(SoundPtr sound) {
-        sound->pause();
-    }
-
-    __declspec(dllexport) void _Sound_Stop(SoundPtr sound) {
-        sound->stop();
-    }
-
-    __declspec(dllexport) void _Sound_SetLoop(SoundPtr sound, bool loop) {
-        sound->setLoop(loop);
-    }
-
-    __declspec(dllexport) void _Sound_SetVolume(SoundPtr sound, float volume) {
-        sound->setVolume(volume);
-    }
-
-    __declspec(dllexport) void _Sound_SetPitch(SoundPtr sound, float pitch) {
-        sound->setPitch(pitch);
-    }
-
-    __declspec(dllexport) void _Sound_SetAttenuation(SoundPtr sound, float attenuation) {
-        sound->setAttenuation(attenuation);
-    }
-
-    __declspec(dllexport) void _Sound_ResetBuffer(SoundPtr sound) {
-        sound->resetBuffer();
-    }
-
-    __declspec(dllexport) void _Sound_SetPosition(SoundPtr sound, float x, float y, float z) {
-        sound->setPosition(x, y, z);
-    }
-
-    __declspec(dllexport) void _Sound_SetRelativeToListener(SoundPtr sound, bool relative) {
-        sound->setRelativeToListener(relative);
-    }
-    
-    __declspec(dllexport) int _Sound_GetStatus(SoundPtr sound) {
-        return sound->getStatus();
-    }
-}
-
-extern "C" {
-    typedef sf::Music* MusicPtr;
-
-    __declspec(dllexport) MusicPtr _Music_Create(const char* path) {
-        MusicPtr music = new sf::Music();
-        music->openFromFile(path);
-        return music;
-    }
-
-    __declspec(dllexport) void _Music_Play(MusicPtr music) {
-        music->play();
-    }
-
-    __declspec(dllexport) void _Music_Pause(MusicPtr music) {
-        music->pause();
-    }
-
-    __declspec(dllexport) void _Music_Stop(MusicPtr music) {
-        music->stop();
-    }
-
-    __declspec(dllexport) void _Music_SetLoop(MusicPtr music, bool loop) {
-        music->setLoop(loop);
-    }
-
-    __declspec(dllexport) void _Music_SetVolume(MusicPtr music, float volume) {
-        music->setVolume(volume);
-    }
-
-    __declspec(dllexport) void _Music_SetPitch(MusicPtr music, float pitch) {
-        music->setPitch(pitch);
-    }
-
-    __declspec(dllexport) void _Music_SetAttenuation(MusicPtr music, float attenuation) {
-        music->setAttenuation(attenuation);
-    }
-}
+// ================================================================================
+//                              КОНЕЦ ФАЙЛА
+// ================================================================================
+// Все функции для работы с состоянием рендеринга PySGL определены.
+// Они предоставляют полный интерфейс для настройки шейдеров, режимов смешивания
+// и параметров отрисовки в Python приложениях.
+// ================================================================================
 // Подключение необходимых заголовочных файлов SFML
-#ifndef SFML_GRAPHICS_HPP
-#include "SFML/Graphics.hpp"
-#endif
-#ifndef SFML_WINDOW_HPP
-#include "SFML/Window.hpp"
-#endif
-#ifndef SFML_SYSTEM_HPP
-#include "SFML/System.hpp"
-#endif
 
-// Установка кодировки для корректного отображения русских символов
-#pragma execution_character_set("utf-8")
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Color.hpp>
+
+#include <SFML/System/String.hpp>
+
+
+
+#include "exception"
+#include "string"
+
 
 // ==============================================================================================
 // БЛОК ОПРЕДЕЛЕНИЯ ТИПОВ ДАННЫХ
@@ -1198,9 +1263,25 @@ extern "C" {
         window->draw(*vertexArray, *render_states);
     }
 }
+// ================================================================================
+//                           BUILDED_SGL_VIEW.cpp
+//                    Биндинги для работы с видами и прямоугольниками
+// ================================================================================
+//
+// Этот файл содержит C++ функции для работы с прямоугольниками и видами (View) SFML,
+// которые экспортируются в Python через ctypes.
+//
+// Основные компоненты:
+// - Создание и управление прямоугольниками (FloatRect)
+// - Работа с видами (View) - камерами и областями просмотра
+// - Преобразования координат и геометрические операции
+// - Управление размерами, позициями и углами поворота
+//
+// ================================================================================
+
 #ifndef SFML_GRAPHICS_HPP
-#include "SFML/Graphics/Rect.hpp"
-#include "SFML/Graphics/View.hpp"
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/View.hpp>
 #endif
 
 typedef sf::View* ViewPtr;
@@ -1208,114 +1289,186 @@ typedef sf::FloatRect* FloatRectPtr;
 
 #define MOON_API __declspec(dllexport)
 
+// ================================================================================
+//                           РАБОТА С ПРЯМОУГОЛЬНИКАМИ
+// ================================================================================
+// Функции для создания и управления прямоугольными областями:
+// - Создание прямоугольников с заданными параметрами
+// - Получение и установка позиции и размера
+// - Геометрические операции
+// ================================================================================
+
 extern "C" {
 
-
+    // Создание нового прямоугольника с указанными параметрами
     MOON_API FloatRectPtr _FloatRect_Create(float rect_left, float rect_top, float rect_width, float rect_height) {
         return new sf::FloatRect(rect_left, rect_top, rect_width, rect_height);
     }
 
+    // Удаление прямоугольника и освобождение памяти
     MOON_API void _FloatRect_Delete(FloatRectPtr rect) {
         delete rect;
     }
 
+    // ================================================================================
+    //                   ПОЛУЧЕНИЕ СВОЙСТВ ПРЯМОУГОЛЬНИКА
+    // ================================================================================
+
+    // Получение X-координаты позиции прямоугольника
     MOON_API float _FloatRect_GetPositionX(FloatRectPtr rect) {
         return rect->getPosition().x;
     }
 
+    // Получение Y-координаты позиции прямоугольника
     MOON_API float _FloatRect_GetPositionY(FloatRectPtr rect) {
         return rect->getPosition().y;
     }
 
+    // Получение ширины прямоугольника
     MOON_API float _FloatRect_GetWidth(FloatRectPtr rect) {
         return rect->getSize().x;
     }
 
+    // Получение высоты прямоугольника
     MOON_API float _FloatRect_GetHeight(FloatRectPtr rect) {
         return rect->getSize().y;
     }
 
+    // ================================================================================
+    //                   УСТАНОВКА СВОЙСТВ ПРЯМОУГОЛЬНИКА
+    // ================================================================================
+
+    // Установка позиции прямоугольника
     MOON_API void _FloatRect_SetPosition(FloatRectPtr rect, float x, float y) {
         rect->left = x;
         rect->top = y;
     }
 
+    // Установка размера прямоугольника
     MOON_API void _FloatRect_SetSize(FloatRectPtr rect, float w, float h) {
         rect->width = w;
         rect->height = h;
     }
 }
 
+// ================================================================================
+//                           РАБОТА С ВИДАМИ (VIEW)
+// ================================================================================
+// Функции для создания и управления видами (камерами):
+// - Создание видов на основе прямоугольников
+// - Управление центром, размером и поворотом
+// - Операции перемещения, масштабирования и вращения
+// - Настройка области просмотра (viewport)
+// ================================================================================
+
 extern "C" {
+
+    // Создание нового вида на основе прямоугольника
     MOON_API ViewPtr _View_Create(FloatRectPtr rect) {
         ViewPtr view = new sf::View(*rect);
         return view;
     }
 
+    // Удаление вида и освобождение памяти
     MOON_API void _View_Delete(ViewPtr view) {
         delete view;
     }
 
+    // ================================================================================
+    //                   ПОЛУЧЕНИЕ СВОЙСТВ ВИДА
+    // ================================================================================
+
+    // Получение X-координаты позиции области просмотра
     MOON_API float _View_GetPositionX(ViewPtr view) {
         return view->getViewport().left;
     }
 
+    // Получение Y-координаты позиции области просмотра
     MOON_API float _View_GetPositionY(ViewPtr view) {
         return view->getViewport().top;
     }
 
+    // Получение X-координаты центра вида
     MOON_API float _View_GetCenterX(ViewPtr view) {
         return view->getCenter().x;
     }
 
+    // Получение Y-координаты центра вида
     MOON_API float _View_GetCenterY(ViewPtr view) {
         return view->getCenter().y;
     }
 
-    MOON_API  float _View_GetAngle(ViewPtr view) {
+    // Получение угла поворота вида в градусах
+    MOON_API float _View_GetAngle(ViewPtr view) {
         return view->getRotation();
     }
 
+    // Получение ширины вида
     MOON_API float _View_GetWidth(ViewPtr view) {
         return view->getSize().x;
     }
 
+    // Получение высоты вида
     MOON_API float _View_GetHeight(ViewPtr view) {
         return view->getSize().y;
     }
 
+    // ================================================================================
+    //                   ПРЕОБРАЗОВАНИЯ И ОПЕРАЦИИ ВИДА
+    // ================================================================================
+
+    // Поворот вида на указанный угол (градусы)
     MOON_API void _View_Rotate(ViewPtr view, float angle) {
         view->rotate(angle);
     }
 
-    MOON_API void _View_Reset(ViewPtr view, FloatRectPtr rect) {
-        view->reset(*rect);
-    }
-
+    // Перемещение вида на указанное смещение
     MOON_API void _View_Move(ViewPtr view, float x, float y) {
         view->move(x, y);
     }
 
+    // Масштабирование вида (зум)
+    MOON_API void _View_Zoom(ViewPtr view, float zoom) {
+        view->zoom(zoom);
+    }
+
+    // ================================================================================
+    //                   УСТАНОВКА СВОЙСТВ ВИДА
+    // ================================================================================
+
+    // Сброс вида к состоянию на основе прямоугольника
+    MOON_API void _View_Reset(ViewPtr view, FloatRectPtr rect) {
+        view->reset(*rect);
+    }
+
+    // Установка центра вида
     MOON_API void _View_SetCenter(ViewPtr view, float x, float y) {
         view->setCenter(x, y);
     }
 
+    // Установка угла поворота вида (градусы)
     MOON_API void _View_SetAngle(ViewPtr view, float angle) {
         view->setRotation(angle);
     }
 
+    // Установка области просмотра (нормализованные координаты)
     MOON_API void _View_SetViewport(ViewPtr view, FloatRectPtr rect) {
         view->setViewport(*rect);
     }
 
+    // Установка размера вида
     MOON_API void _View_SetSize(ViewPtr view, float w, float h) {
         view->setSize(w, h);
     }
-
-    MOON_API void _View_Zoom(ViewPtr view, float zoom) {
-        view->zoom(zoom);
-    }
 }
+
+// ================================================================================
+//                              КОНЕЦ ФАЙЛА
+// ================================================================================
+// Все функции для работы с прямоугольниками и видами PySGL определены.
+// Они предоставляют полный интерфейс для управления камерами и
+// геометрическими областями в Python приложениях.
+// ================================================================================
 // ================================================================================
 //                           BUILDED_SGL_WINDOW.cpp
 //                    Биндинги для работы с окнами в PySGL
@@ -1333,25 +1486,23 @@ extern "C" {
 //
 // ================================================================================
 
-#include "SFML/Graphics/Shader.hpp"
-#include "SFML/System/Vector2.hpp"
+#include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 
-#include "SFML/Graphics/RenderWindow.hpp"
-#include "SFML/Graphics/View.hpp"
-#include "SFML/Graphics/Image.hpp"
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/RenderTarget.hpp"
-#include "SFML/Graphics/RenderStates.hpp"
+#include <SFML/System/String.hpp>
+#include <SFML/System/Vector2.hpp>
 
-#include "SFML/System/String.hpp"
+#include <SFML/Window.hpp>
+#include <SFML/Window/Window.hpp>
+#include <SFML/Window/ContextSettings.hpp>
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/Cursor.hpp>
 
-#ifndef SFML_WINDOW_HPP
-#include "SFML/Window.hpp"
-#include "SFML/Window/Window.hpp"
-#include "SFML/Window/ContextSettings.hpp"
-#include "SFML/Window/VideoMode.hpp"
-#include "SFML/Window/Cursor.hpp"
-#endif
 
 #include "string"
 using namespace std;
@@ -1659,7 +1810,7 @@ extern "C" {
 // ================================================================================
 
 #ifndef SFML_WINDOW_HPP
-#include "SFML/Window/Event.hpp"
+#include <SFML/Window/Event.hpp>
 #endif
 
 // ================================================================================

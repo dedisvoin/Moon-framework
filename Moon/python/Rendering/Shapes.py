@@ -4,7 +4,7 @@ from typing import Self, Final, final
 
 from Moon.python.Types import *
 from Moon.python.Colors import *
-from Moon.python.Vectors import Vector2f, Vector2i, Vector2Type, _Vector2Type
+from Moon.python.Vectors import Vector2f, Vector2i, Vector2Type, Vector2TypeTuple
 from Moon.python.Rendering.Vertexes import VertexArray, Vertex
 
 from Moon.python.utils import find_library
@@ -3023,7 +3023,7 @@ class BaseLineShape:
         - Изменяет только начальную точку, конечная остается на месте
         - Приводит к изменению длины и направления линии
         """
-        if isinstance(arg1, _Vector2Type):
+        if isinstance(arg1, Vector2TypeTuple):
             dx, dy = arg1.x, arg1.y
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             dx, dy = float(arg1), float(arg2)
@@ -3117,7 +3117,7 @@ class BaseLineShape:
         - Приводит к изменению длины и направления линии
         - Для одновременного перемещения всей линии используйте `move()`
         """
-        if isinstance(arg1, _Vector2Type):
+        if isinstance(arg1, Vector2TypeTuple):
             dx, dy = arg1.x, arg1.y
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             dx, dy = float(arg1), float(arg2)

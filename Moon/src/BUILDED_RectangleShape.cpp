@@ -12,8 +12,11 @@
 // ===============================================================================
 
 #ifndef SFML_GRAPHICS_HPP
-#include "SFML/Graphics.hpp"
+#include <SFML/Graphics/RectangleShape.hpp>
 #endif
+
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 typedef sf::RectangleShape* RectanglePtr;
 

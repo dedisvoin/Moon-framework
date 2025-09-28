@@ -80,7 +80,6 @@ while window.update(events):
         elif len(key) == 2:
             print(key)
             current_text = text_obj.get_text()
-
             if 'shift' in key:
                 i = key.index('shift')
                 key = key[i-1]

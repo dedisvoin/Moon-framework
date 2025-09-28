@@ -6,7 +6,6 @@ from colorama import Fore
 # Константа для отображения зеленой галочки успешного выполнения
 SUCCES = f'[{Fore.GREEN}✔{Fore.RESET}]'
 
-
 # Загрузка свойств сборки из файла конфигурации
 def get_build_properties(properties_file_path: str) -> dict:
     properties = {}
@@ -37,8 +36,8 @@ def build_file(file_path: str, dlls_path: str, compiler_path: str, sfml_include_
     file_name, file_extension = os.path.splitext(file_path)
     # Извлечение только имени файла без пути
     base_name = os.path.basename(file_name)
-    
-    
+
+
     print(f"{Fore.BLUE}Building{Fore.RESET}: {Fore.BLACK}{file_name}{Fore.RESET}")
     print(f"  |-> target: {Fore.GREEN}{file_extension}{Fore.RESET}")
     print(f"  |-> out target: {Fore.BLACK}.dll{Fore.RESET}")
@@ -61,7 +60,7 @@ def build_file(file_path: str, dlls_path: str, compiler_path: str, sfml_include_
 -lsfml-audio-s -lsfml-graphics-s -lsfml-window-s -lsfml-system-s \
 -lopenal32 -lflac -lvorbisenc -lvorbisfile -lvorbis -logg \
 -lopengl32 -lgdi32 -lwinmm -lfreetype")
-        
+
         print(f"{Fore.BLUE}Building{Fore.RESET}: Builded {Fore.BLACK}{file_name}{Fore.RESET} {round(time.time() - start_time, 2)}ms {SUCCES}")
     except:
         ...
@@ -79,21 +78,21 @@ def build():
     start_time = time.time()
     # Загрузка настроек сборки
     properties = get_build_properties(r"Moon\build.properties")
-    
+
     # Получение списка всех файлов
     all_files = get_builded_files(properties["BUILD_FILES_PATH"])
 
     # Фильтрация файлов, которые нужно собрать (начинаются с "BUILDED")
     builded_files = list(filter(lambda x: x[0:7] == "BUILDED", all_files))
-    
+
     print(f"{Fore.CYAN}Initing{Fore.RESET}: Founded [{Fore.BLACK}{len(all_files)}{Fore.RESET}] files")
     for file in all_files:
         if file in builded_files:
             print(f"  |-> <{Fore.GREEN}need build{Fore.RESET}> {Fore.YELLOW}{file}{Fore.RESET}")
         else:
             print(f"  |->              {Fore.YELLOW}{file}{Fore.RESET} ")
-        
-        
+
+
     print(f"\n{Fore.CYAN}Initing{Fore.RESET}: {Fore.BLACK}Start building...{Fore.RESET}")
 
     # Получение путей из конфигурации
@@ -106,13 +105,13 @@ def build():
     print(f"{Fore.BLUE}Building{Fore.RESET}: Generating builded file...")
     file = open(BUILD_FILES_PATH+"/Moon.cpp", 'w', encoding="utf-8")
     for bf in builded_files:
-        
+
             fp = BUILD_FILES_PATH + "/" + bf
             print(fp)
             bff = open(fr"{fp}", 'r', encoding="utf-8")
             file.write(bff.read())
             bff.close()
-        
+
     file.close()
 
     # Сборка файла
@@ -123,8 +122,8 @@ def build():
     # print(f"{Fore.BLUE}Building{Fore.RESET}: Deleting file... {SUCCES}")
 
     print(f"{Fore.BLUE}Building{Fore.RESET}: Building finished {round(time.time() - start_time, 2)}ms {SUCCES}")
-    
-    
+
+
 
 if __name__ == "__main__":
     build()

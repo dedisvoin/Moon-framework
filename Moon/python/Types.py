@@ -1,7 +1,7 @@
 from typing_extensions import Sequence
 from Moon.python.Colors import Color
 from enum import Enum, auto
-from typing import NoReturn, Optional, Callable, TypeAlias, Union, overload, Self, Literal, Final, Generic
+from typing import Optional, Callable, TypeAlias, Union, overload, Self, Literal, Final, Generic
 from uuid import uuid4
 
 # Тип обозначающий функцию или метод == +

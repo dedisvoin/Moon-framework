@@ -1,16 +1,16 @@
 // Подключение необходимых заголовочных файлов SFML
-#ifndef SFML_GRAPHICS_HPP
-#include "SFML/Graphics.hpp"
-#endif
-#ifndef SFML_WINDOW_HPP
-#include "SFML/Window.hpp"
-#endif
-#ifndef SFML_SYSTEM_HPP
-#include "SFML/System.hpp"
-#endif
 
-// Установка кодировки для корректного отображения русских символов
-#pragma execution_character_set("utf-8")
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Color.hpp>
+
+#include <SFML/System/String.hpp>
+
+
+
+#include "exception"
+#include "string"
+
 
 // ==============================================================================================
 // БЛОК ОПРЕДЕЛЕНИЯ ТИПОВ ДАННЫХ

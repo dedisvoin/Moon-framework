@@ -1,5 +1,5 @@
--IC:/SFML-2.6.2/include
--LC:/SFML-2.6.2/lib
+-ID:/SFML-2.6.2/include
+-LD:/SFML-2.6.2/lib
 -lsfml-graphics
 -lsfml-window
 -lsfml-system

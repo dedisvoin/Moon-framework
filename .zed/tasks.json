@@ -49,7 +49,7 @@
   },
   {
     "label": "Build core",
-    "command": "C:/Users/WhoIsWho/AppData/Local/Programs/Python/Python313/python.exe Moon/build.py",
+    "command": "py Moon/build.py",
     //"args": [],
     // Env overrides for the command, will be appended to the terminal's environment from the settings.
     "env": { "foo": "bar" },
