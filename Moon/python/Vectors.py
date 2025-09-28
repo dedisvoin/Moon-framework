@@ -554,13 +554,13 @@ class Vector2f(object):
     def __str__(self) -> str:
         return self.__repr__()
 
-    def __eq__(self, other: "VectorType | object") -> bool:
-        if isinstance(other, _VectorType):
+    def __eq__(self, other: "Vector2Type | object") -> bool:
+        if isinstance(other, _Vector2Type):
             return self.x == other.x and self.y == other.y
         else:
             return False
 
-    def __ne__(self, other: "VectorType | object") -> bool:
+    def __ne__(self, other: "Vector2Type | object") -> bool:
         return not self.__eq__(other)
 
     def __neg__(self) -> 'Vector2f':
@@ -575,18 +575,18 @@ class Vector2f(object):
     def __sub__(self, other: "Vector2f | Vector2i") -> 'Vector2f':
         return Vector2f(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, scalar: "float | int | VectorType") -> 'Vector2f':
-        if isinstance(scalar, _VectorType):
+    def __mul__(self, scalar: "float | int | Vector2Type") -> 'Vector2f':
+        if isinstance(scalar, _Vector2Type):
             return Vector2f(self.x * scalar.x, self.y * scalar.y)
         return Vector2f(self.x * scalar, self.y * scalar)
 
-    def __pow__(self, scalar: "float | int | VectorType") -> 'Vector2f':
-        if isinstance(scalar, _VectorType):
+    def __pow__(self, scalar: "float | int | Vector2Type") -> 'Vector2f':
+        if isinstance(scalar, _Vector2Type):
             return Vector2f(self.x ** scalar.x, self.y ** scalar.y)
         return Vector2f(self.x ** scalar, self.y ** scalar)
 
-    def __truediv__(self, scalar: "float | int | VectorType") -> 'Vector2f':
-        if isinstance(scalar, _VectorType):
+    def __truediv__(self, scalar: "float | int | Vector2Type") -> 'Vector2f':
+        if isinstance(scalar, _Vector2Type):
             return Vector2f(self.x / scalar.x, self.y / scalar.y)
         return Vector2f(self.x / scalar, self.y / scalar)
 
@@ -600,8 +600,8 @@ class Vector2f(object):
         self.y -= other.y
         return self
 
-    def __imul__(self, scalar: "float | int | VectorType") -> Self:
-        if isinstance(scalar, _VectorType):
+    def __imul__(self, scalar: "float | int | Vector2Type") -> Self:
+        if isinstance(scalar, _Vector2Type):
             self.x *= scalar.x
             self.y *= scalar.y
         else:
@@ -609,8 +609,8 @@ class Vector2f(object):
             self.y *= scalar
         return self
 
-    def __itruediv__(self, scalar: "float | int | VectorType") -> Self:
-        if isinstance(scalar, _VectorType):
+    def __itruediv__(self, scalar: "float | int | Vector2Type") -> Self:
+        if isinstance(scalar, _Vector2Type):
             self.x /= scalar.x
             self.y /= scalar.y
         else:
@@ -802,7 +802,7 @@ class Vector2i:
             self.__y //= scalar
         return self
 
-def is_parallel(v1: "VectorType", v2: "VectorType") -> bool:
+def is_parallel(v1: "Vector2Type", v2: "Vector2Type") -> bool:
     """
     #### Проверяет параллельность двух векторов
 
@@ -828,7 +828,7 @@ def is_parallel(v1: "VectorType", v2: "VectorType") -> bool:
     """
     return v1.x * v2.y == v1.y * v2.x
 
-def is_perpendicular(v1: "VectorType", v2: "VectorType") -> bool:
+def is_perpendicular(v1: "Vector2Type", v2: "Vector2Type") -> bool:
     """
     #### Проверяет перпендикулярность двух векторов
 
@@ -854,7 +854,7 @@ def is_perpendicular(v1: "VectorType", v2: "VectorType") -> bool:
     """
     return v1.x * v2.x + v1.y * v2.y == 0
 
-def angle_between(v1: "VectorType", v2: "VectorType") -> float:
+def angle_between(v1: "Vector2Type", v2: "Vector2Type") -> float:
     """
     #### Вычисляет угол между двумя векторами
 
@@ -880,7 +880,7 @@ def angle_between(v1: "VectorType", v2: "VectorType") -> float:
     """
     return math.degrees(math.acos((v1.x * v2.x + v1.y * v2.y) / (v1.get_lenght() * v2.get_lenght())))
 
-def cross(v1: "VectorType", v2: "VectorType") -> float:
+def cross(v1: "Vector2Type", v2: "Vector2Type") -> float:
     """
     #### Вычисляет векторное произведение (в 2D - скаляр)
 
@@ -926,7 +926,7 @@ def cross(v1: "VectorType", v2: "VectorType") -> float:
     """
     return v1.x * v2.y - v1.y * v2.x
 
-def dot(v1: "VectorType", v2: "VectorType") -> float:
+def dot(v1: "Vector2Type", v2: "Vector2Type") -> float:
     """
     #### Вычисляет скалярное произведение векторов
 
@@ -979,9 +979,9 @@ def dot(v1: "VectorType", v2: "VectorType") -> float:
 
 
 # Union подобный веткорый тип ========= +
-type VectorType = Vector2f | Vector2i   #
+type Vector2Type = Vector2f | Vector2i   #
 # ===================================== +
 
 # Кортеж из двух типов векторов ======= +
-_VectorType = (Vector2f, Vector2i)      #
+_Vector2Type = (Vector2f, Vector2i)      #
 # ===================================== +

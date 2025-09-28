@@ -5,7 +5,7 @@ sys.path.append('./')
 from Moon.python.Inputs import *
 from Moon.python.Window import *
 
-window = Window(title="Прив")
+window = Window(title="Привet")
 window_events = WindowEvents()
 
 window.set_system_cursor(SystemCursors.SizeAll)

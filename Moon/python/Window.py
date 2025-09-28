@@ -943,8 +943,8 @@ class Window:
         self.__fps_monitor_opened: bool = True
 
         # Значения вычисляющиеся с кеширование
-        self.__cached_window_center: Vector2f | Vector2i = Vector2f(width / 2, height / 2)
-        self.__cached_window_size: Vector2f | Vector2i = Vector2f(width, height)
+        self.__cached_window_center: Vector2f = Vector2f(width / 2, height / 2)
+        self.__cached_window_size: Vector2f = Vector2f(width, height)
 
         self.__title_color: Color | None = None
         self.__header_color: Color | None = None
@@ -1967,7 +1967,7 @@ class Window:
         """
         if width <= 0 or height <= 0:
             raise ValueError("Window dimensions must be positive")
-        self.__cached_window_size = Vector2i(width, height)
+        self.__cached_window_size = Vector2f(width, height)
         LIB_MOON._Window_SetSize(self.__window_ptr, width, height)
         return self
 
@@ -2037,7 +2037,7 @@ class Window:
         )
 
     @final
-    def get_center(self, use_cache: bool = True) -> Vector2f | Vector2i:
+    def get_center(self, use_cache: bool = True) -> Vector2f:
         """
         #### Возвращает координаты центра окна
 
@@ -2790,7 +2790,7 @@ class Window:
 
         if self.get_resized():
             size = self.get_size(False)
-            self.__cached_window_size = size
+            self.__cached_window_size = Vector2f(*size)
             self.__cached_window_center = Vector2f(size.x / 2, size.y / 2)
 
         return True

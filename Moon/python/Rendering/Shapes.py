@@ -4,7 +4,7 @@ from typing import Self, Final, final
 
 from Moon.python.Types import *
 from Moon.python.Colors import *
-from Moon.python.Vectors import Vector2f, Vector2i, VectorType, _VectorType
+from Moon.python.Vectors import Vector2f, Vector2i, Vector2Type, _Vector2Type
 from Moon.python.Rendering.Vertexes import VertexArray, Vertex
 
 from Moon.python.utils import find_library
@@ -2942,7 +2942,7 @@ class BaseLineShape:
 
 
     @overload
-    def move_start_point(self, arg1: Union[float, VectorType], /, arg2: Optional[float] = None) -> Self:
+    def move_start_point(self, arg1: Union[float, Vector2Type], /, arg2: Optional[float] = None) -> Self:
         """
         #### Перемещает начальную точку линии по вектору
 
@@ -3008,7 +3008,7 @@ class BaseLineShape:
         ...
 
     @final
-    def move_start_point(self, arg1: Union[VectorType, float], arg2: Optional[float] = None) -> Self:
+    def move_start_point(self, arg1: Union[Vector2Type, float], arg2: Optional[float] = None) -> Self:
         """
         #### Основная реализация перемещения начальной точки
 
@@ -3023,7 +3023,7 @@ class BaseLineShape:
         - Изменяет только начальную точку, конечная остается на месте
         - Приводит к изменению длины и направления линии
         """
-        if isinstance(arg1, _VectorType):
+        if isinstance(arg1, _Vector2Type):
             dx, dy = arg1.x, arg1.y
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             dx, dy = float(arg1), float(arg2)
@@ -3035,7 +3035,7 @@ class BaseLineShape:
         return self
 
     @overload
-    def move_end_point(self, arg1: Union[VectorType, float], /, arg2: Optional[float] = None) -> Self:
+    def move_end_point(self, arg1: Union[Vector2Type, float], /, arg2: Optional[float] = None) -> Self:
         """
         #### Перемещает конечную точку линии по вектору
 
@@ -3101,7 +3101,7 @@ class BaseLineShape:
         ...
 
     @final
-    def move_end_point(self, arg1: Union[VectorType, float], arg2: Optional[float] = None) -> Self:
+    def move_end_point(self, arg1: Union[Vector2Type, float], arg2: Optional[float] = None) -> Self:
         """
         #### Основная реализация перемещения конечной точки
 
@@ -3117,7 +3117,7 @@ class BaseLineShape:
         - Приводит к изменению длины и направления линии
         - Для одновременного перемещения всей линии используйте `move()`
         """
-        if isinstance(arg1, _VectorType):
+        if isinstance(arg1, _Vector2Type):
             dx, dy = arg1.x, arg1.y
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             dx, dy = float(arg1), float(arg2)
@@ -3354,10 +3354,10 @@ class LineShape(BaseLineShape):
         # Устанавливаем общую толщину (основная линия + контур с обеих сторон)
         self.__thickness_shape.set_width(self.__thickness * 2 + self.get_width())
 
-        if not self._BaseLineShape__rounded_corners:
+        if not self._BaseLineShape__rounded_corners:                                       # pyright: ignore []
             n = Vector2f.between(
-                self._BaseLineShape__start_pos,
-                self._BaseLineShape__end_pos
+                self._BaseLineShape__start_pos,                                            # pyright: ignore []
+                self._BaseLineShape__end_pos                                               # pyright: ignore []
             ).normalize_at() * self.__thickness
 
             self.__thickness_shape.set_start_point(

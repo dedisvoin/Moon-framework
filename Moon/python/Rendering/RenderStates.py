@@ -1,15 +1,16 @@
 import ctypes
 from typing import Self
-from .Shaders import *
-import os
+from Moon.python.Rendering.Shaders import *
+from enum import Enum
 
-from Moon.python.utils import find_library, LibraryLoadError
+from Moon.python.utils import find_library
 
 # Загружаем DLL библиотеку
 try:
     LIB_MOON = ctypes.CDLL(find_library())
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
+
 
 LIB_MOON._BlendMode_CreateFull.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
                                             ctypes.c_int, ctypes.c_int, ctypes.c_int]
@@ -20,28 +21,29 @@ LIB_MOON._BlendMode_Delete.restype = None
 class BlendMode:
     """
     #### Класс для управления режимами смешивания пикселей
-    
+
     ---
-    
+
     :Description:
     - Определяет как новые пиксели смешиваются с существующими на экране
     - Позволяет создавать различные визуальные эффекты
     - Поддерживает раздельное управление цветом и альфа-каналом
-    
+
     ---
-    
+
     :Features:
     - Готовые пресеты для популярных эффектов
     - Полная настройка факторов и уравнений смешивания
     - Оптимизированная работа с GPU
     """
 
-    class Factor():
+
+    class Factor(Enum):
         """
         #### Факторы смешивания для BlendMode
-        
+
         ---
-        
+
         :Description:
         - Определяют как исходный (src) и целевой (dst) цвета влияют на результат
         - Используются в уравнениях смешивания для вычисления финального цвета
@@ -56,13 +58,13 @@ class BlendMode:
         OneMinusSrcAlpha = 7 # (1, 1, 1, 1) - (src.a, src.a, src.a, src.a) - Инверсия альфы источника
         DstAlpha = 8         # (dst.a, dst.a, dst.a, dst.a) - Альфа назначения
         OneMinusDstAlpha = 9  # (1, 1, 1, 1) - (dst.a, dst.a, dst.a, dst.a) - Инверсия альфы назначения
-        
-    class Equation():
+
+    class Equation(Enum):
         """
         #### Уравнения смешивания для BlendMode
-        
+
         ---
-        
+
         :Description:
         - Определяют математическую операцию между исходным и целевым цветами
         - Применяются после умножения на соответствующие факторы
@@ -77,9 +79,9 @@ class BlendMode:
                        alpha_src_factor: Factor, alpha_dst_factor: Factor, alpha_eq: Equation):
         """
         #### Создание пользовательского режима смешивания
-        
+
         ---
-        
+
         :Args:
         - color_src_factor: Фактор для исходного цвета
         - color_dst_factor: Фактор для целевого цвета
@@ -104,38 +106,38 @@ class BlendMode:
 
     def get_ptr(self) -> ctypes.c_void_p:
         return self.__blend_mode_ptr
-    
+
     # ================================================================================
     #                           ГОТОВЫЕ ПРЕСЕТЫ BLEND РЕЖИМОВ
     # ================================================================================
-    
+
     @staticmethod
     def Alpha() -> "BlendMode":
         """
         #### Стандартное альфа-смешивание (прозрачность)
-        
+
         ---
-        
+
         :Description:
         - Самый распространенный режим смешивания
         - Новые пиксели смешиваются с существующими на основе альфа-канала
         - Полупрозрачные объекты корректно накладываются друг на друга
-        
+
         ---
-        
+
         :Formula:
         - Color: Src * SrcAlpha + Dst * (1 - SrcAlpha)
         - Alpha: SrcAlpha + DstAlpha * (1 - SrcAlpha)
-        
+
         ---
-        
+
         :Use Cases:
         - Обычная отрисовка спрайтов с прозрачностью
         - UI элементы с полупрозрачным фоном
         - Частицы и эффекты с плавным затуханием
-        
+
         ---
-        
+
         :Example:
         ```python
         states = RenderStates().set_blend_mode(BlendMode.Alpha())
@@ -146,35 +148,35 @@ class BlendMode:
             BlendMode.Factor.SrcAlpha, BlendMode.Factor.OneMinusSrcAlpha, BlendMode.Equation.Add,
             BlendMode.Factor.One, BlendMode.Factor.OneMinusSrcAlpha, BlendMode.Equation.Add
         )
-    
+
     @staticmethod
     def Add() -> "BlendMode":
         """
         #### Аддитивное смешивание (сложение цветов)
-        
+
         ---
-        
+
         :Description:
         - Цвета складываются, создавая эффект свечения
         - Темные области остаются темными, светлые становятся ярче
         - Результат никогда не темнее исходного изображения
-        
+
         ---
-        
+
         :Formula:
         - Color: Src + Dst
         - Alpha: SrcAlpha + DstAlpha
-        
+
         ---
-        
+
         :Use Cases:
         - Эффекты огня, взрывов, магии
         - Световые лучи и блики
         - Неоновые эффекты и голограммы
         - Частицы искр и звезд
-        
+
         ---
-        
+
         :Example:
         ```python
         # Эффект огня
@@ -186,35 +188,35 @@ class BlendMode:
             BlendMode.Factor.SrcAlpha, BlendMode.Factor.One, BlendMode.Equation.Add,
             BlendMode.Factor.One, BlendMode.Factor.One, BlendMode.Equation.Add
         )
-    
+
     @staticmethod
     def Multiply() -> "BlendMode":
         """
         #### Мультипликативное смешивание (умножение цветов)
-        
+
         ---
-        
+
         :Description:
         - Цвета перемножаются, создавая эффект затемнения
         - Светлые области становятся темнее, белый остается белым
         - Результат никогда не светлее исходного изображения
-        
+
         ---
-        
+
         :Formula:
         - Color: Src * Dst
         - Alpha: SrcAlpha * DstAlpha
-        
+
         ---
-        
+
         :Use Cases:
         - Эффекты теней и затемнения
         - Наложение текстур освещения
         - Создание силуэтов
         - Эффекты дыма и тумана
-        
+
         ---
-        
+
         :Example:
         ```python
         # Эффект тени
@@ -226,35 +228,35 @@ class BlendMode:
             BlendMode.Factor.DstColor, BlendMode.Factor.Zero, BlendMode.Equation.Add,
             BlendMode.Factor.DstAlpha, BlendMode.Factor.Zero, BlendMode.Equation.Add
         )
-    
+
     @staticmethod
     def Default() -> "BlendMode":
         """
         #### Отсутствие смешивания (замещение)
-        
+
         ---
-        
+
         :Description:
         - Новые пиксели полностью заменяют существующие
         - Альфа-канал игнорируется
         - Самый быстрый режим рендеринга
-        
+
         ---
-        
+
         :Formula:
         - Color: Src
         - Alpha: SrcAlpha
-        
+
         ---
-        
+
         :Use Cases:
         - Отрисовка непрозрачных объектов
         - Фоновые изображения
         - Оптимизация производительности
         - Отладка рендеринга
-        
+
         ---
-        
+
         :Example:
         ```python
         # Быстрая отрисовка фона
@@ -266,35 +268,35 @@ class BlendMode:
             BlendMode.Factor.One, BlendMode.Factor.Zero, BlendMode.Equation.Add,
             BlendMode.Factor.One, BlendMode.Factor.Zero, BlendMode.Equation.Add
         )
-    
+
     @staticmethod
     def Subtract() -> "BlendMode":
         """
         #### Субтрактивное смешивание (вычитание цветов)
-        
+
         ---
-        
+
         :Description:
         - Цвета вычитаются из существующих пикселей
         - Создает эффект "выжигания" или инверсии
         - Может создавать интересные художественные эффекты
-        
+
         ---
-        
+
         :Formula:
         - Color: Dst - Src
         - Alpha: DstAlpha - SrcAlpha
-        
+
         ---
-        
+
         :Use Cases:
         - Эффекты разрушения и коррозии
         - Художественные фильтры
         - Эффекты "выжигания" лазером
         - Создание масок и вырезов
-        
+
         ---
-        
+
         :Example:
         ```python
         # Эффект лазерного выжигания
@@ -306,35 +308,35 @@ class BlendMode:
             BlendMode.Factor.SrcAlpha, BlendMode.Factor.One, BlendMode.Equation.ReverseSubtract,
             BlendMode.Factor.One, BlendMode.Factor.One, BlendMode.Equation.ReverseSubtract
         )
-    
+
     @staticmethod
     def Screen() -> "BlendMode":
         """
         #### Экранное смешивание (осветление)
-        
+
         ---
-        
+
         :Description:
         - Инверсия мультипликативного смешивания
         - Осветляет изображение, сохраняя детали
         - Противоположность режиму Multiply
-        
+
         ---
-        
+
         :Formula:
         - Color: 1 - (1 - Src) * (1 - Dst)
         - Эквивалентно: Src + Dst - Src * Dst
-        
+
         ---
-        
+
         :Use Cases:
         - Эффекты освещения и бликов
         - Осветление темных областей
         - Имитация передержки фотографии
         - Мягкие световые эффекты
-        
+
         ---
-        
+
         :Example:
         ```python
         # Мягкое освещение
@@ -346,35 +348,35 @@ class BlendMode:
             BlendMode.Factor.OneMinusDstColor, BlendMode.Factor.One, BlendMode.Equation.Add,
             BlendMode.Factor.OneMinusDstAlpha, BlendMode.Factor.One, BlendMode.Equation.Add
         )
-    
+
     @staticmethod
     def Lighten() -> "BlendMode":
         """
         #### Осветление (максимум цветов)
-        
+
         ---
-        
+
         :Description:
         - Выбирает более светлый цвет из источника и назначения
         - Сохраняет яркие детали обоих изображений
         - Никогда не затемняет изображение
-        
+
         ---
-        
+
         :Formula:
         - Color: max(Src, Dst)
         - Alpha: max(SrcAlpha, DstAlpha)
-        
+
         ---
-        
+
         :Use Cases:
         - Наложение световых эффектов
         - Сохранение ярких деталей
         - Эффекты молний и электричества
         - Комбинирование изображений
-        
+
         ---
-        
+
         :Example:
         ```python
         # Эффект молнии
@@ -386,35 +388,35 @@ class BlendMode:
             BlendMode.Factor.One, BlendMode.Factor.One, BlendMode.Equation.Max,
             BlendMode.Factor.One, BlendMode.Factor.One, BlendMode.Equation.Max
         )
-    
+
     @staticmethod
     def Darken() -> "BlendMode":
         """
         #### Затемнение (минимум цветов)
-        
+
         ---
-        
+
         :Description:
         - Выбирает более темный цвет из источника и назначения
         - Сохраняет темные детали обоих изображений
         - Никогда не осветляет изображение
-        
+
         ---
-        
+
         :Formula:
         - Color: min(Src, Dst)
         - Alpha: min(SrcAlpha, DstAlpha)
-        
+
         ---
-        
+
         :Use Cases:
         - Эффекты теней и затемнения
         - Сохранение темных деталей
         - Создание силуэтов
         - Эффекты поглощения света
-        
+
         ---
-        
+
         :Example:
         ```python
         # Эффект поглощающей тени
@@ -429,7 +431,7 @@ class BlendMode:
 
 
 
-LIB_MOON._RenderStates_Create.argtypes = None
+LIB_MOON._RenderStates_Create.argtypes = []
 LIB_MOON._RenderStates_Create.restype = ctypes.c_void_p
 LIB_MOON._RenderStates_Delete.argtypes = [ctypes.c_void_p]
 LIB_MOON._RenderStates_Delete.restype = None
@@ -440,23 +442,25 @@ LIB_MOON._RenderStates_SetBlendMode.restype = None
 LIB_MOON._RenderStates_SetTexture.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_MOON._RenderStates_SetTexture.restype = None
 
-RenderStatesPtr = ctypes.c_void_p
 
+# Указатель на структуру состояний рендеринга = +
+RenderStatesPtr = ctypes.c_void_p               #
+# ============================================= +
 
 class RenderStates:
 
     """
     #### Состояния рендеринга для управления отрисовкой объектов
-    
+
     ---
-    
+
     :Description:
     - Управляет параметрами рендеринга: шейдеры, текстуры, режимы смешивания
     - Позволяет настраивать визуальные эффекты для отрисовки
     - Поддерживает цепочку вызовов методов
-    
+
     ---
-    
+
     :Example:
     ```python
     # Создание состояний с аддитивным смешиванием
@@ -464,7 +468,7 @@ class RenderStates:
     window.draw(sprite, states)
     ```
     """
-    
+
     def __init__(self):
         """
         #### Создает новые состояния рендеринга с настройками по умолчанию
@@ -477,43 +481,43 @@ class RenderStates:
     def get_ptr(self) -> RenderStatesPtr:
         """
         #### Возвращает указатель на внутренний объект C++
-        
+
         :Returns:
         - RenderStatesPtr: Указатель для внутреннего использования
         """
         return self._ptr
-    
+
     def set_shader(self, shader: Shader) -> Self:
         """
         #### Устанавливает шейдер для рендеринга
-        
+
         :Args:
         - shader (Shader): Шейдерная программа для применения эффектов
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
         """
         self.__shader = shader
         LIB_MOON._RenderStates_SetShader(self._ptr, self.__shader.get_ptr())
         return self
-    
+
     def set_texture(self, texture) -> Self:
         """
         #### Устанавливает текстуру для рендеринга
-        
+
         :Args:
         - texture (Texture): Текстура для наложения на объекты
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
         """
         LIB_MOON._RenderStates_SetTexture(self._ptr, texture.get_ptr())
         return self
-    
+
     def get_texture(self):
         """
         #### Возвращает текущую установленную текстуру
-        
+
         :Returns:
         - Texture | None: Текущая текстура или None если не установлена
         """
@@ -522,24 +526,24 @@ class RenderStates:
     def set_blend_mode(self, blend_mode: BlendMode) -> Self:
         """
         #### Устанавливает режим смешивания для рендеринга
-        
+
         ---
-        
+
         :Args:
         - blend_mode (BlendMode): Режим смешивания пикселей
-        
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-        
+
         ---
-        
+
         :Example:
         ```python
         # Использование готового пресета
         states = RenderStates().set_blend_mode(BlendMode.Add())
-        
+
         # Создание пользовательского режима
         custom_blend = BlendMode(
             BlendMode.Factor.SrcAlpha, BlendMode.Factor.One, BlendMode.Equation.Add,
@@ -552,22 +556,20 @@ class RenderStates:
         LIB_MOON._RenderStates_SetBlendMode(self._ptr, self.__blend_mode.get_ptr())
         return self
 
-    def get_blend_mode(self) -> BlendMode:
+    def get_blend_mode(self) -> BlendMode | None:
         """
         #### Возвращает текущий режим смешивания
-        
+
         :Returns:
         - BlendMode: Текущий режим смешивания пикселей
         """
         return self.__blend_mode
 
-    def get_shader(self) -> Shader:
+    def get_shader(self) -> Shader | None:
         """
         #### Возвращает текущий шейдер
-        
+
         :Returns:
         - Shader: Текущая шейдерная программа
         """
         return self.__shader
-
-    

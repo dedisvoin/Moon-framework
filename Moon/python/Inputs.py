@@ -1081,7 +1081,10 @@ class Keyboard:
 KeyBoardInterface: Final[Keyboard] = Keyboard()
 # ////////////////////////////////////////////////////////////////////////////
 
-type MouseButtonsLiterals = Literal["left", "right", "middle"]
+
+# тип литералов кнопок мыши ======================================== +
+type MouseButtonsLiterals = Literal["left", "right", "middle"]       #
+# ================================================================== +
 
 class Listener:
     """
