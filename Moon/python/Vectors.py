@@ -66,14 +66,10 @@ Copyright (c) 2025 Pavlov Ivan
 
 import math
 
-
 from typing import Self
 from random import uniform
 from typing_extensions import Iterator
 from Moon.python.Types import Number
-
-
-
 
 class Vector2f(object):
     """
@@ -622,8 +618,7 @@ class Vector2f(object):
 NormalizedVector = Vector2f       #
 # =============================== +
 
-
-class Vector2i:
+class Vector2i(object):
     """
     #### Класс двумерного вектора с целочисленными координатами
 
@@ -802,6 +797,28 @@ class Vector2i:
             self.__y //= scalar
         return self
 
+def to_vector_2f(data: tuple[Number, Number] | list[Number]) -> Vector2f:
+    """
+    Преобразует данные в вектор 2D с плавающей точкой.
+    """
+    if isinstance(data, tuple):
+        return Vector2f(data[0], data[1])
+    elif isinstance(data, list):
+        return Vector2f(data[0], data[1])
+    else:
+        raise TypeError("Invalid data type")
+
+def to_vector_2i(data: tuple[Number, Number] | list[Number]) -> Vector2i:
+    """
+    Преобразует данные в вектор 2D с целочисленными координатами.
+    """
+    if isinstance(data, tuple):
+        return Vector2i(data[0], data[1])
+    elif isinstance(data, list):
+        return Vector2i(data[0], data[1])
+    else:
+        raise TypeError("Invalid data type")
+
 def is_parallel(v1: "Vector2Type", v2: "Vector2Type") -> bool:
     """
     #### Проверяет параллельность двух векторов
@@ -979,9 +996,56 @@ def dot(v1: "Vector2Type", v2: "Vector2Type") -> float:
 
 
 # Union подобный веткорый тип ========= +
-type Vector2Type = Vector2f | Vector2i   #
+type Vector2Type = Vector2f | Vector2i  #
 # ===================================== +
 
 # Кортеж из двух типов векторов ======= +
-_Vector2Type = (Vector2f, Vector2i)      #
+_Vector2Type = (Vector2f, Vector2i)     #
 # ===================================== +
+
+
+class Vector3f(object):
+    def __init__(self, x: Number, y: Number, z: Number):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    @property
+    def xyz(self) -> tuple[float, float, float]:
+        return (self.x, self.y, self.z)
+
+    @property
+    def rgb(self) -> tuple[float, float, float]:
+        return (self.x, self.y, self.z)
+
+    @property
+    def xy(self) -> tuple[float, float]:
+        return (self.x, self.y)
+
+    @property
+    def xz(self) -> tuple[float, float]:
+        return (self.x, self.z)
+
+    @property
+    def yz(self) -> tuple[float, float]:
+        return (self.y, self.z)
+
+    def length(self) -> float:
+        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
+
+    def normalize(self) -> "Vector3f":
+        length = self.length()
+        return Vector3f(self.x / length, self.y / length, self.z / length)
+
+    def normalize_at(self) -> Self:
+        length = self.length()
+        self.x = self.x / length
+        self.y = self.y / length
+        self.z = self.z / length
+        return self
+
+    def __str__(self):
+        return f"({self.x}, {self.y}, {self.z})"
+
+    def __repr__(self):
+        return f"Vector3f({self.x}, {self.y}, {self.z})"
