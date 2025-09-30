@@ -1,500 +1,37 @@
-#ifndef SFML_AUDIO_HPP
-#include "SFML/Audio/SoundBuffer.hpp"
-#include "SFML/Audio/Sound.hpp"
-#include "SFML/Audio/Music.hpp"
-#endif
-#ifndef IOSTREAM_H
-#include <iostream>
-#endif
-
-#ifdef _WIN32
-    #define MOON_API __declspec(dllexport)
-#elif __linux__
-    #define MOON_API
-#endif
-
-using std::cout, std::endl;
-extern "C" {
-    typedef sf::SoundBuffer* SoundBufferPtr;
-
-    MOON_API SoundBufferPtr _SoundBuffer_loadFromFile(const char* path) {
-        SoundBufferPtr buffer = new sf::SoundBuffer();
-
-        if (buffer->loadFromFile(path))
-            cout << "Sound: " << path << " loaded." << endl;
-        else {
-            cout << "Sound: " << path << "error loading sound" << endl;
-        }
-        return buffer;
-    }
-
-    MOON_API void _SoundBuffer_Destroy(SoundBufferPtr buffer) {
-        delete buffer;
-    }
-
-    MOON_API int _SoundBuffer_GetChannelsCount(SoundBufferPtr buffer) {
-        return buffer->getChannelCount();
-    }
-
-    MOON_API int _SoundBuffer_GetSampleRate(SoundBufferPtr buffer) {
-        return buffer->getSampleRate();
-    }
-}
-
-extern "C" {
-    typedef sf::Sound* SoundPtr;
-
-    MOON_API SoundPtr _Sound_Create(SoundBufferPtr buffer) {
-        SoundPtr sound = new sf::Sound();
-        sound->setBuffer(*buffer);
-        return sound;
-    }
-
-    MOON_API void _Sound_Destroy(SoundPtr sound) {
-        delete sound;
-    }
-
-    MOON_API void _Sound_Play(SoundPtr sound) {
-        sound->play();
-    }
-
-    MOON_API void _Sound_Pause(SoundPtr sound) {
-        sound->pause();
-    }
-
-    MOON_API void _Sound_Stop(SoundPtr sound) {
-        sound->stop();
-    }
-
-    MOON_API void _Sound_SetLoop(SoundPtr sound, bool loop) {
-        sound->setLoop(loop);
-    }
-
-    MOON_API void _Sound_SetVolume(SoundPtr sound, float volume) {
-        sound->setVolume(volume);
-    }
-
-    MOON_API void _Sound_SetPitch(SoundPtr sound, float pitch) {
-        sound->setPitch(pitch);
-    }
-
-    MOON_API void _Sound_SetAttenuation(SoundPtr sound, float attenuation) {
-        sound->setAttenuation(attenuation);
-    }
-
-    MOON_API void _Sound_ResetBuffer(SoundPtr sound) {
-        sound->resetBuffer();
-    }
-
-    MOON_API void _Sound_SetPosition(SoundPtr sound, float x, float y, float z) {
-        sound->setPosition(x, y, z);
-    }
-
-    MOON_API void _Sound_SetRelativeToListener(SoundPtr sound, bool relative) {
-        sound->setRelativeToListener(relative);
-    }
-    
-    MOON_API int _Sound_GetStatus(SoundPtr sound) {
-        return sound->getStatus();
-    }
-}
-
-extern "C" {
-    typedef sf::Music* MusicPtr;
-
-    MOON_API MusicPtr _Music_Create(const char* path) {
-        MusicPtr music = new sf::Music();
-        music->openFromFile(path);
-        return music;
-    }
-
-    MOON_API void _Music_Play(MusicPtr music) {
-        music->play();
-    }
-
-    MOON_API void _Music_Pause(MusicPtr music) {
-        music->pause();
-    }
-
-    MOON_API void _Music_Stop(MusicPtr music) {
-        music->stop();
-    }
-
-    MOON_API void _Music_SetLoop(MusicPtr music, bool loop) {
-        music->setLoop(loop);
-    }
-
-    MOON_API void _Music_SetVolume(MusicPtr music, float volume) {
-        music->setVolume(volume);
-    }
-
-    MOON_API void _Music_SetPitch(MusicPtr music, float pitch) {
-        music->setPitch(pitch);
-    }
-
-    MOON_API void _Music_SetAttenuation(MusicPtr music, float attenuation) {
-        music->setAttenuation(attenuation);
-    }
-}
-// ===============================================================================
-// File: BUILDED_SGL_CIRCLE_SHAPE.cpp
-// SFML Circle Shape API implementation
-// Part of DLL library
-//
-// Features:
-// - Create/delete circles
-// - Position/radius/rotation control
-// - Fill/outline color settings
-// - Scaling and origin adjustment
-// - Get current shape parameters
-// ===============================================================================
-
-#include "SFML/Graphics/CircleShape.hpp"
-#include "SFML/Graphics/Color.hpp"
-
-#ifdef _WIN32
-    #define MOON_API __declspec(dllexport)
-#elif __linux__
-    #define MOON_API
-#endif
-
-typedef sf::CircleShape* CirclePtr;
-
-// Create/delete circle shape
-extern "C" MOON_API CirclePtr _Circle_Create(float radius,
-                                                          int point_count) {
-  return new sf::CircleShape(radius, point_count);
-}
-
-extern "C" MOON_API void _Circle_Delete(CirclePtr circle) {
-  delete circle;
-}
-
-// Position control
-extern "C" MOON_API void _Circle_SetPosition(CirclePtr circle,
-                                                          float x, float y) {
-  circle->setPosition(x, y);
-}
-
-extern "C" MOON_API float _Circle_GetPositionX(CirclePtr circle) {
-  return circle->getPosition().x;
-}
-
-extern "C" MOON_API float _Circle_GetPositionY(CirclePtr circle) {
-  return circle->getPosition().y;
-}
-
-// Radius control
-extern "C" MOON_API void _Circle_SetRadius(CirclePtr circle,
-                                                        float radius) {
-  circle->setRadius(radius);
-}
-
-extern "C" MOON_API float _Circle_GetRadius(CirclePtr circle) {
-  return circle->getRadius();
-}
-
-// Rotation
-extern "C" MOON_API void _Circle_SetRotation(CirclePtr circle,
-                                                          float angle) {
-  circle->setRotation(angle);
-}
-
-extern "C" MOON_API float _Circle_GetRotation(CirclePtr circle) {
-  return circle->getRotation();
-}
-
-// Colors
-extern "C" MOON_API void
-_Circle_SetFillColor(CirclePtr circle, int r, int g, int b, int a) {
-  circle->setFillColor(sf::Color(r, g, b, a));
-}
-
-extern "C" MOON_API void
-_Circle_SetOutlineColor(CirclePtr circle, int r, int g, int b, int a) {
-  circle->setOutlineColor(sf::Color(r, g, b, a));
-}
-
-extern "C" MOON_API void
-_Circle_SetOutlineThickness(CirclePtr circle, float thickness) {
-  circle->setOutlineThickness(thickness);
-}
-
-// Scale
-extern "C" MOON_API void
-_Circle_SetScale(CirclePtr circle, float scaleX, float scaleY) {
-  circle->setScale(scaleX, scaleY);
-}
-
-extern "C" MOON_API float _Circle_GetScaleX(CirclePtr circle) {
-  return circle->getScale().x;
-}
-
-extern "C" MOON_API float _Circle_GetScaleY(CirclePtr circle) {
-  return circle->getScale().y;
-}
-
-// Origin
-extern "C" MOON_API void _Circle_SetOrigin(CirclePtr circle,
-                                                        float x, float y) {
-  circle->setOrigin(x, y);
-}
-
-extern "C" MOON_API float _Circle_GetOriginX(CirclePtr circle) {
-  return circle->getOrigin().x;
-}
-
-extern "C" MOON_API float _Circle_GetOriginY(CirclePtr circle) {
-  return circle->getOrigin().y;
-}
-// ===============================================================================
-#include "SFML/System/Clock.hpp"
-#ifdef _WIN32
-    #define MOON_API __declspec(dllexport)
-#elif __linux__
-    #define MOON_API
-#endif
-
-typedef sf::Clock* ClockPtr;
-
-extern "C" {
-    MOON_API ClockPtr createClock() {
-        return new sf::Clock();
-    }
-
-    MOON_API void clockRestart(ClockPtr clock) {
-        clock->restart();
-    }
-
-    MOON_API double getClockElapsedTime(ClockPtr clock) {
-        return clock->getElapsedTime().asSeconds();
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/// Модуль предоставляющий базовый интерфейс для работы с вводом
-/////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SFML/Window/Keyboard.hpp"
-#include "SFML/Window/Mouse.hpp"
-#include "SFML/Graphics/RenderWindow.hpp"
-#include "SFML/System/Vector2.hpp"
-
-#ifdef _WIN32
-    #define MOON_API __declspec(dllexport)
-#elif __linux__
-    #define MOON_API
-#endif
-
-// ==============================================================================================
-// БЛОК ВНЕШНЕГО C-ИНТЕРФЕЙСА (экспортируемые функции)
-// ==============================================================================================
-
-extern "C" {
-
-    // ==========================================================================================
-    // ФУНКЦИИ ДЛЯ РАБОТЫ С КЛАВИАТУРОЙ
-    // ==========================================================================================
-
-    /**
-     * @brief Проверяет, нажата ли указанная клавиша в данный момент
-     * @param key Код клавиши (из перечисления sf::Keyboard::Key)
-     * @return true если клавиша нажата, false в противном случае
-     */
-    MOON_API bool _Keyboard_IsKeyPressed(int key) {
-        return sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(key));
-    }
-
-    /**
-     * @brief Показывает или скрывает виртуальную клавиатуру (актуально для мобильных устройств)
-     * @param visible true - показать клавиатуру, false - скрыть
-     */
-    MOON_API void _Keyboard_SetVirtualKeyboardVisible(bool visible) {
-        sf::Keyboard::setVirtualKeyboardVisible(visible);
-    }
-
-    // ==========================================================================================
-    // ФУНКЦИИ ДЛЯ РАБОТЫ С МЫШЬЮ
-    // ==========================================================================================
-
-    /**
-     * @brief Проверяет, нажата ли указанная кнопка мыши в данный момент
-     * @param button Код кнопки мыши (из перечисления sf::Mouse::Button)
-     * @return true если кнопка нажата, false в противном случае
-     */
-    MOON_API bool _Mouse_IsButtonPressed(int button) {
-        return sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(button));
-    }
-
-    /**
-     * @brief Возвращает текущую координату X курсора мыши в глобальных координатах экрана
-     * @return Координата X курсора мыши
-     */
-    MOON_API int _Mouse_GetPositionX() {
-        return sf::Mouse::getPosition().x;
-    }
-
-    /**
-     * @brief Возвращает текущую координату Y курсора мыши в глобальных координатах экрана
-     * @return Координата Y курсора мыши
-     */
-    MOON_API int _Mouse_GetPositionY() {
-        return sf::Mouse::getPosition().y;
-    }
-
-    /**
-     * @brief Возвращает текущую координату X курсора мыши относительно окна
-     * @param window Указатель на объект окна RenderWindow
-     * @return Координата X курсора мыши относительно окна
-     */
-    MOON_API int _Mouse_GetPositionXWindow(sf::RenderWindow* window) {
-        return sf::Mouse::getPosition(*window).x;
-    }
-
-    /**
-     * @brief Возвращает текущую координату Y курсора мыши относительно окна
-     * @param window Указатель на объект окна RenderWindow
-     * @return Координата Y курсора мыши относительно окна
-     */
-    MOON_API int _Mouse_GetPositionYWindow(sf::RenderWindow* window) {
-        return sf::Mouse::getPosition(*window).y;
-    }
-
-    /**
-     * @brief Устанавливает позицию курсора мыши в глобальных координатах экрана
-     * @param x Координата X для установки
-     * @param y Координата Y для установки
-     */
-    MOON_API void _Mouse_SetPosition(int x, int y) {
-        sf::Mouse::setPosition(sf::Vector2i(x, y));
-    }
-
-    /**
-     * @brief Устанавливает позицию курсора мыши относительно окна
-     * @param x Координата X для установки относительно окна
-     * @param y Координата Y для установки относительно окна
-     * @param window Указатель на объект окна RenderWindow
-     */
-    MOON_API void _Mouse_SetPositionWindow(int x, int y, sf::RenderWindow* window) {
-        sf::Mouse::setPosition(sf::Vector2i(x, y), *window);
-    }
-
-
-} // extern "C"
-
-// ==============================================================================================
-// КОНЕЦ ФАЙЛА
-// ==============================================================================================
-
-// ===============================================================================
-// File: BUILDED_SGL_RECTANGLE_SHAPE.cpp
-// SFML Rectangle Shape API implementation
-// Part of DLL library
-//
-// Features:
-// - Create/delete rectangles
-// - Position/size/rotation control
-// - Fill/outline color settings
-// - Scaling and origin adjustment
-// - Get current shape parameters
-// ===============================================================================
-
-#ifndef SFML_GRAPHICS_HPP
-#include <SFML/Graphics/RectangleShape.hpp>
-#endif
-
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Color.hpp>
-
-#ifdef _WIN32
-    #define MOON_API __declspec(dllexport)
-#elif __linux__
-    #define MOON_API
-#endif
-
-typedef sf::RectangleShape* RectanglePtr;
-
-extern "C" {
-    MOON_API RectanglePtr _Rectangle_Create(float width, float height) {
-        return new sf::RectangleShape(sf::Vector2f(width, height));
-    }
-
-    MOON_API void _Rectangle_SetPosition(RectanglePtr rectangle, float x, float y) {
-        rectangle->setPosition(x, y);
-    }
-
-    MOON_API float _Rectangle_GetPositionX(RectanglePtr rectangle) {
-        return rectangle->getPosition().x;
-    }
-
-    MOON_API float _Rectangle_GetPositionY(RectanglePtr rectangle) {
-        return rectangle->getPosition().y;
-    }
-
-    MOON_API void _Rectangle_SetColor(RectanglePtr rectangle, int r, int g, int b, int alpha) {
-        rectangle->setFillColor(sf::Color(r, g, b, alpha));
-    }
-
-    MOON_API void _Rectangle_SetOrigin(RectanglePtr rectangle, float x, float y) {
-        rectangle->setOrigin(x, y);
-    }
-
-    MOON_API void _Rectangle_SetSize(RectanglePtr rectangle, float width, float height) {
-        rectangle->setSize(sf::Vector2f(width, height));
-    }
-
-    MOON_API void _Rectangle_SetRotation(RectanglePtr rectangle, float angle) {
-        rectangle->setRotation(angle);
-    }
-
-    MOON_API void _Rectangle_SetOutlineThickness(RectanglePtr rectangle, float thickness) {
-        rectangle->setOutlineThickness(thickness);
-    }
-
-    MOON_API void _Rectangle_SetOutlineColor(RectanglePtr rectangle, int r, int g, int b, int alpha) {
-        rectangle->setOutlineColor(sf::Color(r, g, b, alpha));
-    }
-
-    MOON_API void _Rectangle_SetScale(RectanglePtr rectangle, float scaleX, float scaleY) {
-        rectangle->setScale(scaleX, scaleY);
-    }
-
-    MOON_API float _Rectangle_GetWidth(RectanglePtr rectangle) {
-        return rectangle->getSize().x;
-    }
-
-    MOON_API float _Rectangle_GetHeight(RectanglePtr rectangle) {
-        return rectangle->getSize().y;
-    }
-
-    MOON_API void _Rectangle_Delete(RectanglePtr rectangle) {
-        delete rectangle;
-    }
-}
-// ===============================================================================
 // ================================================================================
-//                           BUILDED_SGL_RENDERSTATES.cpp
-//                    Биндинги для работы с состоянием рендеринга
+//                           BUILDED_SGL_WINDOW.cpp
+//                    Биндинги для работы с окнами в PySGL
 // ================================================================================
 //
-// Этот файл содержит C++ функции для работы с состоянием рендеринга SFML,
+// Этот файл содержит C++ функции для работы с окнами SFML,
 // которые экспортируются в Python через ctypes.
 //
 // Основные компоненты:
-// - Режимы смешивания цветов (BlendMode)
-// - Состояния рендеринга (RenderStates)
-// - Шейдеры и их настройка
-// - Униформы и параметры шейдеров
+// - Управление окнами (создание, настройка, отрисовка)
+// - Обработка событий (клавиатура, мышь, изменение размера)
+// - Работа с видами (View) и координатными системами
+// - Настройки контекста OpenGL
+// - Утилиты для работы со временем
 //
 // ================================================================================
 
-#include "SFML/Graphics/BlendMode.hpp"
-#include "SFML/Graphics/Shader.hpp"
-#include "SFML/Graphics/RenderStates.hpp"
-#include "SFML/Graphics/Texture.hpp"
+#include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 
-#include "SFML/Graphics/Glsl.hpp"
+#include <SFML/System/String.hpp>
+#include <SFML/System/Vector2.hpp>
 
-#include <cstddef>
+#include <SFML/Window.hpp>
+#include <SFML/Window/Window.hpp>
+#include <SFML/Window/ContextSettings.hpp>
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/Cursor.hpp>
+
 
 #include "string"
 
@@ -506,191 +43,292 @@ extern "C" {
 
 using namespace std;
 
+
 // ================================================================================
-//                           РЕЖИМЫ СМЕШИВАНИЯ (BLENDMODE)
+//                              ОПРЕДЕЛЕНИЯ ТИПОВ
 // ================================================================================
-// Функции для создания и управления режимами смешивания цветов:
-// - Настройка факторов смешивания для RGB и Alpha каналов
-// - Уравнения смешивания для различных визуальных эффектов
-// - Управление прозрачностью и наложением цветов
+
+typedef sf::RenderWindow* WindowPtr;        // Указатель на окно рендеринга
+typedef sf::Event* EventPtr;                // Указатель на событие
+typedef sf::View* ViewPtr;                  // Указатель на вид (камеру)
+typedef sf::ContextSettings* ContextSettingsPtr;
+typedef sf::Drawable* DrawablePtr;
+typedef sf::RenderStates* RenderStatesPtr;
+typedef sf::Shader* ShaderPtr;
+
+
+
+
+// ================================================================================
+//                        НАСТРОЙКИ КОНТЕКСТА OPENGL
+// ================================================================================
+// Функции для управления настройками OpenGL контекста:
+// - Антиалиасинг (сглаживание)
+// - Буферы глубины и трафарета
+// - Версия OpenGL
+// - sRGB поддержка
 // ================================================================================
 
 extern "C" {
-    typedef sf::BlendMode* BlendModePtr;
 
-    // Создание полного режима смешивания с раздельными настройками для цветовых и альфа-каналов
-    MOON_API BlendModePtr _BlendMode_CreateFull(
-                                                sf::BlendMode::Factor ColorSourceFactor,
-                                                sf::BlendMode::Factor ColorDestinationFactor,
-                                                sf::BlendMode::Equation ColorBlendEquation,
-                                                sf::BlendMode::Factor AlphaSourceFactor,
-                                                sf::BlendMode::Factor AlphaDestinationFactor,
-                                                sf::BlendMode::Equation AlphaBlendEquation
-                                            ) {
-        return new sf::BlendMode(ColorSourceFactor, ColorDestinationFactor, ColorBlendEquation,
-                                 AlphaSourceFactor, AlphaDestinationFactor, AlphaBlendEquation);
+
+    // Создание нового объекта настроек контекста
+    MOON_API ContextSettingsPtr _WindowContextSettings_Create() {
+        return new sf::ContextSettings();
     }
 
-    // Удаление объекта режима смешивания и освобождение памяти
-    MOON_API void _BlendMode_Delete(BlendModePtr blend_mode) {
-        delete blend_mode;
+    // Установка флагов атрибутов контекста
+    MOON_API void _WindowContextSettings_SetAttributeFlags(ContextSettingsPtr contextSettings, int flags) {
+        contextSettings->attributeFlags = flags;
+    }
+
+    // Установка уровня антиалиасинга (0, 2, 4, 8, 16)
+    MOON_API void _WindowContextSettings_SetAntialiasingLevel(ContextSettingsPtr contextSettings, int level) {
+        contextSettings->antialiasingLevel = level;
+    }
+
+    // Установка количества бит для буфера глубины
+    MOON_API void _WindowContextSettings_SetDepthBits(ContextSettingsPtr contextSettings, int bits) {
+        contextSettings->depthBits = bits;
+    }
+
+    // Установка основной версии OpenGL
+    MOON_API void _WindowContextSettings_SetMajorVersion(ContextSettingsPtr contextSettings, int version) {
+        contextSettings->majorVersion = version;
+    }
+
+    // Установка дополнительной версии OpenGL
+    MOON_API void _WindowContextSettings_SetMinorVersion(ContextSettingsPtr contextSettings, int version) {
+        contextSettings->minorVersion = version;
+    }
+
+    // Установка количества бит для буфера трафарета
+    MOON_API void _WindowContextSettings_SetStencilBits(ContextSettingsPtr contextSettings, int bits) {
+        contextSettings->stencilBits = bits;
+    }
+
+    // Включение/выключение поддержки sRGB цветового пространства
+    MOON_API void _WindowContextSettings_SetSrgbCapable(ContextSettingsPtr contextSettings, bool capable) {
+        contextSettings->sRgbCapable = capable;
+    }
+
+    // Удаление объекта настроек контекста
+    MOON_API void _WindowContextSettings_Delete(ContextSettingsPtr contextSettings) {
+        delete contextSettings;
     }
 }
 
 // ================================================================================
-//                       СОСТОЯНИЯ РЕНДЕРИНГА (RENDERSTATES)
+//                           УПРАВЛЕНИЕ ОКНОМ
 // ================================================================================
-// Функции для создания и управления состоянием рендеринга:
-// - Настройка шейдеров, текстур и преобразований
-// - Управление режимами смешивания
-// - Комбинирование различных параметров отрисовки
-// ================================================================================
-
-extern "C" {
-    typedef sf::RenderStates* RenderStatesPtr;
-
-    // Создание нового объекта состояния рендеринга с параметрами по умолчанию
-    MOON_API RenderStatesPtr _RenderStates_Create() {
-        RenderStatesPtr render_states = new sf::RenderStates();
-        return render_states;
-    }
-
-    // Удаление объекта состояния рендеринга и освобождение памяти
-    MOON_API void _RenderStates_Delete(RenderStatesPtr render_states) {
-        delete render_states;
-    }
-
-    // Установка шейдера для состояния рендеринга
-    MOON_API void _RenderStates_SetShader(RenderStatesPtr render_states, sf::Shader* shader) {
-        render_states->shader = shader;
-    }
-
-    // Установка режима смешивания для состояния рендеринга
-    MOON_API void _RenderStates_SetBlendMode(RenderStatesPtr render_states, BlendModePtr blend_mode) {
-        render_states->blendMode = *blend_mode;
-    }
-
-    // Установка текстуры для состояния рендеринга
-    MOON_API void _RenderStates_SetTexture(RenderStatesPtr render_states, sf::Texture *texture) {
-        render_states->texture = texture;
-    }
-
-    // Установка матрицы преобразования для состояния рендеринга
-    MOON_API void _RenderStates_SetTransform(RenderStatesPtr render_states, sf::Transform* transform) {
-        render_states->transform = *transform;
-    }
-}
-
-// ================================================================================
-//                               ШЕЙДЕРЫ (SHADER)
-// ================================================================================
-// Функции для работы с шейдерами GLSL:
-// - Загрузка шейдеров из файлов и строк
-// - Настройка униформ (параметров шейдеров)
-// - Управление состоянием шейдеров (привязка/отвязка)
-// - Работа с цветами, векторами и текстурами в шейдерах
+// Основные функции для работы с окнами:
+// - Создание и удаление окон
+// - Настройка свойств (заголовок, размер, позиция)
+// - Отрисовка и очистка
+// - Проверка состояния
 // ================================================================================
 
 extern "C" {
-    typedef sf::Shader* ShaderPtr;
-
-    // Создание нового объекта шейдера
-    MOON_API ShaderPtr _Shader_Create() {
-        return new sf::Shader();
+    // Создание нового окна с указанными параметрами
+    MOON_API WindowPtr _Window_Create(const int width, const int height,
+        const char* title, int style, ContextSettingsPtr settings) {
+        string std_str(title);
+        return new sf::RenderWindow(sf::VideoMode(width, height), sf::String::fromUtf8(std_str.begin(), std_str.end()), style, *settings);
     }
 
-    // ================================================================================
-    //                   ЗАГРУЗКА ШЕЙДЕРОВ ИЗ РАЗЛИЧНЫХ ИСТОЧНИКОВ
-    // ================================================================================
-
-    // Загрузка шейдера из файлов (вершинный и фрагментный шейдеры)
-    MOON_API bool _Shader_LoadFromFile(ShaderPtr shader, char* vertex_file, char* fragment_file) {
-        return shader->loadFromFile(vertex_file, fragment_file);
+    // Закрытие окна (окно становится недоступным для взаимодействия)
+    MOON_API void _Window_Close(WindowPtr window) {
+        window->close();
     }
 
-    // Загрузка шейдера из строк (вершинный и фрагментный шейдеры)
-    MOON_API bool _Shader_LoadFromStrings(ShaderPtr shader, char* vertex_string, char* fragment_string) {
-        return shader->loadFromMemory(vertex_string, fragment_string);
+    // Управление видимостью курсора мыши
+    MOON_API void _Window_SetCursorVisibility(WindowPtr window, bool value) {
+        window->setMouseCursorVisible(value);
     }
 
-    // Загрузка шейдера определенного типа из строки (вершинный, геометрический или фрагментный)
-    MOON_API bool _Shader_LoadFromStringWithType(ShaderPtr shader, char* shader_string, sf::Shader::Type type) {
-        if (type == 2) {
-            return shader->loadFromMemory(shader_string, sf::Shader::Fragment);
-        } else if (type == 1) {
-            return shader->loadFromMemory(shader_string, sf::Shader::Geometry);
-        } else if (type == 0) {
-            return shader->loadFromMemory(shader_string, sf::Shader::Vertex);
+    // Установка заголовка окна
+    MOON_API void _Window_SetTitle(WindowPtr window, const char* title) {
+        std::string std_str(title);
+        window->setTitle(sf::String::fromUtf8(std_str.begin(), std_str.end()));
+    }
+
+    // Включение/выключение вертикальной синхронизации
+    MOON_API void _Window_SetVsync(WindowPtr window, bool enable) {
+        window->setVerticalSyncEnabled(enable);
+    }
+
+    // Установка системного курсора для окна
+    MOON_API void _Window_SetSystemCursor(WindowPtr window, sf::Cursor::Type cursor) {
+        auto _cursor = new sf::Cursor;
+        _cursor->loadFromSystem(cursor);
+        window->setMouseCursor(*_cursor);
+        delete _cursor;
+    }
+
+    // Проверка, открыто ли окно и доступно ли для взаимодействия
+    MOON_API bool _Window_IsOpen(WindowPtr window) {
+        return window->isOpen();
+    }
+
+    // Полное удаление окна и освобождение памяти
+    MOON_API void _Window_Delete(WindowPtr window) {
+        window->close();
+        delete window;
+    }
+
+    MOON_API bool _Window_SetIconFromPath(WindowPtr window, const char* path) {
+        sf::Image image;
+        if (!image.loadFromFile(path)) {
+            return false;
         }
-        return false;
+        window->setIcon(image.getSize().x, image.getSize().y, image.getPixelsPtr());
+        return true;
     }
 
     // ================================================================================
-    //                   НАСТРОЙКА УНИФОРМ (ПАРАМЕТРОВ ШЕЙДЕРОВ)
+    //                    ПОЛУЧЕНИЕ РАЗМЕРА ОКНА
     // ================================================================================
 
-    // Установка целочисленной униформы
-    MOON_API void _Shader_SetUniformInt(ShaderPtr shader, char* name, int value) {
-        shader->setUniform(name, value);
+    // Получение ширины окна в пикселях
+    MOON_API int _Window_GetSizeWidth(WindowPtr window) {
+        return window->getSize().x;
     }
 
-    // Установка униформы с плавающей точкой
-    MOON_API void _Shader_SetUniformFloat(ShaderPtr shader, char* name, float value) {
-        shader->setUniform(name, value);
-    }
-
-    // Установка булевой униформы
-    MOON_API void _Shader_SetUniformBool(ShaderPtr shader, char* name, bool value) {
-        shader->setUniform(name, value);
-    }
-
-    // Установка текстуры как униформы
-    MOON_API void _Shader_SetUniformTexture(ShaderPtr shader, char* name, sf::Texture texture) {
-        shader->setUniform(name, texture);
-    }
-
-    // Установка целочисленного векторной униформы (2 компонента)
-    MOON_API void _Shader_SetUniformIntVector(ShaderPtr shader, char* name, int x, int y) {
-        shader->setUniform(name, sf::Glsl::Ivec2(x, y));
-    }
-
-    // Установка векторной униформы с плавающей точкой (2 компонента)
-    MOON_API void _Shader_SetUniformFloatVector(ShaderPtr shader, char* name, float x, float y) {
-        shader->setUniform(name, sf::Glsl::Vec2(x, y));
-    }
-
-    // Установка цветовой униформы (преобразование в нормализованные значения)
-    MOON_API void _Shader_SetUniformColor(ShaderPtr shader, char* name, int r, int g, int b, int a) {
-        shader->setUniform(name, sf::Glsl::Vec4(r/256.0f, g/256.0f, b/256.0f, a/256.0f));
+    // Получение высоты окна в пикселях
+    MOON_API int _Window_GetSizeHeight(WindowPtr window) {
+        return window->getSize().y;
     }
 
     // ================================================================================
-    //                   УПРАВЛЕНИЕ СОСТОЯНИЕМ ШЕЙДЕРОВ
+    //                    ПОЛУЧЕНИЕ ПОЗИЦИИ ОКНА
     // ================================================================================
 
-    // Привязка шейдера для использования в рендеринге
-    MOON_API void _Shader_Bind(ShaderPtr shader, ShaderPtr new_shader) {
-        shader->bind(new_shader);
+    // Получение X-координаты окна на экране
+    MOON_API int _Window_GetPositionX(WindowPtr window) {
+        return window->getPosition().x;
     }
 
-    // Отвязка текущего шейдера
-    MOON_API void _Shader_Unbind(ShaderPtr shader) {
-        shader->bind(NULL);
+    // Получение Y-координаты окна на экране
+    MOON_API int _Window_GetPositionY(WindowPtr window) {
+        return window->getPosition().y;
     }
 
-    // Получение указателя на специальную текстуру "CurrentTexture"
-    MOON_API void* _Shader_GetCurrentTexture() {
-        return &sf::Shader::CurrentTexture;
+    // ================================================================================
+    //              УСТАНОВКА ПОЗИЦИИ И РАЗМЕРА ОКНА
+    // ================================================================================
+
+    // Установка позиции окна на экране
+    MOON_API void _Window_SetPosition(WindowPtr window, int x, int y) {
+        window->setPosition(sf::Vector2i(x, y));
     }
+
+    // Установка размера окна
+    MOON_API void _Window_SetSize(WindowPtr window, int width, int height) {
+        window->setSize(sf::Vector2u(width, height));
+    }
+
+    // ================================================================================
+    //                  ПРЕОБРАЗОВАНИЕ КООРДИНАТ
+    // ================================================================================
+    // Преобразование между экранными пикселями и мировыми координатами
+
+    // Преобразование пикселей в мировые координаты (X)
+    MOON_API float _Window_MapPixelToCoordsX(WindowPtr window, double x, double y, ViewPtr view) {
+        return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).x;
+    }
+
+    // Преобразование пикселей в мировые координаты (Y)
+    MOON_API float _Window_MapPixelToCoordsY(WindowPtr window, double x, double y, ViewPtr view) {
+        return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).y;
+    }
+
+    // Преобразование мировых координат в пиксели (X)
+    MOON_API float _Window_MapCoordsToPixelX(WindowPtr window, double x, double y, ViewPtr view) {
+        return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).x;
+    }
+
+    // Преобразование мировых координат в пиксели (Y)
+    MOON_API float _Window_MapCoordsToPixelY(WindowPtr window, double x, double y, ViewPtr view) {
+        return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).y;
+    }
+
+    // ================================================================================
+    //                            РЕНДЕРИНГ
+    // ================================================================================
+    // Основные функции для отрисовки графики
+
+    // Очистка окна указанным цветом
+    MOON_API void _Window_Clear(WindowPtr window, int r, int g, int b, int a) {
+        window->clear(sf::Color(r, g, b, a));
+    }
+
+    // Отображение всех нарисованных объектов на экране
+    MOON_API void _Window_Display(WindowPtr window) {
+        window->display();
+    }
+
+    // Отрисовка объекта с настройками по умолчанию
+    MOON_API void _Window_Draw(WindowPtr window, DrawablePtr drawable) {
+        window->draw(*drawable);
+    }
+
+    // Отрисовка объекта с пользовательскими настройками рендеринга
+    MOON_API void _Window_DrawWithRenderStates(WindowPtr window, RenderStatesPtr render_states, DrawablePtr drawable)  {
+        window->draw(*drawable, *render_states);
+    }
+
+    // Отрисовка объекта с применением шейдера
+    MOON_API void _Window_DrawWithShader(WindowPtr window, ShaderPtr shader, DrawablePtr drawable) {
+        window->draw(*drawable, shader);
+    }
+
+    // ================================================================================
+    //                      УПРАВЛЕНИЕ ВИДОМ (VIEW/КАМЕРОЙ)
+    // ================================================================================
+    // Функции для управления камерой и областью просмотра
+
+    // Применение вида к окну (установка активной камеры)
+    MOON_API void _Window_SetView(WindowPtr window, ViewPtr view) {
+        window->setView(*view);
+    }
+
+    // Получение стандартного вида (камеры) окна
+    MOON_API ViewPtr _Window_GetDefaultView(WindowPtr window) {
+        return new sf::View(window->getDefaultView());
+    }
+
+    // ================================================================================
+    //                      НАСТРОЙКИ ПРОИЗВОДИТЕЛЬНОСТИ
+    // ================================================================================
+
+    // Установка ограничения кадров в секунду (FPS)
+    MOON_API void _Window_SetWaitFps(WindowPtr window, unsigned int fps) {
+        window->setFramerateLimit(fps);
+    }
+
+    // ================================================================================
+    //                        ОБРАБОТКА СОБЫТИЙ
+    // ================================================================================
+    // Функции для работы с событиями окна (клавиатура, мышь, изменение размера)
+
+    // Получение следующего события из очереди
+    MOON_API int _Window_GetCurrentEventType(WindowPtr window, sf::Event* event) {
+        if (window->pollEvent(*event)) {
+            return event->type;
+        }
+        return -1;  // Нет событий в очереди
+    }
+
 }
 
 // ================================================================================
 //                              КОНЕЦ ФАЙЛА
 // ================================================================================
-// Все функции для работы с состоянием рендеринга PySGL определены.
-// Они предоставляют полный интерфейс для настройки шейдеров, режимов смешивания
-// и параметров отрисовки в Python приложениях.
+// Все функции для работы с окнами PySGL определены.
+// Они предоставляют полный интерфейс для создания и управления
+// графическими окнами в Python приложениях.
 // ================================================================================
+
 // Подключение необходимых заголовочных файлов SFML
 
 #include <SFML/Graphics/Font.hpp>
@@ -1162,6 +800,610 @@ extern "C" {
         return sprite->getScale().y;
     }
 }
+#ifndef SFML_AUDIO_HPP
+#include "SFML/Audio/SoundBuffer.hpp"
+#include "SFML/Audio/Sound.hpp"
+#include "SFML/Audio/Music.hpp"
+#endif
+#ifndef IOSTREAM_H
+#include <iostream>
+#endif
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+using std::cout, std::endl;
+extern "C" {
+    typedef sf::SoundBuffer* SoundBufferPtr;
+
+    MOON_API SoundBufferPtr _SoundBuffer_loadFromFile(const char* path) {
+        SoundBufferPtr buffer = new sf::SoundBuffer();
+
+        if (buffer->loadFromFile(path))
+            cout << "Sound: " << path << " loaded." << endl;
+        else {
+            cout << "Sound: " << path << "error loading sound" << endl;
+        }
+        return buffer;
+    }
+
+    MOON_API void _SoundBuffer_Destroy(SoundBufferPtr buffer) {
+        delete buffer;
+    }
+
+    MOON_API int _SoundBuffer_GetChannelsCount(SoundBufferPtr buffer) {
+        return buffer->getChannelCount();
+    }
+
+    MOON_API int _SoundBuffer_GetSampleRate(SoundBufferPtr buffer) {
+        return buffer->getSampleRate();
+    }
+}
+
+extern "C" {
+    typedef sf::Sound* SoundPtr;
+
+    MOON_API SoundPtr _Sound_Create(SoundBufferPtr buffer) {
+        SoundPtr sound = new sf::Sound();
+        sound->setBuffer(*buffer);
+        return sound;
+    }
+
+    MOON_API void _Sound_Destroy(SoundPtr sound) {
+        delete sound;
+    }
+
+    MOON_API void _Sound_Play(SoundPtr sound) {
+        sound->play();
+    }
+
+    MOON_API void _Sound_Pause(SoundPtr sound) {
+        sound->pause();
+    }
+
+    MOON_API void _Sound_Stop(SoundPtr sound) {
+        sound->stop();
+    }
+
+    MOON_API void _Sound_SetLoop(SoundPtr sound, bool loop) {
+        sound->setLoop(loop);
+    }
+
+    MOON_API void _Sound_SetVolume(SoundPtr sound, float volume) {
+        sound->setVolume(volume);
+    }
+
+    MOON_API void _Sound_SetPitch(SoundPtr sound, float pitch) {
+        sound->setPitch(pitch);
+    }
+
+    MOON_API void _Sound_SetAttenuation(SoundPtr sound, float attenuation) {
+        sound->setAttenuation(attenuation);
+    }
+
+    MOON_API void _Sound_ResetBuffer(SoundPtr sound) {
+        sound->resetBuffer();
+    }
+
+    MOON_API void _Sound_SetPosition(SoundPtr sound, float x, float y, float z) {
+        sound->setPosition(x, y, z);
+    }
+
+    MOON_API void _Sound_SetRelativeToListener(SoundPtr sound, bool relative) {
+        sound->setRelativeToListener(relative);
+    }
+    
+    MOON_API int _Sound_GetStatus(SoundPtr sound) {
+        return sound->getStatus();
+    }
+}
+
+extern "C" {
+    typedef sf::Music* MusicPtr;
+
+    MOON_API MusicPtr _Music_Create(const char* path) {
+        MusicPtr music = new sf::Music();
+        music->openFromFile(path);
+        return music;
+    }
+
+    MOON_API void _Music_Play(MusicPtr music) {
+        music->play();
+    }
+
+    MOON_API void _Music_Pause(MusicPtr music) {
+        music->pause();
+    }
+
+    MOON_API void _Music_Stop(MusicPtr music) {
+        music->stop();
+    }
+
+    MOON_API void _Music_SetLoop(MusicPtr music, bool loop) {
+        music->setLoop(loop);
+    }
+
+    MOON_API void _Music_SetVolume(MusicPtr music, float volume) {
+        music->setVolume(volume);
+    }
+
+    MOON_API void _Music_SetPitch(MusicPtr music, float pitch) {
+        music->setPitch(pitch);
+    }
+
+    MOON_API void _Music_SetAttenuation(MusicPtr music, float attenuation) {
+        music->setAttenuation(attenuation);
+    }
+}
+// ===============================================================================
+// File: BUILDED_SGL_CIRCLE_SHAPE.cpp
+// SFML Circle Shape API implementation
+// Part of DLL library
+//
+// Features:
+// - Create/delete circles
+// - Position/radius/rotation control
+// - Fill/outline color settings
+// - Scaling and origin adjustment
+// - Get current shape parameters
+// ===============================================================================
+
+#include "SFML/Graphics/CircleShape.hpp"
+#include "SFML/Graphics/Color.hpp"
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+typedef sf::CircleShape* CirclePtr;
+
+// Create/delete circle shape
+extern "C" MOON_API CirclePtr _Circle_Create(float radius,
+                                                          int point_count) {
+  return new sf::CircleShape(radius, point_count);
+}
+
+extern "C" MOON_API void _Circle_Delete(CirclePtr circle) {
+  delete circle;
+}
+
+// Position control
+extern "C" MOON_API void _Circle_SetPosition(CirclePtr circle,
+                                                          float x, float y) {
+  circle->setPosition(x, y);
+}
+
+extern "C" MOON_API float _Circle_GetPositionX(CirclePtr circle) {
+  return circle->getPosition().x;
+}
+
+extern "C" MOON_API float _Circle_GetPositionY(CirclePtr circle) {
+  return circle->getPosition().y;
+}
+
+// Radius control
+extern "C" MOON_API void _Circle_SetRadius(CirclePtr circle,
+                                                        float radius) {
+  circle->setRadius(radius);
+}
+
+extern "C" MOON_API float _Circle_GetRadius(CirclePtr circle) {
+  return circle->getRadius();
+}
+
+// Rotation
+extern "C" MOON_API void _Circle_SetRotation(CirclePtr circle,
+                                                          float angle) {
+  circle->setRotation(angle);
+}
+
+extern "C" MOON_API float _Circle_GetRotation(CirclePtr circle) {
+  return circle->getRotation();
+}
+
+// Colors
+extern "C" MOON_API void
+_Circle_SetFillColor(CirclePtr circle, int r, int g, int b, int a) {
+  circle->setFillColor(sf::Color(r, g, b, a));
+}
+
+extern "C" MOON_API void
+_Circle_SetOutlineColor(CirclePtr circle, int r, int g, int b, int a) {
+  circle->setOutlineColor(sf::Color(r, g, b, a));
+}
+
+extern "C" MOON_API void
+_Circle_SetOutlineThickness(CirclePtr circle, float thickness) {
+  circle->setOutlineThickness(thickness);
+}
+
+// Scale
+extern "C" MOON_API void
+_Circle_SetScale(CirclePtr circle, float scaleX, float scaleY) {
+  circle->setScale(scaleX, scaleY);
+}
+
+extern "C" MOON_API float _Circle_GetScaleX(CirclePtr circle) {
+  return circle->getScale().x;
+}
+
+extern "C" MOON_API float _Circle_GetScaleY(CirclePtr circle) {
+  return circle->getScale().y;
+}
+
+// Origin
+extern "C" MOON_API void _Circle_SetOrigin(CirclePtr circle,
+                                                        float x, float y) {
+  circle->setOrigin(x, y);
+}
+
+extern "C" MOON_API float _Circle_GetOriginX(CirclePtr circle) {
+  return circle->getOrigin().x;
+}
+
+extern "C" MOON_API float _Circle_GetOriginY(CirclePtr circle) {
+  return circle->getOrigin().y;
+}
+// ===============================================================================
+// ================================================================================
+//                         BUILDED_WINDOWEVENTS.cpp
+//                    Биндинги для работы с событиями окон в PySGL
+// ================================================================================
+//
+// Этот файл содержит C++ функции для работы с событиями SFML,
+// которые экспортируются в Python через ctypes.
+//
+// Основные компоненты:
+// - Создание и управление объектами событий
+// - Получение информации о событиях клавиатуры
+// - Обработка событий мыши (кнопки, координаты, колесо)
+// - События изменения размера окна
+// - Типизация и классификация событий
+//
+// ================================================================================
+
+#ifndef SFML_WINDOW_HPP
+#include <SFML/Window/Event.hpp>
+#endif
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+// ================================================================================
+//                        УПРАВЛЕНИЕ ОБЪЕКТАМИ СОБЫТИЙ
+// ================================================================================
+// Функции для создания, удаления и базовой работы с событиями:
+// - Создание новых объектов событий
+// - Освобождение памяти
+// - Получение типа события
+// ================================================================================
+
+extern "C" {
+    // Создание нового объекта события для хранения данных
+    MOON_API sf::Event* _Events_Create() {
+        return new sf::Event();
+    }
+
+    // Удаление объекта события и освобождение памяти
+    MOON_API void _Events_Destroy(sf::Event* event) {
+        delete event;
+    }
+
+    // Получение типа текущего события (Closed, KeyPressed, MouseMoved и т.д.)
+    MOON_API int _Events_GetType(sf::Event* event) {
+        return event->type;
+    }
+
+    // ================================================================================
+    //                          СОБЫТИЯ КЛАВИАТУРЫ
+    // ================================================================================
+    // Функции для обработки событий клавиатуры
+
+    // Получение кода нажатой/отпущенной клавиши
+    MOON_API int _Events_GetKey(sf::Event* event) {
+        return event->key.code;
+    }
+
+    // ================================================================================
+    //                            СОБЫТИЯ МЫШИ
+    // ================================================================================
+    // Функции для обработки всех типов событий мыши
+
+    // Получение кода нажатой кнопки мыши (0-левая, 1-правая, 2-средняя)
+    MOON_API int _Events_GetMouseButton(sf::Event* event) {
+        return event->mouseButton.button;
+    }
+
+    // Получение X-координаты курсора мыши в момент события
+    MOON_API int _Events_GetMouseX(sf::Event* event) {
+        return event->mouseButton.x;
+    }
+
+    // Получение Y-координаты курсора мыши в момент события
+    MOON_API int _Events_GetMouseY(sf::Event* event) {
+        return event->mouseButton.y;
+    }
+
+    // Получение значения прокрутки колеса мыши (положительное - вверх, отрицательное - вниз)
+    MOON_API int _Events_GetMouseWheel(sf::Event* event) {
+        return event->mouseWheel.delta;
+    }
+
+    // ================================================================================
+    //                      СОБЫТИЯ ИЗМЕНЕНИЯ РАЗМЕРА ОКНА
+    // ================================================================================
+    // Функции для получения новых размеров окна при событии Resized
+
+    // Получение новой ширины окна после изменения размера (в пикселях)
+    MOON_API int _Events_GetSizeWidth(sf::Event* event) {
+        return event->size.width;
+    }
+
+    // Получение новой высоты окна после изменения размера (в пикселях)
+    MOON_API int _Events_GetSizeHeight(sf::Event* event) {
+        return event->size.height;
+    }
+}
+
+// ================================================================================
+//                              КОНЕЦ ФАЙЛА
+// ================================================================================
+// Все функции для работы с событиями PySGL определены.
+// Они предоставляют полный интерфейс для обработки пользовательского ввода
+// и системных событий в Python приложениях.
+// ================================================================================
+
+#include "SFML/System/Clock.hpp"
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+typedef sf::Clock* ClockPtr;
+
+extern "C" {
+    MOON_API ClockPtr createClock() {
+        return new sf::Clock();
+    }
+
+    MOON_API void clockRestart(ClockPtr clock) {
+        clock->restart();
+    }
+
+    MOON_API double getClockElapsedTime(ClockPtr clock) {
+        return clock->getElapsedTime().asSeconds();
+    }
+}
+
+// ================================================================================
+//                           BUILDED_SGL_RENDERSTATES.cpp
+//                    Биндинги для работы с состоянием рендеринга
+// ================================================================================
+//
+// Этот файл содержит C++ функции для работы с состоянием рендеринга SFML,
+// которые экспортируются в Python через ctypes.
+//
+// Основные компоненты:
+// - Режимы смешивания цветов (BlendMode)
+// - Состояния рендеринга (RenderStates)
+// - Шейдеры и их настройка
+// - Униформы и параметры шейдеров
+//
+// ================================================================================
+
+#include "SFML/Graphics/BlendMode.hpp"
+#include "SFML/Graphics/Shader.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/Texture.hpp"
+
+#include "SFML/Graphics/Glsl.hpp"
+
+#include <cstddef>
+
+#include "string"
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+using namespace std;
+
+// ================================================================================
+//                           РЕЖИМЫ СМЕШИВАНИЯ (BLENDMODE)
+// ================================================================================
+// Функции для создания и управления режимами смешивания цветов:
+// - Настройка факторов смешивания для RGB и Alpha каналов
+// - Уравнения смешивания для различных визуальных эффектов
+// - Управление прозрачностью и наложением цветов
+// ================================================================================
+
+extern "C" {
+    typedef sf::BlendMode* BlendModePtr;
+
+    // Создание полного режима смешивания с раздельными настройками для цветовых и альфа-каналов
+    MOON_API BlendModePtr _BlendMode_CreateFull(
+                                                sf::BlendMode::Factor ColorSourceFactor,
+                                                sf::BlendMode::Factor ColorDestinationFactor,
+                                                sf::BlendMode::Equation ColorBlendEquation,
+                                                sf::BlendMode::Factor AlphaSourceFactor,
+                                                sf::BlendMode::Factor AlphaDestinationFactor,
+                                                sf::BlendMode::Equation AlphaBlendEquation
+                                            ) {
+        return new sf::BlendMode(ColorSourceFactor, ColorDestinationFactor, ColorBlendEquation,
+                                 AlphaSourceFactor, AlphaDestinationFactor, AlphaBlendEquation);
+    }
+
+    // Удаление объекта режима смешивания и освобождение памяти
+    MOON_API void _BlendMode_Delete(BlendModePtr blend_mode) {
+        delete blend_mode;
+    }
+}
+
+// ================================================================================
+//                       СОСТОЯНИЯ РЕНДЕРИНГА (RENDERSTATES)
+// ================================================================================
+// Функции для создания и управления состоянием рендеринга:
+// - Настройка шейдеров, текстур и преобразований
+// - Управление режимами смешивания
+// - Комбинирование различных параметров отрисовки
+// ================================================================================
+
+extern "C" {
+    typedef sf::RenderStates* RenderStatesPtr;
+
+    // Создание нового объекта состояния рендеринга с параметрами по умолчанию
+    MOON_API RenderStatesPtr _RenderStates_Create() {
+        RenderStatesPtr render_states = new sf::RenderStates();
+        return render_states;
+    }
+
+    // Удаление объекта состояния рендеринга и освобождение памяти
+    MOON_API void _RenderStates_Delete(RenderStatesPtr render_states) {
+        delete render_states;
+    }
+
+    // Установка шейдера для состояния рендеринга
+    MOON_API void _RenderStates_SetShader(RenderStatesPtr render_states, sf::Shader* shader) {
+        render_states->shader = shader;
+    }
+
+    // Установка режима смешивания для состояния рендеринга
+    MOON_API void _RenderStates_SetBlendMode(RenderStatesPtr render_states, BlendModePtr blend_mode) {
+        render_states->blendMode = *blend_mode;
+    }
+
+    // Установка текстуры для состояния рендеринга
+    MOON_API void _RenderStates_SetTexture(RenderStatesPtr render_states, sf::Texture *texture) {
+        render_states->texture = texture;
+    }
+
+    // Установка матрицы преобразования для состояния рендеринга
+    MOON_API void _RenderStates_SetTransform(RenderStatesPtr render_states, sf::Transform* transform) {
+        render_states->transform = *transform;
+    }
+}
+
+// ================================================================================
+//                               ШЕЙДЕРЫ (SHADER)
+// ================================================================================
+// Функции для работы с шейдерами GLSL:
+// - Загрузка шейдеров из файлов и строк
+// - Настройка униформ (параметров шейдеров)
+// - Управление состоянием шейдеров (привязка/отвязка)
+// - Работа с цветами, векторами и текстурами в шейдерах
+// ================================================================================
+
+extern "C" {
+    typedef sf::Shader* ShaderPtr;
+
+    // Создание нового объекта шейдера
+    MOON_API ShaderPtr _Shader_Create() {
+        return new sf::Shader();
+    }
+
+    // ================================================================================
+    //                   ЗАГРУЗКА ШЕЙДЕРОВ ИЗ РАЗЛИЧНЫХ ИСТОЧНИКОВ
+    // ================================================================================
+
+    // Загрузка шейдера из файлов (вершинный и фрагментный шейдеры)
+    MOON_API bool _Shader_LoadFromFile(ShaderPtr shader, char* vertex_file, char* fragment_file) {
+        return shader->loadFromFile(vertex_file, fragment_file);
+    }
+
+    // Загрузка шейдера из строк (вершинный и фрагментный шейдеры)
+    MOON_API bool _Shader_LoadFromStrings(ShaderPtr shader, char* vertex_string, char* fragment_string) {
+        return shader->loadFromMemory(vertex_string, fragment_string);
+    }
+
+    // Загрузка шейдера определенного типа из строки (вершинный, геометрический или фрагментный)
+    MOON_API bool _Shader_LoadFromStringWithType(ShaderPtr shader, char* shader_string, sf::Shader::Type type) {
+        if (type == 2) {
+            return shader->loadFromMemory(shader_string, sf::Shader::Fragment);
+        } else if (type == 1) {
+            return shader->loadFromMemory(shader_string, sf::Shader::Geometry);
+        } else if (type == 0) {
+            return shader->loadFromMemory(shader_string, sf::Shader::Vertex);
+        }
+        return false;
+    }
+
+    // ================================================================================
+    //                   НАСТРОЙКА УНИФОРМ (ПАРАМЕТРОВ ШЕЙДЕРОВ)
+    // ================================================================================
+
+    // Установка целочисленной униформы
+    MOON_API void _Shader_SetUniformInt(ShaderPtr shader, char* name, int value) {
+        shader->setUniform(name, value);
+    }
+
+    // Установка униформы с плавающей точкой
+    MOON_API void _Shader_SetUniformFloat(ShaderPtr shader, char* name, float value) {
+        shader->setUniform(name, value);
+    }
+
+    // Установка булевой униформы
+    MOON_API void _Shader_SetUniformBool(ShaderPtr shader, char* name, bool value) {
+        shader->setUniform(name, value);
+    }
+
+    // Установка текстуры как униформы
+    MOON_API void _Shader_SetUniformTexture(ShaderPtr shader, char* name, sf::Texture texture) {
+        shader->setUniform(name, texture);
+    }
+
+    // Установка целочисленного векторной униформы (2 компонента)
+    MOON_API void _Shader_SetUniformIntVector(ShaderPtr shader, char* name, int x, int y) {
+        shader->setUniform(name, sf::Glsl::Ivec2(x, y));
+    }
+
+    // Установка векторной униформы с плавающей точкой (2 компонента)
+    MOON_API void _Shader_SetUniformFloatVector(ShaderPtr shader, char* name, float x, float y) {
+        shader->setUniform(name, sf::Glsl::Vec2(x, y));
+    }
+
+    // Установка цветовой униформы (преобразование в нормализованные значения)
+    MOON_API void _Shader_SetUniformColor(ShaderPtr shader, char* name, int r, int g, int b, int a) {
+        shader->setUniform(name, sf::Glsl::Vec4(r/256.0f, g/256.0f, b/256.0f, a/256.0f));
+    }
+
+    // ================================================================================
+    //                   УПРАВЛЕНИЕ СОСТОЯНИЕМ ШЕЙДЕРОВ
+    // ================================================================================
+
+    // Привязка шейдера для использования в рендеринге
+    MOON_API void _Shader_Bind(ShaderPtr shader, ShaderPtr new_shader) {
+        shader->bind(new_shader);
+    }
+
+    // Отвязка текущего шейдера
+    MOON_API void _Shader_Unbind(ShaderPtr shader) {
+        shader->bind(NULL);
+    }
+
+    // Получение указателя на специальную текстуру "CurrentTexture"
+    MOON_API void* _Shader_GetCurrentTexture() {
+        return &sf::Shader::CurrentTexture;
+    }
+}
+
+// ================================================================================
+//                              КОНЕЦ ФАЙЛА
+// ================================================================================
+// Все функции для работы с состоянием рендеринга PySGL определены.
+// Они предоставляют полный интерфейс для настройки шейдеров, режимов смешивания
+// и параметров отрисовки в Python приложениях.
+// ================================================================================
 #include "SFML/Graphics/VertexArray.hpp"
 #include "SFML/Graphics/Vertex.hpp"
 #include "SFML/System/Vector2.hpp"
@@ -1319,6 +1561,206 @@ extern "C" {
         window->draw(*vertexArray, *render_states);
     }
 }
+
+// ===============================================================================
+// File: BUILDED_SGL_RECTANGLE_SHAPE.cpp
+// SFML Rectangle Shape API implementation
+// Part of DLL library
+//
+// Features:
+// - Create/delete rectangles
+// - Position/size/rotation control
+// - Fill/outline color settings
+// - Scaling and origin adjustment
+// - Get current shape parameters
+// ===============================================================================
+
+#ifndef SFML_GRAPHICS_HPP
+#include <SFML/Graphics/RectangleShape.hpp>
+#endif
+
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Color.hpp>
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+typedef sf::RectangleShape* RectanglePtr;
+
+extern "C" {
+    MOON_API RectanglePtr _Rectangle_Create(float width, float height) {
+        return new sf::RectangleShape(sf::Vector2f(width, height));
+    }
+
+    MOON_API void _Rectangle_SetPosition(RectanglePtr rectangle, float x, float y) {
+        rectangle->setPosition(x, y);
+    }
+
+    MOON_API float _Rectangle_GetPositionX(RectanglePtr rectangle) {
+        return rectangle->getPosition().x;
+    }
+
+    MOON_API float _Rectangle_GetPositionY(RectanglePtr rectangle) {
+        return rectangle->getPosition().y;
+    }
+
+    MOON_API void _Rectangle_SetColor(RectanglePtr rectangle, int r, int g, int b, int alpha) {
+        rectangle->setFillColor(sf::Color(r, g, b, alpha));
+    }
+
+    MOON_API void _Rectangle_SetOrigin(RectanglePtr rectangle, float x, float y) {
+        rectangle->setOrigin(x, y);
+    }
+
+    MOON_API void _Rectangle_SetSize(RectanglePtr rectangle, float width, float height) {
+        rectangle->setSize(sf::Vector2f(width, height));
+    }
+
+    MOON_API void _Rectangle_SetRotation(RectanglePtr rectangle, float angle) {
+        rectangle->setRotation(angle);
+    }
+
+    MOON_API void _Rectangle_SetOutlineThickness(RectanglePtr rectangle, float thickness) {
+        rectangle->setOutlineThickness(thickness);
+    }
+
+    MOON_API void _Rectangle_SetOutlineColor(RectanglePtr rectangle, int r, int g, int b, int alpha) {
+        rectangle->setOutlineColor(sf::Color(r, g, b, alpha));
+    }
+
+    MOON_API void _Rectangle_SetScale(RectanglePtr rectangle, float scaleX, float scaleY) {
+        rectangle->setScale(scaleX, scaleY);
+    }
+
+    MOON_API float _Rectangle_GetWidth(RectanglePtr rectangle) {
+        return rectangle->getSize().x;
+    }
+
+    MOON_API float _Rectangle_GetHeight(RectanglePtr rectangle) {
+        return rectangle->getSize().y;
+    }
+
+    MOON_API void _Rectangle_Delete(RectanglePtr rectangle) {
+        delete rectangle;
+    }
+}
+// ===============================================================================
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/// Модуль предоставляющий базовый интерфейс для работы с вводом
+/////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+#include "SFML/Graphics/RenderWindow.hpp"
+#include "SFML/System/Vector2.hpp"
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+// ==============================================================================================
+// БЛОК ВНЕШНЕГО C-ИНТЕРФЕЙСА (экспортируемые функции)
+// ==============================================================================================
+
+extern "C" {
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ РАБОТЫ С КЛАВИАТУРОЙ
+    // ==========================================================================================
+
+    /**
+     * @brief Проверяет, нажата ли указанная клавиша в данный момент
+     * @param key Код клавиши (из перечисления sf::Keyboard::Key)
+     * @return true если клавиша нажата, false в противном случае
+     */
+    MOON_API bool _Keyboard_IsKeyPressed(int key) {
+        return sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(key));
+    }
+
+    /**
+     * @brief Показывает или скрывает виртуальную клавиатуру (актуально для мобильных устройств)
+     * @param visible true - показать клавиатуру, false - скрыть
+     */
+    MOON_API void _Keyboard_SetVirtualKeyboardVisible(bool visible) {
+        sf::Keyboard::setVirtualKeyboardVisible(visible);
+    }
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ РАБОТЫ С МЫШЬЮ
+    // ==========================================================================================
+
+    /**
+     * @brief Проверяет, нажата ли указанная кнопка мыши в данный момент
+     * @param button Код кнопки мыши (из перечисления sf::Mouse::Button)
+     * @return true если кнопка нажата, false в противном случае
+     */
+    MOON_API bool _Mouse_IsButtonPressed(int button) {
+        return sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(button));
+    }
+
+    /**
+     * @brief Возвращает текущую координату X курсора мыши в глобальных координатах экрана
+     * @return Координата X курсора мыши
+     */
+    MOON_API int _Mouse_GetPositionX() {
+        return sf::Mouse::getPosition().x;
+    }
+
+    /**
+     * @brief Возвращает текущую координату Y курсора мыши в глобальных координатах экрана
+     * @return Координата Y курсора мыши
+     */
+    MOON_API int _Mouse_GetPositionY() {
+        return sf::Mouse::getPosition().y;
+    }
+
+    /**
+     * @brief Возвращает текущую координату X курсора мыши относительно окна
+     * @param window Указатель на объект окна RenderWindow
+     * @return Координата X курсора мыши относительно окна
+     */
+    MOON_API int _Mouse_GetPositionXWindow(sf::RenderWindow* window) {
+        return sf::Mouse::getPosition(*window).x;
+    }
+
+    /**
+     * @brief Возвращает текущую координату Y курсора мыши относительно окна
+     * @param window Указатель на объект окна RenderWindow
+     * @return Координата Y курсора мыши относительно окна
+     */
+    MOON_API int _Mouse_GetPositionYWindow(sf::RenderWindow* window) {
+        return sf::Mouse::getPosition(*window).y;
+    }
+
+    /**
+     * @brief Устанавливает позицию курсора мыши в глобальных координатах экрана
+     * @param x Координата X для установки
+     * @param y Координата Y для установки
+     */
+    MOON_API void _Mouse_SetPosition(int x, int y) {
+        sf::Mouse::setPosition(sf::Vector2i(x, y));
+    }
+
+    /**
+     * @brief Устанавливает позицию курсора мыши относительно окна
+     * @param x Координата X для установки относительно окна
+     * @param y Координата Y для установки относительно окна
+     * @param window Указатель на объект окна RenderWindow
+     */
+    MOON_API void _Mouse_SetPositionWindow(int x, int y, sf::RenderWindow* window) {
+        sf::Mouse::setPosition(sf::Vector2i(x, y), *window);
+    }
+
+
+} // extern "C"
+
+// ==============================================================================================
+// КОНЕЦ ФАЙЛА
+// ==============================================================================================
 
 // ================================================================================
 //                           BUILDED_SGL_VIEW.cpp
@@ -1529,447 +1971,5 @@ extern "C" {
 // Все функции для работы с прямоугольниками и видами PySGL определены.
 // Они предоставляют полный интерфейс для управления камерами и
 // геометрическими областями в Python приложениях.
-// ================================================================================
-
-// ================================================================================
-//                           BUILDED_SGL_WINDOW.cpp
-//                    Биндинги для работы с окнами в PySGL
-// ================================================================================
-//
-// Этот файл содержит C++ функции для работы с окнами SFML,
-// которые экспортируются в Python через ctypes.
-//
-// Основные компоненты:
-// - Управление окнами (создание, настройка, отрисовка)
-// - Обработка событий (клавиатура, мышь, изменение размера)
-// - Работа с видами (View) и координатными системами
-// - Настройки контекста OpenGL
-// - Утилиты для работы со временем
-//
-// ================================================================================
-
-#include <SFML/Graphics/Shader.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <SFML/Graphics/Image.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-
-#include <SFML/System/String.hpp>
-#include <SFML/System/Vector2.hpp>
-
-#include <SFML/Window.hpp>
-#include <SFML/Window/Window.hpp>
-#include <SFML/Window/ContextSettings.hpp>
-#include <SFML/Window/VideoMode.hpp>
-#include <SFML/Window/Cursor.hpp>
-
-
-#include "string"
-
-#ifdef _WIN32
-    #define MOON_API __declspec(dllexport)
-#elif __linux__
-    #define MOON_API
-#endif
-
-using namespace std;
-
-
-// ================================================================================
-//                              ОПРЕДЕЛЕНИЯ ТИПОВ
-// ================================================================================
-
-typedef sf::RenderWindow* WindowPtr;        // Указатель на окно рендеринга
-typedef sf::Event* EventPtr;                // Указатель на событие
-typedef sf::View* ViewPtr;                  // Указатель на вид (камеру)
-typedef sf::ContextSettings* ContextSettingsPtr;
-typedef sf::Drawable* DrawablePtr;
-typedef sf::RenderStates* RenderStatesPtr;
-typedef sf::Shader* ShaderPtr;
-
-
-
-
-// ================================================================================
-//                        НАСТРОЙКИ КОНТЕКСТА OPENGL
-// ================================================================================
-// Функции для управления настройками OpenGL контекста:
-// - Антиалиасинг (сглаживание)
-// - Буферы глубины и трафарета
-// - Версия OpenGL
-// - sRGB поддержка
-// ================================================================================
-
-extern "C" {
-
-
-    // Создание нового объекта настроек контекста
-    MOON_API ContextSettingsPtr _WindowContextSettings_Create() {
-        return new sf::ContextSettings();
-    }
-
-    // Установка флагов атрибутов контекста
-    MOON_API void _WindowContextSettings_SetAttributeFlags(ContextSettingsPtr contextSettings, int flags) {
-        contextSettings->attributeFlags = flags;
-    }
-
-    // Установка уровня антиалиасинга (0, 2, 4, 8, 16)
-    MOON_API void _WindowContextSettings_SetAntialiasingLevel(ContextSettingsPtr contextSettings, int level) {
-        contextSettings->antialiasingLevel = level;
-    }
-
-    // Установка количества бит для буфера глубины
-    MOON_API void _WindowContextSettings_SetDepthBits(ContextSettingsPtr contextSettings, int bits) {
-        contextSettings->depthBits = bits;
-    }
-
-    // Установка основной версии OpenGL
-    MOON_API void _WindowContextSettings_SetMajorVersion(ContextSettingsPtr contextSettings, int version) {
-        contextSettings->majorVersion = version;
-    }
-
-    // Установка дополнительной версии OpenGL
-    MOON_API void _WindowContextSettings_SetMinorVersion(ContextSettingsPtr contextSettings, int version) {
-        contextSettings->minorVersion = version;
-    }
-
-    // Установка количества бит для буфера трафарета
-    MOON_API void _WindowContextSettings_SetStencilBits(ContextSettingsPtr contextSettings, int bits) {
-        contextSettings->stencilBits = bits;
-    }
-
-    // Включение/выключение поддержки sRGB цветового пространства
-    MOON_API void _WindowContextSettings_SetSrgbCapable(ContextSettingsPtr contextSettings, bool capable) {
-        contextSettings->sRgbCapable = capable;
-    }
-
-    // Удаление объекта настроек контекста
-    MOON_API void _WindowContextSettings_Delete(ContextSettingsPtr contextSettings) {
-        delete contextSettings;
-    }
-}
-
-// ================================================================================
-//                           УПРАВЛЕНИЕ ОКНОМ
-// ================================================================================
-// Основные функции для работы с окнами:
-// - Создание и удаление окон
-// - Настройка свойств (заголовок, размер, позиция)
-// - Отрисовка и очистка
-// - Проверка состояния
-// ================================================================================
-
-extern "C" {
-    // Создание нового окна с указанными параметрами
-    MOON_API WindowPtr _Window_Create(const int width, const int height,
-        const char* title, int style, ContextSettingsPtr settings) {
-        string std_str(title);
-        return new sf::RenderWindow(sf::VideoMode(width, height), sf::String::fromUtf8(std_str.begin(), std_str.end()), style, *settings);
-    }
-
-    // Закрытие окна (окно становится недоступным для взаимодействия)
-    MOON_API void _Window_Close(WindowPtr window) {
-        window->close();
-    }
-
-    // Управление видимостью курсора мыши
-    MOON_API void _Window_SetCursorVisibility(WindowPtr window, bool value) {
-        window->setMouseCursorVisible(value);
-    }
-
-    // Установка заголовка окна
-    MOON_API void _Window_SetTitle(WindowPtr window, const char* title) {
-        std::string std_str(title);
-        window->setTitle(sf::String::fromUtf8(std_str.begin(), std_str.end()));
-    }
-
-    // Включение/выключение вертикальной синхронизации
-    MOON_API void _Window_SetVsync(WindowPtr window, bool enable) {
-        window->setVerticalSyncEnabled(enable);
-    }
-
-    // Установка системного курсора для окна
-    MOON_API void _Window_SetSystemCursor(WindowPtr window, sf::Cursor::Type cursor) {
-        auto _cursor = new sf::Cursor;
-        _cursor->loadFromSystem(cursor);
-        window->setMouseCursor(*_cursor);
-        delete _cursor;
-    }
-
-    // Проверка, открыто ли окно и доступно ли для взаимодействия
-    MOON_API bool _Window_IsOpen(WindowPtr window) {
-        return window->isOpen();
-    }
-
-    // Полное удаление окна и освобождение памяти
-    MOON_API void _Window_Delete(WindowPtr window) {
-        window->close();
-        delete window;
-    }
-
-    MOON_API bool _Window_SetIconFromPath(WindowPtr window, const char* path) {
-        sf::Image image;
-        if (!image.loadFromFile(path)) {
-            return false;
-        }
-        window->setIcon(image.getSize().x, image.getSize().y, image.getPixelsPtr());
-        return true;
-    }
-
-    // ================================================================================
-    //                    ПОЛУЧЕНИЕ РАЗМЕРА ОКНА
-    // ================================================================================
-
-    // Получение ширины окна в пикселях
-    MOON_API int _Window_GetSizeWidth(WindowPtr window) {
-        return window->getSize().x;
-    }
-
-    // Получение высоты окна в пикселях
-    MOON_API int _Window_GetSizeHeight(WindowPtr window) {
-        return window->getSize().y;
-    }
-
-    // ================================================================================
-    //                    ПОЛУЧЕНИЕ ПОЗИЦИИ ОКНА
-    // ================================================================================
-
-    // Получение X-координаты окна на экране
-    MOON_API int _Window_GetPositionX(WindowPtr window) {
-        return window->getPosition().x;
-    }
-
-    // Получение Y-координаты окна на экране
-    MOON_API int _Window_GetPositionY(WindowPtr window) {
-        return window->getPosition().y;
-    }
-
-    // ================================================================================
-    //              УСТАНОВКА ПОЗИЦИИ И РАЗМЕРА ОКНА
-    // ================================================================================
-
-    // Установка позиции окна на экране
-    MOON_API void _Window_SetPosition(WindowPtr window, int x, int y) {
-        window->setPosition(sf::Vector2i(x, y));
-    }
-
-    // Установка размера окна
-    MOON_API void _Window_SetSize(WindowPtr window, int width, int height) {
-        window->setSize(sf::Vector2u(width, height));
-    }
-
-    // ================================================================================
-    //                  ПРЕОБРАЗОВАНИЕ КООРДИНАТ
-    // ================================================================================
-    // Преобразование между экранными пикселями и мировыми координатами
-
-    // Преобразование пикселей в мировые координаты (X)
-    MOON_API float _Window_MapPixelToCoordsX(WindowPtr window, double x, double y, ViewPtr view) {
-        return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).x;
-    }
-
-    // Преобразование пикселей в мировые координаты (Y)
-    MOON_API float _Window_MapPixelToCoordsY(WindowPtr window, double x, double y, ViewPtr view) {
-        return window->mapPixelToCoords(sf::Vector2i(x,  y), *view).y;
-    }
-
-    // Преобразование мировых координат в пиксели (X)
-    MOON_API float _Window_MapCoordsToPixelX(WindowPtr window, double x, double y, ViewPtr view) {
-        return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).x;
-    }
-
-    // Преобразование мировых координат в пиксели (Y)
-    MOON_API float _Window_MapCoordsToPixelY(WindowPtr window, double x, double y, ViewPtr view) {
-        return window->mapCoordsToPixel(sf::Vector2f(x, y), *view).y;
-    }
-
-    // ================================================================================
-    //                            РЕНДЕРИНГ
-    // ================================================================================
-    // Основные функции для отрисовки графики
-
-    // Очистка окна указанным цветом
-    MOON_API void _Window_Clear(WindowPtr window, int r, int g, int b, int a) {
-        window->clear(sf::Color(r, g, b, a));
-    }
-
-    // Отображение всех нарисованных объектов на экране
-    MOON_API void _Window_Display(WindowPtr window) {
-        window->display();
-    }
-
-    // Отрисовка объекта с настройками по умолчанию
-    MOON_API void _Window_Draw(WindowPtr window, DrawablePtr drawable) {
-        window->draw(*drawable);
-    }
-
-    // Отрисовка объекта с пользовательскими настройками рендеринга
-    MOON_API void _Window_DrawWithRenderStates(WindowPtr window, RenderStatesPtr render_states, DrawablePtr drawable)  {
-        window->draw(*drawable, *render_states);
-    }
-
-    // Отрисовка объекта с применением шейдера
-    MOON_API void _Window_DrawWithShader(WindowPtr window, ShaderPtr shader, DrawablePtr drawable) {
-        window->draw(*drawable, shader);
-    }
-
-    // ================================================================================
-    //                      УПРАВЛЕНИЕ ВИДОМ (VIEW/КАМЕРОЙ)
-    // ================================================================================
-    // Функции для управления камерой и областью просмотра
-
-    // Применение вида к окну (установка активной камеры)
-    MOON_API void _Window_SetView(WindowPtr window, ViewPtr view) {
-        window->setView(*view);
-    }
-
-    // Получение стандартного вида (камеры) окна
-    MOON_API ViewPtr _Window_GetDefaultView(WindowPtr window) {
-        return new sf::View(window->getDefaultView());
-    }
-
-    // ================================================================================
-    //                      НАСТРОЙКИ ПРОИЗВОДИТЕЛЬНОСТИ
-    // ================================================================================
-
-    // Установка ограничения кадров в секунду (FPS)
-    MOON_API void _Window_SetWaitFps(WindowPtr window, unsigned int fps) {
-        window->setFramerateLimit(fps);
-    }
-
-    // ================================================================================
-    //                        ОБРАБОТКА СОБЫТИЙ
-    // ================================================================================
-    // Функции для работы с событиями окна (клавиатура, мышь, изменение размера)
-
-    // Получение следующего события из очереди
-    MOON_API int _Window_GetCurrentEventType(WindowPtr window, sf::Event* event) {
-        if (window->pollEvent(*event)) {
-            return event->type;
-        }
-        return -1;  // Нет событий в очереди
-    }
-
-}
-
-// ================================================================================
-//                              КОНЕЦ ФАЙЛА
-// ================================================================================
-// Все функции для работы с окнами PySGL определены.
-// Они предоставляют полный интерфейс для создания и управления
-// графическими окнами в Python приложениях.
-// ================================================================================
-
-// ================================================================================
-//                         BUILDED_WINDOWEVENTS.cpp
-//                    Биндинги для работы с событиями окон в PySGL
-// ================================================================================
-//
-// Этот файл содержит C++ функции для работы с событиями SFML,
-// которые экспортируются в Python через ctypes.
-//
-// Основные компоненты:
-// - Создание и управление объектами событий
-// - Получение информации о событиях клавиатуры
-// - Обработка событий мыши (кнопки, координаты, колесо)
-// - События изменения размера окна
-// - Типизация и классификация событий
-//
-// ================================================================================
-
-#ifndef SFML_WINDOW_HPP
-#include <SFML/Window/Event.hpp>
-#endif
-
-#ifdef _WIN32
-    #define MOON_API __declspec(dllexport)
-#elif __linux__
-    #define MOON_API
-#endif
-
-// ================================================================================
-//                        УПРАВЛЕНИЕ ОБЪЕКТАМИ СОБЫТИЙ
-// ================================================================================
-// Функции для создания, удаления и базовой работы с событиями:
-// - Создание новых объектов событий
-// - Освобождение памяти
-// - Получение типа события
-// ================================================================================
-
-extern "C" {
-    // Создание нового объекта события для хранения данных
-    MOON_API sf::Event* _Events_Create() {
-        return new sf::Event();
-    }
-
-    // Удаление объекта события и освобождение памяти
-    MOON_API void _Events_Destroy(sf::Event* event) {
-        delete event;
-    }
-
-    // Получение типа текущего события (Closed, KeyPressed, MouseMoved и т.д.)
-    MOON_API int _Events_GetType(sf::Event* event) {
-        return event->type;
-    }
-
-    // ================================================================================
-    //                          СОБЫТИЯ КЛАВИАТУРЫ
-    // ================================================================================
-    // Функции для обработки событий клавиатуры
-
-    // Получение кода нажатой/отпущенной клавиши
-    MOON_API int _Events_GetKey(sf::Event* event) {
-        return event->key.code;
-    }
-
-    // ================================================================================
-    //                            СОБЫТИЯ МЫШИ
-    // ================================================================================
-    // Функции для обработки всех типов событий мыши
-
-    // Получение кода нажатой кнопки мыши (0-левая, 1-правая, 2-средняя)
-    MOON_API int _Events_GetMouseButton(sf::Event* event) {
-        return event->mouseButton.button;
-    }
-
-    // Получение X-координаты курсора мыши в момент события
-    MOON_API int _Events_GetMouseX(sf::Event* event) {
-        return event->mouseButton.x;
-    }
-
-    // Получение Y-координаты курсора мыши в момент события
-    MOON_API int _Events_GetMouseY(sf::Event* event) {
-        return event->mouseButton.y;
-    }
-
-    // Получение значения прокрутки колеса мыши (положительное - вверх, отрицательное - вниз)
-    MOON_API int _Events_GetMouseWheel(sf::Event* event) {
-        return event->mouseWheel.delta;
-    }
-
-    // ================================================================================
-    //                      СОБЫТИЯ ИЗМЕНЕНИЯ РАЗМЕРА ОКНА
-    // ================================================================================
-    // Функции для получения новых размеров окна при событии Resized
-
-    // Получение новой ширины окна после изменения размера (в пикселях)
-    MOON_API int _Events_GetSizeWidth(sf::Event* event) {
-        return event->size.width;
-    }
-
-    // Получение новой высоты окна после изменения размера (в пикселях)
-    MOON_API int _Events_GetSizeHeight(sf::Event* event) {
-        return event->size.height;
-    }
-}
-
-// ================================================================================
-//                              КОНЕЦ ФАЙЛА
-// ================================================================================
-// Все функции для работы с событиями PySGL определены.
-// Они предоставляют полный интерфейс для обработки пользовательского ввода
-// и системных событий в Python приложениях.
 // ================================================================================
 

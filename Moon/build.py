@@ -13,7 +13,7 @@ SFML_PATH = "D:/SFML-2.6.2"
 OUTPUT_PATH = "Moon/dlls"
 SOURCE_PATH = "Moon/src"
 
-COMPILE_TARGET = "window"   # 'window' or 'linux'
+COMPILE_TARGET = "linux"   # 'window' or 'linux'
 # SETTINGS ===================================================
 
 
@@ -37,11 +37,8 @@ def WINDOW_COMPILE_SCRIPT_GET(compiler_path: str, sfml_path: str, output_path: s
             -lopengl32 -lgdi32 -lwinmm -lfreetype"
 
 
-
-def LINUX_COMPILE_SCRIPT_GET() -> str: ...
-
-
-
+def LINUX_COMPILE_SCRIPT_GET(compiler_path: str, sfml_path: str, output_path: str, source_path: str) -> str:
+    return f"g++ -shared -fPIC -o {output_path}/Moon.so {source_path}/Moon.cpp -I include -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system"
 
 
 # Получение списка файлов в указанной директории
@@ -87,7 +84,10 @@ def build():
     file.close()
 
     # Сборка файла
-    script = WINDOW_COMPILE_SCRIPT_GET(WINDOWS_COMPILER_PATH, SFML_PATH, OUTPUT_PATH, SOURCE_PATH)
+    if COMPILE_TARGET == 'window':
+        script = WINDOW_COMPILE_SCRIPT_GET(WINDOWS_COMPILER_PATH, SFML_PATH, OUTPUT_PATH, SOURCE_PATH)
+    elif COMPILE_TARGET == 'linux':
+        script = LINUX_COMPILE_SCRIPT_GET(LINUX_COMPILER_PATH, SFML_PATH, OUTPUT_PATH, SOURCE_PATH)
     print(script)
     os.system(script)
     # Удаление временного файла
