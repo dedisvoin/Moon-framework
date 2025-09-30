@@ -71,6 +71,7 @@ Copyright (c) 2025 Pavlov Ivan
 """
 
 import os
+import sys
 import ctypes
 from colorama import Fore
 from typing import Any, Self
@@ -186,11 +187,24 @@ class Font:
         font = Font.SystemFont("arial")
         ```
         """
-        font_path = "C:/Windows/Fonts/" + name.capitalize() + ".ttf"
-        if os.path.isfile(font_path):
-            return Font(font_path)
-        else:
-            raise FileNotFoundError(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Font file not found: '{font_path}'")
+        if sys.platform == 'win32':
+            font_path = "C:/Windows/Fonts/" + name.capitalize() + ".ttf"
+            if os.path.isfile(font_path):
+                return Font(font_path)
+            else:
+                raise FileNotFoundError(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Font file not found: '{font_path}'")
+        elif sys.platform == 'linux':
+            font_paths = [
+                "/usr/share/fonts/" + name.capitalize() + ".ttf",            # Основной каталог
+                "/usr/share/X11/fonts/" + name.capitalize() + ".ttf"          # Шрифты X11
+            ]
+            for path in font_paths:
+                if os.path.isfile(path):
+                    return Font(path)
+                else:
+                    print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.YELLOW}warn{Fore.RESET} ] Font file not found: '{path}'")
+            raise FileNotFoundError(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Font file not found: '{font_paths}'")
+                
 
     def __init__(self, font_path: str):
         """
