@@ -75,6 +75,8 @@ def get_builded_files(path: str):
 
 # Основная функция сборки проекта
 def build():
+
+    target = input("Enter target system (windows, linux) > ")
     start_time = time.time()
     # Загрузка настроек сборки
     properties = get_build_properties(r"Moon\build.properties")
@@ -105,7 +107,6 @@ def build():
     print(f"{Fore.BLUE}Building{Fore.RESET}: Generating builded file...")
     file = open(BUILD_FILES_PATH+"/Moon.cpp", 'w', encoding="utf-8")
     for bf in builded_files:
-
             fp = BUILD_FILES_PATH + "/" + bf
             print(fp)
             bff = open(fr"{fp}", 'r', encoding="utf-8")

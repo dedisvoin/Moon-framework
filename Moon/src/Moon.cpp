@@ -1,5 +1,7 @@
 #ifndef SFML_AUDIO_HPP
-#include "SFML/Audio.hpp"
+#include "SFML/Audio/SoundBuffer.hpp"
+#include "SFML/Audio/Sound.hpp"
+#include "SFML/Audio/Music.hpp"
 #endif
 #ifndef IOSTREAM_H
 #include <iostream>
