@@ -1,6 +1,8 @@
 CompileFlags:
   Add:
     - "--include-directory=C:/SFML-2.6.2/include/**"
+    - "-Wc++17-extensions"
+    - "-std=c++20"  # или -std=c++20, -std=c++2a
 Diagnostics:
   MissingIncludes: Strict
   UnusedIncludes: Strict
