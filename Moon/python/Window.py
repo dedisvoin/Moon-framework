@@ -73,8 +73,10 @@ Copyright (c) 2025 Pavlov Ivan
 # pyright: basic
 
 import os
+import sys
 import ctypes
-from string import printable
+
+
 import keyboard
 
 from time import time
@@ -522,9 +524,15 @@ DWMWA_WINDOW_CORNER_PREFERENCE: Final[int] = 33                                 
 # ============================================================================= +
 
 # Константа обьекта оконного интерфейса ============================================ +
-# ! Не рекомендуется использовать вне предоставленного функционала фреймворка!       #
-DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")                              #
+# ! Не рекомендуется использовать вне предоставленного функционала фреймворка!   
+if sys.platform == 'win32':
+    DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")                              #
 # ================================================================================== #
+
+if sys.platform == 'linux':
+    X_LIB = ctypes.CDLL(ctypes.util.find_library('X11'))
+    X_RANDR = ctypes.CDLL(util.find_library("Xrandr"))
+
 
 LIB_MOON._WindowContextSettings_Create.restype = ctypes.c_void_p
 LIB_MOON._WindowContextSettings_Delete.argtypes = [ctypes.c_void_p]
@@ -852,7 +860,11 @@ class Window:
         if should_delete_context and temp_context_settings is not None:
             LIB_MOON._WindowContextSettings_Delete(temp_context_settings)
         self.__title = title
-        self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)                                 # pyright: ignore [ reportAny ]
+        
+        if sys.platform == 'win32':
+            self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)  
+        else:
+            self.__window_descriptor = None                               # pyright: ignore [ reportAny ]
         self.__window_alpha: int | float = alpha
 
         #self.set_alpha(self.__window_alpha)
@@ -1031,17 +1043,19 @@ class Window:
             return min(self.__fps_history)
         except: return self.__target_fps
 
-    def set_fullscreen(self) -> Self | None:
-        """
-        Переключить окно в полноэкранный режим на весь экран
+    if sys.platform == 'win32':
+        def set_fullscreen(self) -> Self | None:
+            """
+            Переключить окно в полноэкранный режим на весь экран
 
-        ---
+            ---
 
-        :Returns:
-            Self: Возвращает self для цепочки вызовов
-        """
-        ctypes.windll.user32.ShowWindow(self.__window_descriptor, 3)                                                    # pyright: ignore [ reportAny ]
-        return self
+            :Returns:
+                Self: Возвращает self для цепочки вызовов
+            """
+
+            ctypes.windll.user32.ShowWindow(self.__window_descriptor, 3)                                                    # pyright: ignore [ reportAny ]
+            return self
 
     def set_fps_monitor_opened(self, value: bool) -> Self:
         """
@@ -1181,107 +1195,108 @@ class Window:
         """
         return self.__icon_path
 
-    def set_title_color(self, color: Color) -> Self:
-        """
-        #### Устанавливает цвет заголовка окна (Windows 10+)
+    if sys.platform == 'win32':
+        def set_title_color(self, color: Color) -> Self:
+            """
+            #### Устанавливает цвет заголовка окна (Windows 10+)
 
-        ---
+            ---
 
-        :Args:
-        - color (Color): Цвет заголовка в формате RGB
+            :Args:
+            - color (Color): Цвет заголовка в формате RGB
 
-        ---
+            ---
 
-        :Note:
-        - Работает только в Windows 10 и новее
-        - Цвет автоматически преобразуется в BGR формат для Windows API
-        - По умолчанию используется DEFAULT_WINDOW_TITLE_COLOR
+            :Note:
+            - Работает только в Windows 10 и новее
+            - Цвет автоматически преобразуется в BGR формат для Windows API
+            - По умолчанию используется DEFAULT_WINDOW_TITLE_COLOR
 
-        ---
+            ---
 
-        :Example:
-        ```python
-        window.set_title_color(Color(255, 0, 0))  # Красный заголовок
-        ```
-        """
-        self.__title_color = color
-        bgr_value = (color.b << 16) | (color.g << 8) | color.r
-        color_value = ctypes.wintypes.DWORD(bgr_value)                                                                  # pyright: ignore [ reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownVariableType ]
-        ctypes.windll.dwmapi.DwmSetWindowAttribute(
-            self.__window_descriptor,                                                                                   # pyright: ignore [ reportAny ]
-            36,  # DWMWA_CAPTION_COLOR
-            ctypes.byref(color_value),                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
-            ctypes.sizeof(color_value)                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
-        )
-        return self
+            :Example:
+            ```python
+            window.set_title_color(Color(255, 0, 0))  # Красный заголовок
+            ```
+            """
+            self.__title_color = color
+            bgr_value = (color.b << 16) | (color.g << 8) | color.r
+            color_value = ctypes.wintypes.DWORD(bgr_value)                                                                  # pyright: ignore [ reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownVariableType ]
+            ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                self.__window_descriptor,                                                                                   # pyright: ignore [ reportAny ]
+                36,  # DWMWA_CAPTION_COLOR
+                ctypes.byref(color_value),                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
+                ctypes.sizeof(color_value)                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
+            )
+            return self
 
-    def set_header_color(self, color: Color) -> Self:
-        """
-        #### Устанавливает цвет заголовка окна (Windows 10+)
+        def set_header_color(self, color: Color) -> Self:
+            """
+            #### Устанавливает цвет заголовка окна (Windows 10+)
 
-        ---
+            ---
 
-        :Args:
-        - color (Color): Цвет заголовка в формате RGB
+            :Args:
+            - color (Color): Цвет заголовка в формате RGB
 
-        ---
+            ---
 
-        :Note:
-        - Работает только в Windows 10 и новее
-        - Цвет автоматически преобразуется в BGR формат для Windows API
-        - По умолчанию используется DEFAULT_WINDOW_HEADER_COLOR
+            :Note:
+            - Работает только в Windows 10 и новее
+            - Цвет автоматически преобразуется в BGR формат для Windows API
+            - По умолчанию используется DEFAULT_WINDOW_HEADER_COLOR
 
-        ---
+            ---
 
-        :Example:
-        ```python
-        window.set_header_color(Color(0, 255, 0))  # Зеленый заголовок
-        ```
-        """
-        self.__header_color = color
-        bgr_value = (color.b << 16) | (color.g << 8) | color.r
-        color_value = ctypes.wintypes.DWORD(bgr_value)                                                                  # pyright: ignore [ reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownVariableType ]
-        ctypes.windll.dwmapi.DwmSetWindowAttribute(
-            self.__window_descriptor,                                                                                   # pyright: ignore [ reportAny ]
-            35,  # DWMWA_CAPTION_COLOR
-            ctypes.byref(color_value),                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
-            ctypes.sizeof(color_value)                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
-        )
-        return self
+            :Example:
+            ```python
+            window.set_header_color(Color(0, 255, 0))  # Зеленый заголовок
+            ```
+            """
+            self.__header_color = color
+            bgr_value = (color.b << 16) | (color.g << 8) | color.r
+            color_value = ctypes.wintypes.DWORD(bgr_value)                                                                  # pyright: ignore [ reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownVariableType ]
+            ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                self.__window_descriptor,                                                                                   # pyright: ignore [ reportAny ]
+                35,  # DWMWA_CAPTION_COLOR
+                ctypes.byref(color_value),                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
+                ctypes.sizeof(color_value)                                                                                  # pyright: ignore [ reportUnknownArgumentType ]
+            )
+            return self
 
-    def set_border_color(self, color: Color) -> Self:
-        """
-        #### Устанавливает цвет рамки окна (Windows 10+)
+        def set_border_color(self, color: Color) -> Self:
+            """
+            #### Устанавливает цвет рамки окна (Windows 10+)
 
-        ---
+            ---
 
-        :Args:
-        - color (Color): Цвет рамки в формате RGB
+            :Args:
+            - color (Color): Цвет рамки в формате RGB
 
-        ---
+            ---
 
-        :Note:
-        - Работает только в Windows 10 и новее
-        - Цвет автоматически преобразуется в BGR формат для Windows API
-        - По умолчанию используется DEFAULT_WINDOW_BORDER_COLOR
+            :Note:
+            - Работает только в Windows 10 и новее
+            - Цвет автоматически преобразуется в BGR формат для Windows API
+            - По умолчанию используется DEFAULT_WINDOW_BORDER_COLOR
 
-        ---
+            ---
 
-        :Example:
-        ```python
-        window.set_border_color(Color(0, 0, 255))  # Синяя рамка
-        ```
-        """
-        self.__border_color = color
-        bgr_value = (color.b << 16) | (color.g << 8) | color.r
-        color_value = ctypes.wintypes.DWORD(bgr_value) # pyright: ignore
-        ctypes.windll.dwmapi.DwmSetWindowAttribute(
-            self.__window_descriptor,
-            34,  # DWMWA_BORDER_COLOR
-            ctypes.byref(color_value),
-            ctypes.sizeof(color_value)
-        )
-        return self
+            :Example:
+            ```python
+            window.set_border_color(Color(0, 0, 255))  # Синяя рамка
+            ```
+            """
+            self.__border_color = color
+            bgr_value = (color.b << 16) | (color.g << 8) | color.r
+            color_value = ctypes.wintypes.DWORD(bgr_value) # pyright: ignore
+            ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                self.__window_descriptor,
+                34,  # DWMWA_BORDER_COLOR
+                ctypes.byref(color_value),
+                ctypes.sizeof(color_value)
+            )
+            return self
 
     def get_title_color(self) -> Color | None:
         """
@@ -1337,36 +1352,37 @@ class Window:
         """
         return self.__border_color
 
-    @final
-    def enable_rounded_corners(self) -> Self:
-        """
-        #### Включает скругленные углы для окна (Windows 11+)
+    if sys.platform == 'win32':
+        @final
+        def enable_rounded_corners(self) -> Self:
+            """
+            #### Включает скругленные углы для окна (Windows 11+)
 
-        ---
+            ---
 
-        :Description:
-        - Применяет современный стиль с закругленными углами к окну
-        - Работает только в Windows 11 и новее
-        - Для других ОС или версий Windows эффекта не будет
+            :Description:
+            - Применяет современный стиль с закругленными углами к окну
+            - Работает только в Windows 11 и новее
+            - Для других ОС или версий Windows эффекта не будет
 
-        ---
+            ---
 
-        :Returns:
-        - Self: Возвращает self для цепочки вызовов
+            :Returns:
+            - Self: Возвращает self для цепочки вызовов
 
-        ---
+            ---
 
-        :Example:
-        ```python
-        window.enable_rounded_corners()
-        ```
-        """
-        DWM_API.DwmSetWindowAttribute(
-            self.__window_descriptor,
-            DWMWA_WINDOW_CORNER_PREFERENCE,
-            ctypes.byref(ctypes.c_int(2)),
-            ctypes.sizeof(ctypes.c_int(2)))
-        return self
+            :Example:
+            ```python
+            window.enable_rounded_corners()
+            ```
+            """
+            DWM_API.DwmSetWindowAttribute(
+                self.__window_descriptor,
+                DWMWA_WINDOW_CORNER_PREFERENCE,
+                ctypes.byref(ctypes.c_int(2)),
+                ctypes.sizeof(ctypes.c_int(2)))
+            return self
 
     @final
     def set_system_cursor(self, cursor: SystemCursors | int) -> Self:
@@ -1553,44 +1569,45 @@ class Window:
         """
         return self.__ghosting_min_value
 
-    @final
-    def set_alpha(self, alpha: int | float):
-        """
-        #### Устанавливает глобальную прозрачность окна
+    if sys.platform == 'win32':
+        @final
+        def set_alpha(self, alpha: int | float):
+            """
+            #### Устанавливает глобальную прозрачность окна
 
-        ---
+            ---
 
-        :Args:
-        - alpha (int): Уровень прозрачности (0 - полностью прозрачное, 255 - непрозрачное)
+            :Args:
+            - alpha (int): Уровень прозрачности (0 - полностью прозрачное, 255 - непрозрачное)
 
-        ---
+            ---
 
-        :Note:
-        - Работает только на Windows через WinAPI
-        - Требует стиль WS_EX_LAYERED
-        - `! Кроссплатформенные решения еще не реализованы !`
+            :Note:
+            - Работает только на Windows через WinAPI
+            - Требует стиль WS_EX_LAYERED
+            - `! Кроссплатформенные решения еще не реализованы !`
 
-        ---
+            ---
 
-        :Example:
-        ```python
-        window.set_alpha(100)
-        ```
-        """
-        self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
-        self.__window_alpha = alpha  # Конвертируем в диапазон 0-255
+            :Example:
+            ```python
+            window.set_alpha(100)
+            ```
+            """
+            self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
+            self.__window_alpha = alpha  # Конвертируем в диапазон 0-255
 
-        # Устанавливаем стиль слоистого окна
-        style = ctypes.windll.user32.GetWindowLongW(self.__window_descriptor, -20)  # GWL_EXSTYLE = -20
-        ctypes.windll.user32.SetWindowLongW(self.__window_descriptor, -20, style | 0x00080000)  # WS_EX_LAYERED = 0x00080000
+            # Устанавливаем стиль слоистого окна
+            style = ctypes.windll.user32.GetWindowLongW(self.__window_descriptor, -20)  # GWL_EXSTYLE = -20
+            ctypes.windll.user32.SetWindowLongW(self.__window_descriptor, -20, style | 0x00080000)  # WS_EX_LAYERED = 0x00080000
 
-        # Применяем прозрачность
-        ctypes.windll.user32.SetLayeredWindowAttributes(
-            self.__window_descriptor,
-            0,  # Ключ цвета (не используется)
-            int(self.__window_alpha),  # Значение альфа-канала
-            2  # LWA_ALPHA = 2
-        )
+            # Применяем прозрачность
+            ctypes.windll.user32.SetLayeredWindowAttributes(
+                self.__window_descriptor,
+                0,  # Ключ цвета (не используется)
+                int(self.__window_alpha),  # Значение альфа-канала
+                2  # LWA_ALPHA = 2
+            )
 
     @final
     def get_alpha(self) -> float:
@@ -2668,49 +2685,50 @@ class Window:
         LIB_MOON._Window_SetView(self.__window_ptr, view.get_ptr())
         return self
 
-    @final
-    def disable(self) -> None:
-        """
-        #### Деактивирует окно (Windows-only)
+    if sys.platform == 'win32':
+        @final
+        def disable(self) -> None:
+            """
+            #### Деактивирует окно (Windows-only)
 
-        ---
+            ---
 
-        :Description:
-        - Блокирует ввод и взаимодействие с окном
-        - Затемняет заголовок окна (визуальный индикатор неактивности)
-        - Автоматически устанавливает флаг __active в False
+            :Description:
+            - Блокирует ввод и взаимодействие с окном
+            - Затемняет заголовок окна (визуальный индикатор неактивности)
+            - Автоматически устанавливает флаг __active в False
 
-        ---
+            ---
 
-        :Note:
-        - Работает только на платформе Windows
+            :Note:
+            - Работает только на платформе Windows
 
-        """
-        self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
-        ctypes.windll.user32.EnableWindow(self.__window_descriptor, False)
-        self.__active = False
+            """
+            self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
+            ctypes.windll.user32.EnableWindow(self.__window_descriptor, False)
+            self.__active = False
 
-    @final
-    def enable(self) -> None:
-        """
-        #### Активирует окно (Windows-only)
+        @final
+        def enable(self) -> None:
+            """
+            #### Активирует окно (Windows-only)
 
-        ---
+            ---
 
-        :Description:
-        - Восстанавливает возможность взаимодействия с окном
-        - Возвращает нормальный вид заголовка окна
-        - Автоматически устанавливает флаг __active в True
+            :Description:
+            - Восстанавливает возможность взаимодействия с окном
+            - Возвращает нормальный вид заголовка окна
+            - Автоматически устанавливает флаг __active в True
 
-        ---
+            ---
 
-        :Note:
-        - Работает только на платформе Windows
+            :Note:
+            - Работает только на платформе Windows
 
-        """
-        self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
-        ctypes.windll.user32.EnableWindow(self.__window_descriptor, True)
-        self.__active = True
+            """
+            self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
+            ctypes.windll.user32.EnableWindow(self.__window_descriptor, True)
+            self.__active = True
 
     @final
     def update(self, events: WindowEvents) -> bool:

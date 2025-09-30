@@ -1,10 +1,40 @@
 import os
-import sys
 import time
 from colorama import Fore
 
-# Константа для отображения зеленой галочки успешного выполнения
+
+
+# SETTINGS ===================================================
+WINDOWS_COMPILER_PATH = "g++"
+LINUX_COMPILER_PATH = "g++"
+
+SFML_PATH = "D:/SFML-2.6.2"
+
+OUTPUT_PATH = "Moon/dlls"
+SOURCE_PATH = "Moon/src"
+
+COMPILE_TARGET = "window"   # 'window' or 'linux'
+# SETTINGS ===================================================
+
+
+
+
+
+
 SUCCES = f'[{Fore.GREEN}✔{Fore.RESET}]'
+WARNING = f'[{Fore.YELLOW}warn{Fore.RESET}]'
+PASS = f'[{Fore.GREEN}yes{Fore.RESET}]'
+
+
+
+
+
+
+
+
+
+
+
 
 # Загрузка свойств сборки из файла конфигурации
 def get_build_properties(properties_file_path: str) -> dict:

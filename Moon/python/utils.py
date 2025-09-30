@@ -131,7 +131,7 @@ def recursive_find_library(start_dir: str, caller_filename: str, max_depth: int 
     from colorama import Fore
 
     # Ищем файлы с подходящими именами
-    target_names = ['Moon.dll', 'libMoon.so', 'libMoon.dylib']
+    target_names = ['Moon.dll', 'Moon.so', 'libMoon.dylib']
 
     for depth in range(max_depth + 1):
         for root, dirs, files in os.walk(start_dir):
