@@ -8,7 +8,7 @@ from Moon.python.Rendering.Shapes import CircleShape
 
 
 window = Window( title="Moon Framework Demo", style=Window.Style.FullScreenDesktop)
-window.set_wait_fps(60)
+window.set_wait_fps(180)
 
 window.set_view_info()
 

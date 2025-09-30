@@ -8,7 +8,7 @@
 *Автор: Павлов Иван (Pavlov Ivan)*
 
 *Лицензия: MIT*
-##### Реализованно на 99% 
+##### Реализованно на 99%
 
 ---
 
@@ -50,32 +50,31 @@
 [MIT License]
 Copyright (c) 2025 Pavlov Ivan
 
-Данная лицензия разрешает лицам, получившим копию данного программного обеспечения 
-и сопутствующей документации (в дальнейшем именуемыми «Программное Обеспечение»), 
-безвозмездно использовать Программное Обеспечение без ограничений, включая неограниченное 
-право на использование, копирование, изменение, слияние, публикацию, распространение, 
-сублицензирование и/или продажу копий Программного Обеспечения, а также лицам, которым 
+Данная лицензия разрешает лицам, получившим копию данного программного обеспечения
+и сопутствующей документации (в дальнейшем именуемыми «Программное Обеспечение»),
+безвозмездно использовать Программное Обеспечение без ограничений, включая неограниченное
+право на использование, копирование, изменение, слияние, публикацию, распространение,
+сублицензирование и/или продажу копий Программного Обеспечения, а также лицам, которым
 предоставляется данное Программное Обеспечение, при соблюдении следующих условий:
 
 [ Уведомление об авторском праве и данные условия должны быть включены во все копии ]
 [                 или значительные части Программного Обеспечения.                  ]
 
-ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО 
-ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ 
-ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ ПРАВ. 
-НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО ИСКАМ О 
-ВОЗМЕЩЕНИИ УЩЕРБА, УБЫТКОВ ИЛИ ДРУГИХ ТРЕБОВАНИЙ ПО ДЕЙСТВУЮЩЕМУ ПРАВУ ИЛИ ИНОМУ, 
-ВОЗНИКШИМ ИЗ, ИМЕЮЩИМ ПРИЧИНОЙ ИЛИ СВЯЗАННЫМ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ 
+ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО
+ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ
+ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ ПРАВ.
+НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО ИСКАМ О
+ВОЗМЕЩЕНИИ УЩЕРБА, УБЫТКОВ ИЛИ ДРУГИХ ТРЕБОВАНИЙ ПО ДЕЙСТВУЮЩЕМУ ПРАВУ ИЛИ ИНОМУ,
+ВОЗНИКШИМ ИЗ, ИМЕЮЩИМ ПРИЧИНОЙ ИЛИ СВЯЗАННЫМ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
-import os
 import ctypes
 from typing import final
 
 from Moon.python.Types import *
 
-from Moon.python.utils import find_library, LibraryLoadError
+from Moon.python.utils import find_library
 
 # Загружаем DLL библиотеку
 try:
@@ -101,16 +100,16 @@ LIB_MOON._SoundBuffer_GetSampleRate.restype = ctypes.c_int
 class SoundBuffer:
     """
     #### Класс для работы со звуковыми буферами
-    
+
     ---
-    
+
     :Description:
     - Загружает и хранит аудиоданные из файлов
     - Предоставляет доступ к параметрам звука
     - Управляет жизненным циклом звукового буфера
-    
+
     ---
-    
+
     :Formats:
     - WAV
     - OGG
@@ -119,37 +118,37 @@ class SoundBuffer:
     """
     __slots__ = ("__path", "__ptr")
 
-    def __init__(self, path: str) -> Self:
+    def __init__(self, path: str) -> None:
         """
         #### Инициализирует звуковой буфер из файла
-        
+
         ---
-        
+
         :Args:
         - path (str): Путь к файлу с расширением .wav
-        
+
         ---
-        
+
         :Raises:
         - RuntimeError: При ошибке загрузки файла
-        
+
         ---
-        
+
         :Example:
         ```python
         buffer = SoundBuffer("sound.wav")
         ```
         """
         self.__path = path
-        self.__ptr: SoundBufferPtr = LIB_MOON._SoundBuffer_loadFromFile(path.encode('utf-8'))
-        
+        self.__ptr: SoundBufferPtr | None = LIB_MOON._SoundBuffer_loadFromFile(path.encode('utf-8'))
+
     @final
     def destroy(self) -> None:
         """
         #### Освобождает ресурсы звукового буфера
-        
+
         ---
-        
+
         :Note:
         - Вызывается автоматически при удалении объекта
         """
@@ -159,9 +158,9 @@ class SoundBuffer:
     def __del__(self) -> None:
         """
         #### Деструктор, освобождающий ресурсы
-        
+
         ---
-        
+
         :Note:
         - Гарантирует корректное удаление нативного объекта
         """
@@ -171,14 +170,14 @@ class SoundBuffer:
     def get_sample_rate(self) -> int:
         """
         #### Возвращает частоту дискретизации звука
-        
+
         ---
-        
+
         :Returns:
         - int: Частота дискретизации в Гц
-        
+
         ---
-        
+
         :Example:
         ```python
         rate = buffer.get_sample_rate()  # 44100
@@ -187,48 +186,48 @@ class SoundBuffer:
         return LIB_MOON._SoundBuffer_GetSampleRate(self.__ptr)
 
     @final
-    def get_ptr(self) -> SoundBufferPtr:
+    def get_ptr(self) -> SoundBufferPtr | None:
         """
         #### Возвращает указатель на нативный буфер
-        
+
         ---
-        
+
         :Returns:
         - SoundBufferPtr: Указатель на внутренний объект
-        
+
         ---
-        
+
         :Note:
         - Для внутреннего использования в Moon
         """
         return self.__ptr
-    
+
     @final
     def get_channels_count(self) -> int:
         """
         #### Возвращает количество аудиоканалов
-        
+
         ---
-        
+
         :Returns:
         - int: Количество каналов (1 - моно, 2 - стерео)
-        
+
         ---
-        
+
         :Example:
         ```python
         channels = buffer.get_channels_count()  # 2
         ```
         """
         return LIB_MOON._SoundBuffer_GetChannelsCount(self.__ptr)
-    
+
     @final
     def get_path(self) -> str:
         """
         #### Возвращает путь к исходному файлу
-        
+
         ---
-        
+
         :Returns:
         - str: Путь к файлу, из которого загружен буфер
         """
@@ -270,15 +269,15 @@ LIB_MOON._Sound_GetStatus.restype = ctypes.c_int
 class AudioStatus(Enum):
     """
     #### Перечисление статусов воспроизведения звука
-    
+
     ---
-    
+
     :Values:
     - STOPPED: Звук остановлен
     - PAUSED: Звук приостановлен
     - PLAYING: Звук воспроизводится
     """
-    STOPED = auto(0)
+    STOPPED = auto()
     PAUSED = auto()
     PLAYING = auto()
 
@@ -286,9 +285,9 @@ class AudioStatus(Enum):
 class Sound:
     """
     #### Класс для управления воспроизведением звука
-    
+
     ---
-    
+
     :Description:
     - Контролирует воспроизведение, паузу, остановку звука
     - Позволяет настраивать параметры воспроизведения
@@ -296,31 +295,31 @@ class Sound:
     """
     __slots__ = ("__sound_buffer", "__ptr", "__played", "__paused", "__volume", "__pitch", "__attenuation", "__looped", "__id")
 
-    def __init__(self, sound_buffer: SoundBuffer) -> Self:
+    def __init__(self, sound_buffer: SoundBuffer) -> None:
         """
         #### Инициализирует звук из буфера
 
         ---
 
         Есть возможность хеширования.
-        
+
         ---
-        
+
         :Args:
         - sound_buffer (SoundBuffer): Буфер с аудиоданными
-        
+
         ---
-        
+
         :Raises:
         - RuntimeError: При ошибке создания звука
         """
         self.__sound_buffer = sound_buffer
 
         try:
-            self.__ptr: SoundPtr = LIB_MOON._Sound_Create(self.__sound_buffer.get_ptr())
+            self.__ptr: SoundPtr | None = LIB_MOON._Sound_Create(self.__sound_buffer.get_ptr())
         except:
             raise RuntimeError("Failed to create sound")
-        
+
         self.__played:          bool = False
         self.__paused:          bool = False
         self.__volume:          float = 1.0
@@ -353,19 +352,19 @@ class Sound:
         #### Сравнивает два звука по идентификатору
         """
         return  self.__id == other.get_identifier()
-    
+
     def __ne__(self, other: "Sound") -> bool:
         """
         #### Сравнивает два звука по идентификатору
         """
         return  self.__id != other.get_identifier()
-        
+
     def __hash__(self) -> int:
         """
         #### Возвращает хэш-код звука
         """
         return hash(self.__id)
-    
+
     @final
     def get_path(self) -> str:
         """
@@ -382,14 +381,14 @@ class Sound:
     def get_status(self) -> AudioStatus:
         """
         #### Возвращает текущий статус воспроизведения
-        
+
         ---
-        
+
         :Returns:
         - AudioStatus: Текущее состояние звука
-        
+
         ---
-        
+
         :Example:
         ```python
         if sound.get_status() == AudioStatus.PLAYING:
@@ -432,7 +431,7 @@ class Sound:
 
         :Args:
         - x (float): Координата X
-        - y (float): Координата Y 
+        - y (float): Координата Y
         - z (float): Координата Z
 
         ---
@@ -449,7 +448,7 @@ class Sound:
         """
         LIB_MOON._Sound_SetPosition(self.__ptr, float(x), float(y), float(z))
         return self
-    
+
     @final
     def play_left(self) -> Self:
         """
@@ -463,7 +462,7 @@ class Sound:
         self.set_position(-1, 0, 0)
         self.play()
         return self
-    
+
     @final
     def play_right(self) -> Self:
         """
@@ -505,7 +504,7 @@ class Sound:
         return sound
 
     @final
-    def get_ptr(self) -> SoundPtr:
+    def get_ptr(self) -> SoundPtr | None:
         """
         #### Возвращает указатель на звук.
 
@@ -523,7 +522,7 @@ class Sound:
         ```
         """
         return self.__ptr
-    
+
     @final
     def get_sound_buffer(self) -> SoundBuffer:
         """
@@ -543,7 +542,7 @@ class Sound:
         ```
         """
         return self.__sound_buffer
-    
+
     @final
     def play(self) -> Self:
         """
@@ -566,7 +565,7 @@ class Sound:
         self.__paused = False
         LIB_MOON._Sound_Play(self.__ptr)
         return self
-    
+
     @final
     def pause(self) -> Self:
         """
@@ -578,7 +577,7 @@ class Sound:
         self.__paused = True
         LIB_MOON._Sound_Pause(self.__ptr)
         return self
-    
+
     @final
     def stop(self) -> Self:
         """
@@ -590,7 +589,7 @@ class Sound:
         self.__played = False
         LIB_MOON._Sound_Stop(self.__ptr)
         return self
-    
+
     @final
     def is_playing(self) -> bool:
         """
@@ -610,7 +609,7 @@ class Sound:
         ```
         """
         return self.__played
-    
+
     @final
     def is_paused(self) -> bool:
         """
@@ -622,7 +621,7 @@ class Sound:
         - bool: True если звук приостановлен
         """
         return self.__paused
-    
+
     @final
     def set_loop(self, loop: bool) -> Self:
         """
@@ -685,7 +684,7 @@ class Sound:
         self.__volume = volume
         LIB_MOON._Sound_SetVolume(self.__ptr, volume)
         return self
-    
+
     @final
     def get_volume(self) -> float:
         """
@@ -697,7 +696,7 @@ class Sound:
         - float: Текущая громкость
         """
         return self.__volume
-    
+
     @final
     def set_pitch(self, pitch: float) -> Self:
         """
@@ -707,14 +706,14 @@ class Sound:
 
         :Args:
         - pitch (float): Высота тона (0.0 - 1.0)
-        
+
         :Returns:
         - self: Для цепных вызовов
         """
         self.__pitch = pitch
         LIB_MOON._Sound_SetPitch(self.__ptr, pitch)
         return self
-    
+
     @final
     def get_pitch(self) -> float:
         """
@@ -724,7 +723,7 @@ class Sound:
         - float: Текущая высота тона
         """
         return self.__pitch
-    
+
     @final
     def set_attenuation(self, attenuation: float) -> Self:
         """
@@ -741,7 +740,7 @@ class Sound:
         self.__attenuation = attenuation
         LIB_MOON._Sound_SetAttenuation(self.__ptr, attenuation)
         return self
-    
+
     @final
     def get_attenuation(self) -> float:
         """
@@ -753,7 +752,7 @@ class Sound:
         - float: Текущее затухание
         """
         return self.__attenuation
-    
+
     @final
     def destroy(self) -> None:
         """
@@ -773,7 +772,7 @@ class Sound:
         """
         #### Сбрасывает звук в начальное состояние.
 
-        --- 
+        ---
 
         :Returns:
             self: Для цепных вызовов
@@ -781,252 +780,34 @@ class Sound:
         LIB_MOON._Sound_ResetBuffer(self.__ptr)
         return self
 
-class SoundEventListener:
-    """
-    #### Обработчик событий состояния звука
-    
-    ---
-    
-    :Description:
-    - Отслеживает изменения состояния воспроизведения звука
-    - Позволяет назначить callback-функции на события
-    - Требует регулярного вызова update() в основном цикле
-    
-    ---
-    
-    :Events:
-    - play: Начало воспроизведения
-    - pause: Приостановка воспроизведения
-    - stop: Остановка воспроизведения
-    """
-    __slots__ = ("__sound", "__last_status", "__on_play", "__on_pause", "__on_stop", 
-                "__played", "__paused", "__stopped")
-
-    def __init__(self, sound: Sound) -> None:
-        """
-        #### Инициализирует обработчик событий для звука
-        
-        ---
-        
-        :Args:
-        - sound (Sound): Звуковой объект для отслеживания
-        
-        ---
-        
-        :Example:
-        ```python
-        listener = SoundEventListener(sound)
-        ```
-        """
-        self.__sound: Sound = sound
-        self.__last_status: AudioStatus = AudioStatus.STOPPED
-        
-        # Callback-функции
-        self.__on_play: Optional[Callable[[], None]] = None
-        self.__on_pause: Optional[Callable[[], None]] = None
-        self.__on_stop: Optional[Callable[[], None]] = None
-
-        # Флаги событий
-        self.__played: bool = False
-        self.__paused: bool = False
-        self.__stopped: bool = False
-
-    def get_event(self, type: Literal['play', 'stop', 'pause'] = 'play') -> bool:
-        """
-        #### Проверяет наличие события указанного типа
-        
-        ---
-        
-        :Args:
-        - type (str): Тип события ('play', 'stop', 'pause')
-        
-        ---
-        
-        :Returns:
-        - bool: True если событие произошло
-        
-        ---
-        
-        :Raises:
-        - ValueError: При передаче недопустимого типа события
-        
-        ---
-        
-        :Example:
-        ```python
-        if listener.get_event('play'):
-            print("Sound started playing")
-        ```
-        """
-        match type:
-            case 'play':
-                return self.__played
-            case 'pause':
-                return self.__paused
-            case 'stop':
-                return self.__stopped
-            case _:
-                raise ValueError(f"Invalid event type: {type}")
-
-    def _update_statuses(self) -> None:
-        """
-        #### Сбрасывает флаги событий
-        
-        ---
-        
-        :Note:
-        - Внутренний метод, вызывается перед проверкой состояния
-        """
-        self.__played = False
-        self.__paused = False
-        self.__stopped = False
-
-    def set_on_play(self, callback: Callable[[], None]) -> Self:
-        """
-        #### Устанавливает обработчик начала воспроизведения
-        
-        ---
-        
-        :Args:
-        - callback (Callable[[], None]): Функция без параметров
-        
-        ---
-        
-        :Returns:
-        - self: Для цепных вызовов
-        
-        ---
-        
-        :Example:
-        ```python
-        listener.set_on_play(lambda: print("Playback started"))
-        ```
-        """
-        self.__on_play = callback
-        return self
-
-    def set_on_pause(self, callback: Callable[[], None]) -> Self:
-        """
-        #### Устанавливает обработчик паузы
-        
-        ---
-        
-        :Args:
-        - callback (Callable[[], None]): Функция без параметров
-        
-        ---
-        
-        :Returns:
-        - self: Для цепных вызовов
-        """
-        self.__on_pause = callback
-        return self
-
-    def set_on_stop(self, callback: Callable[[], None]) -> Self:
-        """
-        #### Устанавливает обработчик остановки
-        
-        ---
-        
-        :Args:
-        - callback (Callable[[], None]): Функция без параметров
-        
-        ---
-        
-        :Returns:
-        - self: Для цепных вызовов
-        """
-        self.__on_stop = callback
-        return self
-
-    def update(self) -> None:
-        """
-        #### Проверяет состояние звука и вызывает обработчики
-        
-        ---
-        
-        :Note:
-        - Должен вызываться регулярно (например, в основном цикле приложения)
-        - Автоматически определяет изменение состояния звука
-        
-        ---
-        
-        :Example:
-        ```python
-        while True:
-            listener.update()
-            # Другая логика...
-        ```
-        """
-        current_status = self.__sound.get_status()
-        self._update_statuses()
-        
-        if current_status == self.__last_status:
-            return
-            
-        if current_status == AudioStatus.PLAYING:
-            if self.__on_play is not None:
-                self.__on_play()
-            self.__played = True
-                
-        elif current_status == AudioStatus.PAUSED:
-            if self.__on_pause is not None:
-                self.__on_pause()
-            self.__paused = True
-                
-        elif current_status == AudioStatus.STOPPED:
-            if self.__on_stop is not None:
-                self.__on_stop()
-            self.__stopped = True
-                
-        self.__last_status = current_status
-
-    def get_last_status(self) -> AudioStatus:
-        """
-        #### Возвращает последнее зафиксированное состояние
-        
-        ---
-        
-        :Returns:
-        - AudioStatus: Текущий статус воспроизведения
-        
-        ---
-        
-        :Example:
-        ```python
-        status = listener.get_last_status()
-        ```
-        """
-        return self.__last_status
-
 class MultiSound:
     """
     #### Класс для одновременного воспроизведения нескольких экземпляров одного звука
-    
+
     ---
-    
+
     :Description:
     - Позволяет воспроизводить один звук многократно без перекрытия предыдущих воспроизведений
     - Управляет несколькими копиями звука для плавного многократного воспроизведения
     """
-    
-    def __init__(self, sound: Sound, number_of_channels: int = 3) -> Self:
+
+    def __init__(self, sound: Sound, number_of_channels: int = 3) -> None:
         """
         #### Инициализирует мультизвук
-        
+
         ---
-        
+
         :Args:
         - sound (Sound): Исходный звук для копирования
         - number_of_channels (int): Количество звуковых каналов (по умолчанию 3)
-        
+
         ---
-        
+
         :Raises:
         - ValueError: Если количество каналов меньше 1
-        
+
         ---
-        
+
         :Example:
         ```python
         multi_sound = MultiSound(sound, 5)  # Создаст 5 каналов для воспроизведения
@@ -1044,9 +825,9 @@ class MultiSound:
     def auto_play(self) -> Self:
         """
         #### Автоматически воспроизводит звук, переключая каналы
-        
+
         ---
-        
+
         :Note:
         - Воспроизводит текущий звук и автоматически переключается на следующий канал
         - Циклически перебирает все доступные каналы
@@ -1059,13 +840,13 @@ class MultiSound:
     # //////////////////////////////////////////////////////////////////////////////////////////
     # Методы по отдельности для удобства контроля воспроизведения
     # //////////////////////////////////////////////////////////////////////////////////////////
-    
+
     def play(self) -> Self:
         """
         #### Воспроизводит текущий звук
-        
+
         ---
-        
+
         :Note:
         - Не переключает автоматически на следующий канал
         - Для автоматического переключения используйте auto_play()
@@ -1076,24 +857,24 @@ class MultiSound:
     def next(self) -> Self:
         """
         #### Переключает на следующий звуковой канал
-        
+
         ---
-        
+
         :Note:
         - Циклически перебирает все доступные каналы
         - Не воспроизводит звук автоматически
         """
         self.__current_sound = (self.__current_sound + 1) % self.__number_of_channels
-        return Self
+        return self
 
     # //////////////////////////////////////////////////////////////////////////////////////////
 
     def stop(self) -> Self:
         """
         #### Останавливает текущий звук
-        
+
         ---
-        
+
         :Note:
         - Воздействует только на активный в данный момент канал
         """
@@ -1103,9 +884,9 @@ class MultiSound:
     def pause(self) -> Self:
         """
         #### Приостанавливает текущий звук
-        
+
         ---
-        
+
         :Note:
         - Воздействует только на активный в данный момент канал
         """
@@ -1115,9 +896,9 @@ class MultiSound:
     def stop_all(self) -> Self:
         """
         #### Останавливает все звуки во всех каналах
-        
+
         ---
-        
+
         :Note:
         - Полностью останавливает воспроизведение на всех каналах
         """
@@ -1128,9 +909,9 @@ class MultiSound:
     def pause_all(self) -> Self:
         """
         #### Приостанавливает все звуки во всех каналах
-        
+
         ---
-        
+
         :Note:
         - Приостанавливает воспроизведение на всех каналах
         - Можно возобновить с помощью play()
@@ -1142,9 +923,9 @@ class MultiSound:
     def add_chanel(self, count: int = 1) -> Self:
         """
         #### Добавляет новый канал для воспроизведения
-        
+
         ---
-        
+
         :Note:
         - Создает новую копию оригинального звука
         - Увеличивает общее количество доступных каналов
@@ -1157,19 +938,19 @@ class MultiSound:
     def remove_chanel(self, index: int) -> Self:
         """
         #### Удаляет канал по указанному индексу
-        
+
         ---
-        
+
         :Args:
         - index (int): Индекс канала для удаления (начиная с 0)
-        
+
         ---
-        
+
         :Raises:
         - ValueError: Если указан недопустимый индекс
-        
+
         ---
-        
+
         :Note:
         - Уменьшает общее количество доступных каналов
         - Может изменить текущий активный канал, если удаляется канал с меньшим индексом
@@ -1183,16 +964,16 @@ class MultiSound:
     def set_position_all(self, x: float, y: float, z: float) -> None:
         """
         #### Устанавливает позицию для всех звуков
-        
+
         ---
-        
+
         :Args:
         - x (float): Координата X в 3D пространстве
         - y (float): Координата Y в 3D пространстве
         - z (float): Координата Z в 3D пространстве
-        
+
         ---
-        
+
         :Note:
         - Обновляет позицию для всех существующих каналов
         - Запоминает позицию для будущих каналов
@@ -1204,9 +985,9 @@ class MultiSound:
     def get_position_all(self) -> tuple[float, float, float]:
         """
         #### Возвращает текущую позицию всех звуков
-        
+
         ---
-        
+
         :Returns:
         - tuple[float, float, float]: Текущие координаты (x, y, z)
         """
@@ -1215,16 +996,16 @@ class MultiSound:
     def set_position_current(self, x: float, y: float, z: float) -> None:
         """
         #### Устанавливает позицию только для текущего звука
-        
+
         ---
-        
+
         :Args:
         - x (float): Координата X
         - y (float): Координата Y
         - z (float): Координата Z
-        
+
         ---
-        
+
         :Note:
         - Не изменяет позицию для других каналов
         - Не обновляет общую позицию
@@ -1234,22 +1015,22 @@ class MultiSound:
     def set_position_at(self, index: int, x: float, y: float, z: float) -> None:
         """
         #### Устанавливает позицию для конкретного канала
-        
+
         ---
-        
+
         :Args:
         - index (int): Индекс канала (начиная с 0)
         - x (float): Координата X
         - y (float): Координата Y
         - z (float): Координата Z
-        
+
         ---
-        
+
         :Raises:
         - ValueError: Если указан недопустимый индекс
-        
+
         ---
-        
+
         :Note:
         - Не изменяет позицию для других каналов
         - Не обновляет общую позицию
@@ -1261,9 +1042,9 @@ class MultiSound:
     def set_volume_all(self, volume: float) -> Self:
         """
         #### Устанавливает громкость для всех каналов
-        
+
         ---
-        
+
         :Args:
         - volume (float): Уровень громкости (0.0 - 1.0)
         """
@@ -1274,9 +1055,9 @@ class MultiSound:
     def set_volume_current(self, volume: float) -> None:
         """
         #### Устанавливает громкость только для текущего канала
-        
+
         ---
-        
+
         :Args:
         - volume (float): Уровень громкости (0.0 - 1.0)
         """
@@ -1285,15 +1066,15 @@ class MultiSound:
     def set_volume_at(self, index: int, volume: float) -> None:
         """
         #### Устанавливает громкость для конкретного канала
-        
+
         ---
-        
+
         :Args:
         - index (int): Индекс канала
         - volume (float): Уровень громкости (0.0 - 1.0)
-        
+
         ---
-        
+
         :Raises:
         - ValueError: Если указан недопустимый индекс
         """
@@ -1304,9 +1085,9 @@ class MultiSound:
     def set_loop_all(self, loop: bool) -> None:
         """
         #### Устанавливает цикличность воспроизведения для всех каналов
-        
+
         ---
-        
+
         :Args:
         - loop (bool): Флаг цикличности (True - зациклить)
         """
@@ -1316,9 +1097,9 @@ class MultiSound:
     def set_loop_current(self, loop: bool) -> None:
         """
         #### Устанавливает цикличность только для текущего канала
-        
+
         ---
-        
+
         :Args:
         - loop (bool): Флаг цикличности (True - зациклить)
         """
@@ -1327,15 +1108,15 @@ class MultiSound:
     def set_loop_at(self, index: int, loop: bool) -> None:
         """
         #### Устанавливает цикличность для конкретного канала
-        
+
         ---
-        
+
         :Args:
         - index (int): Индекс канала
         - loop (bool): Флаг цикличности (True - зациклить)
-        
+
         ---
-        
+
         :Raises:
         - ValueError: Если указан недопустимый индекс
         """
@@ -1346,9 +1127,9 @@ class MultiSound:
     def set_pitch_all(self, pitch: float) -> None:
         """
         #### Устанавливает высоту тона для всех каналов
-        
+
         ---
-        
+
         :Args:
         - pitch (float): Высота тона (1.0 - нормальная)
         """
@@ -1358,9 +1139,9 @@ class MultiSound:
     def set_pitch_current(self, pitch: float) -> None:
         """
         #### Устанавливает высоту тона только для текущего канала
-        
+
         ---
-        
+
         :Args:
         - pitch (float): Высота тона (1.0 - нормальная)
         """
@@ -1369,15 +1150,15 @@ class MultiSound:
     def set_pitch_at(self, index: int, pitch: float) -> None:
         """
         #### Устанавливает высоту тона для конкретного канала
-        
+
         ---
-        
+
         :Args:
         - index (int): Индекс канала
         - pitch (float): Высота тона (1.0 - нормальная)
-        
+
         ---
-        
+
         :Raises:
         - ValueError: Если указан недопустимый индекс
         """
@@ -1388,76 +1169,76 @@ class MultiSound:
     def get_current_sound(self) -> Sound:
         """
         #### Возвращает текущий активный звук
-        
+
         ---
-        
+
         :Returns:
         - Sound: Текущий активный звуковой объект
         """
         return self.__sounds[self.__current_sound]
-    
+
     def get_current_sound_index(self) -> int:
         """
         #### Возвращает индекс текущего активного звука
-        
+
         ---
-        
+
         :Returns:
         - int: Индекс текущего канала (начиная с 0)
         """
         return self.__current_sound
-    
+
     def get_number_of_channels(self) -> int:
         """
         #### Возвращает общее количество каналов
-        
+
         ---
-        
+
         :Returns:
         - int: Количество доступных каналов воспроизведения
         """
         return self.__number_of_channels
-    
+
     def get_original_sound(self) -> Sound:
         """
         #### Возвращает исходный звуковой объект
-        
+
         ---
-        
+
         :Returns:
         - Sound: Оригинальный звук, используемый для создания каналов
         """
         return self.__original_sound
-    
+
     def get_sound(self, index: int) -> Sound:
         """
         #### Возвращает звук по указанному индексу
-        
+
         ---
-        
+
         :Args:
         - index (int): Индекс канала
-        
+
         ---
-        
+
         :Returns:
         - Sound: Звуковой объект по указанному индексу
-        
+
         ---
-        
+
         :Raises:
         - ValueError: Если указан недопустимый индекс
         """
         if index >= self.__number_of_channels:
             raise ValueError("Invalid channel index")
         return self.__sounds[index]
-    
+
     def get_sounds(self) -> list[Sound]:
         """
         #### Возвращает список всех звуковых объектов
-        
+
         ---
-        
+
         :Returns:
         - list[Sound]: Список всех звуков (каналов)
         """

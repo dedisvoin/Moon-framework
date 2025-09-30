@@ -49,26 +49,25 @@
 [MIT License]
 Copyright (c) 2025 Pavlov Ivan
 
-Данная лицензия разрешает лицам, получившим копию данного программного обеспечения 
-и сопутствующей документации (в дальнейшем именуемыми «Программное Обеспечение»), 
-безвозмездно использовать Программное Обеспечение без ограничений, включая неограниченное 
-право на использование, копирование, изменение, слияние, публикацию, распространение, 
-сублицензирование и/или продажу копий Программного Обеспечения, а также лицам, которым 
+Данная лицензия разрешает лицам, получившим копию данного программного обеспечения
+и сопутствующей документации (в дальнейшем именуемыми «Программное Обеспечение»),
+безвозмездно использовать Программное Обеспечение без ограничений, включая неограниченное
+право на использование, копирование, изменение, слияние, публикацию, распространение,
+сублицензирование и/или продажу копий Программного Обеспечения, а также лицам, которым
 предоставляется данное Программное Обеспечение, при соблюдении следующих условий:
 
 [ Уведомление об авторском праве и данные условия должны быть включены во все копии ]
 [                 или значительные части Программного Обеспечения.                  ]
 
-ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО 
-ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ 
-ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ ПРАВ. 
-НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО ИСКАМ О 
-ВОЗМЕЩЕНИИ УЩЕРБА, УБЫТКОВ ИЛИ ДРУГИХ ТРЕБОВАНИЙ ПО ДЕЙСТВУЮЩЕМУ ПРАВУ ИЛИ ИНОМУ, 
-ВОЗНИКШИМ ИЗ, ИМЕЮЩИМ ПРИЧИНОЙ ИЛИ СВЯЗАННЫМ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ 
+ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО
+ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ
+ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ ПРАВ.
+НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО ИСКАМ О
+ВОЗМЕЩЕНИИ УЩЕРБА, УБЫТКОВ ИЛИ ДРУГИХ ТРЕБОВАНИЙ ПО ДЕЙСТВУЮЩЕМУ ПРАВУ ИЛИ ИНОМУ,
+ВОЗНИКШИМ ИЗ, ИМЕЮЩИМ ПРИЧИНОЙ ИЛИ СВЯЗАННЫМ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
-import os
 import ctypes
 
 from contextlib import contextmanager
@@ -183,50 +182,50 @@ LIB_MOON._View_Zoom.restype = None
 class FloatRect:
     """
     #### Класс прямоугольной области с плавающей точкой
-    
+
     ---
-    
+
     :Description:
     - Представляет прямоугольную область в 2D пространстве
     - Соответствует sf::FloatRect в SFML
     - Используется для определения областей просмотра и позиционирования
-    
+
     ---
-    
+
     :Features:
     - Точное позиционирование с плавающей точкой
     - Валидация размеров и координат
     - Автоматическое управление памятью
     - Цепочка вызовов для удобства использования
-    
+
     ---
-    
+
     :Attributes:
     - _ptr: Указатель на нативный объект FloatRect
     - _is_valid: Флаг валидности объекта
     """
-    
+
     @final
     def __init__(self, x: float, y: float, w: float, h: float) -> None:
         """
         #### Создает новый FloatRect с указанными параметрами
-        
+
         ---
-        
+
         :Args:
         - x (float): Позиция по X
-        - y (float): Позиция по Y  
+        - y (float): Позиция по Y
         - w (float): Ширина (должна быть >= 0)
         - h (float): Высота (должна быть >= 0)
-            
+
         ---
-        
+
         :Raises:
         - ValueError: Если размеры отрицательные
         - ViewError: Если не удалось создать объект
-        
+
         ---
-        
+
         :Example:
         ```python
         # Создать прямоугольник 100x50 в позиции (10, 20)
@@ -235,7 +234,7 @@ class FloatRect:
         """
         if w < 0 or h < 0:
             raise ValueError(f"Размеры должны быть неотрицательными: w={w}, h={h}")
-            
+
         self._ptr = LIB_MOON._FloatRect_Create(float(x), float(y), float(w), float(h))
         if not self._ptr:
             raise ViewError("Не удалось создать FloatRect")
@@ -245,9 +244,9 @@ class FloatRect:
     def _check_valid(self) -> None:
         """
         #### Проверяет валидность объекта
-        
+
         ---
-        
+
         :Raises:
         - ViewError: Если объект был удален или поврежден
         """
@@ -258,14 +257,14 @@ class FloatRect:
     def get_ptr(self) -> FloatRectPtr:
         """
         #### Возвращает указатель на нативный объект
-        
+
         ---
-        
+
         :Returns:
         - FloatRectPtr: Указатель для использования в нативном коде
-        
+
         ---
-        
+
         :Note:
         - Для внутреннего использования в Moon
         """
@@ -276,9 +275,9 @@ class FloatRect:
     def __del__(self) -> None:
         """
         #### Освобождает ресурсы нативного объекта
-        
+
         ---
-        
+
         :Description:
         - Автоматически вызывается при удалении объекта
         - Освобождает нативные ресурсы
@@ -296,14 +295,14 @@ class FloatRect:
     def get_position(self) -> tuple[float, float]:
         """
         #### Возвращает текущую позицию прямоугольника
-        
+
         ---
-        
+
         :Returns:
         - tuple[float, float]: Кортеж (x, y) с координатами левого верхнего угла
-        
+
         ---
-        
+
         :Example:
         ```python
         x, y = rect.get_position()
@@ -315,19 +314,19 @@ class FloatRect:
             LIB_MOON._FloatRect_GetPositionX(self._ptr),
             LIB_MOON._FloatRect_GetPositionY(self._ptr),
         )
-    
+
     @final
     def get_size(self) -> tuple[float, float]:
         """
         #### Возвращает текущие размеры прямоугольника
-        
+
         ---
-        
+
         :Returns:
         - tuple[float, float]: Кортеж (width, height) с размерами
-        
+
         ---
-        
+
         :Example:
         ```python
         width, height = rect.get_size()
@@ -339,30 +338,30 @@ class FloatRect:
             LIB_MOON._FloatRect_GetWidth(self._ptr),
             LIB_MOON._FloatRect_GetHeight(self._ptr),
         )
-    
+
     @final
     def set_position(self, x: Optional[float] = None, y: Optional[float] = None) -> Self:
         """
         #### Устанавливает новую позицию прямоугольника
-        
+
         ---
-        
+
         :Args:
         - x (Optional[float]): Новая позиция X (None - не изменять)
         - y (Optional[float]): Новая позиция Y (None - не изменять)
-            
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-        
+
         ---
-        
+
         :Example:
         ```python
         # Установить только X координату
         rect.set_position(x=100.0)
-        
+
         # Установить обе координаты
         rect.set_position(50.0, 75.0)
         ```
@@ -370,42 +369,42 @@ class FloatRect:
         self._check_valid()
         if x is None and y is None:
             return self
-            
+
         current_x, current_y = self.get_position()
         new_x = float(x) if x is not None else current_x
         new_y = float(y) if y is not None else current_y
-        
+
         LIB_MOON._FloatRect_SetPosition(self._ptr, new_x, new_y)
         return self
-    
+
     @final
     def set_size(self, w: Optional[float] = None, h: Optional[float] = None) -> Self:
         """
         #### Устанавливает новые размеры прямоугольника
-        
+
         ---
-        
+
         :Args:
         - w (Optional[float]): Новая ширина (None - не изменять, должна быть >= 0)
         - h (Optional[float]): Новая высота (None - не изменять, должна быть >= 0)
-            
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-            
+
         ---
-        
+
         :Raises:
         - ValueError: Если размеры отрицательные
-        
+
         ---
-        
+
         :Example:
         ```python
         # Изменить только ширину
         rect.set_size(w=200.0)
-        
+
         # Изменить оба размера
         rect.set_size(150.0, 100.0)
         ```
@@ -413,29 +412,29 @@ class FloatRect:
         self._check_valid()
         if w is None and h is None:
             return self
-            
+
         if (w is not None and w < 0) or (h is not None and h < 0):
             raise ValueError(f"Размеры должны быть неотрицательными: w={w}, h={h}")
-            
+
         current_w, current_h = self.get_size()
         new_w = float(w) if w is not None else current_w
         new_h = float(h) if h is not None else current_h
-        
+
         LIB_MOON._FloatRect_SetSize(self._ptr, new_w, new_h)
         return self
-        
+
     @final
     def __repr__(self) -> str:
         """
         #### Строковое представление для отладки
-        
+
         ---
-        
+
         :Returns:
         - str: Читаемое представление объекта
-        
+
         ---
-        
+
         :Example:
         ```python
         print(rect)  # FloatRect(x=10.0, y=20.0, w=100.0, h=50.0)
@@ -455,51 +454,51 @@ class FloatRect:
 class View:
     """
     #### Класс камеры/области просмотра для управления отображением
-    
+
     ---
-    
+
     :Description:
     - Представляет камеру или область просмотра в 2D пространстве
     - Соответствует sf::View в SFML
     - Позволяет управлять позицией, размером, поворотом и масштабом
     - Используется для создания различных видов сцены
-    
+
     ---
-    
+
     :Features:
     - Управление центром и размером области просмотра
     - Поворот и масштабирование вида
     - Настройка вьюпорта для отображения
     - Временные трансформации через контекстные менеджеры
     - Автоматическое управление памятью
-    
+
     ---
-    
+
     :Attributes:
     - _ptr: Указатель на нативный объект View
     - _float_rect: Базовый прямоугольник вида
     - _is_valid: Флаг валидности объекта
     - _owns_ptr: Флаг владения указателем
     """
-    
+
     @final
     def __init__(self, float_rect: FloatRect) -> None:
         """
         #### Создает новый View с указанным прямоугольником
-        
+
         ---
-        
+
         :Args:
         - float_rect (FloatRect): Прямоугольник области просмотра
-            
+
         ---
-        
+
         :Raises:
         - TypeError: Если float_rect не является экземпляром FloatRect
         - ViewError: Если не удалось создать View
-        
+
         ---
-        
+
         :Example:
         ```python
         # Создать область просмотра 800x600
@@ -509,43 +508,43 @@ class View:
         """
         if not isinstance(float_rect, FloatRect):
             raise TypeError("float_rect должен быть экземпляром FloatRect")
-            
+
         self._float_rect = float_rect
         self._ptr = LIB_MOON._View_Create(float_rect.get_ptr())
         if not self._ptr:
             raise ViewError("Не удалось создать View")
         self._is_valid = True
         self._owns_ptr = True
-    
+
     @final
     @classmethod
     def from_view_ptr(cls, view_ptr: ViewPtr) -> "View":
         """
         #### Создает объект View из существующего указателя на нативный View
-        
+
         ---
-        
+
         :Args:
         - view_ptr (ViewPtr): Указатель на нативный View
-            
+
         ---
-        
+
         :Returns:
         - View: Новый экземпляр View
-            
+
         ---
-        
+
         :Raises:
         - ViewError: Если указатель невалиден или не удалось получить параметры
-        
+
         ---
-        
+
         :Note:
         - Создаваемый объект не владеет указателем
         - Используется для работы с View, созданными в нативном коде
-        
+
         ---
-        
+
         :Example:
         ```python
         # Создать View из нативного указателя
@@ -554,7 +553,7 @@ class View:
         """
         if not view_ptr:
             raise ViewError("Невалидный указатель на View")
-            
+
         # Получаем параметры из нативного View
         try:
             width = LIB_MOON._View_GetWidth(view_ptr)
@@ -572,14 +571,14 @@ class View:
         view._is_valid = True
         view._owns_ptr = False  # Не владеем указателем
         return view
-    
+
     @final
     def _check_valid(self) -> None:
         """
         #### Проверяет валидность объекта
-        
+
         ---
-        
+
         :Raises:
         - ViewError: Если объект был удален или поврежден
         """
@@ -590,16 +589,16 @@ class View:
     def __del__(self) -> None:
         """
         #### Освобождает ресурсы нативного объекта
-        
+
         ---
-        
+
         :Description:
         - Автоматически вызывается при удалении объекта
         - Освобождает нативные ресурсы только если объект владеет указателем
         - Безопасно обрабатывает ошибки освобождения
         """
-        if (hasattr(self, '_is_valid') and self._is_valid and 
-            hasattr(self, '_owns_ptr') and self._owns_ptr and 
+        if (hasattr(self, '_is_valid') and self._is_valid and
+            hasattr(self, '_owns_ptr') and self._owns_ptr and
             hasattr(self, '_ptr') and hasattr(LIB_MOON, '_View_Delete')):
             try:
                 LIB_MOON._View_Delete(self._ptr)
@@ -612,32 +611,32 @@ class View:
     def get_ptr(self) -> ViewPtr:
         """
         #### Возвращает указатель на нативный объект
-        
+
         ---
-        
+
         :Returns:
         - ViewPtr: Указатель для использования в нативном коде
-        
+
         ---
-        
+
         :Note:
         - Для внутреннего использования в Moon
         """
         self._check_valid()
         return self._ptr
-        
+
     @final
     def get_float_rect(self) -> FloatRect:
         """
         #### Возвращает базовый прямоугольник вида
-        
+
         ---
-        
+
         :Returns:
         - FloatRect: Прямоугольник, определяющий область просмотра
-        
+
         ---
-        
+
         :Example:
         ```python
         rect = view.get_float_rect()
@@ -650,20 +649,20 @@ class View:
     def set_center(self, x: float, y: float) -> Self:
         """
         #### Устанавливает центр области просмотра
-        
+
         ---
-        
+
         :Args:
         - x (float): Координата X центра
         - y (float): Координата Y центра
-            
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-        
+
         ---
-        
+
         :Example:
         ```python
         # Центрировать камеру на точке (400, 300)
@@ -678,25 +677,25 @@ class View:
     def set_size(self, width: float, height: float) -> Self:
         """
         #### Устанавливает размер области просмотра
-        
+
         ---
-        
+
         :Args:
         - width (float): Ширина (должна быть > 0)
         - height (float): Высота (должна быть > 0)
-            
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-            
+
         ---
-        
+
         :Raises:
         - ValueError: Если размеры неположительные
-        
+
         ---
-        
+
         :Example:
         ```python
         # Установить размер области просмотра 1024x768
@@ -705,7 +704,7 @@ class View:
         """
         if width <= 0 or height <= 0:
             raise ValueError(f"Размеры должны быть положительными: width={width}, height={height}")
-            
+
         self._check_valid()
         LIB_MOON._View_SetSize(self._ptr, float(width), float(height))
         return self
@@ -714,24 +713,24 @@ class View:
     def set_viewport(self, viewport: FloatRect) -> Self:
         """
         #### Устанавливает вьюпорт (область экрана для отображения)
-        
+
         ---
-        
+
         :Args:
         - viewport (FloatRect): Прямоугольник вьюпорта в нормализованных координатах (0-1)
-            
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-        
+
         ---
-        
+
         :Raises:
         - TypeError: Если viewport не является экземпляром FloatRect
-        
+
         ---
-        
+
         :Example:
         ```python
         # Установить вьюпорт на левую половину экрана
@@ -741,7 +740,7 @@ class View:
         """
         if not isinstance(viewport, FloatRect):
             raise TypeError("viewport должен быть экземпляром FloatRect")
-            
+
         self._check_valid()
         LIB_MOON._View_SetViewport(self._ptr, viewport.get_ptr())
         return self
@@ -750,19 +749,19 @@ class View:
     def set_angle(self, angle: float) -> Self:
         """
         #### Устанавливает угол поворота области просмотра
-        
+
         ---
-        
+
         :Args:
         - angle (float): Угол поворота в градусах
-            
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-        
+
         ---
-        
+
         :Example:
         ```python
         # Повернуть камеру на 45 градусов
@@ -777,20 +776,20 @@ class View:
     def move(self, offset_x: float, offset_y: float) -> Self:
         """
         #### Перемещает область просмотра на указанное смещение
-        
+
         ---
-        
+
         :Args:
         - offset_x (float): Смещение по оси X
         - offset_y (float): Смещение по оси Y
-            
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-        
+
         ---
-        
+
         :Example:
         ```python
         # Сдвинуть камеру вправо на 50 пикселей
@@ -805,14 +804,14 @@ class View:
     def get_center(self) -> tuple[float, float]:
         """
         #### Возвращает центр области просмотра
-        
+
         ---
-        
+
         :Returns:
         - tuple[float, float]: Кортеж (center_x, center_y) с координатами центра
-        
+
         ---
-        
+
         :Example:
         ```python
         center_x, center_y = view.get_center()
@@ -829,14 +828,14 @@ class View:
     def get_position(self) -> tuple[float, float]:
         """
         #### Возвращает позицию области просмотра
-        
+
         ---
-        
+
         :Returns:
         - tuple[float, float]: Кортеж (position_x, position_y) с координатами левого верхнего угла
-        
+
         ---
-        
+
         :Example:
         ```python
         pos_x, pos_y = view.get_position()
@@ -853,14 +852,14 @@ class View:
     def get_angle(self) -> float:
         """
         #### Возвращает угол поворота области просмотра
-        
+
         ---
-        
+
         :Returns:
         - float: Угол поворота в градусах
-        
+
         ---
-        
+
         :Example:
         ```python
         angle = view.get_angle()
@@ -874,14 +873,14 @@ class View:
     def get_size(self) -> tuple[float, float]:
         """
         #### Возвращает размер области просмотра
-        
+
         ---
-        
+
         :Returns:
         - tuple[float, float]: Кортеж (width, height) с размерами
-        
+
         ---
-        
+
         :Example:
         ```python
         width, height = view.get_size()
@@ -898,19 +897,19 @@ class View:
     def rotate(self, angle: float) -> Self:
         """
         #### Поворачивает область просмотра на указанный угол
-        
+
         ---
-        
+
         :Args:
         - angle (float): Угол поворота в градусах (добавляется к текущему углу)
-            
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-        
+
         ---
-        
+
         :Example:
         ```python
         # Повернуть камеру на дополнительные 90 градусов
@@ -925,37 +924,37 @@ class View:
     def zoom(self, factor: float) -> Self:
         """
         #### Масштабирует область просмотра
-        
+
         ---
-        
+
         :Args:
         - factor (float): Коэффициент масштабирования (должен быть > 0)
                          1.0 - без изменений, <1.0 - приближение, >1.0 - отдаление
-            
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-            
+
         ---
-        
+
         :Raises:
         - ValueError: Если коэффициент неположительный
-        
+
         ---
-        
+
         :Example:
         ```python
         # Приблизить в 2 раза
         view.zoom(0.5)
-        
+
         # Отдалить в 2 раза
         view.zoom(2.0)
         ```
         """
         if factor <= 0:
             raise ValueError(f"Коэффициент масштабирования должен быть положительным: {factor}")
-            
+
         self._check_valid()
         LIB_MOON._View_Zoom(self._ptr, float(factor))
         return self
@@ -964,24 +963,24 @@ class View:
     def reset(self, rectangle: FloatRect) -> Self:
         """
         #### Сбрасывает параметры области просмотра к указанному прямоугольнику
-        
+
         ---
-        
+
         :Args:
         - rectangle (FloatRect): Новый прямоугольник области просмотра
-            
+
         ---
-        
+
         :Returns:
         - Self: Возвращает self для цепочки вызовов
-        
+
         ---
-        
+
         :Raises:
         - TypeError: Если rectangle не является экземпляром FloatRect
-        
+
         ---
-        
+
         :Example:
         ```python
         # Сбросить камеру к новой области
@@ -991,24 +990,24 @@ class View:
         """
         if not isinstance(rectangle, FloatRect):
             raise TypeError("rectangle должен быть экземпляром FloatRect")
-            
+
         self._check_valid()
         LIB_MOON._View_Reset(self._ptr, rectangle.get_ptr())
         self._float_rect = rectangle
         return self
-        
+
     @final
     def __repr__(self) -> str:
         """
         #### Строковое представление для отладки
-        
+
         ---
-        
+
         :Returns:
         - str: Читаемое представление объекта с основными параметрами
-        
+
         ---
-        
+
         :Example:
         ```python
         print(view)  # View(center=(400.0, 300.0), size=(800.0, 600.0), angle=0.0°)
@@ -1023,36 +1022,36 @@ class View:
             return f"View(center={center}, size={size}, angle={angle}°)"
         except:
             return "View(invalid)"
-            
+
     @final
     @contextmanager
-    def temporary_transform(self, center: Optional[tuple[float, float]] = None, 
+    def temporary_transform(self, center: Optional[tuple[float, float]] = None,
                           size: Optional[tuple[float, float]] = None,
                           angle: Optional[float] = None):
         """
         #### Контекстный менеджер для временного изменения параметров области просмотра
-        
+
         ---
-        
+
         :Args:
         - center (Optional[tuple[float, float]]): Временный центр (x, y)
         - size (Optional[tuple[float, float]]): Временный размер (width, height)
         - angle (Optional[float]): Временный угол поворота в градусах
-        
+
         ---
-        
+
         :Yields:
         - View: Текущий объект View с примененными временными параметрами
-        
+
         ---
-        
+
         :Description:
         - Автоматически сохраняет текущие параметры
         - Применяет временные изменения
         - Восстанавливает исходные параметры при выходе из контекста
-        
+
         ---
-        
+
         :Example:
         ```python
         # Временно изменить центр и размер для специального рендеринга
@@ -1066,7 +1065,7 @@ class View:
         old_center = self.get_center()
         old_size = self.get_size()
         old_angle = self.get_angle()
-        
+
         try:
             # Применяем временные параметры
             if center is not None:

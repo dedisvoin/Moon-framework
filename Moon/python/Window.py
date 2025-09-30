@@ -963,8 +963,12 @@ class Window:
                 _ = self.set_icon_from_path(DEFAULT_WINDOW_ICON_LOCAL_PATH)
             except:
                 try:
-                    path = find_module_installation_path('Moon') + "/data/icons/default_app_icon.png"
-                    _ = self.set_icon_from_path(path)
+                    path = find_module_installation_path('Moon')
+                    if path:
+                        path += "/data/icons/default_app_icon.png"
+                        _ = self.set_icon_from_path(path)
+                    else:
+                        raise RuntimeError("App Icon path not found")
                 except:
                     raise RuntimeError("App Icon path not found")
 
