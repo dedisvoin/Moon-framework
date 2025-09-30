@@ -69,14 +69,17 @@ Copyright (c) 2025 Pavlov Ivan
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
-import os
+
+import sys
 import time
 import mouse
 import ctypes
 import keyboard
-import win32gui         # pyright: ignore[reportMissingModuleSource]
-import win32api         # pyright: ignore[reportMissingModuleSource]
-import win32process     # pyright: ignore[reportMissingModuleSource]
+
+if sys.platform == 'win32':
+    import win32gui         # pyright: ignore[reportMissingModuleSource]
+    import win32api         # pyright: ignore[reportMissingModuleSource]
+    import win32process     # pyright: ignore[reportMissingModuleSource]
 
 from enum import Enum
 from functools import lru_cache
@@ -178,7 +181,7 @@ def convert_ru_with_qwerty_layout(key: str) -> str:
 
 
 # Метод для получения текущей раскладки клавиатуры на Windows
-if os.name == 'nt':
+if sys.platform == 'win32':
     def get_keyboard_layout() -> KeyboardLayout | None:
         """
         #### Определяет текущую раскладку клавиатуры активного окна.
@@ -210,7 +213,7 @@ if os.name == 'nt':
         else:
             return LAYOUT_UNKNOWN
 # Метод для определения раскладки клавиатуры на Linux
-if os.name == 'linux':
+if sys.platform == 'linux':
     def get_keyboard_layout() -> KeyboardLayout | None:
         """
         #### Определяет текущую раскладку клавиатуры на Linux.

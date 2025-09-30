@@ -740,7 +740,7 @@ DEFAULT_WINDOW_BORDER_COLOR: Final[Color] = Color(98, 134, 248).lighten(0.2)  # 
 DEFAULT_WINDOW_TITLE_COLOR:  Final[Color] = Color(255, 255, 255)
 
 # Путь к стандартной иконке приложения, используемой если не задана пользовательская
-DEFAULT_WINDOW_ICON_PATH:    Final[str]   = "Moon/data/icons/default_app_icon.png"
+DEFAULT_WINDOW_ICON_PATH:       Final[str] = "Moon/data/icons/default_app_icon.png"
 DEFAULT_WINDOW_ICON_LOCAL_PATH: Final[str] = "./icons/default_app_icon.png"
 
 
@@ -860,7 +860,7 @@ class Window:
         if should_delete_context and temp_context_settings is not None:
             LIB_MOON._WindowContextSettings_Delete(temp_context_settings)
         self.__title = title
-        
+
         if sys.platform == 'win32':
             self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)  
         else:
