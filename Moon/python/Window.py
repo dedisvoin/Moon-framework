@@ -531,7 +531,7 @@ if sys.platform == 'win32':
 
 if sys.platform == 'linux':
     X_LIB = ctypes.CDLL(ctypes.util.find_library('X11'))
-    X_RANDR = ctypes.CDLL(util.find_library("Xrandr"))
+    X_RANDR = ctypes.CDLL(ctypes.util.find_library("Xrandr"))
 
 
 LIB_MOON._WindowContextSettings_Create.restype = ctypes.c_void_p
