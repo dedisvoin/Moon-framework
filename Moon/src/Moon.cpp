@@ -1,1476 +1,3 @@
-#ifndef SFML_AUDIO_HPP
-#include "SFML/Audio/SoundBuffer.hpp"
-#include "SFML/Audio/Sound.hpp"
-#include "SFML/Audio/Music.hpp"
-#endif
-#ifndef IOSTREAM_H
-#include <iostream>
-#endif
-
-using std::cout, std::endl;
-extern "C" {
-    typedef sf::SoundBuffer* SoundBufferPtr;
-
-    __declspec(dllexport) SoundBufferPtr _SoundBuffer_loadFromFile(const char* path) {
-        SoundBufferPtr buffer = new sf::SoundBuffer();
-
-        if (buffer->loadFromFile(path))
-            cout << "Sound: " << path << " loaded." << endl;
-        else {
-            cout << "Sound: " << path << "error loading sound" << endl;
-        }
-        return buffer;
-    }
-
-    __declspec(dllexport) void _SoundBuffer_Destroy(SoundBufferPtr buffer) {
-        delete buffer;
-    }
-
-    __declspec(dllexport) int _SoundBuffer_GetChannelsCount(SoundBufferPtr buffer) {
-        return buffer->getChannelCount();
-    }
-
-    __declspec(dllexport) int _SoundBuffer_GetSampleRate(SoundBufferPtr buffer) {
-        return buffer->getSampleRate();
-    }
-}
-
-extern "C" {
-    typedef sf::Sound* SoundPtr;
-
-    __declspec(dllexport) SoundPtr _Sound_Create(SoundBufferPtr buffer) {
-        SoundPtr sound = new sf::Sound();
-        sound->setBuffer(*buffer);
-        return sound;
-    }
-
-    __declspec(dllexport) void _Sound_Destroy(SoundPtr sound) {
-        delete sound;
-    }
-
-    __declspec(dllexport) void _Sound_Play(SoundPtr sound) {
-        sound->play();
-    }
-
-    __declspec(dllexport) void _Sound_Pause(SoundPtr sound) {
-        sound->pause();
-    }
-
-    __declspec(dllexport) void _Sound_Stop(SoundPtr sound) {
-        sound->stop();
-    }
-
-    __declspec(dllexport) void _Sound_SetLoop(SoundPtr sound, bool loop) {
-        sound->setLoop(loop);
-    }
-
-    __declspec(dllexport) void _Sound_SetVolume(SoundPtr sound, float volume) {
-        sound->setVolume(volume);
-    }
-
-    __declspec(dllexport) void _Sound_SetPitch(SoundPtr sound, float pitch) {
-        sound->setPitch(pitch);
-    }
-
-    __declspec(dllexport) void _Sound_SetAttenuation(SoundPtr sound, float attenuation) {
-        sound->setAttenuation(attenuation);
-    }
-
-    __declspec(dllexport) void _Sound_ResetBuffer(SoundPtr sound) {
-        sound->resetBuffer();
-    }
-
-    __declspec(dllexport) void _Sound_SetPosition(SoundPtr sound, float x, float y, float z) {
-        sound->setPosition(x, y, z);
-    }
-
-    __declspec(dllexport) void _Sound_SetRelativeToListener(SoundPtr sound, bool relative) {
-        sound->setRelativeToListener(relative);
-    }
-    
-    __declspec(dllexport) int _Sound_GetStatus(SoundPtr sound) {
-        return sound->getStatus();
-    }
-}
-
-extern "C" {
-    typedef sf::Music* MusicPtr;
-
-    __declspec(dllexport) MusicPtr _Music_Create(const char* path) {
-        MusicPtr music = new sf::Music();
-        music->openFromFile(path);
-        return music;
-    }
-
-    __declspec(dllexport) void _Music_Play(MusicPtr music) {
-        music->play();
-    }
-
-    __declspec(dllexport) void _Music_Pause(MusicPtr music) {
-        music->pause();
-    }
-
-    __declspec(dllexport) void _Music_Stop(MusicPtr music) {
-        music->stop();
-    }
-
-    __declspec(dllexport) void _Music_SetLoop(MusicPtr music, bool loop) {
-        music->setLoop(loop);
-    }
-
-    __declspec(dllexport) void _Music_SetVolume(MusicPtr music, float volume) {
-        music->setVolume(volume);
-    }
-
-    __declspec(dllexport) void _Music_SetPitch(MusicPtr music, float pitch) {
-        music->setPitch(pitch);
-    }
-
-    __declspec(dllexport) void _Music_SetAttenuation(MusicPtr music, float attenuation) {
-        music->setAttenuation(attenuation);
-    }
-}
-// ===============================================================================
-// File: BUILDED_SGL_CIRCLE_SHAPE.cpp
-// SFML Circle Shape API implementation
-// Part of DLL library
-//
-// Features:
-// - Create/delete circles
-// - Position/radius/rotation control
-// - Fill/outline color settings
-// - Scaling and origin adjustment
-// - Get current shape parameters
-// ===============================================================================
-
-#include "SFML/Graphics/CircleShape.hpp"
-#include "SFML/Graphics/Color.hpp"
-
-typedef sf::CircleShape* CirclePtr;
-
-// Create/delete circle shape
-extern "C" __declspec(dllexport) CirclePtr _Circle_Create(float radius,
-                                                          int point_count) {
-  return new sf::CircleShape(radius, point_count);
-}
-
-extern "C" __declspec(dllexport) void _Circle_Delete(CirclePtr circle) {
-  delete circle;
-}
-
-// Position control
-extern "C" __declspec(dllexport) void _Circle_SetPosition(CirclePtr circle,
-                                                          float x, float y) {
-  circle->setPosition(x, y);
-}
-
-extern "C" __declspec(dllexport) float _Circle_GetPositionX(CirclePtr circle) {
-  return circle->getPosition().x;
-}
-
-extern "C" __declspec(dllexport) float _Circle_GetPositionY(CirclePtr circle) {
-  return circle->getPosition().y;
-}
-
-// Radius control
-extern "C" __declspec(dllexport) void _Circle_SetRadius(CirclePtr circle,
-                                                        float radius) {
-  circle->setRadius(radius);
-}
-
-extern "C" __declspec(dllexport) float _Circle_GetRadius(CirclePtr circle) {
-  return circle->getRadius();
-}
-
-// Rotation
-extern "C" __declspec(dllexport) void _Circle_SetRotation(CirclePtr circle,
-                                                          float angle) {
-  circle->setRotation(angle);
-}
-
-extern "C" __declspec(dllexport) float _Circle_GetRotation(CirclePtr circle) {
-  return circle->getRotation();
-}
-
-// Colors
-extern "C" __declspec(dllexport) void
-_Circle_SetFillColor(CirclePtr circle, int r, int g, int b, int a) {
-  circle->setFillColor(sf::Color(r, g, b, a));
-}
-
-extern "C" __declspec(dllexport) void
-_Circle_SetOutlineColor(CirclePtr circle, int r, int g, int b, int a) {
-  circle->setOutlineColor(sf::Color(r, g, b, a));
-}
-
-extern "C" __declspec(dllexport) void
-_Circle_SetOutlineThickness(CirclePtr circle, float thickness) {
-  circle->setOutlineThickness(thickness);
-}
-
-// Scale
-extern "C" __declspec(dllexport) void
-_Circle_SetScale(CirclePtr circle, float scaleX, float scaleY) {
-  circle->setScale(scaleX, scaleY);
-}
-
-extern "C" __declspec(dllexport) float _Circle_GetScaleX(CirclePtr circle) {
-  return circle->getScale().x;
-}
-
-extern "C" __declspec(dllexport) float _Circle_GetScaleY(CirclePtr circle) {
-  return circle->getScale().y;
-}
-
-// Origin
-extern "C" __declspec(dllexport) void _Circle_SetOrigin(CirclePtr circle,
-                                                        float x, float y) {
-  circle->setOrigin(x, y);
-}
-
-extern "C" __declspec(dllexport) float _Circle_GetOriginX(CirclePtr circle) {
-  return circle->getOrigin().x;
-}
-
-extern "C" __declspec(dllexport) float _Circle_GetOriginY(CirclePtr circle) {
-  return circle->getOrigin().y;
-}
-// ===============================================================================
-#include "SFML/System/Clock.hpp"
-#define MOON_API __declspec(dllexport)
-
-typedef sf::Clock* ClockPtr;
-
-extern "C" {
-    MOON_API ClockPtr createClock() {
-        return new sf::Clock();
-    }
-
-    MOON_API void clockRestart(ClockPtr clock) {
-        clock->restart();
-    }
-
-    MOON_API double getClockElapsedTime(ClockPtr clock) {
-        return clock->getElapsedTime().asSeconds();
-    }
-}
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/// Модуль предоставляющий базовый интерфейс для работы с вводом
-/////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SFML/Window/Keyboard.hpp"
-#include "SFML/Window/Mouse.hpp"
-#include "SFML/Graphics/RenderWindow.hpp"
-#include "SFML/System/Vector2.hpp"
-
-#define MOON_API __declspec(dllexport)
-
-// ==============================================================================================
-// БЛОК ВНЕШНЕГО C-ИНТЕРФЕЙСА (экспортируемые функции)
-// ==============================================================================================
-
-extern "C" {
-
-    // ==========================================================================================
-    // ФУНКЦИИ ДЛЯ РАБОТЫ С КЛАВИАТУРОЙ
-    // ==========================================================================================
-
-    /**
-     * @brief Проверяет, нажата ли указанная клавиша в данный момент
-     * @param key Код клавиши (из перечисления sf::Keyboard::Key)
-     * @return true если клавиша нажата, false в противном случае
-     */
-    MOON_API bool _Keyboard_IsKeyPressed(int key) {
-        return sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(key));
-    }
-
-    /**
-     * @brief Показывает или скрывает виртуальную клавиатуру (актуально для мобильных устройств)
-     * @param visible true - показать клавиатуру, false - скрыть
-     */
-    MOON_API void _Keyboard_SetVirtualKeyboardVisible(bool visible) {
-        sf::Keyboard::setVirtualKeyboardVisible(visible);
-    }
-
-    // ==========================================================================================
-    // ФУНКЦИИ ДЛЯ РАБОТЫ С МЫШЬЮ
-    // ==========================================================================================
-
-    /**
-     * @brief Проверяет, нажата ли указанная кнопка мыши в данный момент
-     * @param button Код кнопки мыши (из перечисления sf::Mouse::Button)
-     * @return true если кнопка нажата, false в противном случае
-     */
-    MOON_API bool _Mouse_IsButtonPressed(int button) {
-        return sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(button));
-    }
-
-    /**
-     * @brief Возвращает текущую координату X курсора мыши в глобальных координатах экрана
-     * @return Координата X курсора мыши
-     */
-    MOON_API int _Mouse_GetPositionX() {
-        return sf::Mouse::getPosition().x;
-    }
-
-    /**
-     * @brief Возвращает текущую координату Y курсора мыши в глобальных координатах экрана
-     * @return Координата Y курсора мыши
-     */
-    MOON_API int _Mouse_GetPositionY() {
-        return sf::Mouse::getPosition().y;
-    }
-
-    /**
-     * @brief Возвращает текущую координату X курсора мыши относительно окна
-     * @param window Указатель на объект окна RenderWindow
-     * @return Координата X курсора мыши относительно окна
-     */
-    MOON_API int _Mouse_GetPositionXWindow(sf::RenderWindow* window) {
-        return sf::Mouse::getPosition(*window).x;
-    }
-
-    /**
-     * @brief Возвращает текущую координату Y курсора мыши относительно окна
-     * @param window Указатель на объект окна RenderWindow
-     * @return Координата Y курсора мыши относительно окна
-     */
-    MOON_API int _Mouse_GetPositionYWindow(sf::RenderWindow* window) {
-        return sf::Mouse::getPosition(*window).y;
-    }
-
-    /**
-     * @brief Устанавливает позицию курсора мыши в глобальных координатах экрана
-     * @param x Координата X для установки
-     * @param y Координата Y для установки
-     */
-    MOON_API void _Mouse_SetPosition(int x, int y) {
-        sf::Mouse::setPosition(sf::Vector2i(x, y));
-    }
-
-    /**
-     * @brief Устанавливает позицию курсора мыши относительно окна
-     * @param x Координата X для установки относительно окна
-     * @param y Координата Y для установки относительно окна
-     * @param window Указатель на объект окна RenderWindow
-     */
-    MOON_API void _Mouse_SetPositionWindow(int x, int y, sf::RenderWindow* window) {
-        sf::Mouse::setPosition(sf::Vector2i(x, y), *window);
-    }
-
-
-} // extern "C"
-
-// ==============================================================================================
-// КОНЕЦ ФАЙЛА
-// ==============================================================================================
-// ===============================================================================
-// File: BUILDED_SGL_RECTANGLE_SHAPE.cpp
-// SFML Rectangle Shape API implementation
-// Part of DLL library
-//
-// Features:
-// - Create/delete rectangles
-// - Position/size/rotation control
-// - Fill/outline color settings
-// - Scaling and origin adjustment
-// - Get current shape parameters
-// ===============================================================================
-
-#ifndef SFML_GRAPHICS_HPP
-#include <SFML/Graphics/RectangleShape.hpp>
-#endif
-
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Color.hpp>
-
-typedef sf::RectangleShape* RectanglePtr;
-
-extern "C" {
-    __declspec(dllexport) RectanglePtr _Rectangle_Create(float width, float height) {
-        return new sf::RectangleShape(sf::Vector2f(width, height));
-    }
-
-    __declspec(dllexport) void _Rectangle_SetPosition(RectanglePtr rectangle, float x, float y) {
-        rectangle->setPosition(x, y);
-    }
-
-    __declspec(dllexport) float _Rectangle_GetPositionX(RectanglePtr rectangle) {
-        return rectangle->getPosition().x;
-    }
-
-    __declspec(dllexport) float _Rectangle_GetPositionY(RectanglePtr rectangle) {
-        return rectangle->getPosition().y;
-    }
-
-    __declspec(dllexport) void _Rectangle_SetColor(RectanglePtr rectangle, int r, int g, int b, int alpha) {
-        rectangle->setFillColor(sf::Color(r, g, b, alpha));
-    }
-
-    __declspec(dllexport) void _Rectangle_SetOrigin(RectanglePtr rectangle, float x, float y) {
-        rectangle->setOrigin(x, y);
-    }
-
-    __declspec(dllexport) void _Rectangle_SetSize(RectanglePtr rectangle, float width, float height) {
-        rectangle->setSize(sf::Vector2f(width, height));
-    }
-
-    __declspec(dllexport) void _Rectangle_SetRotation(RectanglePtr rectangle, float angle) {
-        rectangle->setRotation(angle);
-    }
-
-    __declspec(dllexport) void _Rectangle_SetOutlineThickness(RectanglePtr rectangle, float thickness) {
-        rectangle->setOutlineThickness(thickness);
-    }
-
-    __declspec(dllexport) void _Rectangle_SetOutlineColor(RectanglePtr rectangle, int r, int g, int b, int alpha) {
-        rectangle->setOutlineColor(sf::Color(r, g, b, alpha));
-    }
-
-    __declspec(dllexport) void _Rectangle_SetScale(RectanglePtr rectangle, float scaleX, float scaleY) {
-        rectangle->setScale(scaleX, scaleY);
-    }
-
-    __declspec(dllexport) float _Rectangle_GetWidth(RectanglePtr rectangle) {
-        return rectangle->getSize().x;
-    }
-
-    __declspec(dllexport) float _Rectangle_GetHeight(RectanglePtr rectangle) {
-        return rectangle->getSize().y;
-    }
-
-    __declspec(dllexport) void _Rectangle_Delete(RectanglePtr rectangle) {
-        delete rectangle;
-    }
-}
-// ===============================================================================
-// ================================================================================
-//                           BUILDED_SGL_RENDERSTATES.cpp
-//                    Биндинги для работы с состоянием рендеринга
-// ================================================================================
-//
-// Этот файл содержит C++ функции для работы с состоянием рендеринга SFML,
-// которые экспортируются в Python через ctypes.
-//
-// Основные компоненты:
-// - Режимы смешивания цветов (BlendMode)
-// - Состояния рендеринга (RenderStates)
-// - Шейдеры и их настройка
-// - Униформы и параметры шейдеров
-//
-// ================================================================================
-
-#include "SFML/Graphics/BlendMode.hpp"
-#include "SFML/Graphics/Shader.hpp"
-#include "SFML/Graphics/RenderStates.hpp"
-#include "SFML/Graphics/Texture.hpp"
-
-#include "SFML/Graphics/Glsl.hpp"
-
-#include <cstddef>
-
-#include "string"
-
-#define MOON_API __declspec(dllexport)
-
-using namespace std;
-
-// ================================================================================
-//                           РЕЖИМЫ СМЕШИВАНИЯ (BLENDMODE)
-// ================================================================================
-// Функции для создания и управления режимами смешивания цветов:
-// - Настройка факторов смешивания для RGB и Alpha каналов
-// - Уравнения смешивания для различных визуальных эффектов
-// - Управление прозрачностью и наложением цветов
-// ================================================================================
-
-extern "C" {
-    typedef sf::BlendMode* BlendModePtr;
-
-    // Создание полного режима смешивания с раздельными настройками для цветовых и альфа-каналов
-    __declspec(dllexport) BlendModePtr _BlendMode_CreateFull(
-                                                sf::BlendMode::Factor ColorSourceFactor,
-                                                sf::BlendMode::Factor ColorDestinationFactor,
-                                                sf::BlendMode::Equation ColorBlendEquation,
-                                                sf::BlendMode::Factor AlphaSourceFactor,
-                                                sf::BlendMode::Factor AlphaDestinationFactor,
-                                                sf::BlendMode::Equation AlphaBlendEquation
-                                            ) {
-        return new sf::BlendMode(ColorSourceFactor, ColorDestinationFactor, ColorBlendEquation,
-                                 AlphaSourceFactor, AlphaDestinationFactor, AlphaBlendEquation);
-    }
-
-    // Удаление объекта режима смешивания и освобождение памяти
-    __declspec(dllexport) void _BlendMode_Delete(BlendModePtr blend_mode) {
-        delete blend_mode;
-    }
-}
-
-// ================================================================================
-//                       СОСТОЯНИЯ РЕНДЕРИНГА (RENDERSTATES)
-// ================================================================================
-// Функции для создания и управления состоянием рендеринга:
-// - Настройка шейдеров, текстур и преобразований
-// - Управление режимами смешивания
-// - Комбинирование различных параметров отрисовки
-// ================================================================================
-
-extern "C" {
-    typedef sf::RenderStates* RenderStatesPtr;
-
-    // Создание нового объекта состояния рендеринга с параметрами по умолчанию
-    __declspec(dllexport) RenderStatesPtr _RenderStates_Create() {
-        RenderStatesPtr render_states = new sf::RenderStates();
-        return render_states;
-    }
-
-    // Удаление объекта состояния рендеринга и освобождение памяти
-    __declspec(dllexport) void _RenderStates_Delete(RenderStatesPtr render_states) {
-        delete render_states;
-    }
-
-    // Установка шейдера для состояния рендеринга
-    __declspec(dllexport) void _RenderStates_SetShader(RenderStatesPtr render_states, sf::Shader* shader) {
-        render_states->shader = shader;
-    }
-
-    // Установка режима смешивания для состояния рендеринга
-    __declspec(dllexport) void _RenderStates_SetBlendMode(RenderStatesPtr render_states, BlendModePtr blend_mode) {
-        render_states->blendMode = *blend_mode;
-    }
-
-    // Установка текстуры для состояния рендеринга
-    __declspec(dllexport) void _RenderStates_SetTexture(RenderStatesPtr render_states, sf::Texture *texture) {
-        render_states->texture = texture;
-    }
-
-    // Установка матрицы преобразования для состояния рендеринга
-    __declspec(dllexport) void _RenderStates_SetTransform(RenderStatesPtr render_states, sf::Transform* transform) {
-        render_states->transform = *transform;
-    }
-}
-
-// ================================================================================
-//                               ШЕЙДЕРЫ (SHADER)
-// ================================================================================
-// Функции для работы с шейдерами GLSL:
-// - Загрузка шейдеров из файлов и строк
-// - Настройка униформ (параметров шейдеров)
-// - Управление состоянием шейдеров (привязка/отвязка)
-// - Работа с цветами, векторами и текстурами в шейдерах
-// ================================================================================
-
-extern "C" {
-    typedef sf::Shader* ShaderPtr;
-
-    // Создание нового объекта шейдера
-    __declspec(dllexport) ShaderPtr _Shader_Create() {
-        return new sf::Shader();
-    }
-
-    // ================================================================================
-    //                   ЗАГРУЗКА ШЕЙДЕРОВ ИЗ РАЗЛИЧНЫХ ИСТОЧНИКОВ
-    // ================================================================================
-
-    // Загрузка шейдера из файлов (вершинный и фрагментный шейдеры)
-    __declspec(dllexport) bool _Shader_LoadFromFile(ShaderPtr shader, char* vertex_file, char* fragment_file) {
-        return shader->loadFromFile(vertex_file, fragment_file);
-    }
-
-    // Загрузка шейдера из строк (вершинный и фрагментный шейдеры)
-    __declspec(dllexport) bool _Shader_LoadFromStrings(ShaderPtr shader, char* vertex_string, char* fragment_string) {
-        return shader->loadFromMemory(vertex_string, fragment_string);
-    }
-
-    // Загрузка шейдера определенного типа из строки (вершинный, геометрический или фрагментный)
-    __declspec(dllexport) bool _Shader_LoadFromStringWithType(ShaderPtr shader, char* shader_string, sf::Shader::Type type) {
-        if (type == 2) {
-            return shader->loadFromMemory(shader_string, sf::Shader::Fragment);
-        } else if (type == 1) {
-            return shader->loadFromMemory(shader_string, sf::Shader::Geometry);
-        } else if (type == 0) {
-            return shader->loadFromMemory(shader_string, sf::Shader::Vertex);
-        }
-        return false;
-    }
-
-    // ================================================================================
-    //                   НАСТРОЙКА УНИФОРМ (ПАРАМЕТРОВ ШЕЙДЕРОВ)
-    // ================================================================================
-
-    // Установка целочисленной униформы
-    __declspec(dllexport) void _Shader_SetUniformInt(ShaderPtr shader, char* name, int value) {
-        shader->setUniform(name, value);
-    }
-
-    // Установка униформы с плавающей точкой
-    __declspec(dllexport) void _Shader_SetUniformFloat(ShaderPtr shader, char* name, float value) {
-        shader->setUniform(name, value);
-    }
-
-    // Установка булевой униформы
-    __declspec(dllexport) void _Shader_SetUniformBool(ShaderPtr shader, char* name, bool value) {
-        shader->setUniform(name, value);
-    }
-
-    // Установка текстуры как униформы
-    __declspec(dllexport) void _Shader_SetUniformTexture(ShaderPtr shader, char* name, sf::Texture texture) {
-        shader->setUniform(name, texture);
-    }
-
-    // Установка целочисленного векторной униформы (2 компонента)
-    __declspec(dllexport) void _Shader_SetUniformIntVector(ShaderPtr shader, char* name, int x, int y) {
-        shader->setUniform(name, sf::Glsl::Ivec2(x, y));
-    }
-
-    // Установка векторной униформы с плавающей точкой (2 компонента)
-    __declspec(dllexport) void _Shader_SetUniformFloatVector(ShaderPtr shader, char* name, float x, float y) {
-        shader->setUniform(name, sf::Glsl::Vec2(x, y));
-    }
-
-    // Установка цветовой униформы (преобразование в нормализованные значения)
-    __declspec(dllexport) void _Shader_SetUniformColor(ShaderPtr shader, char* name, int r, int g, int b, int a) {
-        shader->setUniform(name, sf::Glsl::Vec4(r/256.0f, g/256.0f, b/256.0f, a/256.0f));
-    }
-
-    // ================================================================================
-    //                   УПРАВЛЕНИЕ СОСТОЯНИЕМ ШЕЙДЕРОВ
-    // ================================================================================
-
-    // Привязка шейдера для использования в рендеринге
-    __declspec(dllexport) void _Shader_Bind(ShaderPtr shader, ShaderPtr new_shader) {
-        shader->bind(new_shader);
-    }
-
-    // Отвязка текущего шейдера
-    __declspec(dllexport) void _Shader_Unbind(ShaderPtr shader) {
-        shader->bind(NULL);
-    }
-
-    // Получение указателя на специальную текстуру "CurrentTexture"
-    __declspec(dllexport) void* _Shader_GetCurrentTexture() {
-        return &sf::Shader::CurrentTexture;
-    }
-}
-
-// ================================================================================
-//                              КОНЕЦ ФАЙЛА
-// ================================================================================
-// Все функции для работы с состоянием рендеринга PySGL определены.
-// Они предоставляют полный интерфейс для настройки шейдеров, режимов смешивания
-// и параметров отрисовки в Python приложениях.
-// ================================================================================
-// Подключение необходимых заголовочных файлов SFML
-
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Text.hpp>
-#include <SFML/Graphics/Color.hpp>
-
-#include <SFML/System/String.hpp>
-
-
-
-#include "exception"
-#include "string"
-
-
-// ==============================================================================================
-// БЛОК ОПРЕДЕЛЕНИЯ ТИПОВ ДАННЫХ
-// ==============================================================================================
-
-// Определение псевдонимов типов для удобства работы с указателями SFML
-typedef sf::Font* FontPtr;    // Указатель на объект шрифта
-typedef sf::Text* TextPtr;    // Указатель на объект текста
-
-// ==============================================================================================
-// БЛОК ВНЕШНЕГО C-ИНТЕРФЕЙСА (экспортируемые функции)
-// ==============================================================================================
-
-extern "C" {
-
-    // ==========================================================================================
-    // ФУНКЦИИ ДЛЯ РАБОТЫ СО ШРИФТАМИ
-    // ==========================================================================================
-
-    /**
-     * @brief Загружает шрифт из файла
-     * @param path Путь к файлу шрифта
-     * @return Указатель на загруженный шрифт или nullptr в случае ошибки
-     */
-    __declspec(dllexport) FontPtr loadSystemFont(const char* path) {
-        FontPtr font = new sf::Font();
-        try {
-            // Попытка загрузки шрифта из файла
-            if (!font->loadFromFile(path)) {
-                delete font;  // Важно: освобождаем память при неудачной загрузке
-                return nullptr;
-            }
-        } catch (const std::exception& e) {
-            delete font;  // Освобождаем память в случае исключения
-            return nullptr;
-        }
-        // Отключаем сглаживание для более четкого отображения
-        font->setSmooth(false);
-        return font;
-    }
-
-    // ==========================================================================================
-    // ФУНКЦИИ ДЛЯ СОЗДАНИЯ И УПРАВЛЕНИЯ ТЕКСТОМ
-    // ==========================================================================================
-
-    /**
-     * @brief Создает объект текста с указанным шрифтом
-     * @param font Указатель на шрифт
-     * @return Указатель на созданный объект текста
-     */
-    __declspec(dllexport) TextPtr createText(FontPtr font) {
-        TextPtr text = new sf::Text();
-        text->setFont(*font);
-        return text;
-    }
-
-    /**
-     * @brief Устанавливает текстовое содержимое
-     * @param text Указатель на объект текста
-     * @param str Строка для отображения (в кодировке UTF-8)
-     */
-    __declspec(dllexport) void setText(TextPtr text, const char* str) {
-        std::string std_str(str);
-        // Преобразование из UTF-8 в внутренний формат SFML
-        text->setString(sf::String::fromUtf8(std_str.begin(), std_str.end()));
-    }
-
-    /**
-     * @brief Устанавливает размер символов текста
-     * @param text Указатель на объект текста
-     * @param size Размер шрифта в пикселях
-     */
-    __declspec(dllexport) void setTextSize(TextPtr text, int size) {
-        text->setCharacterSize(size);
-    }
-
-    /**
-     * @brief Устанавливает масштаб текста
-     * @param text Указатель на объект текста
-     * @param scaleX Масштаб по оси X
-     * @param scaleY Масштаб по оси Y
-     */
-    __declspec(dllexport) void setTextScale(TextPtr text, float scaleX, float scaleY) {
-        text->setScale(scaleX, scaleY);
-    }
-
-    /**
-     * @brief Устанавливает цвет текста
-     * @param text Указатель на объект текста
-     * @param r Красная компонента цвета (0-255)
-     * @param g Зеленая компонента цвета (0-255)
-     * @param b Синяя компонента цвета (0-255)
-     * @param a Альфа-компонента (прозрачность, 0-255)
-     */
-    __declspec(dllexport) void setTextColor(TextPtr text, int r, int g, int b, int a) {
-        text->setFillColor(sf::Color(r, g, b, a));
-    }
-
-    /**
-     * @brief Устанавливает позицию текста на экране
-     * @param text Указатель на объект текста
-     * @param x Координата X
-     * @param y Координата Y
-     */
-    __declspec(dllexport) void setTextPosition(TextPtr text, float x, float y) {
-        text->setPosition(x, y);
-    }
-
-    /**
-     * @brief Устанавливает точку отсчета (origin) для трансформаций текста
-     * @param text Указатель на объект текста
-     * @param x Смещение по X относительно левого верхнего угла
-     * @param y Смещение по Y относительно левого верхнего угла
-     */
-    __declspec(dllexport) void setTextOffset(TextPtr text, float x, float y) {
-        text->setOrigin(x, y);
-    }
-
-    /**
-     * @brief Устанавливает угол поворота текста
-     * @param text Указатель на объект текста
-     * @param angle Угол поворота в градусах
-     */
-    __declspec(dllexport) void setTextAngle(TextPtr text, float angle) {
-        text->setRotation(angle);
-    }
-
-    /**
-     * @brief Устанавливает стиль текста (жирный, курсив, подчеркнутый)
-     * @param text Указатель на объект текста
-     * @param style Комбинация флагов стиля из sf::Text::Style
-     */
-    __declspec(dllexport) void setStyle(TextPtr text, sf::Text::Style style) {
-        text->setStyle(style);
-    }
-
-    /**
-     * @brief Устанавливает цвет контура текста
-     * @param text Указатель на объект текста
-     * @param r Красная компонента цвета (0-255)
-     * @param g Зеленая компонента цвета (0-255)
-     * @param b Синяя компонента цвета (0-255)
-     * @param a Альфа-компонента (прозрачность, 0-255)
-     */
-    __declspec(dllexport) void setOutlineColor(TextPtr text, int r, int g, int b, int a) {
-        text->setOutlineColor(sf::Color(r, g, b, a));
-    }
-
-    /**
-     * @brief Устанавливает толщину контура текста
-     * @param text Указатель на объект текста
-     * @param thickness Толщина контура в пикселях
-     */
-    __declspec(dllexport) void setOutlineThickness(TextPtr text, float thickness) {
-        text->setOutlineThickness(thickness);
-    }
-
-    /**
-     * @brief Устанавливает межбуквенное расстояние
-     * @param text Указатель на объект текста
-     * @param spacing Коэффициент межбуквенного расстояния
-     */
-    __declspec(dllexport) void setLetterSpacing(TextPtr text, float spacing) {
-        text->setLetterSpacing(spacing);
-    }
-
-    // ==========================================================================================
-    // ФУНКЦИИ ДЛЯ ПОЛУЧЕНИЯ ИНФОРМАЦИИ О ТЕКСТЕ
-    // ==========================================================================================
-
-    /**
-     * @brief Возвращает ширину текста в пикселях
-     * @param text Указатель на объект текста
-     * @return Ширина текста с учетом всех трансформаций
-     */
-    __declspec(dllexport) double getTextWidth(TextPtr text) {
-        return text->getGlobalBounds().width;
-    }
-
-    /**
-     * @brief Возвращает высоту текста в пикселях
-     * @param text Указатель на объект текста
-     * @return Высота текста с учетом всех трансформаций
-     */
-    __declspec(dllexport) double getTextHeight(TextPtr text) {
-        return text->getGlobalBounds().height;
-    }
-
-    // ==========================================================================================
-    // ФУНКЦИИ ДЛЯ ИЗМЕНЕНИЯ СВОЙСТВ ТЕКСТА
-    // ==========================================================================================
-
-    /**
-     * @brief Изменяет шрифт для текста
-     * @param text Указатель на объект текста
-     * @param font Указатель на новый шрифт
-     */
-    __declspec(dllexport) void setFont(TextPtr text, FontPtr font) {
-        text->setFont(*font);
-    }
-
-} // extern "C"
-
-// ==============================================================================================
-// КОНЕЦ ФАЙЛА
-// ==============================================================================================
-#ifndef SFML_GRAPHICS_HPP
-#include "SFML/Graphics.hpp"
-#endif
-
-extern "C" {
-
-    typedef sf::RenderTexture* RenderTexturePtr;
-
-    __declspec(dllexport) RenderTexturePtr
-    _RenderTexture_Init() {
-        return new sf::RenderTexture();
-    }
-
-    __declspec(dllexport) bool
-    _RenderTexture_Create(RenderTexturePtr texture, int width, int height) {
-        return texture->create(width, height);
-    }
-
-    __declspec(dllexport) void
-    _RenderTexture_Draw(RenderTexturePtr texture, sf::Drawable* shape) {
-        texture->draw(*shape);
-    }
-
-    __declspec(dllexport) void
-    _RenderTexture_Clear(RenderTexturePtr texture, int r, int g, int b, int a) {
-        texture->clear(sf::Color(r, g, b, a));
-    }
-
-    __declspec(dllexport) void
-    _RenderTexture_Display(RenderTexturePtr texture) {
-        texture->display();
-    }
-
-    __declspec(dllexport) void
-    _RenderTexture_SetSmooth(RenderTexturePtr texture, bool smooth) {
-        texture->setSmooth(smooth);
-    }
-
-    __declspec(dllexport) void
-    _RenderTexture_DrawWithStates(RenderTexturePtr texture, sf::Drawable* shape, sf::RenderStates* states) {
-        texture->draw(*shape, *states);
-    }
-
-    __declspec(dllexport) void
-    _RenderTexture_DrawWithShader(RenderTexturePtr texture, sf::Drawable* shape, sf::Shader* shader) {
-        texture->draw(*shape, shader);
-    }
-
-    __declspec(dllexport) void
-    _RenderTexture_SetView(RenderTexturePtr texture, sf::View* view) {
-        texture->setView(*view);
-    }
-
-    __declspec(dllexport) sf::View*
-    _RenderTexture_GetDefaultView(RenderTexturePtr texture) {
-        return new sf::View(texture->getDefaultView());
-    }
-
-    __declspec(dllexport) sf::View*
-    _RenderTexture_GetView(RenderTexturePtr texture) {
-        return new sf::View(texture->getView());
-    }
-
-    __declspec(dllexport) sf::Texture* 
-    _RenderTexture_GetTexture(RenderTexturePtr texture) {
-        return new sf::Texture( texture->getTexture() );
-    }
-
-    __declspec(dllexport) void
-    _RenderTexture_Delete(RenderTexturePtr texture) {
-        delete texture;
-    }
-
-
-}
-
-extern "C" {
-    typedef sf::Texture* TexturePtr;
-
-    __declspec(dllexport) TexturePtr _Texture_LoadFromFile(char* file_path) {
-        TexturePtr texture = new sf::Texture();
-        texture->loadFromFile(file_path);
-        return texture;
-    }
-
-    __declspec(dllexport) TexturePtr _Texture_LoadFromFileWithBoundRect(char* file_path, int x, int y, int w, int h) {
-        TexturePtr texture = new sf::Texture();
-        texture->loadFromFile(file_path, sf::IntRect(x, y ,w, h));
-        return texture;
-    }
-
-    __declspec(dllexport) void _Texture_Delete(TexturePtr texture) {
-        delete texture;
-    }
-
-    __declspec(dllexport) int _Texture_GetMaxixmumSize(TexturePtr texture) {
-        return texture->getMaximumSize();
-    }
-
-    __declspec(dllexport) int _Texture_GetSizeX(TexturePtr texture) {
-        return texture->getSize().x;
-    }
-
-    __declspec(dllexport) int _Texture_GetSizeY(TexturePtr texture) {
-        return texture->getSize().y;
-    }
-
-    __declspec(dllexport) void _Texture_SetRepeated(TexturePtr texture, bool value) {
-        texture->setRepeated(value);
-    }
-
-    __declspec(dllexport) void _Texture_SetSmooth(TexturePtr texture, bool value) {
-        texture->setSmooth(value);
-    }
-
-    __declspec(dllexport) void _Texture_Swap(TexturePtr texture, TexturePtr texture2) {
-        texture->swap(*texture2);
-    }
-
-    __declspec(dllexport) TexturePtr _Texture_SubTexture(TexturePtr texture, int x, int y, int w, int h) {
-        TexturePtr subTexture = new sf::Texture();
-        subTexture->loadFromImage(texture->copyToImage(), sf::IntRect(x, y, w, h));
-        return subTexture;
-    }
-}
-
-extern "C" {
-
-    typedef sf::Sprite* SpritePtr;
-    
-    __declspec(dllexport) sf::Sprite*
-    _Sprite_GetFromRenderTexture(RenderTexturePtr texture) {
-        return new sf::Sprite(texture->getTexture());
-    }
-
-    __declspec(dllexport) SpritePtr
-    _Sprite_GetFromTexture(TexturePtr texture) {
-        return new sf::Sprite(*texture);
-    }
-
-    __declspec(dllexport) void
-    _Sprite_Scale(SpritePtr sprite, float x, float y) {
-        sprite->scale(x, y);
-    }
-
-    __declspec(dllexport) void
-    _Sprite_Rotate(SpritePtr sprite, float angle) {
-        sprite->rotate(angle);
-    }
-
-    //////////////////////////////////////////////////////////////////
-    // Setters
-    //////////////////////////////////////////////////////////////////
-    __declspec(dllexport) void
-    _Sprite_SetColor(SpritePtr sprite, int r, int g, int b, int a) {
-        sprite->setColor(sf::Color(r, g, b, a));
-    }
-
-    __declspec(dllexport) void
-    _Sprite_SetOrigin(SpritePtr sprite, float x, float y) {
-        sprite->setOrigin(x, y);
-    }
-
-    __declspec(dllexport) void
-    _Sprite_SetPosition(SpritePtr sprite, float x, float y) {
-        sprite->setPosition(x, y);
-    }
-
-    __declspec(dllexport) void
-    _Sprite_SetRotation(SpritePtr sprite, float angle) {
-        sprite->setRotation(angle);
-    }
-
-    __declspec(dllexport) void
-    _Sprite_SetScale(SpritePtr sprite, float x, float y) {
-        sprite->setScale(x, y);
-    }
-
-    // todo: 
-    // __declspec(dllexport) void
-    // _Sprite_SetTexture(SpritePtr sprite) {
-    // }
-
-    //////////////////////////////////////////////////////////////////
-
-    __declspec(dllexport) int
-    _Sprite_GetColorR(SpritePtr sprite) {
-        return sprite->getColor().r;
-    }
-    
-    __declspec(dllexport) int
-    _Sprite_GetColorG(SpritePtr sprite) {
-        return sprite->getColor().g;
-    }
-
-    __declspec(dllexport) int
-    _Sprite_GetColorB(SpritePtr sprite) {
-        return sprite->getColor().b;
-    }
-
-    __declspec(dllexport) int
-    _Sprite_GetColorA(SpritePtr sprite) {
-        return sprite->getColor().a;
-    }
-
-    __declspec(dllexport) float
-    _Sprite_GetOriginX(SpritePtr sprite) {
-        return sprite->getOrigin().x;
-    }
-
-    __declspec(dllexport) float
-    _Sprite_GetOriginY(SpritePtr sprite) {
-        return sprite->getOrigin().y;
-    }
-
-    __declspec(dllexport) float
-    _Sprite_GetPositionX(SpritePtr sprite) {
-        return sprite->getPosition().x;
-    }
-
-    __declspec(dllexport) float
-    _Sprite_GetPositionY(SpritePtr sprite) {
-        return sprite->getPosition().y;
-    }
-
-    __declspec(dllexport) float
-    _Sprite_GetRotation(SpritePtr sprite) {
-        return sprite->getRotation();
-    }
-
-    __declspec(dllexport) float
-    _Sprite_GetScaleX(SpritePtr sprite) {
-        return sprite->getScale().x;
-    }
-
-    __declspec(dllexport) float
-    _Sprite_GetScaleY(SpritePtr sprite) {
-        return sprite->getScale().y;
-    }
-}
-#ifndef SFML_GRAPHICS_HPP
-#include "SFML/Graphics.hpp"
-#endif 
-
-extern "C" {
-
-    typedef sf::VertexArray* VertexArrayPtr;
-
-    __declspec(dllexport) VertexArrayPtr 
-    _VertexArray_Create() {
-        return new sf::VertexArray();
-    }
-
-    __declspec(dllexport) void 
-    _VertexArray_Delete(VertexArrayPtr vertexArray) {
-        delete vertexArray;
-    }
-
-    __declspec(dllexport) void 
-    _VertexArray_AddVertexForPositionAndColor(VertexArrayPtr vertexArray, double x, double y, int r, int g, int b, int a) {
-        vertexArray->append(sf::Vertex(sf::Vector2f(static_cast<float>(x), static_cast<float>(y)), sf::Color(static_cast<sf::Uint8>(r), static_cast<sf::Uint8>(g), static_cast<sf::Uint8>(b), static_cast<sf::Uint8>(a))));
-    }
-
-    __declspec(dllexport) void 
-    _VertexArray_SetPrimitiveType(VertexArrayPtr vertexArray, int primitiveType) {
-        vertexArray->setPrimitiveType(static_cast<sf::PrimitiveType>(primitiveType));
-    }
-
-    __declspec(dllexport) void 
-    _VertexArray_Resize(VertexArrayPtr vertexArray, int vertexCount) {
-        vertexArray->resize(static_cast<size_t>(vertexCount));
-    }
-
-    __declspec(dllexport) void 
-    _VertexArray_Clear(VertexArrayPtr vertexArray) {
-        vertexArray->clear();
-    }
-
-    __declspec(dllexport) int
-    _VertexArray_GetVertexCount(VertexArrayPtr vertexArray) {
-        return static_cast<int>(vertexArray->getVertexCount());
-    }
-
-    __declspec(dllexport) float
-    _VertexArray_GetVertexPositionX(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0.0f; 
-        return vertexArray->operator[](index).position.x;
-    }
-
-    __declspec(dllexport) float
-    _VertexArray_GetVertexPositionY(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0.0f; 
-        return vertexArray->operator[](index).position.y;
-    }
-        
-    __declspec(dllexport) int
-    _VertexArray_GetVertexColorR(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0; 
-        return vertexArray->operator[](index).color.r;
-    }
-    
-    __declspec(dllexport) int
-    _VertexArray_GetVertexColorG(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0; 
-        return vertexArray->operator[](index).color.g;
-    }
-
-    __declspec(dllexport) int
-    _VertexArray_GetVertexColorB(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0;
-        return vertexArray->operator[](index).color.b;
-    }
-        
-    __declspec(dllexport) int
-    _VertexArray_GetVertexColorA(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0; 
-        return vertexArray->operator[](index).color.a;
-    }
-
-
-    __declspec(dllexport) void
-    _VertexArray_SetVertexForPositionAndColor(VertexArrayPtr vertexArray, int index, double x, double y, int r, int g, int b, int a) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return; 
-        vertexArray->operator[](index) = sf::Vertex(sf::Vector2f(static_cast<float>(x), static_cast<float>(y)), sf::Color(static_cast<sf::Uint8>(r), static_cast<sf::Uint8>(g), static_cast<sf::Uint8>(b), static_cast<sf::Uint8>(a)));
-    }
-
-    __declspec(dllexport) int 
-    _VertexArray_GetPrimitiveType(VertexArrayPtr vertexArray) {
-        return static_cast<int>(vertexArray->getPrimitiveType());
-    }
-
-    // Оптимизированные функции для прямого доступа
-    __declspec(dllexport) void
-    _VertexArray_SetVertexPosition(VertexArrayPtr vertexArray, int index, float x, float y) {
-        if (index >= 0 && index < vertexArray->getVertexCount()) {
-            (*vertexArray)[index].position = sf::Vector2f(x, y);
-        }
-    }
-
-
-    __declspec(dllexport) void
-    _VertexArray_SetVertexColor(VertexArrayPtr vertexArray, int index, int r, int g, int b, int a) {
-        if (index >= 0 && index < vertexArray->getVertexCount()) {
-            (*vertexArray)[index].color = sf::Color(r, g, b, a);
-        }
-    }
-
-    __declspec(dllexport) void
-    _VertexArray_SetAllVerticesColor(VertexArrayPtr vertexArray, int r, int g, int b, int a) {
-        sf::Color color(r, g, b, a);
-        for (size_t i = 0; i < vertexArray->getVertexCount(); ++i) {
-            (*vertexArray)[i].color = color;
-        }
-    }
-
-    // Функции для работы с текстурными координатами
-    __declspec(dllexport) void
-    _VertexArray_AddVertexWithTexCoords(VertexArrayPtr vertexArray, float x, float y, int r, int g, int b, int a, float texX, float texY) {
-        vertexArray->append(sf::Vertex(
-            sf::Vector2f(x, y),
-            sf::Color(r, g, b, a),
-            sf::Vector2f(texX, texY)
-        ));
-    }
-
-    __declspec(dllexport) void
-    _VertexArray_SetVertexTexCoords(VertexArrayPtr vertexArray, int index, float texX, float texY) {
-        if (index >= 0 && index < vertexArray->getVertexCount()) {
-            (*vertexArray)[index].texCoords = sf::Vector2f(texX, texY);
-        }
-    }
-
-    __declspec(dllexport) void
-    _VertexArray_SetQuadTexCoords(VertexArrayPtr vertexArray, int startIndex, float left, float top, float width, float height) {
-        if (startIndex >= 0 && startIndex + 3 < vertexArray->getVertexCount()) {
-            (*vertexArray)[startIndex].texCoords = sf::Vector2f(left, top);
-            (*vertexArray)[startIndex + 1].texCoords = sf::Vector2f(left + width, top);
-            (*vertexArray)[startIndex + 2].texCoords = sf::Vector2f(left + width, top + height);
-            (*vertexArray)[startIndex + 3].texCoords = sf::Vector2f(left, top + height);
-        }
-    }
-
-    // Специальная функция для отрисовки VertexArray с RenderStates
-    __declspec(dllexport) void _Window_DrawVertexArrayWithRenderStates(sf::RenderWindow* window, sf::RenderStates* render_states, VertexArrayPtr vertexArray) {
-        window->draw(*vertexArray, *render_states);
-    }
-}
-// ================================================================================
-//                           BUILDED_SGL_VIEW.cpp
-//                    Биндинги для работы с видами и прямоугольниками
-// ================================================================================
-//
-// Этот файл содержит C++ функции для работы с прямоугольниками и видами (View) SFML,
-// которые экспортируются в Python через ctypes.
-//
-// Основные компоненты:
-// - Создание и управление прямоугольниками (FloatRect)
-// - Работа с видами (View) - камерами и областями просмотра
-// - Преобразования координат и геометрические операции
-// - Управление размерами, позициями и углами поворота
-//
-// ================================================================================
-
-#ifndef SFML_GRAPHICS_HPP
-#include <SFML/Graphics/Rect.hpp>
-#include <SFML/Graphics/View.hpp>
-#endif
-
-typedef sf::View* ViewPtr;
-typedef sf::FloatRect* FloatRectPtr;
-
-#define MOON_API __declspec(dllexport)
-
-// ================================================================================
-//                           РАБОТА С ПРЯМОУГОЛЬНИКАМИ
-// ================================================================================
-// Функции для создания и управления прямоугольными областями:
-// - Создание прямоугольников с заданными параметрами
-// - Получение и установка позиции и размера
-// - Геометрические операции
-// ================================================================================
-
-extern "C" {
-
-    // Создание нового прямоугольника с указанными параметрами
-    MOON_API FloatRectPtr _FloatRect_Create(float rect_left, float rect_top, float rect_width, float rect_height) {
-        return new sf::FloatRect(rect_left, rect_top, rect_width, rect_height);
-    }
-
-    // Удаление прямоугольника и освобождение памяти
-    MOON_API void _FloatRect_Delete(FloatRectPtr rect) {
-        delete rect;
-    }
-
-    // ================================================================================
-    //                   ПОЛУЧЕНИЕ СВОЙСТВ ПРЯМОУГОЛЬНИКА
-    // ================================================================================
-
-    // Получение X-координаты позиции прямоугольника
-    MOON_API float _FloatRect_GetPositionX(FloatRectPtr rect) {
-        return rect->getPosition().x;
-    }
-
-    // Получение Y-координаты позиции прямоугольника
-    MOON_API float _FloatRect_GetPositionY(FloatRectPtr rect) {
-        return rect->getPosition().y;
-    }
-
-    // Получение ширины прямоугольника
-    MOON_API float _FloatRect_GetWidth(FloatRectPtr rect) {
-        return rect->getSize().x;
-    }
-
-    // Получение высоты прямоугольника
-    MOON_API float _FloatRect_GetHeight(FloatRectPtr rect) {
-        return rect->getSize().y;
-    }
-
-    // ================================================================================
-    //                   УСТАНОВКА СВОЙСТВ ПРЯМОУГОЛЬНИКА
-    // ================================================================================
-
-    // Установка позиции прямоугольника
-    MOON_API void _FloatRect_SetPosition(FloatRectPtr rect, float x, float y) {
-        rect->left = x;
-        rect->top = y;
-    }
-
-    // Установка размера прямоугольника
-    MOON_API void _FloatRect_SetSize(FloatRectPtr rect, float w, float h) {
-        rect->width = w;
-        rect->height = h;
-    }
-}
-
-// ================================================================================
-//                           РАБОТА С ВИДАМИ (VIEW)
-// ================================================================================
-// Функции для создания и управления видами (камерами):
-// - Создание видов на основе прямоугольников
-// - Управление центром, размером и поворотом
-// - Операции перемещения, масштабирования и вращения
-// - Настройка области просмотра (viewport)
-// ================================================================================
-
-extern "C" {
-
-    // Создание нового вида на основе прямоугольника
-    MOON_API ViewPtr _View_Create(FloatRectPtr rect) {
-        ViewPtr view = new sf::View(*rect);
-        return view;
-    }
-
-    // Удаление вида и освобождение памяти
-    MOON_API void _View_Delete(ViewPtr view) {
-        delete view;
-    }
-
-    // ================================================================================
-    //                   ПОЛУЧЕНИЕ СВОЙСТВ ВИДА
-    // ================================================================================
-
-    // Получение X-координаты позиции области просмотра
-    MOON_API float _View_GetPositionX(ViewPtr view) {
-        return view->getViewport().left;
-    }
-
-    // Получение Y-координаты позиции области просмотра
-    MOON_API float _View_GetPositionY(ViewPtr view) {
-        return view->getViewport().top;
-    }
-
-    // Получение X-координаты центра вида
-    MOON_API float _View_GetCenterX(ViewPtr view) {
-        return view->getCenter().x;
-    }
-
-    // Получение Y-координаты центра вида
-    MOON_API float _View_GetCenterY(ViewPtr view) {
-        return view->getCenter().y;
-    }
-
-    // Получение угла поворота вида в градусах
-    MOON_API float _View_GetAngle(ViewPtr view) {
-        return view->getRotation();
-    }
-
-    // Получение ширины вида
-    MOON_API float _View_GetWidth(ViewPtr view) {
-        return view->getSize().x;
-    }
-
-    // Получение высоты вида
-    MOON_API float _View_GetHeight(ViewPtr view) {
-        return view->getSize().y;
-    }
-
-    // ================================================================================
-    //                   ПРЕОБРАЗОВАНИЯ И ОПЕРАЦИИ ВИДА
-    // ================================================================================
-
-    // Поворот вида на указанный угол (градусы)
-    MOON_API void _View_Rotate(ViewPtr view, float angle) {
-        view->rotate(angle);
-    }
-
-    // Перемещение вида на указанное смещение
-    MOON_API void _View_Move(ViewPtr view, float x, float y) {
-        view->move(x, y);
-    }
-
-    // Масштабирование вида (зум)
-    MOON_API void _View_Zoom(ViewPtr view, float zoom) {
-        view->zoom(zoom);
-    }
-
-    // ================================================================================
-    //                   УСТАНОВКА СВОЙСТВ ВИДА
-    // ================================================================================
-
-    // Сброс вида к состоянию на основе прямоугольника
-    MOON_API void _View_Reset(ViewPtr view, FloatRectPtr rect) {
-        view->reset(*rect);
-    }
-
-    // Установка центра вида
-    MOON_API void _View_SetCenter(ViewPtr view, float x, float y) {
-        view->setCenter(x, y);
-    }
-
-    // Установка угла поворота вида (градусы)
-    MOON_API void _View_SetAngle(ViewPtr view, float angle) {
-        view->setRotation(angle);
-    }
-
-    // Установка области просмотра (нормализованные координаты)
-    MOON_API void _View_SetViewport(ViewPtr view, FloatRectPtr rect) {
-        view->setViewport(*rect);
-    }
-
-    // Установка размера вида
-    MOON_API void _View_SetSize(ViewPtr view, float w, float h) {
-        view->setSize(w, h);
-    }
-}
-
-// ================================================================================
-//                              КОНЕЦ ФАЙЛА
-// ================================================================================
-// Все функции для работы с прямоугольниками и видами PySGL определены.
-// Они предоставляют полный интерфейс для управления камерами и
-// геометрическими областями в Python приложениях.
-// ================================================================================
 // ================================================================================
 //                           BUILDED_SGL_WINDOW.cpp
 //                    Биндинги для работы с окнами в PySGL
@@ -1507,6 +34,13 @@ extern "C" {
 
 
 #include "string"
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
 using namespace std;
 
 
@@ -1523,7 +57,7 @@ typedef sf::RenderStates* RenderStatesPtr;
 typedef sf::Shader* ShaderPtr;
 
 
-#define MOON_API __declspec(dllexport)
+
 
 // ================================================================================
 //                        НАСТРОЙКИ КОНТЕКСТА OPENGL
@@ -1754,12 +288,12 @@ extern "C" {
     // Функции для управления камерой и областью просмотра
 
     // Применение вида к окну (установка активной камеры)
-    __declspec(dllexport) void _Window_SetView(WindowPtr window, ViewPtr view) {
+    MOON_API void _Window_SetView(WindowPtr window, ViewPtr view) {
         window->setView(*view);
     }
 
     // Получение стандартного вида (камеры) окна
-    __declspec(dllexport) ViewPtr _Window_GetDefaultView(WindowPtr window) {
+    MOON_API ViewPtr _Window_GetDefaultView(WindowPtr window) {
         return new sf::View(window->getDefaultView());
     }
 
@@ -1768,7 +302,7 @@ extern "C" {
     // ================================================================================
 
     // Установка ограничения кадров в секунду (FPS)
-    __declspec(dllexport) void _Window_SetWaitFps(WindowPtr window, unsigned int fps) {
+    MOON_API void _Window_SetWaitFps(WindowPtr window, unsigned int fps) {
         window->setFramerateLimit(fps);
     }
 
@@ -1778,7 +312,7 @@ extern "C" {
     // Функции для работы с событиями окна (клавиатура, мышь, изменение размера)
 
     // Получение следующего события из очереди
-    __declspec(dllexport) int _Window_GetCurrentEventType(WindowPtr window, sf::Event* event) {
+    MOON_API int _Window_GetCurrentEventType(WindowPtr window, sf::Event* event) {
         if (window->pollEvent(*event)) {
             return event->type;
         }
@@ -1794,7 +328,725 @@ extern "C" {
 // Они предоставляют полный интерфейс для создания и управления
 // графическими окнами в Python приложениях.
 // ================================================================================
-// ================================================================================
+// Подключение необходимых заголовочных файлов SFML
+
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Color.hpp>
+
+#include <SFML/System/String.hpp>
+
+
+
+#include "exception"
+#include "string"
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+
+// ==============================================================================================
+// БЛОК ОПРЕДЕЛЕНИЯ ТИПОВ ДАННЫХ
+// ==============================================================================================
+
+// Определение псевдонимов типов для удобства работы с указателями SFML
+typedef sf::Font* FontPtr;    // Указатель на объект шрифта
+typedef sf::Text* TextPtr;    // Указатель на объект текста
+
+// ==============================================================================================
+// БЛОК ВНЕШНЕГО C-ИНТЕРФЕЙСА (экспортируемые функции)
+// ==============================================================================================
+
+extern "C" {
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ РАБОТЫ СО ШРИФТАМИ
+    // ==========================================================================================
+
+    /**
+     * @brief Загружает шрифт из файла
+     * @param path Путь к файлу шрифта
+     * @return Указатель на загруженный шрифт или nullptr в случае ошибки
+     */
+    MOON_API FontPtr loadSystemFont(const char* path) {
+        FontPtr font = new sf::Font();
+        try {
+            // Попытка загрузки шрифта из файла
+            if (!font->loadFromFile(path)) {
+                delete font;  // Важно: освобождаем память при неудачной загрузке
+                return nullptr;
+            }
+        } catch (const std::exception& e) {
+            delete font;  // Освобождаем память в случае исключения
+            return nullptr;
+        }
+        // Отключаем сглаживание для более четкого отображения
+        font->setSmooth(false);
+        return font;
+    }
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ СОЗДАНИЯ И УПРАВЛЕНИЯ ТЕКСТОМ
+    // ==========================================================================================
+
+    /**
+     * @brief Создает объект текста с указанным шрифтом
+     * @param font Указатель на шрифт
+     * @return Указатель на созданный объект текста
+     */
+    MOON_API TextPtr createText(FontPtr font) {
+        TextPtr text = new sf::Text();
+        text->setFont(*font);
+        return text;
+    }
+
+    /**
+     * @brief Устанавливает текстовое содержимое
+     * @param text Указатель на объект текста
+     * @param str Строка для отображения (в кодировке UTF-8)
+     */
+    MOON_API void setText(TextPtr text, const char* str) {
+        std::string std_str(str);
+        // Преобразование из UTF-8 в внутренний формат SFML
+        text->setString(sf::String::fromUtf8(std_str.begin(), std_str.end()));
+    }
+
+    /**
+     * @brief Устанавливает размер символов текста
+     * @param text Указатель на объект текста
+     * @param size Размер шрифта в пикселях
+     */
+    MOON_API void setTextSize(TextPtr text, int size) {
+        text->setCharacterSize(size);
+    }
+
+    /**
+     * @brief Устанавливает масштаб текста
+     * @param text Указатель на объект текста
+     * @param scaleX Масштаб по оси X
+     * @param scaleY Масштаб по оси Y
+     */
+    MOON_API void setTextScale(TextPtr text, float scaleX, float scaleY) {
+        text->setScale(scaleX, scaleY);
+    }
+
+    /**
+     * @brief Устанавливает цвет текста
+     * @param text Указатель на объект текста
+     * @param r Красная компонента цвета (0-255)
+     * @param g Зеленая компонента цвета (0-255)
+     * @param b Синяя компонента цвета (0-255)
+     * @param a Альфа-компонента (прозрачность, 0-255)
+     */
+    MOON_API void setTextColor(TextPtr text, int r, int g, int b, int a) {
+        text->setFillColor(sf::Color(r, g, b, a));
+    }
+
+    /**
+     * @brief Устанавливает позицию текста на экране
+     * @param text Указатель на объект текста
+     * @param x Координата X
+     * @param y Координата Y
+     */
+    MOON_API void setTextPosition(TextPtr text, float x, float y) {
+        text->setPosition(x, y);
+    }
+
+    /**
+     * @brief Устанавливает точку отсчета (origin) для трансформаций текста
+     * @param text Указатель на объект текста
+     * @param x Смещение по X относительно левого верхнего угла
+     * @param y Смещение по Y относительно левого верхнего угла
+     */
+    MOON_API void setTextOffset(TextPtr text, float x, float y) {
+        text->setOrigin(x, y);
+    }
+
+    /**
+     * @brief Устанавливает угол поворота текста
+     * @param text Указатель на объект текста
+     * @param angle Угол поворота в градусах
+     */
+    MOON_API void setTextAngle(TextPtr text, float angle) {
+        text->setRotation(angle);
+    }
+
+    /**
+     * @brief Устанавливает стиль текста (жирный, курсив, подчеркнутый)
+     * @param text Указатель на объект текста
+     * @param style Комбинация флагов стиля из sf::Text::Style
+     */
+    MOON_API void setStyle(TextPtr text, sf::Text::Style style) {
+        text->setStyle(style);
+    }
+
+    /**
+     * @brief Устанавливает цвет контура текста
+     * @param text Указатель на объект текста
+     * @param r Красная компонента цвета (0-255)
+     * @param g Зеленая компонента цвета (0-255)
+     * @param b Синяя компонента цвета (0-255)
+     * @param a Альфа-компонента (прозрачность, 0-255)
+     */
+    MOON_API void setOutlineColor(TextPtr text, int r, int g, int b, int a) {
+        text->setOutlineColor(sf::Color(r, g, b, a));
+    }
+
+    /**
+     * @brief Устанавливает толщину контура текста
+     * @param text Указатель на объект текста
+     * @param thickness Толщина контура в пикселях
+     */
+    MOON_API void setOutlineThickness(TextPtr text, float thickness) {
+        text->setOutlineThickness(thickness);
+    }
+
+    /**
+     * @brief Устанавливает межбуквенное расстояние
+     * @param text Указатель на объект текста
+     * @param spacing Коэффициент межбуквенного расстояния
+     */
+    MOON_API void setLetterSpacing(TextPtr text, float spacing) {
+        text->setLetterSpacing(spacing);
+    }
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ ПОЛУЧЕНИЯ ИНФОРМАЦИИ О ТЕКСТЕ
+    // ==========================================================================================
+
+    /**
+     * @brief Возвращает ширину текста в пикселях
+     * @param text Указатель на объект текста
+     * @return Ширина текста с учетом всех трансформаций
+     */
+    MOON_API double getTextWidth(TextPtr text) {
+        return text->getGlobalBounds().width;
+    }
+
+    /**
+     * @brief Возвращает высоту текста в пикселях
+     * @param text Указатель на объект текста
+     * @return Высота текста с учетом всех трансформаций
+     */
+    MOON_API double getTextHeight(TextPtr text) {
+        return text->getGlobalBounds().height;
+    }
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ ИЗМЕНЕНИЯ СВОЙСТВ ТЕКСТА
+    // ==========================================================================================
+
+    /**
+     * @brief Изменяет шрифт для текста
+     * @param text Указатель на объект текста
+     * @param font Указатель на новый шрифт
+     */
+    MOON_API void setFont(TextPtr text, FontPtr font) {
+        text->setFont(*font);
+    }
+
+} // extern "C"
+
+// ==============================================================================================
+// КОНЕЦ ФАЙЛА
+// ==============================================================================================#ifndef SFML_GRAPHICS_HPP
+#include "SFML/Graphics.hpp"
+
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+extern "C" {
+
+    typedef sf::RenderTexture* RenderTexturePtr;
+
+    MOON_API RenderTexturePtr
+    _RenderTexture_Init() {
+        return new sf::RenderTexture();
+    }
+
+    MOON_API bool
+    _RenderTexture_Create(RenderTexturePtr texture, int width, int height) {
+        return texture->create(width, height);
+    }
+
+    MOON_API void
+    _RenderTexture_Draw(RenderTexturePtr texture, sf::Drawable* shape) {
+        texture->draw(*shape);
+    }
+
+    MOON_API void
+    _RenderTexture_Clear(RenderTexturePtr texture, int r, int g, int b, int a) {
+        texture->clear(sf::Color(r, g, b, a));
+    }
+
+    MOON_API void
+    _RenderTexture_Display(RenderTexturePtr texture) {
+        texture->display();
+    }
+
+    MOON_API void
+    _RenderTexture_SetSmooth(RenderTexturePtr texture, bool smooth) {
+        texture->setSmooth(smooth);
+    }
+
+    MOON_API void
+    _RenderTexture_DrawWithStates(RenderTexturePtr texture, sf::Drawable* shape, sf::RenderStates* states) {
+        texture->draw(*shape, *states);
+    }
+
+    MOON_API void
+    _RenderTexture_DrawWithShader(RenderTexturePtr texture, sf::Drawable* shape, sf::Shader* shader) {
+        texture->draw(*shape, shader);
+    }
+
+    MOON_API void
+    _RenderTexture_SetView(RenderTexturePtr texture, sf::View* view) {
+        texture->setView(*view);
+    }
+
+    MOON_API sf::View*
+    _RenderTexture_GetDefaultView(RenderTexturePtr texture) {
+        return new sf::View(texture->getDefaultView());
+    }
+
+    MOON_API sf::View*
+    _RenderTexture_GetView(RenderTexturePtr texture) {
+        return new sf::View(texture->getView());
+    }
+
+    MOON_API sf::Texture* 
+    _RenderTexture_GetTexture(RenderTexturePtr texture) {
+        return new sf::Texture( texture->getTexture() );
+    }
+
+    MOON_API void
+    _RenderTexture_Delete(RenderTexturePtr texture) {
+        delete texture;
+    }
+
+
+}
+
+extern "C" {
+    typedef sf::Texture* TexturePtr;
+
+    MOON_API TexturePtr _Texture_LoadFromFile(char* file_path) {
+        TexturePtr texture = new sf::Texture();
+        texture->loadFromFile(file_path);
+        return texture;
+    }
+
+    MOON_API TexturePtr _Texture_LoadFromFileWithBoundRect(char* file_path, int x, int y, int w, int h) {
+        TexturePtr texture = new sf::Texture();
+        texture->loadFromFile(file_path, sf::IntRect(x, y ,w, h));
+        return texture;
+    }
+
+    MOON_API void _Texture_Delete(TexturePtr texture) {
+        delete texture;
+    }
+
+    MOON_API int _Texture_GetMaxixmumSize(TexturePtr texture) {
+        return texture->getMaximumSize();
+    }
+
+    MOON_API int _Texture_GetSizeX(TexturePtr texture) {
+        return texture->getSize().x;
+    }
+
+    MOON_API int _Texture_GetSizeY(TexturePtr texture) {
+        return texture->getSize().y;
+    }
+
+    MOON_API void _Texture_SetRepeated(TexturePtr texture, bool value) {
+        texture->setRepeated(value);
+    }
+
+    MOON_API void _Texture_SetSmooth(TexturePtr texture, bool value) {
+        texture->setSmooth(value);
+    }
+
+    MOON_API void _Texture_Swap(TexturePtr texture, TexturePtr texture2) {
+        texture->swap(*texture2);
+    }
+
+    MOON_API TexturePtr _Texture_SubTexture(TexturePtr texture, int x, int y, int w, int h) {
+        TexturePtr subTexture = new sf::Texture();
+        subTexture->loadFromImage(texture->copyToImage(), sf::IntRect(x, y, w, h));
+        return subTexture;
+    }
+}
+
+extern "C" {
+
+    typedef sf::Sprite* SpritePtr;
+    
+    MOON_API sf::Sprite*
+    _Sprite_GetFromRenderTexture(RenderTexturePtr texture) {
+        return new sf::Sprite(texture->getTexture());
+    }
+
+    MOON_API SpritePtr
+    _Sprite_GetFromTexture(TexturePtr texture) {
+        return new sf::Sprite(*texture);
+    }
+
+    MOON_API void
+    _Sprite_Scale(SpritePtr sprite, float x, float y) {
+        sprite->scale(x, y);
+    }
+
+    MOON_API void
+    _Sprite_Rotate(SpritePtr sprite, float angle) {
+        sprite->rotate(angle);
+    }
+
+    //////////////////////////////////////////////////////////////////
+    // Setters
+    //////////////////////////////////////////////////////////////////
+    MOON_API void
+    _Sprite_SetColor(SpritePtr sprite, int r, int g, int b, int a) {
+        sprite->setColor(sf::Color(r, g, b, a));
+    }
+
+    MOON_API void
+    _Sprite_SetOrigin(SpritePtr sprite, float x, float y) {
+        sprite->setOrigin(x, y);
+    }
+
+    MOON_API void
+    _Sprite_SetPosition(SpritePtr sprite, float x, float y) {
+        sprite->setPosition(x, y);
+    }
+
+    MOON_API void
+    _Sprite_SetRotation(SpritePtr sprite, float angle) {
+        sprite->setRotation(angle);
+    }
+
+    MOON_API void
+    _Sprite_SetScale(SpritePtr sprite, float x, float y) {
+        sprite->setScale(x, y);
+    }
+
+    // todo: 
+    // MOON_API void
+    // _Sprite_SetTexture(SpritePtr sprite) {
+    // }
+
+    //////////////////////////////////////////////////////////////////
+
+    MOON_API int
+    _Sprite_GetColorR(SpritePtr sprite) {
+        return sprite->getColor().r;
+    }
+    
+    MOON_API int
+    _Sprite_GetColorG(SpritePtr sprite) {
+        return sprite->getColor().g;
+    }
+
+    MOON_API int
+    _Sprite_GetColorB(SpritePtr sprite) {
+        return sprite->getColor().b;
+    }
+
+    MOON_API int
+    _Sprite_GetColorA(SpritePtr sprite) {
+        return sprite->getColor().a;
+    }
+
+    MOON_API float
+    _Sprite_GetOriginX(SpritePtr sprite) {
+        return sprite->getOrigin().x;
+    }
+
+    MOON_API float
+    _Sprite_GetOriginY(SpritePtr sprite) {
+        return sprite->getOrigin().y;
+    }
+
+    MOON_API float
+    _Sprite_GetPositionX(SpritePtr sprite) {
+        return sprite->getPosition().x;
+    }
+
+    MOON_API float
+    _Sprite_GetPositionY(SpritePtr sprite) {
+        return sprite->getPosition().y;
+    }
+
+    MOON_API float
+    _Sprite_GetRotation(SpritePtr sprite) {
+        return sprite->getRotation();
+    }
+
+    MOON_API float
+    _Sprite_GetScaleX(SpritePtr sprite) {
+        return sprite->getScale().x;
+    }
+
+    MOON_API float
+    _Sprite_GetScaleY(SpritePtr sprite) {
+        return sprite->getScale().y;
+    }
+}
+#ifndef SFML_AUDIO_HPP
+#include "SFML/Audio/SoundBuffer.hpp"
+#include "SFML/Audio/Sound.hpp"
+#include "SFML/Audio/Music.hpp"
+#endif
+#ifndef IOSTREAM_H
+#include <iostream>
+#endif
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+using std::cout, std::endl;
+extern "C" {
+    typedef sf::SoundBuffer* SoundBufferPtr;
+
+    MOON_API SoundBufferPtr _SoundBuffer_loadFromFile(const char* path) {
+        SoundBufferPtr buffer = new sf::SoundBuffer();
+
+        if (buffer->loadFromFile(path))
+            cout << "Sound: " << path << " loaded." << endl;
+        else {
+            cout << "Sound: " << path << "error loading sound" << endl;
+        }
+        return buffer;
+    }
+
+    MOON_API void _SoundBuffer_Destroy(SoundBufferPtr buffer) {
+        delete buffer;
+    }
+
+    MOON_API int _SoundBuffer_GetChannelsCount(SoundBufferPtr buffer) {
+        return buffer->getChannelCount();
+    }
+
+    MOON_API int _SoundBuffer_GetSampleRate(SoundBufferPtr buffer) {
+        return buffer->getSampleRate();
+    }
+}
+
+extern "C" {
+    typedef sf::Sound* SoundPtr;
+
+    MOON_API SoundPtr _Sound_Create(SoundBufferPtr buffer) {
+        SoundPtr sound = new sf::Sound();
+        sound->setBuffer(*buffer);
+        return sound;
+    }
+
+    MOON_API void _Sound_Destroy(SoundPtr sound) {
+        delete sound;
+    }
+
+    MOON_API void _Sound_Play(SoundPtr sound) {
+        sound->play();
+    }
+
+    MOON_API void _Sound_Pause(SoundPtr sound) {
+        sound->pause();
+    }
+
+    MOON_API void _Sound_Stop(SoundPtr sound) {
+        sound->stop();
+    }
+
+    MOON_API void _Sound_SetLoop(SoundPtr sound, bool loop) {
+        sound->setLoop(loop);
+    }
+
+    MOON_API void _Sound_SetVolume(SoundPtr sound, float volume) {
+        sound->setVolume(volume);
+    }
+
+    MOON_API void _Sound_SetPitch(SoundPtr sound, float pitch) {
+        sound->setPitch(pitch);
+    }
+
+    MOON_API void _Sound_SetAttenuation(SoundPtr sound, float attenuation) {
+        sound->setAttenuation(attenuation);
+    }
+
+    MOON_API void _Sound_ResetBuffer(SoundPtr sound) {
+        sound->resetBuffer();
+    }
+
+    MOON_API void _Sound_SetPosition(SoundPtr sound, float x, float y, float z) {
+        sound->setPosition(x, y, z);
+    }
+
+    MOON_API void _Sound_SetRelativeToListener(SoundPtr sound, bool relative) {
+        sound->setRelativeToListener(relative);
+    }
+    
+    MOON_API int _Sound_GetStatus(SoundPtr sound) {
+        return sound->getStatus();
+    }
+}
+
+extern "C" {
+    typedef sf::Music* MusicPtr;
+
+    MOON_API MusicPtr _Music_Create(const char* path) {
+        MusicPtr music = new sf::Music();
+        music->openFromFile(path);
+        return music;
+    }
+
+    MOON_API void _Music_Play(MusicPtr music) {
+        music->play();
+    }
+
+    MOON_API void _Music_Pause(MusicPtr music) {
+        music->pause();
+    }
+
+    MOON_API void _Music_Stop(MusicPtr music) {
+        music->stop();
+    }
+
+    MOON_API void _Music_SetLoop(MusicPtr music, bool loop) {
+        music->setLoop(loop);
+    }
+
+    MOON_API void _Music_SetVolume(MusicPtr music, float volume) {
+        music->setVolume(volume);
+    }
+
+    MOON_API void _Music_SetPitch(MusicPtr music, float pitch) {
+        music->setPitch(pitch);
+    }
+
+    MOON_API void _Music_SetAttenuation(MusicPtr music, float attenuation) {
+        music->setAttenuation(attenuation);
+    }
+}// ===============================================================================
+// File: BUILDED_SGL_CIRCLE_SHAPE.cpp
+// SFML Circle Shape API implementation
+// Part of DLL library
+//
+// Features:
+// - Create/delete circles
+// - Position/radius/rotation control
+// - Fill/outline color settings
+// - Scaling and origin adjustment
+// - Get current shape parameters
+// ===============================================================================
+
+#include "SFML/Graphics/CircleShape.hpp"
+#include "SFML/Graphics/Color.hpp"
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+typedef sf::CircleShape* CirclePtr;
+
+// Create/delete circle shape
+extern "C" MOON_API CirclePtr _Circle_Create(float radius,
+                                                          int point_count) {
+  return new sf::CircleShape(radius, point_count);
+}
+
+extern "C" MOON_API void _Circle_Delete(CirclePtr circle) {
+  delete circle;
+}
+
+// Position control
+extern "C" MOON_API void _Circle_SetPosition(CirclePtr circle,
+                                                          float x, float y) {
+  circle->setPosition(x, y);
+}
+
+extern "C" MOON_API float _Circle_GetPositionX(CirclePtr circle) {
+  return circle->getPosition().x;
+}
+
+extern "C" MOON_API float _Circle_GetPositionY(CirclePtr circle) {
+  return circle->getPosition().y;
+}
+
+// Radius control
+extern "C" MOON_API void _Circle_SetRadius(CirclePtr circle,
+                                                        float radius) {
+  circle->setRadius(radius);
+}
+
+extern "C" MOON_API float _Circle_GetRadius(CirclePtr circle) {
+  return circle->getRadius();
+}
+
+// Rotation
+extern "C" MOON_API void _Circle_SetRotation(CirclePtr circle,
+                                                          float angle) {
+  circle->setRotation(angle);
+}
+
+extern "C" MOON_API float _Circle_GetRotation(CirclePtr circle) {
+  return circle->getRotation();
+}
+
+// Colors
+extern "C" MOON_API void
+_Circle_SetFillColor(CirclePtr circle, int r, int g, int b, int a) {
+  circle->setFillColor(sf::Color(r, g, b, a));
+}
+
+extern "C" MOON_API void
+_Circle_SetOutlineColor(CirclePtr circle, int r, int g, int b, int a) {
+  circle->setOutlineColor(sf::Color(r, g, b, a));
+}
+
+extern "C" MOON_API void
+_Circle_SetOutlineThickness(CirclePtr circle, float thickness) {
+  circle->setOutlineThickness(thickness);
+}
+
+// Scale
+extern "C" MOON_API void
+_Circle_SetScale(CirclePtr circle, float scaleX, float scaleY) {
+  circle->setScale(scaleX, scaleY);
+}
+
+extern "C" MOON_API float _Circle_GetScaleX(CirclePtr circle) {
+  return circle->getScale().x;
+}
+
+extern "C" MOON_API float _Circle_GetScaleY(CirclePtr circle) {
+  return circle->getScale().y;
+}
+
+// Origin
+extern "C" MOON_API void _Circle_SetOrigin(CirclePtr circle,
+                                                        float x, float y) {
+  circle->setOrigin(x, y);
+}
+
+extern "C" MOON_API float _Circle_GetOriginX(CirclePtr circle) {
+  return circle->getOrigin().x;
+}
+
+extern "C" MOON_API float _Circle_GetOriginY(CirclePtr circle) {
+  return circle->getOrigin().y;
+}
+// ===============================================================================// ================================================================================
 //                         BUILDED_WINDOWEVENTS.cpp
 //                    Биндинги для работы с событиями окон в PySGL
 // ================================================================================
@@ -1815,6 +1067,12 @@ extern "C" {
 #include <SFML/Window/Event.hpp>
 #endif
 
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
 // ================================================================================
 //                        УПРАВЛЕНИЕ ОБЪЕКТАМИ СОБЫТИЙ
 // ================================================================================
@@ -1826,17 +1084,17 @@ extern "C" {
 
 extern "C" {
     // Создание нового объекта события для хранения данных
-    __declspec(dllexport) sf::Event* _Events_Create() {
+    MOON_API sf::Event* _Events_Create() {
         return new sf::Event();
     }
 
     // Удаление объекта события и освобождение памяти
-    __declspec(dllexport) void _Events_Destroy(sf::Event* event) {
+    MOON_API void _Events_Destroy(sf::Event* event) {
         delete event;
     }
 
     // Получение типа текущего события (Closed, KeyPressed, MouseMoved и т.д.)
-    __declspec(dllexport) int _Events_GetType(sf::Event* event) {
+    MOON_API int _Events_GetType(sf::Event* event) {
         return event->type;
     }
 
@@ -1846,7 +1104,7 @@ extern "C" {
     // Функции для обработки событий клавиатуры
 
     // Получение кода нажатой/отпущенной клавиши
-    __declspec(dllexport) int _Events_GetKey(sf::Event* event) {
+    MOON_API int _Events_GetKey(sf::Event* event) {
         return event->key.code;
     }
 
@@ -1856,22 +1114,22 @@ extern "C" {
     // Функции для обработки всех типов событий мыши
 
     // Получение кода нажатой кнопки мыши (0-левая, 1-правая, 2-средняя)
-    __declspec(dllexport) int _Events_GetMouseButton(sf::Event* event) {
+    MOON_API int _Events_GetMouseButton(sf::Event* event) {
         return event->mouseButton.button;
     }
 
     // Получение X-координаты курсора мыши в момент события
-    __declspec(dllexport) int _Events_GetMouseX(sf::Event* event) {
+    MOON_API int _Events_GetMouseX(sf::Event* event) {
         return event->mouseButton.x;
     }
 
     // Получение Y-координаты курсора мыши в момент события
-    __declspec(dllexport) int _Events_GetMouseY(sf::Event* event) {
+    MOON_API int _Events_GetMouseY(sf::Event* event) {
         return event->mouseButton.y;
     }
 
     // Получение значения прокрутки колеса мыши (положительное - вверх, отрицательное - вниз)
-    __declspec(dllexport) int _Events_GetMouseWheel(sf::Event* event) {
+    MOON_API int _Events_GetMouseWheel(sf::Event* event) {
         return event->mouseWheel.delta;
     }
 
@@ -1881,12 +1139,12 @@ extern "C" {
     // Функции для получения новых размеров окна при событии Resized
 
     // Получение новой ширины окна после изменения размера (в пикселях)
-    __declspec(dllexport) int _Events_GetSizeWidth(sf::Event* event) {
+    MOON_API int _Events_GetSizeWidth(sf::Event* event) {
         return event->size.width;
     }
 
     // Получение новой высоты окна после изменения размера (в пикселях)
-    __declspec(dllexport) int _Events_GetSizeHeight(sf::Event* event) {
+    MOON_API int _Events_GetSizeHeight(sf::Event* event) {
         return event->size.height;
     }
 }
@@ -1897,4 +1155,810 @@ extern "C" {
 // Все функции для работы с событиями PySGL определены.
 // Они предоставляют полный интерфейс для обработки пользовательского ввода
 // и системных событий в Python приложениях.
+// ================================================================================
+#include "SFML/System/Clock.hpp"
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+typedef sf::Clock* ClockPtr;
+
+extern "C" {
+    MOON_API ClockPtr createClock() {
+        return new sf::Clock();
+    }
+
+    MOON_API void clockRestart(ClockPtr clock) {
+        clock->restart();
+    }
+
+    MOON_API double getClockElapsedTime(ClockPtr clock) {
+        return clock->getElapsedTime().asSeconds();
+    }
+}
+// ================================================================================
+//                           BUILDED_SGL_RENDERSTATES.cpp
+//                    Биндинги для работы с состоянием рендеринга
+// ================================================================================
+//
+// Этот файл содержит C++ функции для работы с состоянием рендеринга SFML,
+// которые экспортируются в Python через ctypes.
+//
+// Основные компоненты:
+// - Режимы смешивания цветов (BlendMode)
+// - Состояния рендеринга (RenderStates)
+// - Шейдеры и их настройка
+// - Униформы и параметры шейдеров
+//
+// ================================================================================
+
+#include "SFML/Graphics/BlendMode.hpp"
+#include "SFML/Graphics/Shader.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/Texture.hpp"
+
+#include "SFML/Graphics/Glsl.hpp"
+
+#include <cstddef>
+
+#include "string"
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+using namespace std;
+
+// ================================================================================
+//                           РЕЖИМЫ СМЕШИВАНИЯ (BLENDMODE)
+// ================================================================================
+// Функции для создания и управления режимами смешивания цветов:
+// - Настройка факторов смешивания для RGB и Alpha каналов
+// - Уравнения смешивания для различных визуальных эффектов
+// - Управление прозрачностью и наложением цветов
+// ================================================================================
+
+extern "C" {
+    typedef sf::BlendMode* BlendModePtr;
+
+    // Создание полного режима смешивания с раздельными настройками для цветовых и альфа-каналов
+    MOON_API BlendModePtr _BlendMode_CreateFull(
+                                                sf::BlendMode::Factor ColorSourceFactor,
+                                                sf::BlendMode::Factor ColorDestinationFactor,
+                                                sf::BlendMode::Equation ColorBlendEquation,
+                                                sf::BlendMode::Factor AlphaSourceFactor,
+                                                sf::BlendMode::Factor AlphaDestinationFactor,
+                                                sf::BlendMode::Equation AlphaBlendEquation
+                                            ) {
+        return new sf::BlendMode(ColorSourceFactor, ColorDestinationFactor, ColorBlendEquation,
+                                 AlphaSourceFactor, AlphaDestinationFactor, AlphaBlendEquation);
+    }
+
+    // Удаление объекта режима смешивания и освобождение памяти
+    MOON_API void _BlendMode_Delete(BlendModePtr blend_mode) {
+        delete blend_mode;
+    }
+}
+
+// ================================================================================
+//                       СОСТОЯНИЯ РЕНДЕРИНГА (RENDERSTATES)
+// ================================================================================
+// Функции для создания и управления состоянием рендеринга:
+// - Настройка шейдеров, текстур и преобразований
+// - Управление режимами смешивания
+// - Комбинирование различных параметров отрисовки
+// ================================================================================
+
+extern "C" {
+    typedef sf::RenderStates* RenderStatesPtr;
+
+    // Создание нового объекта состояния рендеринга с параметрами по умолчанию
+    MOON_API RenderStatesPtr _RenderStates_Create() {
+        RenderStatesPtr render_states = new sf::RenderStates();
+        return render_states;
+    }
+
+    // Удаление объекта состояния рендеринга и освобождение памяти
+    MOON_API void _RenderStates_Delete(RenderStatesPtr render_states) {
+        delete render_states;
+    }
+
+    // Установка шейдера для состояния рендеринга
+    MOON_API void _RenderStates_SetShader(RenderStatesPtr render_states, sf::Shader* shader) {
+        render_states->shader = shader;
+    }
+
+    // Установка режима смешивания для состояния рендеринга
+    MOON_API void _RenderStates_SetBlendMode(RenderStatesPtr render_states, BlendModePtr blend_mode) {
+        render_states->blendMode = *blend_mode;
+    }
+
+    // Установка текстуры для состояния рендеринга
+    MOON_API void _RenderStates_SetTexture(RenderStatesPtr render_states, sf::Texture *texture) {
+        render_states->texture = texture;
+    }
+
+    // Установка матрицы преобразования для состояния рендеринга
+    MOON_API void _RenderStates_SetTransform(RenderStatesPtr render_states, sf::Transform* transform) {
+        render_states->transform = *transform;
+    }
+}
+
+// ================================================================================
+//                               ШЕЙДЕРЫ (SHADER)
+// ================================================================================
+// Функции для работы с шейдерами GLSL:
+// - Загрузка шейдеров из файлов и строк
+// - Настройка униформ (параметров шейдеров)
+// - Управление состоянием шейдеров (привязка/отвязка)
+// - Работа с цветами, векторами и текстурами в шейдерах
+// ================================================================================
+
+extern "C" {
+    typedef sf::Shader* ShaderPtr;
+
+    // Создание нового объекта шейдера
+    MOON_API ShaderPtr _Shader_Create() {
+        return new sf::Shader();
+    }
+
+    // ================================================================================
+    //                   ЗАГРУЗКА ШЕЙДЕРОВ ИЗ РАЗЛИЧНЫХ ИСТОЧНИКОВ
+    // ================================================================================
+
+    // Загрузка шейдера из файлов (вершинный и фрагментный шейдеры)
+    MOON_API bool _Shader_LoadFromFile(ShaderPtr shader, char* vertex_file, char* fragment_file) {
+        return shader->loadFromFile(vertex_file, fragment_file);
+    }
+
+    // Загрузка шейдера из строк (вершинный и фрагментный шейдеры)
+    MOON_API bool _Shader_LoadFromStrings(ShaderPtr shader, char* vertex_string, char* fragment_string) {
+        return shader->loadFromMemory(vertex_string, fragment_string);
+    }
+
+    // Загрузка шейдера определенного типа из строки (вершинный, геометрический или фрагментный)
+    MOON_API bool _Shader_LoadFromStringWithType(ShaderPtr shader, char* shader_string, sf::Shader::Type type) {
+        if (type == 2) {
+            return shader->loadFromMemory(shader_string, sf::Shader::Fragment);
+        } else if (type == 1) {
+            return shader->loadFromMemory(shader_string, sf::Shader::Geometry);
+        } else if (type == 0) {
+            return shader->loadFromMemory(shader_string, sf::Shader::Vertex);
+        }
+        return false;
+    }
+
+    // ================================================================================
+    //                   НАСТРОЙКА УНИФОРМ (ПАРАМЕТРОВ ШЕЙДЕРОВ)
+    // ================================================================================
+
+    // Установка целочисленной униформы
+    MOON_API void _Shader_SetUniformInt(ShaderPtr shader, char* name, int value) {
+        shader->setUniform(name, value);
+    }
+
+    // Установка униформы с плавающей точкой
+    MOON_API void _Shader_SetUniformFloat(ShaderPtr shader, char* name, float value) {
+        shader->setUniform(name, value);
+    }
+
+    // Установка булевой униформы
+    MOON_API void _Shader_SetUniformBool(ShaderPtr shader, char* name, bool value) {
+        shader->setUniform(name, value);
+    }
+
+    // Установка текстуры как униформы
+    MOON_API void _Shader_SetUniformTexture(ShaderPtr shader, char* name, sf::Texture texture) {
+        shader->setUniform(name, texture);
+    }
+
+    // Установка целочисленного векторной униформы (2 компонента)
+    MOON_API void _Shader_SetUniformIntVector(ShaderPtr shader, char* name, int x, int y) {
+        shader->setUniform(name, sf::Glsl::Ivec2(x, y));
+    }
+
+    // Установка векторной униформы с плавающей точкой (2 компонента)
+    MOON_API void _Shader_SetUniformFloatVector(ShaderPtr shader, char* name, float x, float y) {
+        shader->setUniform(name, sf::Glsl::Vec2(x, y));
+    }
+
+    // Установка цветовой униформы (преобразование в нормализованные значения)
+    MOON_API void _Shader_SetUniformColor(ShaderPtr shader, char* name, int r, int g, int b, int a) {
+        shader->setUniform(name, sf::Glsl::Vec4(r/256.0f, g/256.0f, b/256.0f, a/256.0f));
+    }
+
+    // ================================================================================
+    //                   УПРАВЛЕНИЕ СОСТОЯНИЕМ ШЕЙДЕРОВ
+    // ================================================================================
+
+    // Привязка шейдера для использования в рендеринге
+    MOON_API void _Shader_Bind(ShaderPtr shader, ShaderPtr new_shader) {
+        shader->bind(new_shader);
+    }
+
+    // Отвязка текущего шейдера
+    MOON_API void _Shader_Unbind(ShaderPtr shader) {
+        shader->bind(NULL);
+    }
+
+    // Получение указателя на специальную текстуру "CurrentTexture"
+    MOON_API void* _Shader_GetCurrentTexture() {
+        return &sf::Shader::CurrentTexture;
+    }
+}
+
+// ================================================================================
+//                              КОНЕЦ ФАЙЛА
+// ================================================================================
+// Все функции для работы с состоянием рендеринга PySGL определены.
+// Они предоставляют полный интерфейс для настройки шейдеров, режимов смешивания
+// и параметров отрисовки в Python приложениях.
+// ================================================================================#include "SFML/Graphics/VertexArray.hpp"
+#include "SFML/Graphics/Vertex.hpp"
+#include "SFML/System/Vector2.hpp"
+
+#include "SFML/Graphics/PrimitiveType.hpp"
+#include <SFML/Graphics/RenderWindow.hpp>
+
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+extern "C" {
+
+    typedef sf::VertexArray* VertexArrayPtr;
+
+    MOON_API VertexArrayPtr 
+    _VertexArray_Create() {
+        return new sf::VertexArray();
+    }
+
+    MOON_API void 
+    _VertexArray_Delete(VertexArrayPtr vertexArray) {
+        delete vertexArray;
+    }
+
+    MOON_API void 
+    _VertexArray_AddVertexForPositionAndColor(VertexArrayPtr vertexArray, double x, double y, int r, int g, int b, int a) {
+        vertexArray->append(sf::Vertex(sf::Vector2f(static_cast<float>(x), static_cast<float>(y)), sf::Color(static_cast<sf::Uint8>(r), static_cast<sf::Uint8>(g), static_cast<sf::Uint8>(b), static_cast<sf::Uint8>(a))));
+    }
+
+    MOON_API void 
+    _VertexArray_SetPrimitiveType(VertexArrayPtr vertexArray, int primitiveType) {
+        vertexArray->setPrimitiveType(static_cast<sf::PrimitiveType>(primitiveType));
+    }
+
+    MOON_API void 
+    _VertexArray_Resize(VertexArrayPtr vertexArray, int vertexCount) {
+        vertexArray->resize(static_cast<size_t>(vertexCount));
+    }
+
+    MOON_API void 
+    _VertexArray_Clear(VertexArrayPtr vertexArray) {
+        vertexArray->clear();
+    }
+
+    MOON_API int
+    _VertexArray_GetVertexCount(VertexArrayPtr vertexArray) {
+        return static_cast<int>(vertexArray->getVertexCount());
+    }
+
+    MOON_API float
+    _VertexArray_GetVertexPositionX(VertexArrayPtr vertexArray, int index) {
+        if (index < 0 || index >= vertexArray->getVertexCount()) return 0.0f; 
+        return vertexArray->operator[](index).position.x;
+    }
+
+    MOON_API float
+    _VertexArray_GetVertexPositionY(VertexArrayPtr vertexArray, int index) {
+        if (index < 0 || index >= vertexArray->getVertexCount()) return 0.0f; 
+        return vertexArray->operator[](index).position.y;
+    }
+        
+    MOON_API int
+    _VertexArray_GetVertexColorR(VertexArrayPtr vertexArray, int index) {
+        if (index < 0 || index >= vertexArray->getVertexCount()) return 0; 
+        return vertexArray->operator[](index).color.r;
+    }
+    
+    MOON_API int
+    _VertexArray_GetVertexColorG(VertexArrayPtr vertexArray, int index) {
+        if (index < 0 || index >= vertexArray->getVertexCount()) return 0; 
+        return vertexArray->operator[](index).color.g;
+    }
+
+    MOON_API int
+    _VertexArray_GetVertexColorB(VertexArrayPtr vertexArray, int index) {
+        if (index < 0 || index >= vertexArray->getVertexCount()) return 0;
+        return vertexArray->operator[](index).color.b;
+    }
+        
+    MOON_API int
+    _VertexArray_GetVertexColorA(VertexArrayPtr vertexArray, int index) {
+        if (index < 0 || index >= vertexArray->getVertexCount()) return 0; 
+        return vertexArray->operator[](index).color.a;
+    }
+
+
+    MOON_API void
+    _VertexArray_SetVertexForPositionAndColor(VertexArrayPtr vertexArray, int index, double x, double y, int r, int g, int b, int a) {
+        if (index < 0 || index >= vertexArray->getVertexCount()) return; 
+        vertexArray->operator[](index) = sf::Vertex(sf::Vector2f(static_cast<float>(x), static_cast<float>(y)), sf::Color(static_cast<sf::Uint8>(r), static_cast<sf::Uint8>(g), static_cast<sf::Uint8>(b), static_cast<sf::Uint8>(a)));
+    }
+
+    MOON_API int 
+    _VertexArray_GetPrimitiveType(VertexArrayPtr vertexArray) {
+        return static_cast<int>(vertexArray->getPrimitiveType());
+    }
+
+    // Оптимизированные функции для прямого доступа
+    MOON_API void
+    _VertexArray_SetVertexPosition(VertexArrayPtr vertexArray, int index, float x, float y) {
+        if (index >= 0 && index < vertexArray->getVertexCount()) {
+            (*vertexArray)[index].position = sf::Vector2f(x, y);
+        }
+    }
+
+
+    MOON_API void
+    _VertexArray_SetVertexColor(VertexArrayPtr vertexArray, int index, int r, int g, int b, int a) {
+        if (index >= 0 && index < vertexArray->getVertexCount()) {
+            (*vertexArray)[index].color = sf::Color(r, g, b, a);
+        }
+    }
+
+    MOON_API void
+    _VertexArray_SetAllVerticesColor(VertexArrayPtr vertexArray, int r, int g, int b, int a) {
+        sf::Color color(r, g, b, a);
+        for (size_t i = 0; i < vertexArray->getVertexCount(); ++i) {
+            (*vertexArray)[i].color = color;
+        }
+    }
+
+    // Функции для работы с текстурными координатами
+    MOON_API void
+    _VertexArray_AddVertexWithTexCoords(VertexArrayPtr vertexArray, float x, float y, int r, int g, int b, int a, float texX, float texY) {
+        vertexArray->append(sf::Vertex(
+            sf::Vector2f(x, y),
+            sf::Color(r, g, b, a),
+            sf::Vector2f(texX, texY)
+        ));
+    }
+
+    MOON_API void
+    _VertexArray_SetVertexTexCoords(VertexArrayPtr vertexArray, int index, float texX, float texY) {
+        if (index >= 0 && index < vertexArray->getVertexCount()) {
+            (*vertexArray)[index].texCoords = sf::Vector2f(texX, texY);
+        }
+    }
+
+    MOON_API void
+    _VertexArray_SetQuadTexCoords(VertexArrayPtr vertexArray, int startIndex, float left, float top, float width, float height) {
+        if (startIndex >= 0 && startIndex + 3 < vertexArray->getVertexCount()) {
+            (*vertexArray)[startIndex].texCoords = sf::Vector2f(left, top);
+            (*vertexArray)[startIndex + 1].texCoords = sf::Vector2f(left + width, top);
+            (*vertexArray)[startIndex + 2].texCoords = sf::Vector2f(left + width, top + height);
+            (*vertexArray)[startIndex + 3].texCoords = sf::Vector2f(left, top + height);
+        }
+    }
+
+    // Специальная функция для отрисовки VertexArray с RenderStates
+    MOON_API void _Window_DrawVertexArrayWithRenderStates(sf::RenderWindow* window, sf::RenderStates* render_states, VertexArrayPtr vertexArray) {
+        window->draw(*vertexArray, *render_states);
+    }
+}
+// ===============================================================================
+// File: BUILDED_SGL_RECTANGLE_SHAPE.cpp
+// SFML Rectangle Shape API implementation
+// Part of DLL library
+//
+// Features:
+// - Create/delete rectangles
+// - Position/size/rotation control
+// - Fill/outline color settings
+// - Scaling and origin adjustment
+// - Get current shape parameters
+// ===============================================================================
+
+#ifndef SFML_GRAPHICS_HPP
+#include <SFML/Graphics/RectangleShape.hpp>
+#endif
+
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Color.hpp>
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+typedef sf::RectangleShape* RectanglePtr;
+
+extern "C" {
+    MOON_API RectanglePtr _Rectangle_Create(float width, float height) {
+        return new sf::RectangleShape(sf::Vector2f(width, height));
+    }
+
+    MOON_API void _Rectangle_SetPosition(RectanglePtr rectangle, float x, float y) {
+        rectangle->setPosition(x, y);
+    }
+
+    MOON_API float _Rectangle_GetPositionX(RectanglePtr rectangle) {
+        return rectangle->getPosition().x;
+    }
+
+    MOON_API float _Rectangle_GetPositionY(RectanglePtr rectangle) {
+        return rectangle->getPosition().y;
+    }
+
+    MOON_API void _Rectangle_SetColor(RectanglePtr rectangle, int r, int g, int b, int alpha) {
+        rectangle->setFillColor(sf::Color(r, g, b, alpha));
+    }
+
+    MOON_API void _Rectangle_SetOrigin(RectanglePtr rectangle, float x, float y) {
+        rectangle->setOrigin(x, y);
+    }
+
+    MOON_API void _Rectangle_SetSize(RectanglePtr rectangle, float width, float height) {
+        rectangle->setSize(sf::Vector2f(width, height));
+    }
+
+    MOON_API void _Rectangle_SetRotation(RectanglePtr rectangle, float angle) {
+        rectangle->setRotation(angle);
+    }
+
+    MOON_API void _Rectangle_SetOutlineThickness(RectanglePtr rectangle, float thickness) {
+        rectangle->setOutlineThickness(thickness);
+    }
+
+    MOON_API void _Rectangle_SetOutlineColor(RectanglePtr rectangle, int r, int g, int b, int alpha) {
+        rectangle->setOutlineColor(sf::Color(r, g, b, alpha));
+    }
+
+    MOON_API void _Rectangle_SetScale(RectanglePtr rectangle, float scaleX, float scaleY) {
+        rectangle->setScale(scaleX, scaleY);
+    }
+
+    MOON_API float _Rectangle_GetWidth(RectanglePtr rectangle) {
+        return rectangle->getSize().x;
+    }
+
+    MOON_API float _Rectangle_GetHeight(RectanglePtr rectangle) {
+        return rectangle->getSize().y;
+    }
+
+    MOON_API void _Rectangle_Delete(RectanglePtr rectangle) {
+        delete rectangle;
+    }
+}
+// ===============================================================================/////////////////////////////////////////////////////////////////////////////////////////////////
+/// Модуль предоставляющий базовый интерфейс для работы с вводом
+/////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+#include "SFML/Graphics/RenderWindow.hpp"
+#include "SFML/System/Vector2.hpp"
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+// ==============================================================================================
+// БЛОК ВНЕШНЕГО C-ИНТЕРФЕЙСА (экспортируемые функции)
+// ==============================================================================================
+
+extern "C" {
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ РАБОТЫ С КЛАВИАТУРОЙ
+    // ==========================================================================================
+
+    /**
+     * @brief Проверяет, нажата ли указанная клавиша в данный момент
+     * @param key Код клавиши (из перечисления sf::Keyboard::Key)
+     * @return true если клавиша нажата, false в противном случае
+     */
+    MOON_API bool _Keyboard_IsKeyPressed(int key) {
+        return sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(key));
+    }
+
+    /**
+     * @brief Показывает или скрывает виртуальную клавиатуру (актуально для мобильных устройств)
+     * @param visible true - показать клавиатуру, false - скрыть
+     */
+    MOON_API void _Keyboard_SetVirtualKeyboardVisible(bool visible) {
+        sf::Keyboard::setVirtualKeyboardVisible(visible);
+    }
+
+    // ==========================================================================================
+    // ФУНКЦИИ ДЛЯ РАБОТЫ С МЫШЬЮ
+    // ==========================================================================================
+
+    /**
+     * @brief Проверяет, нажата ли указанная кнопка мыши в данный момент
+     * @param button Код кнопки мыши (из перечисления sf::Mouse::Button)
+     * @return true если кнопка нажата, false в противном случае
+     */
+    MOON_API bool _Mouse_IsButtonPressed(int button) {
+        return sf::Mouse::isButtonPressed(static_cast<sf::Mouse::Button>(button));
+    }
+
+    /**
+     * @brief Возвращает текущую координату X курсора мыши в глобальных координатах экрана
+     * @return Координата X курсора мыши
+     */
+    MOON_API int _Mouse_GetPositionX() {
+        return sf::Mouse::getPosition().x;
+    }
+
+    /**
+     * @brief Возвращает текущую координату Y курсора мыши в глобальных координатах экрана
+     * @return Координата Y курсора мыши
+     */
+    MOON_API int _Mouse_GetPositionY() {
+        return sf::Mouse::getPosition().y;
+    }
+
+    /**
+     * @brief Возвращает текущую координату X курсора мыши относительно окна
+     * @param window Указатель на объект окна RenderWindow
+     * @return Координата X курсора мыши относительно окна
+     */
+    MOON_API int _Mouse_GetPositionXWindow(sf::RenderWindow* window) {
+        return sf::Mouse::getPosition(*window).x;
+    }
+
+    /**
+     * @brief Возвращает текущую координату Y курсора мыши относительно окна
+     * @param window Указатель на объект окна RenderWindow
+     * @return Координата Y курсора мыши относительно окна
+     */
+    MOON_API int _Mouse_GetPositionYWindow(sf::RenderWindow* window) {
+        return sf::Mouse::getPosition(*window).y;
+    }
+
+    /**
+     * @brief Устанавливает позицию курсора мыши в глобальных координатах экрана
+     * @param x Координата X для установки
+     * @param y Координата Y для установки
+     */
+    MOON_API void _Mouse_SetPosition(int x, int y) {
+        sf::Mouse::setPosition(sf::Vector2i(x, y));
+    }
+
+    /**
+     * @brief Устанавливает позицию курсора мыши относительно окна
+     * @param x Координата X для установки относительно окна
+     * @param y Координата Y для установки относительно окна
+     * @param window Указатель на объект окна RenderWindow
+     */
+    MOON_API void _Mouse_SetPositionWindow(int x, int y, sf::RenderWindow* window) {
+        sf::Mouse::setPosition(sf::Vector2i(x, y), *window);
+    }
+
+
+} // extern "C"
+
+// ==============================================================================================
+// КОНЕЦ ФАЙЛА
+// ==============================================================================================
+// ================================================================================
+//                           BUILDED_SGL_VIEW.cpp
+//                    Биндинги для работы с видами и прямоугольниками
+// ================================================================================
+//
+// Этот файл содержит C++ функции для работы с прямоугольниками и видами (View) SFML,
+// которые экспортируются в Python через ctypes.
+//
+// Основные компоненты:
+// - Создание и управление прямоугольниками (FloatRect)
+// - Работа с видами (View) - камерами и областями просмотра
+// - Преобразования координат и геометрические операции
+// - Управление размерами, позициями и углами поворота
+//
+// ================================================================================
+
+#ifndef SFML_GRAPHICS_HPP
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/View.hpp>
+#endif
+
+typedef sf::View* ViewPtr;
+typedef sf::FloatRect* FloatRectPtr;
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
+// ================================================================================
+//                           РАБОТА С ПРЯМОУГОЛЬНИКАМИ
+// ================================================================================
+// Функции для создания и управления прямоугольными областями:
+// - Создание прямоугольников с заданными параметрами
+// - Получение и установка позиции и размера
+// - Геометрические операции
+// ================================================================================
+
+extern "C" {
+
+    // Создание нового прямоугольника с указанными параметрами
+    MOON_API FloatRectPtr _FloatRect_Create(float rect_left, float rect_top, float rect_width, float rect_height) {
+        return new sf::FloatRect(rect_left, rect_top, rect_width, rect_height);
+    }
+
+    // Удаление прямоугольника и освобождение памяти
+    MOON_API void _FloatRect_Delete(FloatRectPtr rect) {
+        delete rect;
+    }
+
+    // ================================================================================
+    //                   ПОЛУЧЕНИЕ СВОЙСТВ ПРЯМОУГОЛЬНИКА
+    // ================================================================================
+
+    // Получение X-координаты позиции прямоугольника
+    MOON_API float _FloatRect_GetPositionX(FloatRectPtr rect) {
+        return rect->getPosition().x;
+    }
+
+    // Получение Y-координаты позиции прямоугольника
+    MOON_API float _FloatRect_GetPositionY(FloatRectPtr rect) {
+        return rect->getPosition().y;
+    }
+
+    // Получение ширины прямоугольника
+    MOON_API float _FloatRect_GetWidth(FloatRectPtr rect) {
+        return rect->getSize().x;
+    }
+
+    // Получение высоты прямоугольника
+    MOON_API float _FloatRect_GetHeight(FloatRectPtr rect) {
+        return rect->getSize().y;
+    }
+
+    // ================================================================================
+    //                   УСТАНОВКА СВОЙСТВ ПРЯМОУГОЛЬНИКА
+    // ================================================================================
+
+    // Установка позиции прямоугольника
+    MOON_API void _FloatRect_SetPosition(FloatRectPtr rect, float x, float y) {
+        rect->left = x;
+        rect->top = y;
+    }
+
+    // Установка размера прямоугольника
+    MOON_API void _FloatRect_SetSize(FloatRectPtr rect, float w, float h) {
+        rect->width = w;
+        rect->height = h;
+    }
+}
+
+// ================================================================================
+//                           РАБОТА С ВИДАМИ (VIEW)
+// ================================================================================
+// Функции для создания и управления видами (камерами):
+// - Создание видов на основе прямоугольников
+// - Управление центром, размером и поворотом
+// - Операции перемещения, масштабирования и вращения
+// - Настройка области просмотра (viewport)
+// ================================================================================
+
+extern "C" {
+
+    // Создание нового вида на основе прямоугольника
+    MOON_API ViewPtr _View_Create(FloatRectPtr rect) {
+        ViewPtr view = new sf::View(*rect);
+        return view;
+    }
+
+    // Удаление вида и освобождение памяти
+    MOON_API void _View_Delete(ViewPtr view) {
+        delete view;
+    }
+
+    // ================================================================================
+    //                   ПОЛУЧЕНИЕ СВОЙСТВ ВИДА
+    // ================================================================================
+
+    // Получение X-координаты позиции области просмотра
+    MOON_API float _View_GetPositionX(ViewPtr view) {
+        return view->getViewport().left;
+    }
+
+    // Получение Y-координаты позиции области просмотра
+    MOON_API float _View_GetPositionY(ViewPtr view) {
+        return view->getViewport().top;
+    }
+
+    // Получение X-координаты центра вида
+    MOON_API float _View_GetCenterX(ViewPtr view) {
+        return view->getCenter().x;
+    }
+
+    // Получение Y-координаты центра вида
+    MOON_API float _View_GetCenterY(ViewPtr view) {
+        return view->getCenter().y;
+    }
+
+    // Получение угла поворота вида в градусах
+    MOON_API float _View_GetAngle(ViewPtr view) {
+        return view->getRotation();
+    }
+
+    // Получение ширины вида
+    MOON_API float _View_GetWidth(ViewPtr view) {
+        return view->getSize().x;
+    }
+
+    // Получение высоты вида
+    MOON_API float _View_GetHeight(ViewPtr view) {
+        return view->getSize().y;
+    }
+
+    // ================================================================================
+    //                   ПРЕОБРАЗОВАНИЯ И ОПЕРАЦИИ ВИДА
+    // ================================================================================
+
+    // Поворот вида на указанный угол (градусы)
+    MOON_API void _View_Rotate(ViewPtr view, float angle) {
+        view->rotate(angle);
+    }
+
+    // Перемещение вида на указанное смещение
+    MOON_API void _View_Move(ViewPtr view, float x, float y) {
+        view->move(x, y);
+    }
+
+    // Масштабирование вида (зум)
+    MOON_API void _View_Zoom(ViewPtr view, float zoom) {
+        view->zoom(zoom);
+    }
+
+    // ================================================================================
+    //                   УСТАНОВКА СВОЙСТВ ВИДА
+    // ================================================================================
+
+    // Сброс вида к состоянию на основе прямоугольника
+    MOON_API void _View_Reset(ViewPtr view, FloatRectPtr rect) {
+        view->reset(*rect);
+    }
+
+    // Установка центра вида
+    MOON_API void _View_SetCenter(ViewPtr view, float x, float y) {
+        view->setCenter(x, y);
+    }
+
+    // Установка угла поворота вида (градусы)
+    MOON_API void _View_SetAngle(ViewPtr view, float angle) {
+        view->setRotation(angle);
+    }
+
+    // Установка области просмотра (нормализованные координаты)
+    MOON_API void _View_SetViewport(ViewPtr view, FloatRectPtr rect) {
+        view->setViewport(*rect);
+    }
+
+    // Установка размера вида
+    MOON_API void _View_SetSize(ViewPtr view, float w, float h) {
+        view->setSize(w, h);
+    }
+}
+
+// ================================================================================
+//                              КОНЕЦ ФАЙЛА
+// ================================================================================
+// Все функции для работы с прямоугольниками и видами PySGL определены.
+// Они предоставляют полный интерфейс для управления камерами и
+// геометрическими областями в Python приложениях.
 // ================================================================================

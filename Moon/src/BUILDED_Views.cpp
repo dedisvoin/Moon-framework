@@ -22,7 +22,11 @@
 typedef sf::View* ViewPtr;
 typedef sf::FloatRect* FloatRectPtr;
 
-#define MOON_API __declspec(dllexport)
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
 
 // ================================================================================
 //                           РАБОТА С ПРЯМОУГОЛЬНИКАМИ

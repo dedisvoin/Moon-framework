@@ -6,7 +6,11 @@
 #include "SFML/Graphics/RenderWindow.hpp"
 #include "SFML/System/Vector2.hpp"
 
-#define MOON_API __declspec(dllexport)
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
 
 // ==============================================================================================
 // БЛОК ВНЕШНЕГО C-ИНТЕРФЕЙСА (экспортируемые функции)

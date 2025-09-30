@@ -31,7 +31,7 @@ def get_build_properties(properties_file_path: str) -> dict:
     return properties
 
 # Функция сборки отдельного файла в DLL
-def build_file(file_path: str, dlls_path: str, compiler_path: str, sfml_include_path: str, sfml_lib_path: str):
+def build_file_window(file_path: str, dlls_path: str, compiler_path: str, sfml_include_path: str, sfml_lib_path: str):
     # Получение имени файла и расширения
     file_name, file_extension = os.path.splitext(file_path)
     # Извлечение только имени файла без пути
@@ -79,7 +79,7 @@ def build():
     target = input("Enter target system (windows, linux) > ")
     start_time = time.time()
     # Загрузка настроек сборки
-    properties = get_build_properties(r"Moon\build.properties")
+    properties = get_build_properties(r"./Moon/build.properties")
 
     # Получение списка всех файлов
     all_files = get_builded_files(properties["BUILD_FILES_PATH"])
@@ -116,7 +116,7 @@ def build():
     file.close()
 
     # Сборка файла
-    build_file(BUILD_FILES_PATH + "/" + "Moon.cpp", DLLS_FILES_PATH, COMPILER_PATH, SFML_INCLUDE_PATH, SFML_LIB_PATH)
+    build_file_window(BUILD_FILES_PATH + "/" + "Moon.cpp", DLLS_FILES_PATH, COMPILER_PATH, SFML_INCLUDE_PATH, SFML_LIB_PATH)
 
     # Удаление временного файла
     # os.remove(BUILD_FILES_PATH + "/" + "BUILD.cpp")

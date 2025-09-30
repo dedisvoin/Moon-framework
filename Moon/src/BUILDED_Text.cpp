@@ -11,6 +11,12 @@
 #include "exception"
 #include "string"
 
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
 
 // ==============================================================================================
 // БЛОК ОПРЕДЕЛЕНИЯ ТИПОВ ДАННЫХ
@@ -35,7 +41,7 @@ extern "C" {
      * @param path Путь к файлу шрифта
      * @return Указатель на загруженный шрифт или nullptr в случае ошибки
      */
-    __declspec(dllexport) FontPtr loadSystemFont(const char* path) {
+    MOON_API FontPtr loadSystemFont(const char* path) {
         FontPtr font = new sf::Font();
         try {
             // Попытка загрузки шрифта из файла
@@ -61,7 +67,7 @@ extern "C" {
      * @param font Указатель на шрифт
      * @return Указатель на созданный объект текста
      */
-    __declspec(dllexport) TextPtr createText(FontPtr font) {
+    MOON_API TextPtr createText(FontPtr font) {
         TextPtr text = new sf::Text();
         text->setFont(*font);
         return text;
@@ -72,7 +78,7 @@ extern "C" {
      * @param text Указатель на объект текста
      * @param str Строка для отображения (в кодировке UTF-8)
      */
-    __declspec(dllexport) void setText(TextPtr text, const char* str) {
+    MOON_API void setText(TextPtr text, const char* str) {
         std::string std_str(str);
         // Преобразование из UTF-8 в внутренний формат SFML
         text->setString(sf::String::fromUtf8(std_str.begin(), std_str.end()));
@@ -83,7 +89,7 @@ extern "C" {
      * @param text Указатель на объект текста
      * @param size Размер шрифта в пикселях
      */
-    __declspec(dllexport) void setTextSize(TextPtr text, int size) {
+    MOON_API void setTextSize(TextPtr text, int size) {
         text->setCharacterSize(size);
     }
 
@@ -93,7 +99,7 @@ extern "C" {
      * @param scaleX Масштаб по оси X
      * @param scaleY Масштаб по оси Y
      */
-    __declspec(dllexport) void setTextScale(TextPtr text, float scaleX, float scaleY) {
+    MOON_API void setTextScale(TextPtr text, float scaleX, float scaleY) {
         text->setScale(scaleX, scaleY);
     }
 
@@ -105,7 +111,7 @@ extern "C" {
      * @param b Синяя компонента цвета (0-255)
      * @param a Альфа-компонента (прозрачность, 0-255)
      */
-    __declspec(dllexport) void setTextColor(TextPtr text, int r, int g, int b, int a) {
+    MOON_API void setTextColor(TextPtr text, int r, int g, int b, int a) {
         text->setFillColor(sf::Color(r, g, b, a));
     }
 
@@ -115,7 +121,7 @@ extern "C" {
      * @param x Координата X
      * @param y Координата Y
      */
-    __declspec(dllexport) void setTextPosition(TextPtr text, float x, float y) {
+    MOON_API void setTextPosition(TextPtr text, float x, float y) {
         text->setPosition(x, y);
     }
 
@@ -125,7 +131,7 @@ extern "C" {
      * @param x Смещение по X относительно левого верхнего угла
      * @param y Смещение по Y относительно левого верхнего угла
      */
-    __declspec(dllexport) void setTextOffset(TextPtr text, float x, float y) {
+    MOON_API void setTextOffset(TextPtr text, float x, float y) {
         text->setOrigin(x, y);
     }
 
@@ -134,7 +140,7 @@ extern "C" {
      * @param text Указатель на объект текста
      * @param angle Угол поворота в градусах
      */
-    __declspec(dllexport) void setTextAngle(TextPtr text, float angle) {
+    MOON_API void setTextAngle(TextPtr text, float angle) {
         text->setRotation(angle);
     }
 
@@ -143,7 +149,7 @@ extern "C" {
      * @param text Указатель на объект текста
      * @param style Комбинация флагов стиля из sf::Text::Style
      */
-    __declspec(dllexport) void setStyle(TextPtr text, sf::Text::Style style) {
+    MOON_API void setStyle(TextPtr text, sf::Text::Style style) {
         text->setStyle(style);
     }
 
@@ -155,7 +161,7 @@ extern "C" {
      * @param b Синяя компонента цвета (0-255)
      * @param a Альфа-компонента (прозрачность, 0-255)
      */
-    __declspec(dllexport) void setOutlineColor(TextPtr text, int r, int g, int b, int a) {
+    MOON_API void setOutlineColor(TextPtr text, int r, int g, int b, int a) {
         text->setOutlineColor(sf::Color(r, g, b, a));
     }
 
@@ -164,7 +170,7 @@ extern "C" {
      * @param text Указатель на объект текста
      * @param thickness Толщина контура в пикселях
      */
-    __declspec(dllexport) void setOutlineThickness(TextPtr text, float thickness) {
+    MOON_API void setOutlineThickness(TextPtr text, float thickness) {
         text->setOutlineThickness(thickness);
     }
 
@@ -173,7 +179,7 @@ extern "C" {
      * @param text Указатель на объект текста
      * @param spacing Коэффициент межбуквенного расстояния
      */
-    __declspec(dllexport) void setLetterSpacing(TextPtr text, float spacing) {
+    MOON_API void setLetterSpacing(TextPtr text, float spacing) {
         text->setLetterSpacing(spacing);
     }
 
@@ -186,7 +192,7 @@ extern "C" {
      * @param text Указатель на объект текста
      * @return Ширина текста с учетом всех трансформаций
      */
-    __declspec(dllexport) double getTextWidth(TextPtr text) {
+    MOON_API double getTextWidth(TextPtr text) {
         return text->getGlobalBounds().width;
     }
 
@@ -195,7 +201,7 @@ extern "C" {
      * @param text Указатель на объект текста
      * @return Высота текста с учетом всех трансформаций
      */
-    __declspec(dllexport) double getTextHeight(TextPtr text) {
+    MOON_API double getTextHeight(TextPtr text) {
         return text->getGlobalBounds().height;
     }
 
@@ -208,7 +214,7 @@ extern "C" {
      * @param text Указатель на объект текста
      * @param font Указатель на новый шрифт
      */
-    __declspec(dllexport) void setFont(TextPtr text, FontPtr font) {
+    MOON_API void setFont(TextPtr text, FontPtr font) {
         text->setFont(*font);
     }
 

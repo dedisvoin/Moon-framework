@@ -34,6 +34,13 @@
 
 
 #include "string"
+
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
 using namespace std;
 
 
@@ -50,7 +57,7 @@ typedef sf::RenderStates* RenderStatesPtr;
 typedef sf::Shader* ShaderPtr;
 
 
-#define MOON_API __declspec(dllexport)
+
 
 // ================================================================================
 //                        НАСТРОЙКИ КОНТЕКСТА OPENGL
@@ -281,12 +288,12 @@ extern "C" {
     // Функции для управления камерой и областью просмотра
 
     // Применение вида к окну (установка активной камеры)
-    __declspec(dllexport) void _Window_SetView(WindowPtr window, ViewPtr view) {
+    MOON_API void _Window_SetView(WindowPtr window, ViewPtr view) {
         window->setView(*view);
     }
 
     // Получение стандартного вида (камеры) окна
-    __declspec(dllexport) ViewPtr _Window_GetDefaultView(WindowPtr window) {
+    MOON_API ViewPtr _Window_GetDefaultView(WindowPtr window) {
         return new sf::View(window->getDefaultView());
     }
 
@@ -295,7 +302,7 @@ extern "C" {
     // ================================================================================
 
     // Установка ограничения кадров в секунду (FPS)
-    __declspec(dllexport) void _Window_SetWaitFps(WindowPtr window, unsigned int fps) {
+    MOON_API void _Window_SetWaitFps(WindowPtr window, unsigned int fps) {
         window->setFramerateLimit(fps);
     }
 
@@ -305,7 +312,7 @@ extern "C" {
     // Функции для работы с событиями окна (клавиатура, мышь, изменение размера)
 
     // Получение следующего события из очереди
-    __declspec(dllexport) int _Window_GetCurrentEventType(WindowPtr window, sf::Event* event) {
+    MOON_API int _Window_GetCurrentEventType(WindowPtr window, sf::Event* event) {
         if (window->pollEvent(*event)) {
             return event->type;
         }

@@ -19,6 +19,12 @@
 #include <SFML/Window/Event.hpp>
 #endif
 
+#ifdef _WIN32
+    #define MOON_API __declspec(dllexport)
+#elif __linux__
+    #define MOON_API
+#endif
+
 // ================================================================================
 //                        УПРАВЛЕНИЕ ОБЪЕКТАМИ СОБЫТИЙ
 // ================================================================================
@@ -30,17 +36,17 @@
 
 extern "C" {
     // Создание нового объекта события для хранения данных
-    __declspec(dllexport) sf::Event* _Events_Create() {
+    MOON_API sf::Event* _Events_Create() {
         return new sf::Event();
     }
 
     // Удаление объекта события и освобождение памяти
-    __declspec(dllexport) void _Events_Destroy(sf::Event* event) {
+    MOON_API void _Events_Destroy(sf::Event* event) {
         delete event;
     }
 
     // Получение типа текущего события (Closed, KeyPressed, MouseMoved и т.д.)
-    __declspec(dllexport) int _Events_GetType(sf::Event* event) {
+    MOON_API int _Events_GetType(sf::Event* event) {
         return event->type;
     }
 
@@ -50,7 +56,7 @@ extern "C" {
     // Функции для обработки событий клавиатуры
 
     // Получение кода нажатой/отпущенной клавиши
-    __declspec(dllexport) int _Events_GetKey(sf::Event* event) {
+    MOON_API int _Events_GetKey(sf::Event* event) {
         return event->key.code;
     }
 
@@ -60,22 +66,22 @@ extern "C" {
     // Функции для обработки всех типов событий мыши
 
     // Получение кода нажатой кнопки мыши (0-левая, 1-правая, 2-средняя)
-    __declspec(dllexport) int _Events_GetMouseButton(sf::Event* event) {
+    MOON_API int _Events_GetMouseButton(sf::Event* event) {
         return event->mouseButton.button;
     }
 
     // Получение X-координаты курсора мыши в момент события
-    __declspec(dllexport) int _Events_GetMouseX(sf::Event* event) {
+    MOON_API int _Events_GetMouseX(sf::Event* event) {
         return event->mouseButton.x;
     }
 
     // Получение Y-координаты курсора мыши в момент события
-    __declspec(dllexport) int _Events_GetMouseY(sf::Event* event) {
+    MOON_API int _Events_GetMouseY(sf::Event* event) {
         return event->mouseButton.y;
     }
 
     // Получение значения прокрутки колеса мыши (положительное - вверх, отрицательное - вниз)
-    __declspec(dllexport) int _Events_GetMouseWheel(sf::Event* event) {
+    MOON_API int _Events_GetMouseWheel(sf::Event* event) {
         return event->mouseWheel.delta;
     }
 
@@ -85,12 +91,12 @@ extern "C" {
     // Функции для получения новых размеров окна при событии Resized
 
     // Получение новой ширины окна после изменения размера (в пикселях)
-    __declspec(dllexport) int _Events_GetSizeWidth(sf::Event* event) {
+    MOON_API int _Events_GetSizeWidth(sf::Event* event) {
         return event->size.width;
     }
 
     // Получение новой высоты окна после изменения размера (в пикселях)
-    __declspec(dllexport) int _Events_GetSizeHeight(sf::Event* event) {
+    MOON_API int _Events_GetSizeHeight(sf::Event* event) {
         return event->size.height;
     }
 }
