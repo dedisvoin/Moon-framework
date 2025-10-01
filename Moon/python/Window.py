@@ -76,9 +76,6 @@ import os
 import sys
 import ctypes
 
-
-import keyboard
-
 from time import time
 from typing import overload, Final, final, Self, Any
 
@@ -899,7 +896,7 @@ class Window:
         self.__max_history = 40 # Максимальное количество точек в истории FPS
 
         # Настройка шрифта и текстовых элементов для отображения отладочной информации
-        self.__info_font = Font.SystemFont("calibri")
+        self.__info_font = Font("Moon/data/fonts/GNF.ttf")
         self.__info_text = BaseText(self.__info_font).\
             set_outline_thickness(2).set_outline_color(COLOR_GHOST_WHITE)
         self.__info_text_color_ghost_white = Color(248, 248, 255, 100)
@@ -963,10 +960,10 @@ class Window:
         self.__border_color: Color | None = None
         self.__icon_path: str | None = None
 
-
-        _ = self.set_title_color(DEFAULT_WINDOW_TITLE_COLOR)
-        _ = self.set_header_color(DEFAULT_WINDOW_HEADER_COLOR)
-        _ = self.set_border_color(DEFAULT_WINDOW_BORDER_COLOR)
+        if sys.platform == 'win32':
+            _ = self.set_title_color(DEFAULT_WINDOW_TITLE_COLOR)
+            _ = self.set_header_color(DEFAULT_WINDOW_HEADER_COLOR)
+            _ = self.set_border_color(DEFAULT_WINDOW_BORDER_COLOR)
 
         try:
             _ = self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
@@ -2852,7 +2849,7 @@ class Window:
         - bool: True если окно должно закрыться
         """
         return (event_type == WindowEvents.Type.Closed or
-                keyboard.is_pressed(self.__exit_key))
+                KeyBoardInterface.get_press(self.__exit_key))
 
     def __handle_window_resize(self, events: WindowEvents):
         """

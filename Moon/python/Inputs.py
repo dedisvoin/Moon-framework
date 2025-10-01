@@ -74,7 +74,6 @@ import sys
 import time
 import mouse
 import ctypes
-import keyboard
 
 if sys.platform == 'win32':
     import win32gui         # pyright: ignore[reportMissingModuleSource]
@@ -242,7 +241,245 @@ if sys.platform == 'linux':
         except Exception as e:
             raise InputError(f"Error getting keyboard layout: {e}")
 
-def is_key_pressed(key: Union[int, str]) -> bool:
+class Key(Enum):
+    """Enum representing keyboard keys"""
+    Unknown = -1        # Unhandled key
+    A = 0               # The A key
+    B = 1               # The B key
+    C = 2               # The C key
+    D = 3               # The D key
+    E = 4               # The E key
+    F = 5               # The F key
+    G = 6               # The G key
+    H = 7               # The H key
+    I = 8               # The I key
+    J = 9               # The J key
+    K = 10              # The K key
+    L = 11              # The L key
+    M = 12              # The M key
+    N = 13              # The N key
+    O = 14              # The O key
+    P = 15              # The P key
+    Q = 16              # The Q key
+    R = 17              # The R key
+    S = 18              # The S key
+    T = 19              # The T key
+    U = 20              # The U key
+    V = 21              # The V key
+    W = 22              # The W key
+    X = 23              # The X key
+    Y = 24              # The Y key
+    Z = 25              # The Z key
+    Num0 = 26           # The 0 key
+    Num1 = 27           # The 1 key
+    Num2 = 28           # The 2 key
+    Num3 = 29           # The 3 key
+    Num4 = 30           # The 4 key
+    Num5 = 31           # The 5 key
+    Num6 = 32           # The 6 key
+    Num7 = 33           # The 7 key
+    Num8 = 34           # The 8 key
+    Num9 = 35           # The 9 key
+    Escape = 36         # The Escape key
+    LControl = 37       # The left Control key
+    LShift = 38         # The left Shift key
+    LAlt = 39           # The left Alt key
+    LSystem = 40        # The left OS specific key: window (Windows and Linux), apple (macOS), ...
+    RControl = 41       # The right Control key
+    RShift = 42         # The right Shift key
+    RAlt = 43           # The right Alt key
+    RSystem = 44        # The right OS specific key: window (Windows and Linux), apple (macOS), ...
+    Menu = 45           # The Menu key
+    LBracket = 46       # The [ key
+    RBracket = 47       # The ] key
+    Semicolon = 48      # The ; key
+    Comma = 49          # The , key
+    Period = 50         # The . key
+    Apostrophe = 51     # The ' key
+    Slash = 52          # The / key
+    Backslash = 53      # The \ key
+    Grave = 54          # The ` key
+    Equal = 55          # The = key
+    Hyphen = 56         # The - key (hyphen)
+    Space = 57          # The Space key
+    Enter = 58          # The Enter/Return keys
+    Backspace = 59      # The Backspace key
+    Tab = 60            # The Tabulation key
+    PageUp = 61         # The Page up key
+    PageDown = 62       # The Page down key
+    End = 63            # The End key
+    Home = 64           # The Home key
+    Insert = 65         # The Insert key
+    Delete = 66         # The Delete key
+    Add = 67            # The + key
+    Subtract = 68       # The - key (minus, usually from numpad)
+    Multiply = 69       # The * key
+    Divide = 70         # The / key
+    Left = 71           # Left arrow
+    Right = 72          # Right arrow
+    Up = 73             # Up arrow
+    Down = 74           # Down arrow
+    Numpad0 = 75        # The numpad 0 key
+    Numpad1 = 76        # The numpad 1 key
+    Numpad2 = 77        # The numpad 2 key
+    Numpad3 = 78        # The numpad 3 key
+    Numpad4 = 79        # The numpad 4 key
+    Numpad5 = 80        # The numpad 5 key
+    Numpad6 = 81        # The numpad 6 key
+    Numpad7 = 82        # The numpad 7 key
+    Numpad8 = 83        # The numpad 8 key
+    Numpad9 = 84        # The numpad 9 key
+    F1 = 85             # The F1 key
+    F2 = 86             # The F2 key
+    F3 = 87             # The F3 key
+    F4 = 88             # The F4 key
+    F5 = 89             # The F5 key
+    F6 = 90             # The F6 key
+    F7 = 91             # The F7 key
+    F8 = 92             # The F8 key
+    F9 = 93             # The F9 key
+    F10 = 94            # The F10 key
+    F11 = 95            # The F11 key
+    F12 = 96            # The F12 key
+    F13 = 97            # The F13 key
+    F14 = 98            # The F14 key
+    F15 = 99            # The F15 key
+    Pause = 100         # The Pause key
+    KeyCount = 101      # Keep last -- the total number of keyboard keys
+
+    # Aliases for deprecated values
+    Tilde = Grave
+    Dash = Hyphen
+    BackSpace = Backspace
+    BackSlash = Backslash
+    SemiColon = Semicolon
+    Return = Enter
+    Quote = Apostrophe
+
+
+def get_key_number(key_identifier: str) -> int:
+    """
+    Возвращает номер клавиши по переданному идентификатору
+    
+    Args:
+        key_identifier: Символ или название специальной клавиши
+        
+    Returns:
+        int: Номер клавиши или -1 (Key.Unknown) если клавиша не найдена
+    """
+    if not key_identifier:
+        return Key.Unknown.value
+    
+    # Словарь для специальных клавиш (названия)
+    special_keys = {
+        # Функциональные клавиши
+        'f1': Key.F1, 'f2': Key.F2, 'f3': Key.F3, 'f4': Key.F4,
+        'f5': Key.F5, 'f6': Key.F6, 'f7': Key.F7, 'f8': Key.F8,
+        'f9': Key.F9, 'f10': Key.F10, 'f11': Key.F11, 'f12': Key.F12,
+        'f13': Key.F13, 'f14': Key.F14, 'f15': Key.F15,
+        
+        # Навигационные клавиши
+        'escape': Key.Escape, 'esc': Key.Escape,
+        'tab': Key.Tab,
+        'enter': Key.Enter, 'return': Key.Enter,
+        'backspace': Key.Backspace,
+        'space': Key.Space, 'spacebar': Key.Space,
+        'insert': Key.Insert, 'ins': Key.Insert,
+        'delete': Key.Delete, 'del': Key.Delete,
+        'home': Key.Home,
+        'end': Key.End,
+        'pageup': Key.PageUp, 'pgup': Key.PageUp,
+        'pagedown': Key.PageDown, 'pgdn': Key.PageDown,
+        'pause': Key.Pause, 'break': Key.Pause,
+        
+        # Модификаторы
+        'lctrl': Key.LControl, 'leftctrl': Key.LControl, 'leftcontrol': Key.LControl,
+        'rctrl': Key.RControl, 'rightctrl': Key.RControl, 'rightcontrol': Key.RControl,
+        'lshift': Key.LShift, 'leftshift': Key.LShift,
+        'rshift': Key.RShift, 'rightshift': Key.RShift,
+        'lalt': Key.LAlt, 'leftalt': Key.LAlt,
+        'ralt': Key.RAlt, 'rightalt': Key.RAlt,
+        'lsystem': Key.LSystem, 'leftsystem': Key.LSystem, 'leftwin': Key.LSystem, 'lwin': Key.LSystem,
+        'rsystem': Key.RSystem, 'rightsystem': Key.RSystem, 'rightwin': Key.RSystem, 'rwin': Key.RSystem,
+        'menu': Key.Menu, 'app': Key.Menu,
+        
+        # Стрелки
+        'left': Key.Left, 'leftarrow': Key.Left, 'arrowleft': Key.Left,
+        'right': Key.Right, 'rightarrow': Key.Right, 'arrowright': Key.Right,
+        'up': Key.Up, 'uparrow': Key.Up, 'arrowup': Key.Up,
+        'down': Key.Down, 'downarrow': Key.Down, 'arrowdown': Key.Down,
+        
+        # Цифровая клавиатура
+        'numpad0': Key.Numpad0, 'np0': Key.Numpad0,
+        'numpad1': Key.Numpad1, 'np1': Key.Numpad1,
+        'numpad2': Key.Numpad2, 'np2': Key.Numpad2,
+        'numpad3': Key.Numpad3, 'np3': Key.Numpad3,
+        'numpad4': Key.Numpad4, 'np4': Key.Numpad4,
+        'numpad5': Key.Numpad5, 'np5': Key.Numpad5,
+        'numpad6': Key.Numpad6, 'np6': Key.Numpad6,
+        'numpad7': Key.Numpad7, 'np7': Key.Numpad7,
+        'numpad8': Key.Numpad8, 'np8': Key.Numpad8,
+        'numpad9': Key.Numpad9, 'np9': Key.Numpad9,
+        'numpadadd': Key.Add, 'npadd': Key.Add, 'numpad+': Key.Add,
+        'numpadsubtract': Key.Subtract, 'npsubtract': Key.Subtract, 'numpad-': Key.Subtract,
+        'numpadmultiply': Key.Multiply, 'npmultiply': Key.Multiply, 'numpad*': Key.Multiply,
+        'numpaddivide': Key.Divide, 'npdivide': Key.Divide, 'numpad/': Key.Divide,
+        
+        # Другие специальные клавиши
+        'capslock': Key.Unknown,  # Не представлено в оригинальном enum
+        'scrolllock': Key.Unknown,  # Не представлено в оригинальном enum
+        'printscreen': Key.Unknown,  # Не представлено в оригинальном enum
+    }
+    
+    # Словарь для символов
+    char_to_key = {
+        # Буквы (учитываем регистр)
+        'a': Key.A, 'A': Key.A, 'b': Key.B, 'B': Key.B, 'c': Key.C, 'C': Key.C,
+        'd': Key.D, 'D': Key.D, 'e': Key.E, 'E': Key.E, 'f': Key.F, 'F': Key.F,
+        'g': Key.G, 'G': Key.G, 'h': Key.H, 'H': Key.H, 'i': Key.I, 'I': Key.I,
+        'j': Key.J, 'J': Key.J, 'k': Key.K, 'K': Key.K, 'l': Key.L, 'L': Key.L,
+        'm': Key.M, 'M': Key.M, 'n': Key.N, 'N': Key.N, 'o': Key.O, 'O': Key.O,
+        'p': Key.P, 'P': Key.P, 'q': Key.Q, 'Q': Key.Q, 'r': Key.R, 'R': Key.R,
+        's': Key.S, 'S': Key.S, 't': Key.T, 'T': Key.T, 'u': Key.U, 'U': Key.U,
+        'v': Key.V, 'V': Key.V, 'w': Key.W, 'W': Key.W, 'x': Key.X, 'X': Key.X,
+        'y': Key.Y, 'Y': Key.Y, 'z': Key.Z, 'Z': Key.Z,
+        
+        # Цифры
+        '0': Key.Num0, '1': Key.Num1, '2': Key.Num2, '3': Key.Num3,
+        '4': Key.Num4, '5': Key.Num5, '6': Key.Num6, '7': Key.Num7,
+        '8': Key.Num8, '9': Key.Num9,
+        
+        # Специальные символы
+        '[': Key.LBracket, ']': Key.RBracket, ';': Key.Semicolon,
+        ',': Key.Comma, '.': Key.Period, "'": Key.Apostrophe,
+        '/': Key.Slash, '\\': Key.Backslash, '`': Key.Grave,
+        '=': Key.Equal, '-': Key.Hyphen, ' ': Key.Space,
+        '+': Key.Add, '*': Key.Multiply,
+    }
+    
+    # Приводим к нижнему регистру для поиска в special_keys
+    key_lower = key_identifier.lower().strip()
+    
+    # Сначала проверяем специальные клавиши
+    if key_lower in special_keys:
+        return special_keys[key_lower].value
+    
+    # Если это одиночный символ, проверяем в char_to_key
+    if len(key_identifier) == 1:
+        return char_to_key.get(key_identifier, Key.Unknown).value
+    
+    # Пробуем найти прямое соответствие с именами enum (регистронезависимо)
+    try:
+        # Ищем по имени enum (регистронезависимо)
+        for key_enum in Key:
+            if key_enum.name.lower() == key_lower:
+                return key_enum.value
+    except:
+        pass
+    
+    return Key.Unknown.value
+
+def is_key_pressed(key: str) -> bool:
     """
     #### Проверяет нажатие клавиши через нативную библиотеку
 
@@ -263,18 +500,12 @@ def is_key_pressed(key: Union[int, str]) -> bool:
         InputError: Ошибка при проверке состояния
     """
     # Конвертация строки в код символа
-    if isinstance(key, str):
-        if len(key) != 1:
-            raise InvalidInputError("Key symbol must be a single character")
-        key = ord(key)
-    elif not isinstance(key, int):
-        raise InvalidInputError("Key must be either int (keycode) or str (single character)")
-
+    
     try:
         # Настройка и вызов нативной функции
         _lib._Keyboard_IsKeyPressed.restype = ctypes.c_bool
         _lib._Keyboard_IsKeyPressed.argtypes = [ctypes.c_int]
-        return _lib._Keyboard_IsKeyPressed(key)
+        return _lib._Keyboard_IsKeyPressed(get_key_number(key))
     except Exception as e:
         raise InputError(f"Key press check failed: {e}")
 
@@ -854,7 +1085,7 @@ class Keyboard:
             cls._PRESSED_KEYS_CACHE.clear()
             for key in cls.KEYS_ARRAY:
                 try:
-                    if keyboard.is_pressed(key):
+                    if is_key_pressed(key):
                         if get_keyboard_layout() == LAYOUT_RU:
 
                             if cls._key_in_qwerty_layout(key):
