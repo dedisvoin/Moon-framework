@@ -28,7 +28,6 @@ blend_modes = [
     ("Subtract", BlendMode.Subtract()),
     ("Lighten", BlendMode.Lighten()),
     ("Darken", BlendMode.Darken()),
-    ("None", BlendMode.None_())
 ]
 
 # Создаем демонстрационные области

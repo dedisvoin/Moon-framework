@@ -98,8 +98,8 @@ class BlendMode:
         self.__alpha_dst_factor = alpha_dst_factor
         self.__alpha_eq = alpha_eq
 
-        self.__blend_mode_ptr = LIB_MOON._BlendMode_CreateFull(self.__color_src_factor, self.__color_dst_factor, self.__color_eq,
-                                                                self.__alpha_src_factor, self.__alpha_dst_factor, self.__alpha_eq)
+        self.__blend_mode_ptr = LIB_MOON._BlendMode_CreateFull(self.__color_src_factor.value, self.__color_dst_factor.value, self.__color_eq.value,
+                                                                self.__alpha_src_factor.value, self.__alpha_dst_factor.value, self.__alpha_eq.value)
 
     def  __del__(self) -> None:
         LIB_MOON._BlendMode_Delete(self.__blend_mode_ptr)

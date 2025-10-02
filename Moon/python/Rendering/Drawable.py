@@ -4,8 +4,9 @@ from Moon.python.Rendering.Shapes import (
     LineThinShape, LinesThinShape
 )
 
+from Moon.python.Rendering.Vertexes import VertexArray
 type Drawable = CircleShape | RectangleShape | LineShape | BaseLineShape | \
-                PolygoneShape | LineThinShape | LinesThinShape | Text | BaseText
+                PolygoneShape | LineThinShape | LinesThinShape | Text | BaseText | VertexArray
 
 _Drawable = (CircleShape | RectangleShape | LineShape | BaseLineShape | \
-             PolygoneShape | LineThinShape | LinesThinShape | Text | BaseText)
+             PolygoneShape | LineThinShape | LinesThinShape | Text | BaseText | VertexArray)

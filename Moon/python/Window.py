@@ -521,14 +521,14 @@ DWMWA_WINDOW_CORNER_PREFERENCE: Final[int] = 33                                 
 # ============================================================================= +
 
 # Константа обьекта оконного интерфейса ============================================ +
-# ! Не рекомендуется использовать вне предоставленного функционала фреймворка!   
-if sys.platform == 'win32':
-    DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")                              #
+# ! Не рекомендуется использовать вне предоставленного функционала фреймворка!       #
+if sys.platform == 'win32':                                                          #
+    DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")                          #
 # ================================================================================== #
 
 if sys.platform == 'linux':
-    X_LIB = ctypes.CDLL(ctypes.util.find_library('X11'))
-    X_RANDR = ctypes.CDLL(ctypes.util.find_library("Xrandr"))
+    X_LIB = ctypes.CDLL(ctypes.util.find_library('X11'))      # pyright: ignore
+    X_RANDR = ctypes.CDLL(ctypes.util.find_library("Xrandr")) # pyright: ignore
 
 
 LIB_MOON._WindowContextSettings_Create.restype = ctypes.c_void_p
@@ -859,7 +859,7 @@ class Window:
         self.__title = title
 
         if sys.platform == 'win32':
-            self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)  
+            self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
         else:
             self.__window_descriptor = None                               # pyright: ignore [ reportAny ]
         self.__window_alpha: int | float = alpha

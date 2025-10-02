@@ -1003,49 +1003,134 @@ type Vector2Type = Vector2f | Vector2i  #
 Vector2TypeTuple = (Vector2f, Vector2i) #
 # ===================================== +
 
-
 class Vector3f(object):
     def __init__(self, x: Number, y: Number, z: Number):
-        self.x = x
-        self.y = y
-        self.z = z
+        self.__x = x
+        self.__y = y
+        self.__z = z
+
+    @property
+    def x(self) -> float:
+        return self.__x
+
+    @property
+    def y(self) -> float:
+        return self.__y
+
+    @property
+    def z(self) -> float:
+        return self.__z
+
+    @x.setter
+    def x(self, x: float) -> None:
+        self.__x = x
+
+    @y.setter
+    def y(self, y: float) -> None:
+        self.__y = y
+
+    @z.setter
+    def z(self, z: float) -> None:
+        self.__z = z
 
     @property
     def xyz(self) -> tuple[float, float, float]:
-        return (self.x, self.y, self.z)
+        return (self.__x, self.__y, self.__z)
 
     @property
     def rgb(self) -> tuple[float, float, float]:
-        return (self.x, self.y, self.z)
+        return (self.__x, self.__y, self.__z)
 
     @property
     def xy(self) -> tuple[float, float]:
-        return (self.x, self.y)
+        return (self.__x, self.__y)
 
     @property
     def xz(self) -> tuple[float, float]:
-        return (self.x, self.z)
+        return (self.__x, self.__z)
 
     @property
     def yz(self) -> tuple[float, float]:
-        return (self.y, self.z)
+        return (self.__y, self.__z)
 
     def length(self) -> float:
-        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
+        return math.sqrt(self.__x**2 + self.__y**2 + self.__z**2)
+
+    def dot(self, other: "Vector3f"):
+        """Вычисляет скалярное произведение двух векторов"""
+        return (self.__x * other.__x + self.__y * other.__y + self.__z * other.__z)
+
+    def cross(self, other: "Vector3f"):
+        """Вычисляет векторное произведение двух векторов"""
+        return Vector3f(self.__y * other.__z - self.__z * other.__y,
+                        self.__z * other.__x - self.__x * other.__z,
+                        self.__x * other.__y - self.__y * other.__x)
 
     def normalize(self) -> "Vector3f":
         length = self.length()
-        return Vector3f(self.x / length, self.y / length, self.z / length)
+        return Vector3f(self.__x / length, self.__y / length, self.__z / length)
 
     def normalize_at(self) -> Self:
         length = self.length()
-        self.x = self.x / length
-        self.y = self.y / length
-        self.z = self.z / length
+        self.__x = self.__x / length
+        self.__y = self.__y / length
+        self.__z = self.__z / length
+        return self
+
+    def rotate(self, angle_vector: "Vector3f") -> "Vector3f":
+        """
+        Вращает вектор по осям x, y, z
+        """
+        x, y, z = self.__x, self.__y, self.__z
+        a, b, c = angle_vector.__x, angle_vector.__y, angle_vector.__z
+        cos_a, sin_a = math.cos(a), math.sin(a)
+        cos_b, sin_b = math.cos(b), math.sin(b)
+        cos_c, sin_c = math.cos(c), math.sin(c)
+        x = x * cos_a * cos_b - y * sin_a * cos_b + z * sin_b
+        y = x * cos_a * sin_b + y * sin_a * sin_b + z * cos_b
+        z = -x * sin_a + y * cos_a
+        return Vector3f(x, y, z)
+
+    def rotate_at(self, angle_vector: "Vector3f") -> Self:
+        """
+        Вращает вектор по осям x, y, z
+        """
+        x, y, z = self.__x, self.__y, self.__z
+        a, b, c = angle_vector.__x, angle_vector.__y, angle_vector.__z
+        cos_a, sin_a = math.cos(a), math.sin(a)
+        cos_b, sin_b = math.cos(b), math.sin(b)
+        cos_c, sin_c = math.cos(c), math.sin(c)
+        x = x * cos_a * cos_b - y * sin_a * cos_b + z * sin_b
+        y = x * cos_a * sin_b + y * sin_a * sin_b + z * cos_b
+        z = -x * sin_a + y * cos_a
+        self.__x = x
+        self.__y = y
+        self.__z = z
         return self
 
     def __str__(self):
-        return f"({self.x}, {self.y}, {self.z})"
+        return f"({self.__x}, {self.__y}, {self.__z})"
 
     def __repr__(self):
-        return f"Vector3f({self.x}, {self.y}, {self.z})"
+        return f"Vector3f({self.__x}, {self.__y}, {self.__z})"
+
+    def __add__(self, other: "Vector3f") -> "Vector3f":
+        return Vector3f(self.__x + other.__x, self.__y + other.__y, self.__z + other.__z)
+
+    def __sub__(self, other: "Vector3f") -> "Vector3f":
+        return Vector3f(self.__x - other.__x, self.__y - other.__y, self.__z - other.__z)
+
+    def __mul__(self, other: float) -> "Vector3f":
+        return Vector3f(self.__x * other, self.__y * other, self.__z * other)
+
+    def __truediv__(self, other: float) -> "Vector3f":
+        return Vector3f(self.__x / other, self.__y / other, self.__z / other)
+
+    def __floordiv__(self, other: float) -> "Vector3f":
+        return Vector3f(self.__x // other, self.__y // other, self.__z // other)
+
+    def __mod__(self, other: float) -> "Vector3f":
+        return Vector3f(self.__x % other, self.__y % other, self.__z % other)
+
+    def __abs__(self, other: "Vector3f") -> "Vector3f":
+        return Vector3f(abs(self.__x), abs(self.__y), abs(self.__z))

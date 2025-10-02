@@ -187,7 +187,7 @@ class Font:
         font = Font.SystemFont("arial")
         ```
         """
-        
+
         def find_font_recursive(directory, font_name):
             """
             Рекурсивно ищет файл шрифта в директории и поддиректориях
@@ -209,7 +209,7 @@ class Font:
                 return Font(font_path)
             else:
                 raise FileNotFoundError(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Font file not found: '{font_path}'")
-        
+
         elif sys.platform == 'linux':
             # Основные директории для поиска шрифтов в Linux
             font_directories = [
@@ -221,11 +221,11 @@ class Font:
                 "/var/lib/flatpak/exports/share/fonts",  # Flatpak
                 "/snap/fonts/current/share/fonts"        # Snap
             ]
-            
+
             # Добавляем возможные поддиректории для более быстрого поиска
             common_subdirs = [
                 "truetype",
-                "opentype", 
+                "opentype",
                 "TTF",
                 "OTF",
                 "dejavu",
@@ -236,7 +236,7 @@ class Font:
                 "microsoft",
                 "gnu-free"
             ]
-            
+
             # Расширяем список директорий с учетом поддиректорий
             expanded_directories = []
             for base_dir in font_directories:
@@ -247,12 +247,12 @@ class Font:
                         subdir_path = os.path.join(base_dir, subdir)
                         if os.path.exists(subdir_path):
                             expanded_directories.append(subdir_path)
-            
+
             # Удаляем дубликаты
             expanded_directories = list(set(expanded_directories))
-            
+
             print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.BLUE}info{Fore.RESET} ] Searching for font '{name}' in {len(expanded_directories)} directories...")
-            
+
             # Рекурсивный поиск в каждой директории
             for directory in expanded_directories:
                 if os.path.exists(directory):
@@ -261,10 +261,10 @@ class Font:
                     if font_path:
                         print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.GREEN}success{Fore.RESET} ] Font found: '{font_path}'")
                         return Font(font_path)
-            
+
             # Если шрифт не найден, попробуем найти похожие варианты
             print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.YELLOW}warn{Fore.RESET} ] Font '{name}' not found, searching for alternatives...")
-            
+
             # Поиск шрифтов с похожими именами
             alternative_found = False
             for directory in expanded_directories:
@@ -275,7 +275,7 @@ class Font:
                                 full_path = os.path.join(root, file)
                                 print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.YELLOW}alternative{Fore.RESET} ] Similar font found: '{full_path}'")
                                 alternative_found = True
-            
+
             if alternative_found:
                 raise FileNotFoundError(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Exact font '{name}' not found, but similar fonts exist. See warnings above.")
             else:
@@ -388,7 +388,8 @@ def init_system_fonts():
         print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] Loading font '{name}'")
         try:
             font = Font.SystemFont(name)
-            ARRAY_OF_SYSTEM_FONTS.append(font)
+            if font is not None:
+                ARRAY_OF_SYSTEM_FONTS.append(font)
         except:
             print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Font '{name}' has not been loaded.")
     print(f"[ {Fore.MAGENTA}FontLoader{Fore.RESET} ] [ {Fore.BLACK}note{Fore.RESET} ] Loaded {Fore.CYAN}{len(ARRAY_OF_SYSTEM_FONTS)}/{len(detected_fonts)}{Fore.RESET} fonts.")

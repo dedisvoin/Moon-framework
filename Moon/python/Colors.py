@@ -83,6 +83,8 @@ import random
 import colorsys
 from typing import Literal, Final, Self, final
 
+type Number = int | float
+
 
 
 # Тип для представления цвета в виде массива RGBA ==== +
@@ -156,7 +158,7 @@ class Color:
             random.randint(0, 255)
         )
 
-    def __init__(self, r: int, g: int, b: int, a: int = 255):
+    def __init__(self, r: Number, g: Number, b: Number, a: Number = 255):
         """
         #### Инициализирует цвет в формате RGBA
 
