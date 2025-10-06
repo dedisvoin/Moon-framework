@@ -2,7 +2,7 @@ import os
 import inspect
 import site
 import sys
-from typing import final, List
+from typing import List
 from Moon import DLL_FOUND_PATH, DLL_LOCAL_FOUND_PATH, DLL_MODULE_FOUND_PATH
 from colorama import Fore
 

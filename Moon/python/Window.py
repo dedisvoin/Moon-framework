@@ -102,6 +102,21 @@ try:
 except Exception as e:
     raise ImportError(f"Failed to load Moon library: {e}")
 
+# Индекс оконного атрибута отвечающего за скругления углов окна (Windows 11+) = +
+DWMWA_WINDOW_CORNER_PREFERENCE: Final[int] = 33                                 #
+# ============================================================================= +
+
+# Константа обьекта оконного интерфейса ============================================ +
+# ! Не рекомендуется использовать вне предоставленного функционала фреймворка!       #
+if sys.platform == 'win32':                                                          #
+    DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")                          #
+# ================================================================================== #
+
+if sys.platform == 'linux':
+    X_LIB = ctypes.CDLL(ctypes.util.find_library('X11'))      # pyright: ignore
+    X_RANDR = ctypes.CDLL(ctypes.util.find_library("Xrandr")) # pyright: ignore
+
+
 
 def get_screen_resolution() -> TwoIntegerList:
     """
@@ -112,13 +127,55 @@ def get_screen_resolution() -> TwoIntegerList:
     :Returns:
     - tuple: Кортеж, содержащий ширину и высоту экрана в пикселях (ширина, высота).
     """
+    if sys.platform == 'win32':
+        user32 = ctypes.windll.user32
+        user32.SetProcessDPIAware()
+        width = user32.GetSystemMetrics(0)
+        height = user32.GetSystemMetrics(1)
+        return [width, height]
 
-    user32 = ctypes.windll.user32
-    user32.SetProcessDPIAware()
-    width = user32.GetSystemMetrics(0)
-    height = user32.GetSystemMetrics(1)
+    if sys.platform == 'linux':
+        """Безопасное получение разрешения через Xlib"""
+        try:
+            # Загружаем библиотеку
+            xlib_path = ctypes.util.find_library('X11')  # pyright: ignore
+            if not xlib_path:
+                return [0, 0]
 
-    return [width, height]
+            xlib = ctypes.CDLL(xlib_path)
+
+            # Определяем типы функций
+            xlib.XOpenDisplay.restype = ctypes.c_void_p
+            xlib.XOpenDisplay.argtypes = [ctypes.c_char_p]
+
+            xlib.XCloseDisplay.argtypes = [ctypes.c_void_p]
+            xlib.XDisplayWidth.restype = ctypes.c_int
+            xlib.XDisplayWidth.argtypes = [ctypes.c_void_p, ctypes.c_int]
+            xlib.XDisplayHeight.restype = ctypes.c_int
+            xlib.XDisplayHeight.argtypes = [ctypes.c_void_p, ctypes.c_int]
+            xlib.XDefaultScreen.restype = ctypes.c_int
+            xlib.XDefaultScreen.argtypes = [ctypes.c_void_p]
+
+            # Открываем соединение
+            display = xlib.XOpenDisplay(None)
+            if not display:
+                return [0, 0]
+
+            # Получаем информацию
+            screen = xlib.XDefaultScreen(display)
+            width = xlib.XDisplayWidth(display, screen)
+            height = xlib.XDisplayHeight(display, screen)
+
+            # Закрываем соединение
+            xlib.XCloseDisplay(display)
+
+            return (width, height)
+
+        except Exception as e:
+            print(f"Ошибка Xlib: {e}")
+            return [0, 0]
+
+    return [0, 0]
 
 
 ##################################################################
@@ -515,20 +572,6 @@ class SystemCursors(Enum):
     Cross = 18                    # Перекрестие (используется для точного выбора, например в графических редакторах)
     Help = 19                     # Курсор со знаком вопроса (указывает на справку или подсказку)
     NotAllowed = 20               # Курсор "Действие запрещено" (перечеркнутый круг, например при drag-and-drop)
-
-# Индекс оконного атрибута отвечающего за скругления углов окна (Windows 11+) = +
-DWMWA_WINDOW_CORNER_PREFERENCE: Final[int] = 33                                 #
-# ============================================================================= +
-
-# Константа обьекта оконного интерфейса ============================================ +
-# ! Не рекомендуется использовать вне предоставленного функционала фреймворка!       #
-if sys.platform == 'win32':                                                          #
-    DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")                          #
-# ================================================================================== #
-
-if sys.platform == 'linux':
-    X_LIB = ctypes.CDLL(ctypes.util.find_library('X11'))      # pyright: ignore
-    X_RANDR = ctypes.CDLL(ctypes.util.find_library("Xrandr")) # pyright: ignore
 
 
 LIB_MOON._WindowContextSettings_Create.restype = ctypes.c_void_p
@@ -1027,7 +1070,7 @@ class Window:
             return max(self.__fps_history)
         except: return self.__target_fps
 
-    def  get_fps_history_min(self) -> Number:
+    def get_fps_history_min(self) -> Number:
         """
         Получить минимальное значение FPS в истории
 
@@ -1605,6 +1648,12 @@ class Window:
                 int(self.__window_alpha),  # Значение альфа-канала
                 2  # LWA_ALPHA = 2
             )
+
+    if sys.platform == 'linux':
+        @final
+        def set_alpha(self, alpha: int | float):
+            ...
+
 
     @final
     def get_alpha(self) -> float:

@@ -83,11 +83,11 @@ class ParticleTextureAtlas:
         
         # Перерисовываем старый атлас на новый
         if old_atlas:
-            old_sprite = BaseSprite.FromTexture(old_atlas)
+            old_sprite = Sprite.FromTexture(old_atlas)
             self.__texture.draw(old_sprite)
         
         # Добавляем новую текстуру
-        sprite = BaseSprite.FromTexture(texture)
+        sprite = Sprite.FromTexture(texture)
         sprite.set_position(self.__width - texture_size[0], 0)
         self.__texture.draw(sprite)
         self.__texture.display()

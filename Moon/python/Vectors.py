@@ -1068,6 +1068,8 @@ class Vector3f(object):
 
     def normalize(self) -> "Vector3f":
         length = self.length()
+        if length == 0:
+            return Vector3f(0, 0, 0)
         return Vector3f(self.__x / length, self.__y / length, self.__z / length)
 
     def normalize_at(self) -> Self:
