@@ -1,3 +1,5 @@
+
+
 #ifndef SFML_AUDIO_HPP
 #include "SFML/Audio/SoundBuffer.hpp"
 #include "SFML/Audio/Sound.hpp"
@@ -7,6 +9,8 @@
 #include <iostream>
 #endif
 
+
+
 #ifdef _WIN32
     #define MOON_API __declspec(dllexport)
 #elif __linux__
@@ -15,6 +19,9 @@
 
 using std::cout, std::endl;
 extern "C" {
+
+
+
     typedef sf::SoundBuffer* SoundBufferPtr;
 
     MOON_API SoundBufferPtr _SoundBuffer_loadFromFile(const char* path) {

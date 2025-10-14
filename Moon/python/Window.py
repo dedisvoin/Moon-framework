@@ -117,7 +117,6 @@ if sys.platform == 'linux':
     X_RANDR = ctypes.CDLL(ctypes.util.find_library("Xrandr")) # pyright: ignore
 
 
-
 def get_screen_resolution() -> TwoIntegerList:
     """
     #### Получает разрешение основного монитора с использованием Windows API.
@@ -996,7 +995,7 @@ class Window:
 
         # Значения вычисляющиеся с кеширование
         self.__cached_window_center: Vector2f = Vector2f(width / 2, height / 2)
-        self.__cached_window_size: Vector2f = Vector2f(width, height)
+        self.__cached_window_size: Vector2i = Vector2i(width, height)
 
         self.__title_color: Color | None = None
         self.__header_color: Color | None = None
@@ -2034,7 +2033,7 @@ class Window:
         """
         if width <= 0 or height <= 0:
             raise ValueError("Window dimensions must be positive")
-        self.__cached_window_size = Vector2f(width, height)
+        self.__cached_window_size = Vector2i(width, height)
         LIB_MOON._Window_SetSize(self.__window_ptr, width, height)
         return self
 
@@ -2071,7 +2070,7 @@ class Window:
         return self.__window_ptr
 
     @final
-    def get_size(self, use_cache: bool = True) -> Vector2i | Vector2f:
+    def get_size(self, use_cache: bool = True) -> Vector2i:
         """
         #### Возвращает текущий размер клиентской области окна
 
@@ -2854,11 +2853,12 @@ class Window:
             self.__handle_window_resize(events)
 
         # Обновление флага изменения размера
+        
         self.__update_resize_status()
 
         if self.get_resized():
             size = self.get_size(False)
-            self.__cached_window_size = Vector2f(*size)
+            self.__cached_window_size = Vector2i(*size)
             self.__cached_window_center = Vector2f(size.x / 2, size.y / 2)
 
         return True

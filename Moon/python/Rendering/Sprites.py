@@ -67,12 +67,20 @@ LIB_MOON._RenderTexture_SetSmooth.argtypes = [RenderTexturePtr, ctypes.c_bool]
 LIB_MOON._RenderTexture_SetSmooth.restype = None
 
 
-class RenderTexture:
+class RenderTexture(object):
     def __init__(self) -> None:
         self.__ptr = LIB_MOON._RenderTexture_Init()
 
     def __del__(self):
         LIB_MOON._RenderTexture_Delete(self.__ptr)
+
+    def __eq__(self, other: "object | RenderTexture") -> bool:
+        if isinstance(other, RenderTexture):
+            return self.__ptr == other.get_ptr()
+
+    def __ne__(self, other: "object | RenderTexture") -> bool:
+        if isinstance(other, RenderTexture):
+            return not self.__eq__(other)
 
     def set_smooth(self, smooth: bool = True) -> None:
         """
@@ -222,3 +230,310 @@ class RenderTexture:
             TexturePtr: The texture of the render texture.
         """
         return LIB_MOON._RenderTexture_GetTexture(self.__ptr)
+    
+    def get_texture(self) -> "Texture":
+        texture_ptr = self.get_texture_ptr()
+        texture = Texture()
+        texture.load_from_ptr(texture_ptr)
+        return texture
+
+
+LIB_MOON._Texture_Init.argtypes = []
+LIB_MOON._Texture_Init.restype = TexturePtr
+
+LIB_MOON._Texture_LoadFromFile.argtypes = [TexturePtr, ctypes.c_char_p]
+LIB_MOON._Texture_LoadFromFile.restype = ctypes.c_bool
+
+LIB_MOON._Texture_LoadFromFileWithBoundRect.argtypes = [TexturePtr, ctypes.c_char_p,
+                                                         ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Texture_LoadFromFileWithBoundRect.restype = ctypes.c_bool
+
+LIB_MOON._Texture_Delete.argtypes = [TexturePtr]
+LIB_MOON._Texture_Delete.restype = None
+
+LIB_MOON._Texture_GetMaximumSize.argtypes = [TexturePtr]
+LIB_MOON._Texture_GetMaximumSize.restype = ctypes.c_int 
+
+LIB_MOON._Texture_GetSizeX.argtypes = [TexturePtr]
+LIB_MOON._Texture_GetSizeX.restype = ctypes.c_int
+
+LIB_MOON._Texture_GetSizeY.argtypes = [TexturePtr]
+LIB_MOON._Texture_GetSizeY.restype = ctypes.c_int
+
+LIB_MOON._Texture_SetRepeated.argtypes = [TexturePtr, ctypes.c_bool]
+LIB_MOON._Texture_SetRepeated.restype = None
+
+LIB_MOON._Texture_SetSmooth.argtypes = [TexturePtr, ctypes.c_bool]
+LIB_MOON._Texture_SetSmooth.restype = None
+
+LIB_MOON._Texture_Swap.argtypes = [TexturePtr, TexturePtr]
+LIB_MOON._Texture_Swap.argtypes = None
+
+LIB_MOON._Texture_SubTexture.argtypes = [TexturePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Texture_SubTexture.restype = TexturePtr
+
+class Texture(object):
+    def __init__(self):
+        self.__ptr = LIB_MOON._Texture_Init()
+
+    def __del__(self):
+        LIB_MOON._Texture_Delete(self.__ptr)
+        self.__ptr = 0
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Texture):
+            return False
+        return self.__ptr == other.__ptr
+
+    def __ne__(self, other: object) -> bool:
+        return not self.__eq__(other)
+    
+    def set_ptr(self, ptr: TexturePtr) -> Self:
+        self.__ptr = ptr
+        return self
+    
+    def get_ptr(self) -> TexturePtr:
+        return self.__ptr
+    
+    def is_init(self) -> bool:
+        if self.__ptr != 0 or self.__ptr != None: return True
+        return False
+    
+    def get_max_size(self) -> int:
+        return LIB_MOON._Texture_GetMaximumSize(self.__ptr)
+    
+    def get_size(self) -> Vector2i:
+        return Vector2i(
+            LIB_MOON._Texture_GetSizeX(self.__ptr),
+            LIB_MOON._Texture_GetSizeY(self.__ptr)
+        )
+    
+    def set_repeat(self, value: bool = True) -> Self:
+        LIB_MOON._Texture_SetRepeated(self.__ptr, value)
+        return self
+
+    def set_smooth(self, value: bool = True) -> Self:
+        LIB_MOON._Texture_SetSmooth(self.__ptr, value)
+        return self
+    
+    def swap(self, other: "Texture") -> Self:
+        LIB_MOON._Texture_Swap(self.__ptr, other.get_ptr())
+        return self
+    
+    def get_sub_texture_ptr(self, rect_pos: Vector2i, rect_size: Vector2i) -> TexturePtr:
+        texture_ptr = LIB_MOON._Texture_SubTexture(self.__ptr, rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
+        return texture_ptr
+    
+    def get_sub_texture(self, rect_pos: Vector2i, rect_size: Vector2i) -> "Texture":
+        texture_ptr = self.get_sub_texture_ptr(rect_pos, rect_size)
+        texture = Texture()
+        texture.load_from_ptr(texture_ptr)
+        return texture
+
+    def load_from_file(self, filename: str) -> tuple[bool, Self]:
+        result = LIB_MOON._Texture_LoadFromFile(self.__ptr, filename.encode('utf-8'))
+        return result, self
+
+    def load_from_file_with_bound_rect(self, filename: str, rect_pos: Vector2i, rect_size: Vector2i) -> tuple[bool, Self]:
+        result = LIB_MOON._Texture_LoadFromFileWithBoundRect(self.__ptr, filename.encode('utf-8'), 
+                                                    rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
+        return result, self
+    
+    def load_from_ptr(self, ptr: TexturePtr) -> "Texture | None":
+        if ptr != 0:
+            self.__ptr = ptr
+            return True
+        return False
+
+
+
+LIB_MOON._Sprite_Init.argtypes = []
+LIB_MOON._Sprite_Init.restype = SpritePtr
+
+LIB_MOON._Sprite_LinkTexture.argtypes = [SpritePtr, TexturePtr, ctypes.c_bool]
+LIB_MOON._Sprite_LinkTexture.restype = None
+
+LIB_MOON._Sprite_LinkRenderTexture.argtypes = [SpritePtr, RenderTexturePtr, ctypes.c_bool]
+LIB_MOON._Sprite_LinkRenderTexture.restype = None
+
+LIB_MOON._Sprite_SetTextureRect.argtypes = [SpritePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Sprite_SetTextureRect.restype = None
+
+LIB_MOON._Sprite_SetScale.argtypes = [SpritePtr, ctypes.c_double, ctypes.c_double]
+LIB_MOON._Sprite_SetScale.restype = None
+
+# Добавляем недостающие биндинги для Sprite
+
+LIB_MOON._Sprite_SetRotation.argtypes = [SpritePtr, ctypes.c_double]
+LIB_MOON._Sprite_SetRotation.restype = None
+
+LIB_MOON._Sprite_SetPosition.argtypes = [SpritePtr, ctypes.c_double, ctypes.c_double]
+LIB_MOON._Sprite_SetPosition.restype = None
+
+LIB_MOON._Sprite_SetOrigin.argtypes = [SpritePtr, ctypes.c_double, ctypes.c_double]
+LIB_MOON._Sprite_SetOrigin.restype = None
+
+LIB_MOON._Sprite_SetColor.argtypes = [SpritePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+LIB_MOON._Sprite_SetColor.restype = None
+
+LIB_MOON._Sprite_GetColorR.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetColorR.restype = ctypes.c_int
+
+LIB_MOON._Sprite_GetColorG.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetColorG.restype = ctypes.c_int
+
+LIB_MOON._Sprite_GetColorB.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetColorB.restype = ctypes.c_int
+
+LIB_MOON._Sprite_GetColorA.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetColorA.restype = ctypes.c_int
+
+LIB_MOON._Sprite_GetRotation.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetRotation.restype = ctypes.c_int
+
+LIB_MOON._Sprite_GetScaleX.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetScaleX.restype = ctypes.c_double
+
+LIB_MOON._Sprite_GetScaleY.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetScaleY.restype = ctypes.c_double
+
+LIB_MOON._Sprite_GetPositionX.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetPositionX.restype = ctypes.c_double
+
+LIB_MOON._Sprite_GetPositionY.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetPositionY.restype = ctypes.c_double
+
+# Также нужно добавить биндинг для удаления спрайта, если его нет
+LIB_MOON._Sprite_Delete.argtypes = [SpritePtr]
+LIB_MOON._Sprite_Delete.restype = None
+
+
+LIB_MOON._Sprite_GetGlobalBoundRectX.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetGlobalBoundRectX.restype = ctypes.c_double
+
+LIB_MOON._Sprite_GetGlobalBoundRectY.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetGlobalBoundRectY.restype = ctypes.c_double
+
+LIB_MOON._Sprite_GetGlobalBoundRectW.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetGlobalBoundRectW.restype = ctypes.c_double
+
+LIB_MOON._Sprite_GetGlobalBoundRectH.argtypes = [SpritePtr]
+LIB_MOON._Sprite_GetGlobalBoundRectH.restype = ctypes.c_double
+
+
+class Sprite(object):
+
+    __slots__ = ('__ptr', '__flip_vector')
+
+    def __init__(self):
+        self.__ptr = LIB_MOON._Sprite_Init()
+        self.__flip_vector = Vector2i(1, 1)
+
+    def __del__(self):
+        LIB_MOON._Sprite_Delete(self.__ptr)
+
+    def get_global_bounds(self) -> tuple[Vector2f, Vector2f]:
+        return (
+            Vector2f(LIB_MOON._Sprite_GetGlobalBoundRectX(self.__ptr),
+                     LIB_MOON._Sprite_GetGlobalBoundRectY(self.__ptr)),
+            Vector2f(abs(LIB_MOON._Sprite_GetGlobalBoundRectW(self.__ptr)),
+                     abs(LIB_MOON._Sprite_GetGlobalBoundRectH(self.__ptr)))     
+        )
+    
+    def get_flips(self) -> Vector2i:
+        return self.__flip_vector
+
+    def flip(self, x: bool | None = None, y: bool | None = None):
+        scale = self.get_scale()
+        new_flips = [1, 1]
+        if isinstance(x, bool) and x:
+            new_flips[0] = -1
+        else:
+            new_flips[0] = 1
+        if isinstance(y, bool) and y:
+            new_flips[1] = -1
+        else:
+            new_flips[1] = 1
+
+        self.__flip_vector.x *= new_flips[0]
+        self.__flip_vector.y *= new_flips[1]
+
+        self.set_scale(scale.x * new_flips[0], scale.y * new_flips[1])
+
+    def link_texture(self, texture: Texture, reset_rect: bool = False) -> Self:
+        LIB_MOON._Sprite_LinkTexture(self.__ptr, texture.get_ptr(), reset_rect)
+        return self
+    
+    def link_render_texture(self, texture: RenderTexture, reset_rect: bool = False) -> Self:
+        LIB_MOON._Sprite_LinkRenderTexture(self.__ptr, texture.get_ptr(), reset_rect)
+        return self
+    
+    def set_texture_rect(self, rect_pos: Vector2i = Vector2i.zero(), rect_size: Vector2i = None) -> Self:
+        LIB_MOON._Sprite_SetTextureRect(self.__ptr, rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
+        return self
+
+    def set_scale(self, arg1: float, arg2: Optional[float] = None) -> Self:
+        if arg2 is not None:
+            LIB_MOON._Sprite_SetScale(self.__ptr, arg1, arg2)
+        else:
+            LIB_MOON._Sprite_SetScale(self.__ptr, arg1, arg1)
+        return self
+
+    def set_rotation(self, angle: float) -> Self:
+        """Устанавливает поворот спрайта в градусах"""
+        LIB_MOON._Sprite_SetRotation(self.__ptr, angle)
+        return self
+
+    def set_position(self, position: Vector2f) -> Self:
+        """Устанавливает позицию спрайта из Vector2f"""
+        LIB_MOON._Sprite_SetPosition(self.__ptr, position.x, position.y)
+        return self
+
+    def set_origin(self, origin: Vector2f) -> Self:
+        """Устанавливает точку отсчета (origin) спрайта из Vector2f"""
+        LIB_MOON._Sprite_SetOrigin(self.__ptr, origin.x, origin.y)
+        return self
+
+    def set_color(self, color: Color) -> Self:
+        """Устанавливает цвет спрайта"""
+        LIB_MOON._Sprite_SetColor(self.__ptr, color.r, color.g, color.b, color.a)
+        return self
+
+    def get_color(self) -> Color:
+        """Возвращает цвет спрайта"""
+        return Color(
+            LIB_MOON._Sprite_GetColorR(self.__ptr),
+            LIB_MOON._Sprite_GetColorG(self.__ptr),
+            LIB_MOON._Sprite_GetColorB(self.__ptr),
+            LIB_MOON._Sprite_GetColorA(self.__ptr)
+        )
+
+    def get_rotation(self) -> float:
+        """Возвращает угол поворота спрайта в градусах"""
+        return LIB_MOON._Sprite_GetRotation(self.__ptr)
+
+    def get_scale(self) -> Vector2f:
+        """Возвращает масштаб спрайта"""
+        return Vector2f(
+            LIB_MOON._Sprite_GetScaleX(self.__ptr),
+            LIB_MOON._Sprite_GetScaleY(self.__ptr)
+        )
+
+    def get_position(self) -> Vector2f:
+        """Возвращает позицию спрайта"""
+        return Vector2f(
+            LIB_MOON._Sprite_GetPositionX(self.__ptr),
+            LIB_MOON._Sprite_GetPositionY(self.__ptr)
+        )
+    
+    def get_position_x(self) -> float:
+        LIB_MOON._Sprite_GetPositionX(self.__ptr)
+
+    def get_position_y(self) -> float:
+        LIB_MOON._Sprite_GetPositionY(self.__ptr)
+
+    def get_ptr(self) -> SpritePtr:
+        return self.__ptr
+    
+
+

@@ -371,14 +371,14 @@ class MeshViewerApp:
     def __init__(self):
         self.window = Window(1200, 800, "3D Mesh Viewer - OBJ Loader")
         self.events = WindowEvents()
-        self.window.set_wait_fps(60)
+        self.window.set_wait_fps(180)
 
         # Создаем меш
         self.mesh = OptimizedMesh3D(position=Vector3f(600, 400, 0), scale=7.0)
 
         # Попытка загрузить OBJ файл или создать сферу по умолчанию
         obj_files = [
-            "demos\model2.obj"
+            "demos\model.obj"
         ]
 
         mesh_loaded = False

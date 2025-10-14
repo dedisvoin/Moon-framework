@@ -24,7 +24,7 @@
 #include "SFML/Graphics/Texture.hpp"
 #include "SFML/Graphics/View.hpp"
 #include "SFML/Window/ContextSettings.hpp"
-#include "SFML/OpenGL.hpp"
+
 
 
 
@@ -164,7 +164,7 @@ extern "C" {
     }
 
     // Получение максимального поддерживаемого размера текстуры
-    MOON_API int _Texture_GetMaxixmumSize(TexturePtr texture) {
+    MOON_API int _Texture_GetMaximumSize(TexturePtr texture) {
         return texture->getMaximumSize();
     }
 
@@ -195,23 +195,26 @@ extern "C" {
 
     // Создание текстуры из области существующей текстуры
     MOON_API TexturePtr _Texture_SubTexture(TexturePtr texture, int x, int y, int w, int h) {
-        // Создаем новую текстуру
-        TexturePtr subTexture = new sf::Texture();
-
-        // Активируем контекст исходной текстуры
-        sf::Texture::bind(texture);
-
-        // Создаем новую текстуру нужного размера
-        subTexture->create(w, h);
-
-        // Копируем область напрямую через OpenGL
-        sf::Texture::bind(subTexture);
-        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, x, y, w, h);
-
-        // Сбрасываем привязку текстур
-        sf::Texture::bind(nullptr);
-        return subTexture;
+    // Создаем спрайт для отрисовки части текстуры
+    sf::Sprite sprite(*texture, sf::IntRect(x, y, w, h));
+    
+    // Создаем целевой render texture
+    sf::RenderTexture renderTexture;
+    if (!renderTexture.create(w, h)) {
+        // Если не удалось создать render texture, возвращаем nullptr
+        return nullptr;
     }
+    
+    // Очищаем прозрачным цветом и рисуем нужную область
+    renderTexture.clear(sf::Color::Transparent);
+    renderTexture.draw(sprite);
+    renderTexture.display();
+    
+    // Создаем новую текстуру из render texture
+    TexturePtr subTexture = new sf::Texture(renderTexture.getTexture());
+    
+    return subTexture;
+}
 }
 
 // ================================================================================
@@ -276,7 +279,7 @@ extern "C" {
         sprite->setOrigin(x, y);
     }
 
-    MOON_API void _Sprite(SpritePtr sprite, const int r, const int g, const int b, const int a) {
+    MOON_API void _Sprite_SetColor(SpritePtr sprite, const int r, const int g, const int b, const int a) {
         sprite->setColor(sf::Color(r, g, b, a));
     }
 
@@ -321,6 +324,22 @@ extern "C" {
 
     MOON_API double _Sprite_GetPositionY(SpritePtr sprite) {
         return sprite->getPosition().y;
+    }
+
+    MOON_API double _Sprite_GetGlobalBoundRectX(SpritePtr sprite) {
+        return sprite->getGlobalBounds().left;
+    }
+
+    MOON_API double _Sprite_GetGlobalBoundRectY(SpritePtr sprite) {
+        return sprite->getGlobalBounds().top;
+    }
+
+    MOON_API double _Sprite_GetGlobalBoundRectW(SpritePtr sprite) {
+        return sprite->getGlobalBounds().width;
+    }
+
+    MOON_API double _Sprite_GetGlobalBoundRectH(SpritePtr sprite) {
+        return sprite->getGlobalBounds().height;
     }
 }
 

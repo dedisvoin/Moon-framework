@@ -659,6 +659,14 @@ class Vector2i(object):
         self.__x = int(x)
         self.__y = int(y)
 
+    @classmethod
+    def zero(self) -> "Vector2i":
+        return Vector2i(0, 0)
+    
+    @classmethod
+    def one(self) -> "Vector2i":
+        return Vector2i(1, 1)
+
     def as_tuple(self) -> tuple[int, int]:
         return (self.x, self.y)
 
@@ -683,6 +691,26 @@ class Vector2i(object):
         ```
         """
         return Vector2f(float(self.__x), float(self.__y))
+    
+    def get_angle(self) -> float:
+        """
+        #### Возвращает угол вектора в градусах
+
+        ---
+
+        :Returns:
+        - float: Угол от 0 до 360 градусов
+
+        ---
+
+        :Example:
+        ```python
+        vec = Vector2f(1, 1)
+        angle = vec.get_angle()  # 45.0
+        ```
+        """
+        angle = -math.atan2(self.y, self.x) * 180 / math.pi
+        return angle if angle >= 0 else angle + 360
 
     def get_lenght(self) -> float:
         """

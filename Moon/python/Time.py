@@ -280,7 +280,7 @@ def throttle(wait_time: float):
         return wrapper
     return decorator
 
-def every(interval: float) -> Generator[bool]:
+def every(interval: float) -> Generator:
     """
     Возвращает генератор, который возвращает True каждые interval секунд
     
