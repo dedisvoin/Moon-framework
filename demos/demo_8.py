@@ -12,7 +12,7 @@ from Moon.python.Vectors import *
 
 result, texture = Texture().load_from_file(r"demos\texture2.png")
 
-sprite = Sprite().link_texture(texture)
+sprite = Sprite2D().link_texture(texture)
 sprite.set_scale(10, 10)
 sprite.flip(True, True)
 print(sprite.get_flips())
@@ -21,8 +21,10 @@ print(sprite.get_flips())
 
 position = Vector2f(400, 300)
 sprite.set_position(position)
-sprite.set_texture_rect(Vector2i(0, 0), Vector2i(25, 24))
-sprite.set_origin(Vector2f(12.5, 12))
+sprite.set_texture_rect(Vector2i(5, 8), Vector2i(16, 18))
+sprite.set_typed_origin(OriginTypes.CENTER)
+sprite.set_flip_x(True)
+
 
 
 bounds = sprite.get_global_bounds()

@@ -45,6 +45,8 @@ extern "C" {
     typedef sf::RenderTexture* RenderTexturePtr;
     typedef sf::Texture* TexturePtr;
     typedef sf::View* ViewPtr;
+    typedef sf::Sprite* SpritePtr;
+
 
     // Создание нового объекта RenderTexture
     MOON_API RenderTexturePtr
@@ -195,26 +197,26 @@ extern "C" {
 
     // Создание текстуры из области существующей текстуры
     MOON_API TexturePtr _Texture_SubTexture(TexturePtr texture, int x, int y, int w, int h) {
-    // Создаем спрайт для отрисовки части текстуры
-    sf::Sprite sprite(*texture, sf::IntRect(x, y, w, h));
-    
-    // Создаем целевой render texture
-    sf::RenderTexture renderTexture;
-    if (!renderTexture.create(w, h)) {
-        // Если не удалось создать render texture, возвращаем nullptr
-        return nullptr;
+        // Создаем спрайт для отрисовки части текстуры
+        sf::Sprite sprite(*texture, sf::IntRect(x, y, w, h));
+        
+        // Создаем целевой render texture
+        sf::RenderTexture renderTexture;
+        if (!renderTexture.create(w, h)) {
+            // Если не удалось создать render texture, возвращаем nullptr
+            return nullptr;
+        }
+        
+        // Очищаем прозрачным цветом и рисуем нужную область
+        renderTexture.clear(sf::Color::Transparent);
+        renderTexture.draw(sprite);
+        renderTexture.display();
+        
+        // Создаем новую текстуру из render texture
+        TexturePtr subTexture = new sf::Texture(renderTexture.getTexture());
+        
+        return subTexture;
     }
-    
-    // Очищаем прозрачным цветом и рисуем нужную область
-    renderTexture.clear(sf::Color::Transparent);
-    renderTexture.draw(sprite);
-    renderTexture.display();
-    
-    // Создаем новую текстуру из render texture
-    TexturePtr subTexture = new sf::Texture(renderTexture.getTexture());
-    
-    return subTexture;
-}
 }
 
 // ================================================================================
@@ -225,8 +227,7 @@ extern "C" {
 
 extern "C" {
 
-    typedef sf::Sprite* SpritePtr;
-
+    
     // Создает новый спрайт
     MOON_API SpritePtr _Sprite_Init() {
         return new sf::Sprite();
@@ -340,6 +341,31 @@ extern "C" {
 
     MOON_API double _Sprite_GetGlobalBoundRectH(SpritePtr sprite) {
         return sprite->getGlobalBounds().height;
+    }
+
+    MOON_API void _Sprite_Rotate(SpritePtr sprite, double angle) {
+        sprite->rotate(angle);
+    }
+
+    MOON_API void _Sprite_Scale(SpritePtr sprite, double scale_x, double scale_y) {
+        sprite->scale(scale_x, scale_y);
+    }
+
+    // напиши метод для получения локальных границ содержимого спрайта
+    MOON_API double _Sprite_GetLocalBoundRectX(SpritePtr sprite) {
+        return sprite->getLocalBounds().left;
+    }
+
+    MOON_API double _Sprite_GetLocalBoundRectY(SpritePtr sprite) {
+        return sprite->getLocalBounds().top;
+    }
+
+    MOON_API double _Sprite_GetLocalBoundRectW(SpritePtr sprite) {
+        return sprite->getLocalBounds().width;
+    }
+
+    MOON_API double _Sprite_GetLocalBoundRectH(SpritePtr sprite) {
+        return sprite->getLocalBounds().height;
     }
 }
 

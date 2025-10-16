@@ -2832,7 +2832,7 @@ class BaseLineShape:
         """
         # Вычисляем вектор направления
         vector = Vector2f.between(list(self.__start_pos), list(self.__end_pos))
-        length = vector.get_lenght()
+        length = vector.get_length()
         normal = vector.normalize()
         angle = normal.get_angle()
 

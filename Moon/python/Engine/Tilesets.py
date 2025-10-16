@@ -92,7 +92,7 @@ class TileSet:
 class TileSheet4x4(TileSet):
     def __init__(self, path: str, tile_size: TwoIntegerList, tile_scale: Number = 1) -> None:
         super().__init__(path, tile_size, tile_scale)
-        self.__tile_sprites: dict[TileTypes, Sprite] = {}
+        self.__tile_sprites: dict[TileTypes, Sprite2D] = {}
 
     def get_scaled_tile_size(self) -> TwoIntegerList:
         return [
@@ -103,7 +103,7 @@ class TileSheet4x4(TileSet):
     def pre_cut_tiles(self, scale: OptionalNumber = None) -> None:
         self.__tile_sprites.clear()
         for tile_type in TileTypes:
-            sprite = Sprite.FromTexture(self.get_texture(
+            sprite = Sprite2D.FromTexture(self.get_texture(
                 convert_tile_type_to_type_literal(tile_type)
             ))
             if scale is None:
@@ -168,7 +168,7 @@ class TileSheet4x4(TileSet):
             case _:
                 raise ValueError(f'Unknown tile type: {type}')
             
-    def get_sprite(self, type: TileTypeLiteral) -> Sprite:
+    def get_sprite(self, type: TileTypeLiteral) -> Sprite2D:
         if len(self.__tile_sprites) == 0: 
             raise ValueError('Tile sprites not pre-cut, use pre_cut_tiles() first.')
         return self.__tile_sprites[type]
@@ -209,7 +209,7 @@ class TileMap:
     def data(self) -> TileMapDataType:
         return self.__data
 
-def generate_tile_map_sprite(map: TileMap, accordance: TileSheetAccordances, tile_size: TwoIntegerList) -> Sprite:
+def generate_tile_map_sprite(map: TileMap, accordance: TileSheetAccordances, tile_size: TwoIntegerList) -> Sprite2D:
     """
     #### Генерирует спрайт тайловой карты на основе данных карты и соответствий тайлов
 
@@ -285,7 +285,7 @@ def generate_tile_map_sprite(map: TileMap, accordance: TileSheetAccordances, til
                 except ValueError:
                     # Если спрайты не были предварительно вырезаны, создаем на лету
                     texture = tile_sheet.get_texture(tile_type)
-                    tile_sprite = Sprite.FromTexture(texture)
+                    tile_sprite = Sprite2D.FromTexture(texture)
                     tile_sprite.set_scale(tile_sheet.get_tile_scale())
                     del texture
                 
@@ -299,7 +299,7 @@ def generate_tile_map_sprite(map: TileMap, accordance: TileSheetAccordances, til
     render_texture.display()
     
     # Создаем спрайт из текстуры рендеринга
-    map_sprite = Sprite.FromRenderTexture(render_texture)
+    map_sprite = Sprite2D.FromRenderTexture(render_texture)
     return map_sprite
 
 def determine_tile_type_for_tilesheet4x4(map: TileMap, x: int, y: int, tile_id: int) -> TileTypeLiteral:
