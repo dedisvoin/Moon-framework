@@ -1,13 +1,11 @@
-
-from copy import copy
 import time
 
 from Moon.python.Rendering.Drawable import *
 from Moon.python.Rendering.RenderStates import RenderStates
 from Moon.python.Rendering.Shaders import *
 
-from Moon.python.Time import TIMER_BUFFER, Timer, wait_call
-from Moon.python.Views import View, ViewPtr
+from Moon.python.Vectors import Vector2Type
+from Moon.python.Views import ViewPtr
 from Moon.python.Types import *
 from Moon.python.Colors import *
 
@@ -77,10 +75,12 @@ class RenderTexture(object):
     def __eq__(self, other: "object | RenderTexture") -> bool:
         if isinstance(other, RenderTexture):
             return self.__ptr == other.get_ptr()
+        return False
 
     def __ne__(self, other: "object | RenderTexture") -> bool:
         if isinstance(other, RenderTexture):
             return not self.__eq__(other)
+        return True
 
     def set_smooth(self, smooth: bool = True) -> None:
         """
@@ -230,7 +230,7 @@ class RenderTexture(object):
             TexturePtr: The texture of the render texture.
         """
         return LIB_MOON._RenderTexture_GetTexture(self.__ptr)
-    
+
     def get_texture(self) -> "Texture":
         texture_ptr = self.get_texture_ptr()
         texture = Texture()
@@ -252,7 +252,7 @@ LIB_MOON._Texture_Delete.argtypes = [TexturePtr]
 LIB_MOON._Texture_Delete.restype = None
 
 LIB_MOON._Texture_GetMaximumSize.argtypes = [TexturePtr]
-LIB_MOON._Texture_GetMaximumSize.restype = ctypes.c_int 
+LIB_MOON._Texture_GetMaximumSize.restype = ctypes.c_int
 
 LIB_MOON._Texture_GetSizeX.argtypes = [TexturePtr]
 LIB_MOON._Texture_GetSizeX.restype = ctypes.c_int
@@ -267,7 +267,7 @@ LIB_MOON._Texture_SetSmooth.argtypes = [TexturePtr, ctypes.c_bool]
 LIB_MOON._Texture_SetSmooth.restype = None
 
 LIB_MOON._Texture_Swap.argtypes = [TexturePtr, TexturePtr]
-LIB_MOON._Texture_Swap.argtypes = None
+LIB_MOON._Texture_Swap.restype = None
 
 LIB_MOON._Texture_SubTexture.argtypes = [TexturePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
 LIB_MOON._Texture_SubTexture.restype = TexturePtr
@@ -280,12 +280,12 @@ class Texture(object):
     """
     def __init__(self):
         # Initialize the texture object
-        self.__ptr = LIB_MOON._Texture_Init()
+        self.__ptr: TexturePtr | None = LIB_MOON._Texture_Init()
 
     def __del__(self):
         # Delete the texture object and release resources
         LIB_MOON._Texture_Delete(self.__ptr)
-        self.__ptr = 0
+        self.__ptr = None
 
     def __eq__(self, other: object) -> bool:
         # Compare two Texture objects for equality
@@ -296,32 +296,32 @@ class Texture(object):
     def __ne__(self, other: object) -> bool:
         # Compare two Texture objects for inequality
         return not self.__eq__(other)
-    
+
     def set_ptr(self, ptr: TexturePtr) -> Self:
         # Set the internal pointer to a given TexturePtr
         self.__ptr = ptr
         return self
-    
-    def get_ptr(self) -> TexturePtr:
+
+    def get_ptr(self) -> TexturePtr | None:
         # Get the internal pointer to the texture object
         return self.__ptr
-    
+
     def is_init(self) -> bool:
         # Check if the texture object is initialized
         if self.__ptr != 0 or self.__ptr != None: return True
         return False
-    
+
     def get_max_size(self) -> int:
         # Get the maximum supported texture size
         return LIB_MOON._Texture_GetMaximumSize(self.__ptr)
-    
+
     def get_size(self) -> Vector2i:
         # Get the size of the texture as a Vector2i
         return Vector2i(
             LIB_MOON._Texture_GetSizeX(self.__ptr),
             LIB_MOON._Texture_GetSizeY(self.__ptr)
         )
-    
+
     def set_repeat(self, value: bool = True) -> Self:
         # Set whether the texture should repeat when drawn outside its bounds
         LIB_MOON._Texture_SetRepeated(self.__ptr, value)
@@ -331,17 +331,17 @@ class Texture(object):
         # Set whether the texture should use smoothing (linear filtering)
         LIB_MOON._Texture_SetSmooth(self.__ptr, value)
         return self
-    
+
     def swap(self, other: "Texture") -> Self:
         # Swap the contents of this texture with another
         LIB_MOON._Texture_Swap(self.__ptr, other.get_ptr())
         return self
-    
+
     def get_sub_texture_ptr(self, rect_pos: Vector2i, rect_size: Vector2i) -> TexturePtr:
         # Get a pointer to a sub-region of the texture
         texture_ptr = LIB_MOON._Texture_SubTexture(self.__ptr, rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
         return texture_ptr
-    
+
     def get_sub_texture(self, rect_pos: Vector2i, rect_size: Vector2i) -> "Texture":
         # Get a Texture object representing a sub-region of the texture
         texture_ptr = self.get_sub_texture_ptr(rect_pos, rect_size)
@@ -356,13 +356,13 @@ class Texture(object):
 
     def load_from_file_with_bound_rect(self, filename: str, rect_pos: Vector2i, rect_size: Vector2i) -> tuple[bool, Self]:
         # Load the texture from a file, using a specified rectangle region
-        result = LIB_MOON._Texture_LoadFromFileWithBoundRect(self.__ptr, filename.encode('utf-8'), 
+        result = LIB_MOON._Texture_LoadFromFileWithBoundRect(self.__ptr, filename.encode('utf-8'),
                                                     rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
         return result, self
-    
-    def load_from_ptr(self, ptr: TexturePtr) -> "Texture | None":
+
+    def load_from_ptr(self, ptr: TexturePtr) -> bool:
         # Load the texture from an existing pointer
-        if ptr != 0:
+        if ptr is not None:
             self.__ptr = ptr
             return True
         return False
@@ -480,16 +480,16 @@ class Sprite2D(object):
             Vector2f(LIB_MOON._Sprite_GetGlobalBoundRectX(self.__ptr),
                      LIB_MOON._Sprite_GetGlobalBoundRectY(self.__ptr)),
             Vector2f(abs(LIB_MOON._Sprite_GetGlobalBoundRectW(self.__ptr)),
-                     abs(LIB_MOON._Sprite_GetGlobalBoundRectH(self.__ptr)))     
+                     abs(LIB_MOON._Sprite_GetGlobalBoundRectH(self.__ptr)))
         )
-    
+
     def get_global_bounds_size(self) -> Vector2f:
         return Vector2f(
             abs(LIB_MOON._Sprite_GetGlobalBoundRectW(self.__ptr)),
             abs(LIB_MOON._Sprite_GetGlobalBoundRectH(self.__ptr))
         )
-    
-    
+
+
     def get_size(self, use_cache: bool = True) -> Vector2f:
         if use_cache:
             return self.__size
@@ -501,22 +501,22 @@ class Sprite2D(object):
             Vector2f(LIB_MOON._Sprite_GetLocalBoundRectX(self.__ptr),
                      LIB_MOON._Sprite_GetLocalBoundRectY(self.__ptr)),
             Vector2f(abs(LIB_MOON._Sprite_GetLocalBoundRectW(self.__ptr)),
-                     abs(LIB_MOON._Sprite_GetLocalBoundRectH(self.__ptr)))     
+                     abs(LIB_MOON._Sprite_GetLocalBoundRectH(self.__ptr)))
         )
-    
+
     def get_local_bounds_size(self) -> Vector2f:
         return Vector2f(
             abs(LIB_MOON._Sprite_GetLocalBoundRectW(self.__ptr)),
             abs(LIB_MOON._Sprite_GetLocalBoundRectH(self.__ptr))
         )
-    
+
     def get_flips(self) -> Vector2i:
         return self.__flip_vector
-    
+
     def rotate(self, angle: Number) -> Self:
         LIB_MOON._Sprite_Rotate(self.__ptr, angle)
         return self
-    
+
     def scale(self, scale_x: Number = 1, scale_y: Number = 1) -> Self:
         LIB_MOON._Sprite_Scale(self.__ptr, scale_x, scale_y)
         return self
@@ -537,14 +537,14 @@ class Sprite2D(object):
         self.__flip_vector.y *= new_flips[1]
 
         self.set_scale(scale.x * new_flips[0], scale.y * new_flips[1])
-        
+
         return self
 
     def set_flip_x(self, value: bool) -> Self:
         if value != (self.__flip_vector.x == -1):
             self.flip(x=True)
         return self
-    
+
     def set_flip_y(self, value: bool) -> Self:
         if value != (self.__flip_vector.y == -1):
             self.flip(y=True)
@@ -553,12 +553,12 @@ class Sprite2D(object):
     def link_texture(self, texture: Texture, reset_rect: bool = False) -> Self:
         LIB_MOON._Sprite_LinkTexture(self.__ptr, texture.get_ptr(), reset_rect)
         return self
-    
+
     def link_render_texture(self, texture: RenderTexture, reset_rect: bool = False) -> Self:
         LIB_MOON._Sprite_LinkRenderTexture(self.__ptr, texture.get_ptr(), reset_rect)
         return self
-    
-    def set_texture_rect(self, rect_pos: Vector2i = Vector2i.zero(), rect_size: Vector2i = None) -> Self:
+
+    def set_texture_rect(self, rect_pos: Vector2i, rect_size: Vector2i) -> Self:
         LIB_MOON._Sprite_SetTextureRect(self.__ptr, rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
         return self
 
@@ -576,16 +576,16 @@ class Sprite2D(object):
         self.__size = self.get_global_bounds_size()
         return self
 
-    def set_position(self, position: Vector2f) -> Self:
+    def set_position(self, position: Vector2Type) -> Self:
         """Устанавливает позицию спрайта из Vector2f"""
         LIB_MOON._Sprite_SetPosition(self.__ptr, position.x, position.y)
         return self
 
-    def set_origin(self, origin: Vector2f) -> Self:
+    def set_origin(self, origin: Vector2Type) -> Self:
         """Устанавливает точку отсчета (origin) спрайта из Vector2f"""
         LIB_MOON._Sprite_SetOrigin(self.__ptr, origin.x, origin.y)
         return self
-    
+
     def set_typed_origin(self, origin_type: OriginTypes) -> Self:
         """Устанавливает точку отсчета (origin) спрайта из OriginTypes"""
         bounds = self.get_global_bounds()
@@ -641,26 +641,70 @@ class Sprite2D(object):
             LIB_MOON._Sprite_GetPositionX(self.__ptr),
             LIB_MOON._Sprite_GetPositionY(self.__ptr)
         )
-    
+
     def get_position_x(self) -> float:
-        LIB_MOON._Sprite_GetPositionX(self.__ptr)
+        return LIB_MOON._Sprite_GetPositionX(self.__ptr)
 
     def get_position_y(self) -> float:
-        LIB_MOON._Sprite_GetPositionY(self.__ptr)
+        return LIB_MOON._Sprite_GetPositionY(self.__ptr)
 
     def get_ptr(self) -> SpritePtr:
         return self.__ptr
-    
-class AnimatedSprite2D(object):
-    def __init__(self, texture_size: Vector2i, frame_time: Time) -> None:
+
+type FrameTime = float
+
+class AnimatedSprite2D(Sprite2D):
+
+    __slots__ = ("__frames_count", "__frame_time", "__texture_size", "__ptr", "__is_started",
+                '__flip_vector', '__size', '__current_frame_index', '__last_time', '__cycle')
+
+    def __init__(self, texture_size: Vector2i, frames_count: int, frame_time: FrameTime):
+        super().__init__()
+        self.__frames_count = frames_count
+        self.__frame_time = frame_time
         self.__texture_size = texture_size
-        self.__sprite = Sprite2D()
+        self.set_texture_rect(Vector2i.zero(), self.__texture_size)
 
-    def link_texture(self, texture: Texture, reset_rect: bool) -> Sprite2D:
-        return self.__sprite.link_texture(texture, reset_rect)
-    
-    def link_render_texture(self, texture: Texture, reset_rect: bool) -> Sprite2D:
-        return self.__sprite.link_render_texture(texture, reset_rect)
-    
-    
+        self.__current_frame_index = 0
+        self.__last_time = 0
 
+        self.__cycle = True
+        self.__is_started = False
+
+    def start(self):
+        self.__is_started = True
+
+    def restart(self):
+        self.__current_frame_index = 0
+        self.__last_time = time.time()
+        self.__is_started = True
+
+    def stop(self):
+        self.__is_started = False
+
+    def get_frames_count(self) -> int:
+        return self.__frames_count
+
+    def get_texture_size(self) -> Vector2i:
+        return self.__texture_size
+
+    def get_frame_time(self) -> FrameTime:
+        return self.__frame_time
+
+    def update(self):
+        at_time = time.time()
+        delta = at_time - self.__last_time
+        if self.__is_started:
+            if delta >= self.__frame_time:
+                self.__current_frame_index += 1
+                self.__last_time = at_time
+        if self.__current_frame_index >= self.__frames_count:
+            if self.__cycle:
+                self.__current_frame_index = 0
+            else:
+                self.__current_frame_index -= 1
+                self.stop()
+        super().set_texture_rect(Vector2i(self.__current_frame_index * self.__texture_size.x, 0), self.__texture_size)
+
+    def get_ptr(self) -> SpritePtr:
+        return super().get_ptr()

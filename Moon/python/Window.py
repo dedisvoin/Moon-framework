@@ -75,6 +75,12 @@ Copyright (c) 2025 Pavlov Ivan
 import os
 import sys
 import ctypes
+if sys.platform == 'win32':
+    try:
+        import win32api
+        import win32con
+        import pywintypes
+    except: ...
 
 from time import time
 from typing import overload, Final, final, Self, Any
@@ -535,9 +541,48 @@ class WindowEvents:
 type WindowPtr = ctypes.c_void_p
 # =============================================== +
 
+def get_max_displays_refresh_rate() -> int:
+    """
+    Находит максимальную поддерживаемую частоту обновления для основного монитора в Windows.
+    """
+    try:
+        device = win32api.EnumDisplayDevices()
+        # print(f"Имя устройства: {device.DeviceName}")
+
+        i = 0
+        max_refresh_rate = 0
+        while True:
+            try:
+                ds = win32api.EnumDisplaySettings(device.DeviceName, i)
+                # ds содержит: dmPelsWidth, dmPelsHeight, dmBitsPerPel, dmDisplayFrequency
+
+                # Рассматриваем только текущее разрешение экрана
+                current_settings = win32api.EnumDisplaySettings(device.DeviceName, win32con.ENUM_CURRENT_SETTINGS)
+                if ds.PelsWidth == current_settings.PelsWidth and ds.PelsHeight == current_settings.PelsHeight:
+                     if ds.DisplayFrequency > max_refresh_rate:
+                        max_refresh_rate = ds.DisplayFrequency
+
+                i += 1
+            except pywintypes.error:
+                # Завершаем цикл, когда больше нет доступных режимов
+                break
+
+        return max_refresh_rate
+
+    except Exception as e:
+        print(f"Произошла ошибка: {e}")
+        return 60
+
+
 # Константа для обозначения неограниченного FPS (представляется большим числом) = +
-FPS_UNLIMIT_CONST: Final[int | float] = 1000000                                   #
+FPS_UNLIMIT_CONST: Final[int] = 1000000                                           #
 # =============================================================================== +
+
+
+# Константа для обозначения синхронизации FPS с частотой обновления экрана ====== +
+FPS_VSYNC_CONST: Final[int] = get_max_displays_refresh_rate()                     #
+# =============================================================================== +
+
 
 @final
 class SystemCursors(Enum):
@@ -2853,7 +2898,7 @@ class Window:
             self.__handle_window_resize(events)
 
         # Обновление флага изменения размера
-        
+
         self.__update_resize_status()
 
         if self.get_resized():

@@ -1272,6 +1272,10 @@ extern "C" {
         sprite->rotate(angle);
     }
 
+    MOON_API void _Sprite_Scale(SpritePtr sprite, double scale_x, double scale_y) {
+        sprite->scale(scale_x, scale_y);
+    }
+
     // напиши метод для получения локальных границ содержимого спрайта
     MOON_API double _Sprite_GetLocalBoundRectX(SpritePtr sprite) {
         return sprite->getLocalBounds().left;

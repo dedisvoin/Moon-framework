@@ -186,7 +186,7 @@ class Vector2f:
         vec = Vector2f(3, 4)
         normal = Vector2f.normal(vec)  # Перпендикулярный вектор
         """
-        if vector.get_length() == 0:
+        if vector.get_lenght() == 0:
             return Vector2f.zero()
 
         return vector.normalize().rotate(90)
@@ -195,7 +195,7 @@ class Vector2f:
     def random(cls) -> "NormalizedVector":
         vector = Vector2f(1, 0).rotate_at(uniform(0, 360))
         return vector
-    
+
     @classmethod
     def from_angle(cls, angle: float | int, lenght: float | int = 1) -> "Vector2f":
         """
@@ -223,7 +223,7 @@ class Vector2f:
         x = math.cos(angle * math.pi / 180) * lenght
         y = math.sin(angle * math.pi / 180) * lenght
         return Vector2f(x, y)
-    
+
     @classmethod
     def from_array(cls, arr: "list[int | float] | tuple[int | float, int | float]") -> "Vector2f":
         """
@@ -247,8 +247,8 @@ class Vector2f:
         print(vec)  # Vector2f(3.5, -2.1)
         ```
         """
-        return Vector2f(float(arr[0]), float(arr[1]))    
-    
+        return Vector2f(float(arr[0]), float(arr[1]))
+
     def __init__(self, x: Number, y: Number) -> None:
         """
         #### Инициализация вектора с координатами
@@ -324,7 +324,7 @@ class Vector2f:
         self.x *= factor
         self.y *= factor
         return self
-    
+
     def set_scale(self, factor: float | int) -> Self:
         """
         #### Устанавливает масштаб вектора на заданный коэффициент
@@ -347,7 +347,7 @@ class Vector2f:
         vec.set_scale(2)      # теперь (1.2, 1.6) длина 2
         ```
         """
-        length = self.get_length()
+        length = self.get_lenght()
         if length != 0:
             self.x = self.x / length * factor
             self.y = self.y / length * factor
@@ -396,7 +396,7 @@ class Vector2f:
         ```
         """
         return Vector2f(self.x, self.y)
-    
+
     def reflect(self, normal: "Vector2f") -> "Vector2f":
         """
         #### Отражает вектор относительно нормали
@@ -423,7 +423,7 @@ class Vector2f:
         dot_product = self.x * normal.x + self.y * normal.y
         return Vector2f(self.x - 2 * dot_product * normal.x,
                         self.y - 2 * dot_product * normal.y)
-    
+
     def reflect_at_x(self) -> Self:
         """
         #### Отражает данный вектор по оси X
@@ -442,7 +442,7 @@ class Vector2f:
         """
         self.x = -self.x
         return self
-    
+
     def reflect_at_y(self) -> Self:
         """
         #### Отражает вектор по оси Y
@@ -463,7 +463,7 @@ class Vector2f:
         self.x = -self.x
         return self
 
-    def get_length(self) -> float:
+    def get_lenght(self) -> float:
         """
         #### Вычисляет длину (модуль) вектора
 
@@ -505,7 +505,7 @@ class Vector2f:
         vec.normalize_at()  # vec теперь (0.6, 0.8)
         ```
         """
-        length = self.get_length()
+        length = self.get_lenght()
         if length != 0:
             self.x /= length
             self.y /= length
@@ -535,7 +535,7 @@ class Vector2f:
         # vec остается (3, 4)
         ```
         """
-        length = self.get_length()
+        length = self.get_lenght()
         if length != 0:
             return Vector2f(self.x / length, self.y / length)
         return Vector2f(self.x, self.y)
@@ -643,7 +643,7 @@ class Vector2f:
         vec.set_angle(90)  # vec теперь (0, 5)
         ```
         """
-        length = self.get_length()
+        length = self.get_lenght()
         angle = -angle
         self.x = math.cos(angle * math.pi / 180) * length
         self.y = math.sin(angle * math.pi / 180) * length
@@ -671,7 +671,7 @@ class Vector2f:
         vec.set_lenght(10)    # теперь (6, 8)
         ```
         """
-        length = self.get_length()
+        length = self.get_lenght()
         if length != 0:
             self.x *= lenght / length
             self.y *= lenght / length
@@ -694,7 +694,7 @@ class Vector2f:
         print(vec.is_normalized())  # True
         ```
         """
-        return self.get_length() == 1
+        return self.get_lenght() == 1
 
     def is_zero(self) -> bool:
         """
@@ -837,11 +837,11 @@ class Vector2i(object):
         self.__y = int(y)
 
     @classmethod
-    def zero(self) -> "Vector2i":
+    def zero(cls) -> "Vector2i":
         return Vector2i(0, 0)
-    
+
     @classmethod
-    def one(self) -> "Vector2i":
+    def one(cls) -> "Vector2i":
         return Vector2i(1, 1)
 
     def as_tuple(self) -> tuple[int, int]:
@@ -868,7 +868,7 @@ class Vector2i(object):
         ```
         """
         return Vector2f(float(self.__x), float(self.__y))
-    
+
     def get_angle(self) -> float:
         """
         #### Возвращает угол вектора в градусах
@@ -961,8 +961,8 @@ class Vector2i(object):
     def __add__(self, other: "Vector2i") -> "Vector2i":
         return Vector2i(self.__x + other.x, self.__y + other.y)
 
-    def __sub__(self, other: "Vector2i") -> "Vector2i":
-        return Vector2i(self.__x - other.x, self.__y - other.y)
+    def __sub__(self, other: "Vector2i | Vector2f") -> "Vector2i":
+        return Vector2i(self.__x - int(other.x), self.__y - int(other.y))
 
     def __mul__(self, scalar: int | float) -> "Vector2i":
         if isinstance(scalar, Vector2i):
@@ -979,9 +979,9 @@ class Vector2i(object):
         self.__y += other.y
         return self
 
-    def __isub__(self, other: "Vector2i") -> "Vector2i":
-        self.__x -= other.x
-        self.__y -= other.y
+    def __isub__(self, other: "Vector2i | Vector2f") -> "Vector2i":
+        self.__x -= int(other.x)
+        self.__y -= int(other.y)
         return self
 
     def __imul__(self, scalar: int | float) -> "Vector2i":
@@ -1101,7 +1101,7 @@ def angle_between(v1: "Vector2Type", v2: "Vector2Type") -> float:
     angle = angle_between(v1, v2)  # 90.0
     ```
     """
-    return math.degrees(math.acos((v1.x * v2.x + v1.y * v2.y) / (v1.get_length() * v2.get_length())))
+    return math.degrees(math.acos((v1.x * v2.x + v1.y * v2.y) / (v1.get_lenght() * v2.get_lenght())))
 
 def cross(v1: "Vector2Type", v2: "Vector2Type") -> float:
     """

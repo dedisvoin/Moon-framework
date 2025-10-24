@@ -76,9 +76,11 @@ import mouse
 import ctypes
 
 if sys.platform == 'win32':
-    import win32gui         # pyright: ignore[reportMissingModuleSource]
-    import win32api         # pyright: ignore[reportMissingModuleSource]
-    import win32process     # pyright: ignore[reportMissingModuleSource]
+    try:
+        import win32gui         # pyright: ignore[reportMissingModuleSource]
+        import win32api         # pyright: ignore[reportMissingModuleSource]
+        import win32process     # pyright: ignore[reportMissingModuleSource]
+    except: ...
 
 from enum import Enum
 from functools import lru_cache
