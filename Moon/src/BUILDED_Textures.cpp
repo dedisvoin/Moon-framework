@@ -13,16 +13,18 @@
 // - Настройки рендеринга и состояний отрисовки
 //
 // ================================================================================
+#include "SFML/Graphics/Image.hpp"
 #include "SFML/Graphics/RenderTexture.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 #include "SFML/Graphics/RenderStates.hpp"
 #include "SFML/Graphics/Drawable.hpp"
-#include "SFML/Graphics/Shader.hpp"
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/Sprite.hpp"
-#include "SFML/Graphics/Rect.hpp"
 #include "SFML/Graphics/Texture.hpp"
+#include "SFML/Graphics/Shader.hpp"
+#include "SFML/Graphics/Sprite.hpp"
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/Rect.hpp"
 #include "SFML/Graphics/View.hpp"
+
 #include "SFML/Window/ContextSettings.hpp"
 
 
@@ -46,6 +48,7 @@ extern "C" {
     typedef sf::Texture* TexturePtr;
     typedef sf::View* ViewPtr;
     typedef sf::Sprite* SpritePtr;
+    typedef sf::Image* ImagePtr;
 
 
     // Создание нового объекта RenderTexture
@@ -366,6 +369,28 @@ extern "C" {
 
     MOON_API double _Sprite_GetLocalBoundRectH(SpritePtr sprite) {
         return sprite->getLocalBounds().height;
+    }
+}
+
+extern "C" {
+    MOON_API ImagePtr _Image_Init() {
+        return new sf::Image();
+    }
+
+    MOON_API ImagePtr _Image_TextureCopyToImage(TexturePtr texture) {
+        return new sf::Image(texture->copyToImage());
+    }
+
+    MOON_API ImagePtr _Image_RenderTextureCopyToImage(RenderTexturePtr texture) {
+        return new sf::Image(texture->getTexture().copyToImage());
+    }
+
+    MOON_API void _Image_Delete(ImagePtr image) {
+        delete image;
+    }
+
+    MOON_API bool _Image_Save(ImagePtr image, char* file_name) {
+        return image->saveToFile(file_name);
     }
 }
 

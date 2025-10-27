@@ -708,3 +708,47 @@ class AnimatedSprite2D(Sprite2D):
 
     def get_ptr(self) -> SpritePtr:
         return super().get_ptr()
+
+ImagePtr = ctypes.c_void_p
+LIB_MOON._Image_TextureCopyToImage.argtypes = [TexturePtr]
+LIB_MOON._Image_TextureCopyToImage.restype = ImagePtr
+
+LIB_MOON._Image_RenderTextureCopyToImage.argtypes = [TexturePtr]
+LIB_MOON._Image_RenderTextureCopyToImage.restype = ImagePtr
+
+LIB_MOON._Image_Delete.argtypes = [ImagePtr]
+LIB_MOON._Image_Delete.restype = None
+
+LIB_MOON._Image_Save.argtypes = [ImagePtr, ctypes.c_char_p]
+LIB_MOON._Image_Save.restype = ctypes.c_bool
+
+LIB_MOON._Image_Init.argtypes = []
+LIB_MOON._Image_Init.restype = ImagePtr
+
+class Image:
+    @classmethod
+    def CopyFromTexture(cls, texture: Texture) -> "Image":
+        img = Image()
+        ptr = LIB_MOON._Image_TextureCopyToImage(texture.get_ptr())
+        img.set_ptr(ptr)
+        return img
+    
+    @classmethod
+    def CopyFromRenderTexture(cls, texture: RenderTexture) -> "Image":
+        img = Image()
+        ptr = LIB_MOON._Image_RenderTextureCopyToImage(texture.get_ptr())
+        img.set_ptr(ptr)
+        return img
+
+    def __init__(self):
+        self.__ptr = LIB_MOON._Image_Init()
+
+    def get_ptr(self) -> ImagePtr:
+        return self.__ptr
+    
+    def set_ptr(self, ptr: ImagePtr) -> Self:
+        LIB_MOON._Image_Delete(self.__ptr)
+        self.__ptr = ptr
+
+    def save(self, file_path: str) -> bool:
+        return LIB_MOON._Image_Save(self.__ptr, file_path.encode('utf-8'))

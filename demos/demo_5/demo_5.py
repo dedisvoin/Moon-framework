@@ -12,7 +12,7 @@ window = Window(1920, 1080, "Moon Framework Demo", context_settings=ContextSetti
 window_events = WindowEvents()
 
 
-sound = MultiSound(Sound(SoundBuffer("demos/sound1.mp3")), 10)
+sound = MultiSound(Sound(SoundBuffer("demos/demo_5/sound1.mp3")), 10)
 sound.set_volume_all(80)
 
 while window.update(window_events):

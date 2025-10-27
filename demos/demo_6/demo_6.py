@@ -378,7 +378,7 @@ class MeshViewerApp:
 
         # Попытка загрузить OBJ файл или создать сферу по умолчанию
         obj_files = [
-            "demos\model.obj"
+            "demos\demo_6\model.obj"
         ]
 
         mesh_loaded = False

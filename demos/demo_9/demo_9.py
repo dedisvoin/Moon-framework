@@ -6,7 +6,7 @@ from Moon.python.Rendering.Sprites import *
 from Moon.python.Rendering.Shapes import *
 from Moon.python.Vectors import *
 
-result, texture = Texture().load_from_file(r"demos\texture.png")
+result, texture = Texture().load_from_file(r"demos\demo_9\texture.png")
 
 
 SCR = get_screen_resolution()
