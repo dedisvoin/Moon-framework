@@ -93,7 +93,7 @@ class RenderTexture(object):
         """
         LIB_MOON._RenderTexture_SetSmooth(self.__ptr, smooth)
 
-    def create(self, width: int, height: int, arg: None | ContextSettingsPtr = None):
+    def create(self, width: int, height: int, arg: None | ContextSettingsPtr = None) -> Self:
         """
         #### Create a new render texture.
 
@@ -108,6 +108,7 @@ class RenderTexture(object):
             LIB_MOON._RenderTexture_Create(self.__ptr, width, height)
         else:
             LIB_MOON._RenderTexture_CreateWithSettings(self.__ptr, width, height, arg)
+        return self
 
     @overload
     def draw(self, shape: Drawable, arg: None = None):
@@ -747,8 +748,8 @@ class Image:
         return self.__ptr
     
     def set_ptr(self, ptr: ImagePtr) -> Self:
-        LIB_MOON._Image_Delete(self.__ptr)
         self.__ptr = ptr
 
     def save(self, file_path: str) -> bool:
+        print(self.__ptr)
         return LIB_MOON._Image_Save(self.__ptr, file_path.encode('utf-8'))

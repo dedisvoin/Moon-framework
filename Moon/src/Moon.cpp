@@ -1314,7 +1314,9 @@ extern "C" {
         delete image;
     }
 
+    #include "iostream"
     MOON_API bool _Image_Save(ImagePtr image, char* file_name) {
+        std::cout << file_name << std::endl;
         return image->saveToFile(file_name);
     }
 }

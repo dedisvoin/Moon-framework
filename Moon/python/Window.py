@@ -541,37 +541,39 @@ class WindowEvents:
 type WindowPtr = ctypes.c_void_p
 # =============================================== +
 
+
 def get_max_displays_refresh_rate() -> int:
     """
-    Находит максимальную поддерживаемую частоту обновления для основного монитора в Windows.
+    Простой способ найти максимальную частоту обновления.
     """
     try:
-        device = win32api.EnumDisplayDevices()
-        # print(f"Имя устройства: {device.DeviceName}")
-
-        i = 0
         max_refresh_rate = 0
+        i = 0
+        
         while True:
             try:
-                ds = win32api.EnumDisplaySettings(device.DeviceName, i)
-                # ds содержит: dmPelsWidth, dmPelsHeight, dmBitsPerPel, dmDisplayFrequency
-
-                # Рассматриваем только текущее разрешение экрана
-                current_settings = win32api.EnumDisplaySettings(device.DeviceName, win32con.ENUM_CURRENT_SETTINGS)
-                if ds.PelsWidth == current_settings.PelsWidth and ds.PelsHeight == current_settings.PelsHeight:
-                     if ds.DisplayFrequency > max_refresh_rate:
-                        max_refresh_rate = ds.DisplayFrequency
-
+                # Используем None для основного дисплея
+                settings = win32api.EnumDisplaySettings(None, i)
+                
+                # Проверяем все режимы с текущим разрешением
+                current_settings = win32api.EnumDisplaySettings(None, win32con.ENUM_CURRENT_SETTINGS)
+                if (settings.PelsWidth == current_settings.PelsWidth and 
+                    settings.PelsHeight == current_settings.PelsHeight):
+                    
+                    if settings.DisplayFrequency > max_refresh_rate:
+                        max_refresh_rate = settings.DisplayFrequency
+                
                 i += 1
-            except pywintypes.error:
-                # Завершаем цикл, когда больше нет доступных режимов
+                
+            except Exception:
                 break
-
+        
+        print(f"Max refresh rate: {max_refresh_rate}Hz")
         return max_refresh_rate
-
+        
     except Exception as e:
-        print(f"Произошла ошибка: {e}")
-        return 60
+        print(f"Error: {e}")
+        return 60  # Возвращаем стандартную частоту по умолчанию
 
 
 # Константа для обозначения неограниченного FPS (представляется большим числом) = +
