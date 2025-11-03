@@ -221,8 +221,6 @@ LIB_MOON._Window_MapCoordsToPixelY.argtypes = [ctypes.c_void_p, ctypes.c_double,
 LIB_MOON._Window_MapCoordsToPixelY.restype = ctypes.c_float
 LIB_MOON._Window_DrawWithRenderStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
 LIB_MOON._Window_DrawWithRenderStates.restype = None
-LIB_MOON._Window_DrawVertexArrayWithRenderStates.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
-LIB_MOON._Window_DrawVertexArrayWithRenderStates.restype = None
 LIB_MOON._Window_DrawWithShader.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
 LIB_MOON._Window_DrawWithShader.restype = None
 LIB_MOON._Window_SetCursorVisibility.argtypes = [ctypes.c_void_p, ctypes.c_bool]
@@ -544,37 +542,45 @@ type WindowPtr = ctypes.c_void_p
 
 def get_max_displays_refresh_rate() -> int:
     """
-    Простой способ найти максимальную частоту обновления.
+    Упрощенная функция для получения информации о дисплеях.
     """
+    print()
     try:
         max_refresh_rate = 0
         i = 0
-        
+
+        # Получаем текущие настройки дисплея
+        current_settings = win32api.EnumDisplaySettings(None, win32con.ENUM_CURRENT_SETTINGS)
+        current_width = current_settings.PelsWidth
+        current_height = current_settings.PelsHeight
+        current_refresh_rate = current_settings.DisplayFrequency
+
+        # Считаем количество доступных режимов
+        modes = []
         while True:
             try:
-                # Используем None для основного дисплея
                 settings = win32api.EnumDisplaySettings(None, i)
-                
-                # Проверяем все режимы с текущим разрешением
-                current_settings = win32api.EnumDisplaySettings(None, win32con.ENUM_CURRENT_SETTINGS)
-                if (settings.PelsWidth == current_settings.PelsWidth and 
-                    settings.PelsHeight == current_settings.PelsHeight):
-                    
-                    if settings.DisplayFrequency > max_refresh_rate:
-                        max_refresh_rate = settings.DisplayFrequency
-                
+                modes.append(settings)
                 i += 1
-                
             except Exception:
                 break
-        
-        print(f"Max refresh rate: {max_refresh_rate}Hz")
-        return max_refresh_rate
-        
-    except Exception as e:
-        print(f"Error: {e}")
-        return 60  # Возвращаем стандартную частоту по умолчанию
 
+        display_count = len(set((mode.PelsWidth, mode.PelsHeight) for mode in modes))
+
+        # Находим максимальную частоту обновления
+        for settings in modes:
+            if settings.DisplayFrequency > max_refresh_rate:
+                max_refresh_rate = settings.DisplayFrequency
+
+        # Выводим информацию
+        print(f"[ {Fore.CYAN}WindowAPI{Fore.RESET} ] Use current screen: {Fore.BLACK}{current_width}x{current_height}{Fore.RESET} @ {Fore.BLACK}{current_refresh_rate}Hz{Fore.RESET}")
+        print(f'[ {Fore.BLACK}Note{Fore.RESET} ] {Fore.BLACK}Use `FPS_VSYNC_CONST` for screen max refresh rate{Fore.RESET}')
+        return max_refresh_rate
+
+    except Exception as e:
+        print(f"[ {Fore.CYAN}WindowAPI{Fore.RESET} ] [ {Fore.RED}ERROR{Fore.RESET} ] Failed to get display info: {e}")
+        print(f"[ {Fore.CYAN}WindowAPI{Fore.RESET} ] [ {Fore.YELLOW}WARNING{Fore.RESET} ] FPS will be capped at 60")
+        return 60
 
 # Константа для обозначения неограниченного FPS (представляется большим числом) = +
 FPS_UNLIMIT_CONST: Final[int] = 1000000                                           #
@@ -996,10 +1002,8 @@ class Window:
         self.__info_bg_color = Color(200, 200, 220, 100)
         self.__info_bg = RectangleShape(100, 200)
         self.__info_line_color = Color(200, 200, 250, 100)
-        self.__info_line = LineThinShape()
         self.__fps_line_color_red = Color(200, 0, 0, 100)
         self.__fps_line_color_green = Color(0, 200, 0, 100)
-        self.__fps_line = LinesThinShape()
         self.__info_text_fps_color = Color(0, 0, 0, 180)
         self.__info_text_fps = BaseText(self.__info_font)
 
@@ -2336,37 +2340,7 @@ class Window:
         self.__info_bg.set_color(self.__info_bg_color)
         self.draw(self.__info_bg)
 
-        # Сетка графика
-        # Максимальное значение FPS для масштабирования графика
-        max_fps = max(self.__fps_history) if self.__fps_history else self.__wait_fps
-        for i in range(5): # Рисуем 5 горизонтальных линий сетки
-            y_pos = graph_y + i * (graph_height / 4)
-            self.__info_line.set_start_point(graph_x, y_pos)
-            self.__info_line.set_end_point(graph_x + graph_width, y_pos)
-            self.__info_line.set_color(self.__info_line_color)
-            self.draw(self.__info_line)
 
-            # Отображаем числовые значения FPS по оси Y
-            fps_value = max_fps - (i * (max_fps / 4))
-            self.__info_text_fps.set_size(10)
-            self.__info_text_fps.set_text(f"{fps_value:.0f}")
-            self.__info_text_fps.set_position(graph_x + graph_width + 3, y_pos - 7)
-            self.__info_text_fps.set_color(self.__info_text_fps_color)
-            self.draw(self.__info_text_fps)
-
-        # Линия графика FPS
-        if len(self.__fps_history) > 1: # Рисуем линию только если есть хотя бы 2 точки в истории
-            self.__fps_line.clear() # Очищаем предыдущие точки линии
-
-            for i, fps in enumerate(self.__fps_history):
-                # Вычисляем координаты точки на графике
-                x = graph_x + (i * graph_width / (self.__max_history - 1))
-                y = graph_y + graph_height - (fps * graph_height / max_fps)
-                # Выбираем цвет линии в зависимости от производительности
-                color = self.__fps_line_color_green if fps >= max_fps * 0.5 else self.__fps_line_color_red
-                self.__fps_line.append_point_to_end(x, y, color) # Добавляем точку к линии
-
-            self.draw(self.__fps_line) # Отрисовываем линию
 
     @final
     def set_vertical_sync(self, value: bool) -> Self:

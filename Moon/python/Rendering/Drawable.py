@@ -1,21 +1,18 @@
 from typing import TypeAlias, TypeVar
-from typing_extensions import TypeForm
 from Moon.python.Rendering.Text import Text, BaseText
 from Moon.python.Rendering.Shapes import (
-    BaseLineShape, CircleShape, RectangleShape, LineShape, PolygoneShape,
-    LineThinShape, LinesThinShape
+    CircleShape, RectangleShape,
+    #BaseLineShape, LineShape, PolygoneShape, LineThinShape, LinesThinShape
 )
 
-from Moon.python.Rendering.Vertexes import VertexArray
+from Moon.python.Rendering.Vertexes import VertexList
 
 Sprite2D = TypeVar('Sprite2D')
 AnimatedSprite2D = TypeVar('AnimatedSprite2D')
 
+type Drawable = CircleShape | RectangleShape | Text | BaseText | VertexList
+             #LineShape | BaseLineShape | PolygoneShape | LineThinShape | LinesThinShape
 
-
-type Drawable = CircleShape | RectangleShape | LineShape | BaseLineShape | \
-             PolygoneShape | LineThinShape | LinesThinShape | Text | BaseText | VertexArray
-
-DrawableTuple = (CircleShape | RectangleShape | LineShape | BaseLineShape | \
-             PolygoneShape | LineThinShape | LinesThinShape | Text | BaseText | VertexArray | \
+DrawableTuple = (CircleShape | RectangleShape | Text | BaseText | VertexList | \
+            #LineShape | BaseLineShape | PolygoneShape | LineThinShape | LinesThinShape | \
              Sprite2D | AnimatedSprite2D)

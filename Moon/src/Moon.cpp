@@ -706,8 +706,6 @@ extern "C" {
 
 #include <SFML/System/String.hpp>
 
-
-
 #include "exception"
 #include "string"
 
@@ -725,6 +723,7 @@ extern "C" {
 // Определение псевдонимов типов для удобства работы с указателями SFML
 typedef sf::Font* FontPtr;    // Указатель на объект шрифта
 typedef sf::Text* TextPtr;    // Указатель на объект текста
+
 
 // ==============================================================================================
 // БЛОК ВНЕШНЕГО C-ИНТЕРФЕЙСА (экспортируемые функции)
@@ -1314,9 +1313,7 @@ extern "C" {
         delete image;
     }
 
-    #include "iostream"
     MOON_API bool _Image_Save(ImagePtr image, char* file_name) {
-        std::cout << file_name << std::endl;
         return image->saveToFile(file_name);
     }
 }
@@ -1329,12 +1326,12 @@ extern "C" {
 // RenderTexture и спрайтами в Python приложениях.
 // ================================================================================
 
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/PrimitiveType.hpp"
 #include "SFML/Graphics/VertexArray.hpp"
 #include "SFML/Graphics/Vertex.hpp"
 #include "SFML/System/Vector2.hpp"
-
-#include "SFML/Graphics/PrimitiveType.hpp"
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <cstddef>
 
 
 #ifdef _WIN32
@@ -1343,147 +1340,167 @@ extern "C" {
     #define MOON_API
 #endif
 
+typedef sf::VertexArray* VertexArrayPtr;
+typedef sf::Vertex* VertexPtr;
+
 extern "C" {
+    MOON_API VertexPtr _Vertex_Init() {
+        return new sf::Vertex();
+    }
 
-    typedef sf::VertexArray* VertexArrayPtr;
+    MOON_API VertexPtr _Vertex_InitFromCoords(double x, double y) {
+        return new sf::Vertex(sf::Vector2f(x, y));
+    }
 
-    MOON_API VertexArrayPtr 
-    _VertexArray_Create() {
+    MOON_API VertexPtr _Vertex_InitFromCoordsAndColor(double x, double y, int r, int g, int b, int a) {
+        return new sf::Vertex(sf::Vector2f(x, y), sf::Color(r, g, b, a));
+    }
+
+    MOON_API VertexPtr _Vertex_InitFromCoordsAndColorAndTexCoords(double x, double y, int r, int g, int b, int a, int tx, int ty) {
+        return new sf::Vertex(sf::Vector2f(x, y), sf::Color(r, g, b, a), sf::Vector2f(tx, ty));
+    }
+
+    MOON_API void _Vertex_Delete(VertexPtr vertex) {
+        delete vertex;
+    }
+
+    MOON_API void _Vertex_SetPosition(VertexPtr vertex, double x, double y) {
+        vertex->position = sf::Vector2f(x, y);
+    }
+
+    MOON_API void _Vertex_SetColor(VertexPtr vertex, int r, int g, int b, int a) {
+        vertex->color = sf::Color(r, g, b, a);
+    }
+
+    MOON_API void _Vertex_SetTexCoords(VertexPtr vertex, double tx, double ty) {
+        vertex->texCoords = sf::Vector2f(tx, ty);
+    }
+
+    MOON_API double _Vertex_GetPositionX(VertexPtr vertex) {
+        return vertex->position.x;
+    }
+
+    MOON_API double _Vertex_GetPositionY(VertexPtr vertex) {
+        return vertex->position.y;
+    }
+
+    MOON_API double _Vertex_GetTexCoordX(VertexPtr vertex) {
+        return vertex->texCoords.x;
+    }
+
+    MOON_API double _Vertex_GetTexCoordY(VertexPtr vertex) {
+        return vertex->texCoords.y;
+    }
+
+    MOON_API int _Vertex_GetColorR(VertexPtr vertex) {
+        return vertex->color.r;
+    }
+
+    MOON_API int _Vertex_GetColorG(VertexPtr vertex) {
+        return vertex->color.g;
+    }
+
+    MOON_API int _Vertex_GetColorB(VertexPtr vertex) {
+        return vertex->color.b;
+    }
+
+    MOON_API int _Vertex_GetColorA(VertexPtr vertex) {
+        return vertex->color.a;
+    }
+}
+
+extern "C" {
+    MOON_API VertexArrayPtr _VertexArray_Init() {
         return new sf::VertexArray();
     }
 
-    MOON_API void 
-    _VertexArray_Delete(VertexArrayPtr vertexArray) {
-        delete vertexArray;
+    MOON_API void _VertexArray_Delete(VertexArrayPtr array) {
+        delete array;
     }
 
-    MOON_API void 
-    _VertexArray_AddVertexForPositionAndColor(VertexArrayPtr vertexArray, double x, double y, int r, int g, int b, int a) {
-        vertexArray->append(sf::Vertex(sf::Vector2f(static_cast<float>(x), static_cast<float>(y)), sf::Color(static_cast<sf::Uint8>(r), static_cast<sf::Uint8>(g), static_cast<sf::Uint8>(b), static_cast<sf::Uint8>(a))));
+    MOON_API void _VertexArray_SetPrimitiveType(VertexArrayPtr array, int type) {
+        array->setPrimitiveType(static_cast<sf::PrimitiveType>(type));
     }
 
-    MOON_API void 
-    _VertexArray_SetPrimitiveType(VertexArrayPtr vertexArray, int primitiveType) {
-        vertexArray->setPrimitiveType(static_cast<sf::PrimitiveType>(primitiveType));
+    MOON_API void _VertexArray_Clear(VertexArrayPtr array) {
+        array->clear();
     }
 
-    MOON_API void 
-    _VertexArray_Resize(VertexArrayPtr vertexArray, int vertexCount) {
-        vertexArray->resize(static_cast<size_t>(vertexCount));
+    MOON_API int _VertexArray_GetVertexCount(VertexArrayPtr array) {
+        return array->getVertexCount();
     }
 
-    MOON_API void 
-    _VertexArray_Clear(VertexArrayPtr vertexArray) {
-        vertexArray->clear();
+    MOON_API double _VertexArray_GetBoundsPosX(VertexArrayPtr array) {
+        return array->getBounds().left;
     }
 
-    MOON_API int
-    _VertexArray_GetVertexCount(VertexArrayPtr vertexArray) {
-        return static_cast<int>(vertexArray->getVertexCount());
+    MOON_API double _VertexArray_GetBoundsPosY(VertexArrayPtr array) {
+        return array->getBounds().top;
     }
 
-    MOON_API float
-    _VertexArray_GetVertexPositionX(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0.0f; 
-        return vertexArray->operator[](index).position.x;
+    MOON_API double _VertexArray_GetBoundsSizeW(VertexArrayPtr array) {
+        return array->getBounds().width;
     }
 
-    MOON_API float
-    _VertexArray_GetVertexPositionY(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0.0f; 
-        return vertexArray->operator[](index).position.y;
-    }
-        
-    MOON_API int
-    _VertexArray_GetVertexColorR(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0; 
-        return vertexArray->operator[](index).color.r;
-    }
-    
-    MOON_API int
-    _VertexArray_GetVertexColorG(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0; 
-        return vertexArray->operator[](index).color.g;
+    MOON_API double _VertexArray_GetBoundsSizeH(VertexArrayPtr array) {
+        return array->getBounds().height;
     }
 
-    MOON_API int
-    _VertexArray_GetVertexColorB(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0;
-        return vertexArray->operator[](index).color.b;
-    }
-        
-    MOON_API int
-    _VertexArray_GetVertexColorA(VertexArrayPtr vertexArray, int index) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return 0; 
-        return vertexArray->operator[](index).color.a;
+    MOON_API void _VertexArray_Resize(VertexArrayPtr array, int count) {
+        array->resize(count);
     }
 
-
-    MOON_API void
-    _VertexArray_SetVertexForPositionAndColor(VertexArrayPtr vertexArray, int index, double x, double y, int r, int g, int b, int a) {
-        if (index < 0 || index >= vertexArray->getVertexCount()) return; 
-        vertexArray->operator[](index) = sf::Vertex(sf::Vector2f(static_cast<float>(x), static_cast<float>(y)), sf::Color(static_cast<sf::Uint8>(r), static_cast<sf::Uint8>(g), static_cast<sf::Uint8>(b), static_cast<sf::Uint8>(a)));
+    MOON_API bool _VertexArray_IsEmpty(VertexArrayPtr array) {
+        return array->getVertexCount() == 0;
     }
 
-    MOON_API int 
-    _VertexArray_GetPrimitiveType(VertexArrayPtr vertexArray) {
-        return static_cast<int>(vertexArray->getPrimitiveType());
+    MOON_API void _VertexArray_AppendVertex(VertexArrayPtr array, VertexPtr vertex) {
+        array->append(*vertex);
     }
 
-    // Оптимизированные функции для прямого доступа
-    MOON_API void
-    _VertexArray_SetVertexPosition(VertexArrayPtr vertexArray, int index, float x, float y) {
-        if (index >= 0 && index < vertexArray->getVertexCount()) {
-            (*vertexArray)[index].position = sf::Vector2f(x, y);
+    MOON_API VertexPtr _VertexArray_GetVertex(VertexArrayPtr array, int index) {
+        return &(*array)[index];
+    }
+
+    MOON_API void _VertexArray_RemoveVertex(VertexArrayPtr array, int index) {
+        int vertexCount = array->getVertexCount();
+        if (index < 0 || index >= vertexCount) return;
+
+        // Сдвигаем все вершины после удаляемой
+        for (int i = index; i < vertexCount - 1; ++i) {
+            (*array)[i] = (*array)[i + 1];
         }
+
+        // Уменьшаем размер на 1
+        array->resize(vertexCount - 1);
     }
 
+    MOON_API void _VertexArray_InsertVertex(VertexArrayPtr array, int index, VertexPtr vertex) {
+            int vertexCount = array->getVertexCount();
+            if (index < 0 || index > vertexCount) return; // index == vertexCount означает добавление в конец
 
-    MOON_API void
-    _VertexArray_SetVertexColor(VertexArrayPtr vertexArray, int index, int r, int g, int b, int a) {
-        if (index >= 0 && index < vertexArray->getVertexCount()) {
-            (*vertexArray)[index].color = sf::Color(r, g, b, a);
+            // Увеличиваем размер массива
+            array->resize(vertexCount + 1);
+
+            // Сдвигаем вершины от конца до позиции вставки
+            for (int i = vertexCount; i > index; --i) {
+                (*array)[i] = (*array)[i - 1];
+            }
+
+            // Вставляем новую вершину
+            (*array)[index] = *vertex;
         }
+
+    MOON_API void _VertexArray_PrependVertex(VertexArrayPtr array, VertexPtr vertex) {
+        // Просто вызываем insert с индексом 0
+        _VertexArray_InsertVertex(array, 0, vertex);
     }
 
-    MOON_API void
-    _VertexArray_SetAllVerticesColor(VertexArrayPtr vertexArray, int r, int g, int b, int a) {
-        sf::Color color(r, g, b, a);
-        for (size_t i = 0; i < vertexArray->getVertexCount(); ++i) {
-            (*vertexArray)[i].color = color;
+    MOON_API void _VertexArray_SetColor(VertexArrayPtr array, int r, int g, int b, int a) {
+        int vertexCount = array->getVertexCount();
+        for (int i = 0; i < vertexCount; ++i) {
+            (*array)[i].color = sf::Color(r, g, b, a);
         }
-    }
-
-    // Функции для работы с текстурными координатами
-    MOON_API void
-    _VertexArray_AddVertexWithTexCoords(VertexArrayPtr vertexArray, float x, float y, int r, int g, int b, int a, float texX, float texY) {
-        vertexArray->append(sf::Vertex(
-            sf::Vector2f(x, y),
-            sf::Color(r, g, b, a),
-            sf::Vector2f(texX, texY)
-        ));
-    }
-
-    MOON_API void
-    _VertexArray_SetVertexTexCoords(VertexArrayPtr vertexArray, int index, float texX, float texY) {
-        if (index >= 0 && index < vertexArray->getVertexCount()) {
-            (*vertexArray)[index].texCoords = sf::Vector2f(texX, texY);
-        }
-    }
-
-    MOON_API void
-    _VertexArray_SetQuadTexCoords(VertexArrayPtr vertexArray, int startIndex, float left, float top, float width, float height) {
-        if (startIndex >= 0 && startIndex + 3 < vertexArray->getVertexCount()) {
-            (*vertexArray)[startIndex].texCoords = sf::Vector2f(left, top);
-            (*vertexArray)[startIndex + 1].texCoords = sf::Vector2f(left + width, top);
-            (*vertexArray)[startIndex + 2].texCoords = sf::Vector2f(left + width, top + height);
-            (*vertexArray)[startIndex + 3].texCoords = sf::Vector2f(left, top + height);
-        }
-    }
-
-    // Специальная функция для отрисовки VertexArray с RenderStates
-    MOON_API void _Window_DrawVertexArrayWithRenderStates(sf::RenderWindow* window, sf::RenderStates* render_states, VertexArrayPtr vertexArray) {
-        window->draw(*vertexArray, *render_states);
     }
 }
 

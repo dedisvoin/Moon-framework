@@ -35,16 +35,15 @@ def find_library() -> str:
         DLL_LOCAL_FOUND_PATH,
         DLL_MODULE_FOUND_PATH,
     ]
-    print(f"Loader: {caller_filename}")
 
     # Поиск по указанным путям
     for lib_path in possible_paths:
         if os.path.exists(lib_path):
-            print(f"[ {Fore.GREEN}succes{Fore.RESET} ] Library found at: {Fore.YELLOW}'{lib_path}'{Fore.RESET}")
+            print(f"[ {Fore.GREEN}succes{Fore.RESET} ] Library {Fore.BLUE}{caller_filename}{Fore.RESET} found at: {Fore.YELLOW}'{lib_path}'{Fore.RESET}")
             return lib_path
 
     # Если не найдено по указанным путям, ищем в директории установки модуля
-    print(f"[ {Fore.YELLOW}warning{Fore.RESET} ] Library not found in standard paths, searching in module installation directory...")
+    print(f"[ {Fore.YELLOW}warning{Fore.RESET} ] Library {Fore.BLUE}{caller_filename}{Fore.RESET} not found in standard paths, searching in module installation directory...")
 
     # Получаем путь к установленному модулю Moon
     module_path = find_module_installation_path('Moon')
@@ -56,7 +55,7 @@ def find_library() -> str:
             return found_path
 
     # Если не найдено в директории модуля, ищем рекурсивно от текущей директории
-    print(f"[ {Fore.YELLOW}warning{Fore.RESET} ] Library not found in module directory, starting recursive search from current directory...")
+    print(f"[ {Fore.YELLOW}warning{Fore.RESET} ] Library {Fore.BLUE}{caller_filename}{Fore.RESET} not found in module directory, starting recursive search from current directory...")
 
     start_dir = os.getcwd()
     found_path = recursive_find_library(start_dir, caller_filename)
