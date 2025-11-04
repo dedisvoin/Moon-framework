@@ -3,7 +3,6 @@
 #include "SFML/Graphics/VertexArray.hpp"
 #include "SFML/Graphics/Vertex.hpp"
 #include "SFML/System/Vector2.hpp"
-#include <cstddef>
 
 
 #ifdef _WIN32
@@ -18,6 +17,10 @@ typedef sf::Vertex* VertexPtr;
 extern "C" {
     MOON_API VertexPtr _Vertex_Init() {
         return new sf::Vertex();
+    }
+
+    MOON_API VertexPtr _Vertex_FromPtr(VertexPtr ptr) {
+        return new sf::Vertex(*ptr);
     }
 
     MOON_API VertexPtr _Vertex_InitFromCoords(double x, double y) {
@@ -131,27 +134,24 @@ extern "C" {
     }
 
     MOON_API VertexPtr _VertexArray_GetVertex(VertexArrayPtr array, int index) {
-        return &(*array)[index];
+        return new sf::Vertex((*array)[index]);
     }
 
     MOON_API void _VertexArray_RemoveVertex(VertexArrayPtr array, int index) {
         int vertexCount = array->getVertexCount();
         if (index < 0 || index >= vertexCount) return;
 
-        // Сдвигаем все вершины после удаляемой
         for (int i = index; i < vertexCount - 1; ++i) {
             (*array)[i] = (*array)[i + 1];
         }
 
-        // Уменьшаем размер на 1
         array->resize(vertexCount - 1);
     }
 
     MOON_API void _VertexArray_InsertVertex(VertexArrayPtr array, int index, VertexPtr vertex) {
             int vertexCount = array->getVertexCount();
-            if (index < 0 || index > vertexCount) return; // index == vertexCount означает добавление в конец
+            if (index < 0 || index > vertexCount) return; 
 
-            // Увеличиваем размер массива
             array->resize(vertexCount + 1);
 
             // Сдвигаем вершины от конца до позиции вставки
@@ -159,12 +159,10 @@ extern "C" {
                 (*array)[i] = (*array)[i - 1];
             }
 
-            // Вставляем новую вершину
             (*array)[index] = *vertex;
         }
 
     MOON_API void _VertexArray_PrependVertex(VertexArrayPtr array, VertexPtr vertex) {
-        // Просто вызываем insert с индексом 0
         _VertexArray_InsertVertex(array, 0, vertex);
     }
 

@@ -95,7 +95,7 @@ from Moon.python.Inputs import MouseInterface, KeyBoardInterface
 from Moon.python.Rendering.Text import *                                                                                # pyright: ignore [ reportGeneralTypeIssues ]
 from Moon.python.Rendering.Shapes import *                                                                              # pyright: ignore [ reportGeneralTypeIssues ]
 from Moon.python.Rendering.Shaders import Shader
-from Moon.python.Rendering.Drawable import Drawable
+from Moon.python.Rendering.Drawable import *
 from Moon.python.Rendering.RenderStates import RenderStates
 
 from Moon.python.utils import find_library, find_module_installation_path
@@ -108,19 +108,24 @@ try:
 except Exception as e:
     raise ImportError(f"Failed to load Moon library: {e}")
 
+print(f"[ {Fore.LIGHTCYAN_EX}Machine{Fore.RESET} ] [ {Fore.GREEN}succes{Fore.RESET} ] Moon started on {Fore.BLACK}{sys.platform}{Fore.RESET} platfrom")
+print(f"[ {Fore.BLACK}Note{Fore.RESET} ] {Fore.BLACK}Supported platforms: win32(64), linux{Fore.RESET}")
+
 # Индекс оконного атрибута отвечающего за скругления углов окна (Windows 11+) = +
 DWMWA_WINDOW_CORNER_PREFERENCE: Final[int] = 33                                 #
 # ============================================================================= +
 
-# Константа обьекта оконного интерфейса ============================================ +
-# ! Не рекомендуется использовать вне предоставленного функционала фреймворка!       #
-if sys.platform == 'win32':                                                          #
-    DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")                          #
-# ================================================================================== #
+# Константа обьекта оконного интерфейса ======================================================================= +
+# ! Не рекомендуется использовать вне предоставленного функционала фреймворка!                                  #
+if sys.platform == 'win32':                                                                                     #
+    DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")     
+    print(f"[ {Fore.CYAN}WindowAPI{Fore.RESET} ] {Fore.YELLOW}'dwmapi.dll'{Fore.RESET} succes found")           #
+# ============================================================================================================= #
 
 if sys.platform == 'linux':
     X_LIB = ctypes.CDLL(ctypes.util.find_library('X11'))      # pyright: ignore
     X_RANDR = ctypes.CDLL(ctypes.util.find_library("Xrandr")) # pyright: ignore
+    print(f"[ {Fore.CYAN}LinuxAPI{Fore.RESET} ] {Fore.YELLOW}'X11.dll'{Fore.RESET}, {Fore.YELLOW}'Xrandr.dll'{Fore.RESET} succes found") 
 
 
 def get_screen_resolution() -> TwoIntegerList:
@@ -536,7 +541,7 @@ class WindowEvents:
 
 
 # Тип для хранения указателя на объект окна ===== +
-type WindowPtr = ctypes.c_void_p
+type WindowPtr = ctypes.c_void_p                  #
 # =============================================== +
 
 
@@ -999,13 +1004,15 @@ class Window:
         self.__info_text_color_gray = Color(100, 100, 100, 100)
 
         # Настройка фонового прямоугольника и линий для графика FPS
-        self.__info_bg_color = Color(200, 200, 220, 100)
+        self.__info_bg_color = Color(230, 230, 230, 100)
         self.__info_bg = RectangleShape(100, 200)
         self.__info_line_color = Color(200, 200, 250, 100)
         self.__fps_line_color_red = Color(200, 0, 0, 100)
         self.__fps_line_color_green = Color(0, 200, 0, 100)
         self.__info_text_fps_color = Color(0, 0, 0, 180)
-        self.__info_text_fps = BaseText(self.__info_font)
+
+        self.__info_fps_line = Polyline()
+        self.__info_fps_grid_line = Polyline()
 
 
 
@@ -1044,7 +1051,7 @@ class Window:
         self.__fps_monitor_key_binding: str = "alt+f"
         self.__fps_monitor_opened: bool = True
 
-        # Значения вычисляющиеся с кеширование
+        # Значения вычисляющиеся с кешированием
         self.__cached_window_center: Vector2f = Vector2f(width / 2, height / 2)
         self.__cached_window_size: Vector2i = Vector2i(width, height)
 
@@ -2329,7 +2336,7 @@ class Window:
         self.draw(self.__info_text)
 
         # График фреймтайма
-        graph_width = 200
+        graph_width = 300
         graph_height = 100
         graph_x = 10
         graph_y = 100
@@ -2339,6 +2346,31 @@ class Window:
         self.__info_bg.set_position(graph_x, graph_y)
         self.__info_bg.set_color(self.__info_bg_color)
         self.draw(self.__info_bg)
+
+        step = 20
+        for i in range(graph_width // step + 1):
+            self.__info_fps_grid_line.clear()
+            self.__info_fps_grid_line.append_point(Vector2f(graph_x + step * i , graph_y))
+            self.__info_fps_grid_line.append_point(Vector2f(graph_x + step * i, graph_y + graph_height))
+            self.__info_fps_grid_line.set_color(Color(180, 180, 180, self.__info_alpha))
+            self.draw(self.__info_fps_grid_line)
+
+        if self.__fps_history != []:
+            graph_step = graph_width / self.__max_history
+            
+            max_fps = max(self.__fps_history)
+            pos = graph_x + graph_width
+
+
+            self.__info_fps_line.clear()
+            for fps in self.__fps_history:
+                self.__info_fps_line.prepend_point(Vector2f(pos, graph_y + graph_height - (fps / max_fps * graph_height)))
+                pos -= graph_step
+            self.__info_fps_line.set_color(Color(0, 0, 0, self.__info_alpha))
+
+            self.draw(self.__info_fps_line)
+
+            
 
 
 
@@ -2895,7 +2927,7 @@ class Window:
         - Поддерживает ограниченный размер истории
         """
         self.__fps_update_timer += self.__render_time
-        if self.__fps_update_timer >= 0.1:
+        if self.__fps_update_timer >= 0.05:
             self.__fps_history.append(self.__fps)
             self.__min_fps_in_fps_history = min(self.__fps_history)
             self.__max_fps_in_fps_history = max(self.__fps_history)

@@ -73,6 +73,7 @@ Copyright (c) 2025 Pavlov Ivan
 """
 
 
+from copy import copy
 from csv import QUOTE_ALL
 import ctypes
 from enum import Enum
@@ -93,6 +94,9 @@ VertexArrayPtr = ctypes.c_void_p
 # Vertex биндинги
 LIB_MOON._Vertex_Init.argtypes = []
 LIB_MOON._Vertex_Init.restype = VertexPtr
+
+LIB_MOON._Vertex_FromPtr.argtypes = [VertexPtr]
+LIB_MOON._Vertex_FromPtr.restype = VertexPtr
 
 LIB_MOON._Vertex_InitFromCoords.argtypes = [ctypes.c_double, ctypes.c_double]
 LIB_MOON._Vertex_InitFromCoords.restype = VertexPtr
@@ -224,8 +228,15 @@ class Vertex2d:
         vertex.set_ptr(ptr)
         return vertex
 
+    @classmethod
+    def FromPtr(cls, ptr: VertexPtr) -> "Vertex2d":
+        vertex = cls()
+        vertex.set_ptr(ptr)
+        return vertex
+
     def __init__(self):
         self.__ptr = LIB_MOON._Vertex_Init()
+        self._owner = True
 
     def __str__(self) -> str:
         return f'Vertex2d<addr:{self.__ptr}>'
@@ -234,7 +245,7 @@ class Vertex2d:
         return self.__str__()
 
     def __del__(self):
-        if self.__ptr is not None:
+        if self.__ptr is not None and getattr(self, '_owner', False):
             LIB_MOON._Vertex_Delete(self.__ptr)
 
     def get_ptr(self) -> VertexPtr:
@@ -331,14 +342,16 @@ class Vertex2d:
     def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
+type NativeVertex2dPtr = Vertex2d
+
 class VertexListTypes(Enum):
-    POINTS = 0
-    LINES = 1
-    LINE_STRIP = 2
-    TRIANGLES = 3
-    TRIANGLE_STRIP = 4
-    TRIANGLE_FAN = 5
-    QUADS = 6
+    Points = 0
+    Lines = 1
+    LineStrip = 2
+    Triangles = 3
+    TriangleStrip = 4
+    TriangleFan = 5
+    Quads = 6
 
 class VertexList:
     def __init__(self, points_count: int = 0):
@@ -375,7 +388,9 @@ class VertexList:
 
     def get(self, index: int) -> Vertex2d:
         ptr = LIB_MOON._VertexArray_GetVertex(self.__ptr, index)
-        return Vertex2d().set_ptr(ptr)
+        vertex = Vertex2d.FromPtr(ptr)
+        vertex._owner = False
+        return vertex
 
     def remove(self, index: int):
         LIB_MOON._VertexArray_RemoveVertex(self.__ptr, index)
