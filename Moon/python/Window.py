@@ -118,14 +118,14 @@ DWMWA_WINDOW_CORNER_PREFERENCE: Final[int] = 33                                 
 # Константа обьекта оконного интерфейса ======================================================================= +
 # ! Не рекомендуется использовать вне предоставленного функционала фреймворка!                                  #
 if sys.platform == 'win32':                                                                                     #
-    DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")     
+    DWM_API: Final[ctypes.WinDLL] = ctypes.WinDLL("dwmapi")
     print(f"[ {Fore.CYAN}WindowAPI{Fore.RESET} ] {Fore.YELLOW}'dwmapi.dll'{Fore.RESET} succes found")           #
 # ============================================================================================================= #
 
 if sys.platform == 'linux':
     X_LIB = ctypes.CDLL(ctypes.util.find_library('X11'))      # pyright: ignore
     X_RANDR = ctypes.CDLL(ctypes.util.find_library("Xrandr")) # pyright: ignore
-    print(f"[ {Fore.CYAN}LinuxAPI{Fore.RESET} ] {Fore.YELLOW}'X11.dll'{Fore.RESET}, {Fore.YELLOW}'Xrandr.dll'{Fore.RESET} succes found") 
+    print(f"[ {Fore.CYAN}LinuxAPI{Fore.RESET} ] {Fore.YELLOW}'X11.dll'{Fore.RESET}, {Fore.YELLOW}'Xrandr.dll'{Fore.RESET} succes found")
 
 
 def get_screen_resolution() -> TwoIntegerList:
@@ -206,6 +206,8 @@ LIB_MOON._Window_IsOpen.argtypes = [ctypes.c_void_p]
 LIB_MOON._Window_IsOpen.restype = ctypes.c_bool
 LIB_MOON._Window_Draw.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIB_MOON._Window_Draw.restype = None
+LIB_MOON._Window_HasFocus.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_HasFocus.restype = ctypes.c_bool
 LIB_MOON._Window_GetDefaultView.argtypes = [ctypes.c_void_p]
 LIB_MOON._Window_GetDefaultView.restype = ctypes.c_void_p
 LIB_MOON._Window_SetView.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
@@ -250,6 +252,8 @@ LIB_MOON._Window_GetCurrentEventType.argtypes = [ctypes.c_void_p, ctypes.c_void_
 LIB_MOON._Window_GetCurrentEventType.restype = ctypes.c_int
 LIB_MOON._Window_SetIconFromPath.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
 LIB_MOON._Window_SetIconFromPath.restype = ctypes.c_bool
+LIB_MOON._Window_GetHandle.argtypes = [ctypes.c_void_p]
+LIB_MOON._Window_GetHandle.restype = ctypes.c_void_p
 
 LIB_MOON._Events_Create.argtypes = []
 LIB_MOON._Events_Create.restype = ctypes.c_void_p
@@ -830,8 +834,8 @@ class ContextSettings:
 # ║                     Default Window Appearance Settings                       ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
-DEFAULT_WINDOW_HEADER_COLOR: Final[Color] = Color(98, 134, 248).lighten(0.2)  # Цвет фона заголовка окна
-DEFAULT_WINDOW_BORDER_COLOR: Final[Color] = Color(98, 134, 248).lighten(0.2)  # Цвет рамки окна
+DEFAULT_WINDOW_HEADER_COLOR: Final[Color] = Color(100, 100, 148).lighten(0.2)  # Цвет фона заголовка окна
+DEFAULT_WINDOW_BORDER_COLOR: Final[Color] = Color(100, 100, 148).lighten(0.2)  # Цвет рамки окна
 
 # Белый цвет для текста заголовка окна, обеспечивает хороший контраст
 DEFAULT_WINDOW_TITLE_COLOR:  Final[Color] = Color(255, 255, 255)
@@ -959,7 +963,7 @@ class Window:
         self.__title = title
 
         if sys.platform == 'win32':
-            self.__window_descriptor = ctypes.windll.user32.FindWindowW(None, self.__title)
+            self.__window_descriptor = self.get_handle()
         else:
             self.__window_descriptor = None                               # pyright: ignore [ reportAny ]
         self.__window_alpha: int | float = alpha
@@ -1065,6 +1069,8 @@ class Window:
             _ = self.set_header_color(DEFAULT_WINDOW_HEADER_COLOR)
             _ = self.set_border_color(DEFAULT_WINDOW_BORDER_COLOR)
 
+
+
         try:
             _ = self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
         except:
@@ -1080,6 +1086,17 @@ class Window:
                         raise RuntimeError("App Icon path not found")
                 except:
                     raise RuntimeError("App Icon path not found")
+
+    def get_handle(self) -> int:
+        """
+        Получить хэндл окна
+
+        ---
+
+        :Returns:
+            int: Хэндл окна
+        """
+        return LIB_MOON._Window_GetHandle(self.__window_ptr)                                                         # pyright: ignore [ reportAny ]
 
     def get_width(self) -> int:
         """
@@ -1102,6 +1119,18 @@ class Window:
             int: Высота окна
         """
         return LIB_MOON._Window_GetSizeHeight(self.__window_ptr)                                                        # pyright: ignore [ reportAny ]
+
+
+    def has_focus(self) -> bool:
+        """
+        Проверить, имеет ли окно фокус
+
+        ---
+
+        :Returns:
+            bool: True, если окно имеет фокус, иначе False
+        """
+        return LIB_MOON._Window_HasFocus(self.__window_ptr)                                                            # pyright: ignore [ reportAny ]
 
     def get_fps_history(self) -> list[Number]:
         """
@@ -1351,6 +1380,7 @@ class Window:
             ```
             """
             self.__header_color = color
+
             bgr_value = (color.b << 16) | (color.g << 8) | color.r
             color_value = ctypes.wintypes.DWORD(bgr_value)                                                                  # pyright: ignore [ reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownVariableType ]
             ctypes.windll.dwmapi.DwmSetWindowAttribute(
@@ -2357,7 +2387,7 @@ class Window:
 
         if self.__fps_history != []:
             graph_step = graph_width / self.__max_history
-            
+
             max_fps = max(self.__fps_history)
             pos = graph_x + graph_width
 
@@ -2370,7 +2400,7 @@ class Window:
 
             self.draw(self.__info_fps_line)
 
-            
+
 
 
 

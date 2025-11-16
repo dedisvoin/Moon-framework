@@ -958,48 +958,78 @@ class Vector2i(object):
     def __abs__(self) -> "Vector2i":
         return Vector2i(abs(self.__x), abs(self.__y))
 
-    def __add__(self, other: "Vector2i") -> "Vector2i":
+    def __add__(self, other: "Vector2Type") -> "Vector2Type":
+        if isinstance(other, Vector2f):
+            return Vector2f(self.__x + other.x, self.__y + other.y)
         return Vector2i(self.__x + other.x, self.__y + other.y)
 
-    def __sub__(self, other: "Vector2i | Vector2f") -> "Vector2i":
-        return Vector2i(self.__x - int(other.x), self.__y - int(other.y))
+    def __sub__(self, other: "Vector2Type") -> "Vector2Type":
+        if isinstance(other, Vector2f):
+            return Vector2f(self.__x - other.x, self.__y - other.y)
+        return Vector2i(self.__x - other.x, self.__y - other.y)
 
-    def __mul__(self, scalar: int | float) -> "Vector2i":
+    def __mul__(self, scalar: "int | float | Vector2Type") -> "Vector2Type":
         if isinstance(scalar, Vector2i):
             return Vector2i(self.__x * scalar.x, self.__y * scalar.y)
-        return Vector2i(self.__x * scalar, self.__y * scalar)
+        if isinstance(scalar, Vector2f):
+            return Vector2f(self.__x * scalar.x, self.__y * scalar.y)
+        if isinstance(scalar, int):
+            return Vector2i(self.__x * scalar, self.__y * scalar)
+        if isinstance(scalar, float):
+            return Vector2f(self.__x * scalar, self.__y * scalar)
 
-    def __truediv__(self, scalar: int | float) -> "Vector2i":
+    def __truediv__(self, scalar: "int | float | Vector2Type") -> "Vector2Type":
         if isinstance(scalar, Vector2i):
             return Vector2i(self.__x / scalar.x, self.__y / scalar.y)
-        return Vector2i(self.__x / scalar, self.__y / scalar)
+        if isinstance(scalar, Vector2f):
+            return Vector2f(self.__x / scalar.x, self.__y / scalar.y)
+        if isinstance(scalar, int):
+            return Vector2i(self.__x / scalar, self.__y / scalar)
+        if isinstance(scalar, float):
+            return Vector2f(self.__x / scalar, self.__y / scalar)
 
-    def __iadd__(self, other: "Vector2i") -> "Vector2i":
+    def __iadd__(self, other: "Vector2Type") -> "Vector2Type":
+        if isinstance(other, Vector2f):
+            return Vector2f(self.__x + other.x, self.__y + other.y)
         self.__x += other.x
         self.__y += other.y
         return self
 
-    def __isub__(self, other: "Vector2i | Vector2f") -> "Vector2i":
-        self.__x -= int(other.x)
-        self.__y -= int(other.y)
+    def __isub__(self, other: "Vector2Type") -> "Vector2Type":
+        if isinstance(other, Vector2f):
+            return Vector2f(self.__x - other.x, self.__y - other.y)
+        self.__x -= other.x
+        self.__y -= other.y
         return self
 
-    def __imul__(self, scalar: int | float) -> "Vector2i":
+    def __imul__(self, scalar: "int | float | Vector2Type") -> "Vector2Type":
         if isinstance(scalar, Vector2i):
             self.__x *= scalar.x
             self.__y *= scalar.y
-        else:
+        elif isinstance(scalar, Vector2f):
+            return Vector2f(self.__x * scalar.x, self.__y * scalar.y)
+        elif isinstance(scalar, int):
             self.__x *= scalar
             self.__y *= scalar
+        elif isinstance(scalar, float):
+            return Vector2f(self.__x * scalar, self.__y * scalar)
         return self
 
-    def __itruediv__(self, scalar: int | float) -> "Vector2i":
+    def __itruediv__(self, scalar: "int | float | Vector2Type") -> "Vector2Type":
         if isinstance(scalar, Vector2i):
-            self.__x //= scalar.x
-            self.__y //= scalar.y
-        else:
+            self.__x /= scalar.x
+            self.__y /= scalar.y
+            self.__x = int(self.__x)
+            self.__y = int(self.__y)
+        elif isinstance(scalar, Vector2f):
+            return Vector2f(self.__x / scalar.x, self.__y / scalar.y)
+        elif isinstance(scalar, int):
             self.__x //= scalar
             self.__y //= scalar
+            self.__x = int(self.__x)
+            self.__y = int(self.__y)
+        elif isinstance(scalar, float):
+            return Vector2f(self.__x / scalar, self.__y / scalar)
         return self
 
 

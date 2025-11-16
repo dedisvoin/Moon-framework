@@ -1462,7 +1462,7 @@ extern "C" {
     }
 
     MOON_API VertexPtr _VertexArray_GetVertex(VertexArrayPtr array, int index) {
-        return &(*array)[index];
+        return new sf::Vertex((*array)[index]);
     }
 
     MOON_API void _VertexArray_RemoveVertex(VertexArrayPtr array, int index) {
@@ -1748,6 +1748,7 @@ extern "C" {
 #include <SFML/Window/Cursor.hpp>
 
 
+#include "SFML/Window/WindowHandle.hpp"
 #include "string"
 
 #ifdef _WIN32
@@ -1865,6 +1866,15 @@ extern "C" {
     MOON_API void _Window_SetTitle(WindowPtr window, const char* title) {
         std::string std_str(title);
         window->setTitle(sf::String::fromUtf8(std_str.begin(), std_str.end()));
+    }
+
+    // Проверка, имеет ли окно фокус
+    MOON_API bool _Window_HasFocus(WindowPtr window) {
+        return window->hasFocus();
+    }
+
+    MOON_API sf::WindowHandle _Window_GetHandle(WindowPtr window) {
+        return window->getSystemHandle();
     }
 
     // Включение/выключение вертикальной синхронизации

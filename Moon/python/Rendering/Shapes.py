@@ -2222,6 +2222,7 @@ class CircleShape:
 CIRCLE_SHAPE:           Final[CircleShape]      = CircleShape(30)
 RECTANGLE_SHAPE:        Final[RectangleShape]   = RectangleShape(100, 100)
 
+@final
 class Polyline:
     def __init__(self):
         self.__vertex_list = VertexList()
@@ -2260,7 +2261,7 @@ class Polyline:
 # Это удобно для стандартных, преднастроенных форм, которые можно переиспользовать.
 POLYLINE_SHAPE:         Final[Polyline]         = Polyline()
 
-
+@final
 class LineShape:
     def __init__(self):
         self.__vertex_array = VertexList()
@@ -2299,3 +2300,50 @@ class LineShape:
 
     def get_ptr(self) -> ctypes.c_void_p:
         return self.__vertex_array.get_ptr()
+
+LINE_SHAPE:             Final[LineShape]        = LineShape()
+
+class LineRect:
+    def __init__(self, pos: Vector2Type, size: Vector2Type):
+
+        self.__position = pos
+        self.__size = size
+
+
+        self.__vertex_array = VertexList(4)
+        self.__vertex_array.set_primitive_type(VertexListTypes.LineStrip)
+        self.__vertex_array.auto_append(Vertex2d().FromPosition(pos))
+        self.__vertex_array.auto_append(Vertex2d().FromPosition(Vector2f(pos.x + size.x, pos.y)))
+        self.__vertex_array.auto_append(Vertex2d().FromPosition(pos + size))
+        self.__vertex_array.auto_append(Vertex2d().FromPosition(Vector2f(pos.x, pos.y + size.y)))
+
+        self.__color = None
+
+    def _reconstruct_all_vertex(self):
+        self.__vertex_array.get(0).position = self.__position
+        self.__vertex_array.get(1).position = Vector2f(self.__position.x + self.__size.x, self.__position.y)
+        self.__vertex_array.get(2).position = self.__position + self.__size
+        self.__vertex_array.get(3).position = Vector2f(self.__position.x, self.__position.y + self.__size.y)
+
+    def get_ptr(self) -> ctypes.c_void_p:
+        return self.__vertex_array.get_ptr()
+
+    def set_outline_color(self, color: Color) -> Self:
+        self.__color = color
+        self.__vertex_array.set_color(color)
+        return self
+
+    def get_outline_color(self) -> Color | None:
+        return self.__color
+
+    def set_position(self, pos: Vector2Type) -> Self:
+        if pos != self.__position:
+            self.__position = pos
+            self._reconstruct_all_vertex()
+        return self
+
+    def set_size(self, size: Vector2Type) -> Self:
+        if self.__size != size:
+            self.__size = size
+            self._reconstruct_all_vertex()
+        return self

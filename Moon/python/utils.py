@@ -39,7 +39,7 @@ def find_library() -> str:
     # Поиск по указанным путям
     for lib_path in possible_paths:
         if os.path.exists(lib_path):
-            print(f"[ {Fore.GREEN}succes{Fore.RESET} ] Library {Fore.BLUE}{caller_filename}{Fore.RESET} found at: {Fore.YELLOW}'{lib_path}'{Fore.RESET}")
+            print(f"[ {Fore.CYAN}LibLoader{Fore.RESET} ] Library {Fore.BLUE}{caller_filename}{Fore.RESET} found at: {Fore.YELLOW}'{lib_path}'{Fore.RESET}")
             return lib_path
 
     # Если не найдено по указанным путям, ищем в директории установки модуля
@@ -142,7 +142,7 @@ def recursive_find_library(start_dir: str, caller_filename: str, max_depth: int 
             for file in files:
                 if file in target_names:
                     found_path = os.path.join(root, file)
-                    print(f"[ {Fore.GREEN}succes{Fore.RESET} ] Library found recursively at: {found_path}")
+                    print(f"[ {Fore.CYAN}LibLoader{Fore.RESET} ] Library found recursively at: {found_path}")
                     return found_path
 
         # Если на этой глубине не найдено, продолжаем поиск на следующей глубине
