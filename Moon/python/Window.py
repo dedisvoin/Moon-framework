@@ -584,11 +584,13 @@ def get_max_displays_refresh_rate() -> int:
         # Выводим информацию
         print(f"[ {Fore.CYAN}WindowAPI{Fore.RESET} ] Use current screen: {Fore.BLACK}{current_width}x{current_height}{Fore.RESET} @ {Fore.BLACK}{current_refresh_rate}Hz{Fore.RESET}")
         print(f'[ {Fore.BLACK}Note{Fore.RESET} ] {Fore.BLACK}Use `FPS_VSYNC_CONST` for screen max refresh rate{Fore.RESET}')
+        print()
         return max_refresh_rate
 
     except Exception as e:
         print(f"[ {Fore.CYAN}WindowAPI{Fore.RESET} ] [ {Fore.RED}ERROR{Fore.RESET} ] Failed to get display info: {e}")
         print(f"[ {Fore.CYAN}WindowAPI{Fore.RESET} ] [ {Fore.YELLOW}WARNING{Fore.RESET} ] FPS will be capped at 60")
+        print()
         return 60
 
 # Константа для обозначения неограниченного FPS (представляется большим числом) = +
@@ -944,6 +946,8 @@ class Window:
             width, height = get_screen_resolution() # Получаем максимальное разрешение экрана монитора
             style = Window.Style.No # Переключаем на режим без ничего
 
+        self.__style = style
+
         # Используем переданные настройки или создаем новые по умолчанию
         temp_context_settings: ctypes.c_void_p | None = None
         if context_settings is None:
@@ -1086,6 +1090,15 @@ class Window:
                         raise RuntimeError("App Icon path not found")
                 except:
                     raise RuntimeError("App Icon path not found")
+                
+        if sys.platform == 'win32':
+            print(f'[ {Fore.CYAN}WindowAPI{Fore.RESET} ] [ {Fore.GREEN}succes{Fore.RESET} ] Window created')
+            print(f'    descriptor addr: {Fore.BLACK}{self.__window_descriptor}{Fore.RESET}')
+            print(f'    title: {Fore.YELLOW}"{self.__title}"{Fore.RESET}')
+            print(f"    size: {Fore.BLACK}{self.__width}x{self.__height}{Fore.RESET}")
+            print(f'    style: {Fore.BLACK}{self.__style}{Fore.RESET}')
+            print()
+            
 
     def get_handle(self) -> int:
         """

@@ -1,6 +1,6 @@
 import time
 import itertools
-from threading import Thread
+from threading import Thread, Lock, Semaphore
 from typing import Any, Callable, Self
 
 """
