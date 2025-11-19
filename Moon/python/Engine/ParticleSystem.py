@@ -9,7 +9,7 @@ import random
 import math
 
 def CREATE_CIRCLE_TEXTURE(resolution: int = 100, approximation: int = 60) -> RenderTexture:
-    texture = RenderTexture().create(resolution, resolution)
+    texture = RenderTexture().Init(resolution, resolution)
     texture.clear(COLOR_TRANSPARENT)
     circle = CircleShape(approximation)
 
@@ -22,7 +22,7 @@ def CREATE_CIRCLE_TEXTURE(resolution: int = 100, approximation: int = 60) -> Ren
     return texture
 
 def CREATE_RECTANGLE_TEXTURE(resolution: int = 100) -> RenderTexture:
-    texture = RenderTexture().create(resolution, resolution)
+    texture = RenderTexture().Init(resolution, resolution)
     texture.clear(COLOR_TRANSPARENT)
     rect = RectangleShape(resolution, resolution)
     rect.set_position(0, 0)
@@ -32,7 +32,7 @@ def CREATE_RECTANGLE_TEXTURE(resolution: int = 100) -> RenderTexture:
     return texture
 
 def CREATE_LIGHT_TEXTURE(resolution: int = 100, layers: int = 20, approximation: int = 30) -> RenderTexture:
-    texture = RenderTexture().create(resolution, resolution)
+    texture = RenderTexture().Init(resolution, resolution)
     texture.clear(COLOR_TRANSPARENT)
     
     center = resolution / 2
@@ -59,7 +59,7 @@ TEXTURE_LIGHT_CIRCLE = CREATE_LIGHT_TEXTURE(approximation=30, resolution=100, la
 
 class ParticleTextureAtlas:
     def __init__(self):
-        self.__texture = RenderTexture().create(1, 1)
+        self.__texture = RenderTexture().Init(1, 1)
         self.__height = 0
         self.__width = 0
         self.__first_init = True
@@ -78,7 +78,7 @@ class ParticleTextureAtlas:
         self.__width += texture_size[0]
 
         # Создаем новый атлас
-        self.__texture = RenderTexture().create(self.__width, self.__height)
+        self.__texture = RenderTexture().Init(self.__width, self.__height)
         self.__texture.clear(COLOR_TRANSPARENT)
         
         # Перерисовываем старый атлас на новый

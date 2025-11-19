@@ -7,3 +7,4 @@ imageio == 2.37.0
 mouse == 0.7.1
 tripy == 1.0.0
 typing_extensions == 4.15.0
+psutil

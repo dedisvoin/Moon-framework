@@ -69,6 +69,8 @@ class RenderTexture(object):
     def __init__(self) -> None:
         self.__ptr = LIB_MOON._RenderTexture_Init()
 
+        self.__size: None | Vector2i = None
+
     def __del__(self):
         LIB_MOON._RenderTexture_Delete(self.__ptr)
 
@@ -93,7 +95,10 @@ class RenderTexture(object):
         """
         LIB_MOON._RenderTexture_SetSmooth(self.__ptr, smooth)
 
-    def create(self, width: int, height: int, arg: None | ContextSettingsPtr = None) -> Self:
+    def get_size(self) -> Vector2i | None:
+        return self.__size
+
+    def Init(self, width: int, height: int, arg: None | ContextSettingsPtr = None) -> Self:
         """
         #### Create a new render texture.
 
@@ -104,6 +109,7 @@ class RenderTexture(object):
             height (int): The height of the render texture.
             arg (ContextSettingsPtr, optional): The context settings for the render texture. Defaults to None.
         """
+        self.__size = Vector2i(width, height)
         if arg is None:
             LIB_MOON._RenderTexture_Create(self.__ptr, width, height)
         else:

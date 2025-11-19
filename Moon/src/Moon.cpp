@@ -500,8 +500,12 @@ extern "C" {
 #include "SFML/Graphics/Texture.hpp"
 
 #include "SFML/Graphics/Glsl.hpp"
+#include "SFML/OpenGL.hpp"
 
 #include <cstddef>
+#include <gl/GL.h>
+#include <variant>
+
 
 #include "string"
 
@@ -601,9 +605,60 @@ extern "C" {
 extern "C" {
     typedef sf::Shader* ShaderPtr;
 
+    MOON_API const char* _Glsl_GetVersion() {
+        static char version[128] = {0};
+        const char* gl_version = (const char*)glGetString(GL_VERSION);
+        
+        if (gl_version) {
+            strncpy(version, gl_version, sizeof(version) - 1);
+            version[sizeof(version) - 1] = '\0';
+        } else {
+            strcpy(version, "noinit");
+        }
+        
+        return version;
+    }
+
+    MOON_API const char* _Glsl_GetVendor() {
+        static char version[128] = {0};
+        const char* gl_version = (const char*)glGetString(GL_VENDOR);
+        
+        if (gl_version) {
+            strncpy(version, gl_version, sizeof(version) - 1);
+            version[sizeof(version) - 1] = '\0';
+        } else {
+            strcpy(version, "noinit");
+        }
+        
+        return version;
+    }
+
+    MOON_API const char* _Glsl_GetRenderer() {
+        static char version[128] = {0};
+        const char* gl_version = (const char*)glGetString(GL_RENDERER);
+        
+        if (gl_version) {
+            strncpy(version, gl_version, sizeof(version) - 1);
+            version[sizeof(version) - 1] = '\0';
+        } else {
+            strcpy(version, "noinit");
+        }
+        
+        return version;
+    }
+
     // Создание нового объекта шейдера
     MOON_API ShaderPtr _Shader_Create() {
+        
         return new sf::Shader();
+    }
+
+    MOON_API void _Shader_Delete(ShaderPtr shader) {
+        delete shader;
+    }
+
+    MOON_API bool _Shader_IsAvailable() {
+        return sf::Shader::isAvailable();
     }
 
     // ================================================================================
@@ -620,21 +675,13 @@ extern "C" {
         return shader->loadFromMemory(vertex_string, fragment_string);
     }
 
-    // Загрузка шейдера определенного типа из строки (вершинный, геометрический или фрагментный)
-    MOON_API bool _Shader_LoadFromStringWithType(ShaderPtr shader, char* shader_string, sf::Shader::Type type) {
-        if (type == 2) {
-            return shader->loadFromMemory(shader_string, sf::Shader::Fragment);
-        } else if (type == 1) {
-            return shader->loadFromMemory(shader_string, sf::Shader::Geometry);
-        } else if (type == 0) {
-            return shader->loadFromMemory(shader_string, sf::Shader::Vertex);
-        }
-        return false;
-    }
-
     // ================================================================================
     //                   НАСТРОЙКА УНИФОРМ (ПАРАМЕТРОВ ШЕЙДЕРОВ)
     // ================================================================================
+
+    MOON_API void _Shader_SetUniformFloatArray(ShaderPtr shader, char* name, float* values, size_t count) {
+        shader->setUniformArray(name, values, count);
+    }
 
     // Установка целочисленной униформы
     MOON_API void _Shader_SetUniformInt(ShaderPtr shader, char* name, int value) {
@@ -1873,6 +1920,7 @@ extern "C" {
         return window->hasFocus();
     }
 
+    // Получение хэндла окна
     MOON_API sf::WindowHandle _Window_GetHandle(WindowPtr window) {
         return window->getSystemHandle();
     }

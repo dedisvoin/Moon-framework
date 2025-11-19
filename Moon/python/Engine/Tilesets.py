@@ -260,7 +260,7 @@ def generate_tile_map_sprite(map: TileMap, accordance: TileSheetAccordances, til
     
     # Создаем текстуру рендеринга для всей карты
     render_texture = RenderTexture()
-    if not render_texture.create(map_width * tile_size[0], map_height * tile_size[1]):
+    if not render_texture.Init(map_width * tile_size[0], map_height * tile_size[1]):
         raise RuntimeError("Failed to create render texture for tile map")
     
     # Очищаем текстуру прозрачным цветом

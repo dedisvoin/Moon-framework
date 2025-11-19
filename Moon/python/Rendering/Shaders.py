@@ -3,34 +3,34 @@
 
 ---
 
-##### Версия: 1.1.8
+##### Версия: 1.1.9
 
 *Автор: Павлов Иван (Pavlov Ivan)*
 
 *Лицензия: MIT*
-##### Реализованно на 90% 
+##### Реализованно на 95% 
 
 ---
 
 ✓ Полноценная работа с шейдерами:
-  - Загрузка вершинных и фрагментных шейдеров
-  - Поддержка геометрических шейдеров
-  - Установка uniform переменных различных типов
+    - Загрузка вершинных и фрагментных шейдеров
+    - Поддержка геометрических шейдеров
+    - Установка uniform переменных различных типов
 
 ✓ Гибкая система загрузки:
-  - Загрузка из файлов (vertex/fragment)
-  - Загрузка из строк в коде
-  - Загрузка по типу шейдера
+    - Загрузка из файлов (vertex/fragment)
+    - Загрузка из строк в коде
+    - Загрузка по типу шейдера
 
 ✓ Расширенные возможности:
-  - Поддержка текстур в шейдерах
-  - Векторные и цветовые uniform'ы
-  - Интеграция с системой рендеринга
+    - Поддержка текстур в шейдерах
+    - Векторные и цветовые uniform'ы
+    - Интеграция с системой рендеринга
 
 ✓ Готовые интерфейсы:
-  - Shader - основной класс для работы с шейдерами
-  - Type - перечисление типов шейдеров
-  - Методы класса для быстрого создания
+    - Shader - основной класс для работы с шейдерами
+    - Type - перечисление типов шейдеров
+    - Методы класса для быстрого создания
 
 ---
 
@@ -70,15 +70,16 @@ Copyright (c) 2025 Pavlov Ivan
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
-
 import ctypes
 from enum import Enum
-
 import os
+from typing import Any
+from colorama import Fore
+
 from Moon.python.Vectors import Vector2f, Vector2i
 from Moon.python.Colors import Color
 
-from Moon.python.utils import find_library, LibraryLoadError
+from Moon.python.utils import find_library
 
 ##################################################################
 #                   `C / C++` Bindings                           #
@@ -88,20 +89,21 @@ from Moon.python.utils import find_library, LibraryLoadError
 
 # Загружаем DLL библиотеку
 try:
-    LIB_MOON = ctypes.CDLL(find_library())
+        LIB_MOON = ctypes.CDLL(find_library())
 except Exception as e:
-    raise ImportError(f"Failed to load PySGL library: {e}")
+        raise ImportError(f"Failed to load PySGL library: {e}")
 
-
-
+# Определения сигнатур функций из библиотеки PySGL
 LIB_MOON._Shader_Create.argtypes = None
 LIB_MOON._Shader_Create.restype = ctypes.c_void_p
+LIB_MOON._Shader_Delete.argtypes = [ctypes.c_void_p]
+LIB_MOON._Shader_Delete.restype = None
+LIB_MOON._Shader_IsAvailable.argtypes = None
+LIB_MOON._Shader_IsAvailable.restype = ctypes.c_bool
 LIB_MOON._Shader_LoadFromFile.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p]
 LIB_MOON._Shader_LoadFromFile.restype = ctypes.c_bool
 LIB_MOON._Shader_LoadFromStrings.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p]
 LIB_MOON._Shader_LoadFromStrings.restype = ctypes.c_bool
-LIB_MOON._Shader_LoadFromStringWithType.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
-LIB_MOON._Shader_LoadFromStringWithType.restype = ctypes.c_bool
 LIB_MOON._Shader_GetCurrentTexture.argtypes = None
 LIB_MOON._Shader_GetCurrentTexture.restype = ctypes.c_void_p
 
@@ -114,30 +116,45 @@ LIB_MOON._Shader_SetUniformFloatVector.argtypes = [ctypes.c_void_p, ctypes.c_cha
 LIB_MOON._Shader_SetUniformColor.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
 
 
-ShaderPtr = ctypes.c_void_p
 
-def get_current_texture() -> ctypes.c_void_p:
+def shaders_is_available() -> bool:
     """
-    #### Получает указатель на текущую активную текстуру
-    
+    #### Проверяет доступность шейдеров в окружении
+
     ---
-    
-    :Description:
-    - Возвращает указатель на текстуру, которая в данный момент привязана к OpenGL контексту
-    - Используется для передачи текущей текстуры в uniform переменные шейдера
-    - Полезно для создания эффектов постобработки
-    
+
+    :Return:
+    - bool - True, если нативная библиотека сообщает о поддержке шейдеров
+
     ---
-    
-    :Returns:
-    - ctypes.c_void_p: Указатель на активную текстуру
-    
-    ---
-    
+
     :Example:
     ```python
-    current_tex = get_current_texture()
-    shader.set_uniform("u_texture", current_tex)
+    if shaders_is_available():
+        print("Shaders supported")
+    ```
+    """
+    return LIB_MOON._Shader_IsAvailable()
+
+
+ShaderPtr = ctypes.c_void_p
+TexturePtr = ctypes.c_void_p
+
+
+def get_current_texture() -> TexturePtr:
+    """
+    #### Возвращает указатель на текущую активную текстуру
+
+    ---
+
+    :Return:
+    - TexturePtr - Указатель на текущую текстуру из нативной библиотеки
+
+    ---
+
+    :Example:
+    ```python
+    tex_ptr = get_current_texture()
     ```
     """
     return LIB_MOON._Shader_GetCurrentTexture()
@@ -145,449 +162,269 @@ def get_current_texture() -> ctypes.c_void_p:
 
 class Shader:
     """
-    #### Класс для работы с OpenGL шейдерами
-    
+    #### Обёртка для работы с шейдерами через PySGL.dll
+
+    Класс предоставляет методы для загрузки шейдеров (из файлов и строк)
+    и установки uniform-переменных различных типов.
+
     ---
-    
-    :Description:
-    - Обеспечивает загрузку, компиляцию и использование шейдеров
-    - Поддерживает вершинные, геометрические и фрагментные шейдеры
-    - Предоставляет удобный интерфейс для установки uniform переменных
-    
+
+    :Attributes:
+    - __ptr - Внутренний указатель на нативный объект шейдера
+    - __vertex_source - Код вершинного шейдера (строка)
+    - __fragment_source - Код фрагментного шейдера (строка)
+
     ---
-    
-    :Features:
-    - Загрузка шейдеров из файлов или строк
-    - Автоматическая компиляция и линковка
-    - Типобезопасная установка uniform переменных
-    - Поддержка текстур, векторов и цветов
+
+    :Example:
+    ```python
+    shader = Shader.LoadFromSources(vertex_code, fragment_code)
+    ```
     """
 
-    class Type(Enum):
-        """
-        #### Перечисление типов шейдеров
-        
-        ---
-        
-        :Values:
-        - VERTEX: Вершинный шейдер (обработка вершин)
-        - GEOMETRY: Геометрический шейдер (генерация геометрии)
-        - FRAGMENT: Фрагментный шейдер (обработка пикселей)
-        
-        ---
-        
-        :Note:
-        - Вершинный и фрагментный шейдеры обязательны
-        - Геометрический шейдер опционален
-        """
-        VERTEX = 0
-        GEOMETRY = 1
-        FRAGMENT = 2
+    class SOURCE_TYPE(Enum):
+            """Перечисление типов источников шейдера."""
+            VERTEX = 0
+            FRAGMENT = 1
 
     @classmethod
-    def FromString(cls, fragment: str, vertex: str) -> "Shader":
+    def LoadFromSources(self, vertex: str, fragment: str) -> "Shader | None":
+            """
+            #### Создаёт Shader и загружает шейдеры из строк с исходным кодом
+
+            ---
+
+            :Args:
+            - vertex - Строка с исходным кодом вершинного шейдера
+            - fragment - Строка с исходным кодом фрагментного шейдера
+
+            ---
+
+            :Return:
+            - Shader | None - Экземпляр Shader при успешной компиляции или None при ошибке
+
+            ---
+
+            :Example:
+            ```python
+            sh = Shader.LoadFromSources(vs_code, fs_code)
+            ```
+            """
+            shader = Shader()
+            shader._set_source(Shader.SOURCE_TYPE.VERTEX, vertex)
+            shader._set_source(Shader.SOURCE_TYPE.FRAGMENT, fragment)
+            result = shader._load_from_source()
+            if result:
+                    print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.GREEN}succes{Fore.RESET} ] Shader from sources loaded')
+                    return shader
+            else:
+                    print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Shader from sources not loaded')
+                    return None
+            
+    @classmethod
+    def LoadFromFiles(self, vertex_path: str, fragment_path: str) -> "Shader | None":
         """
-        #### Создает шейдер из строк с исходным кодом
-        
+        #### Загружает и компилирует шейдеры из файлов
+
         ---
-        
-        :Description:
-        - Создает новый объект шейдера и загружает в него код из строк
-        - Автоматически компилирует и линкует шейдерную программу
-        - Удобно для встроенных в код шейдеров
-        
-        ---
-        
+
         :Args:
-        - fragment (str): Исходный код фрагментного шейдера
-        - vertex (str): Исходный код вершинного шейдера
-        
+        - vertex_path - Путь к файлу вершинного шейдера
+        - fragment_path - Путь к файлу фрагментного шейдера
+
         ---
-        
-        :Returns:
-        - Shader: Готовый к использованию объект шейдера
-        
+
+        :Return:
+        - Shader | None - Экземпляр Shader при успешной компиляции или None при ошибке (в данном коде при неудаче выполняется exit)
+
         ---
-        
+
         :Example:
         ```python
-        vertex_code = 
-
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        void main() {
-            gl_Position = vec4(aPos, 1.0);
-        }
-        
-        
-        fragment_code = 
-
-        #version 330 core
-        out vec4 FragColor;
-        void main() {
-            FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-        
-        
-        shader = Shader.FromString(fragment_code, vertex_code)
+        sh = Shader.LoadFromFiles("vertex.glsl", "fragment.glsl")
         ```
         """
         shader = Shader()
-        shader.load_from_strings(fragment, vertex)
-        return shader
-    
-    @classmethod
-    def FromFile(cls, fragment_path: str, vertex_path: str) -> "Shader":
-        """
-        #### Создает шейдер из файлов
-        
-        ---
-        
-        :Description:
-        - Загружает исходный код шейдеров из указанных файлов
-        - Автоматически читает содержимое файлов и компилирует шейдеры
-        - Рекомендуемый способ для больших шейдерных программ
-        
-        ---
-        
-        :Args:
-        - fragment_path (str): Путь к файлу фрагментного шейдера (.frag)
-        - vertex_path (str): Путь к файлу вершинного шейдера (.vert)
-        
-        ---
-        
-        :Returns:
-        - Shader: Готовый к использованию объект шейдера
-        
-        ---
-        
-        :Raises:
-        - FileNotFoundError: Если один из файлов не найден
-        - IOError: При ошибке чтения файлов
-        
-        ---
-        
-        :Example:
-        ```python
-        shader = Shader.FromFile("shaders/basic.frag", "shaders/basic.vert")
-        ```
-        """
-        shader = Shader()
-        shader.load_from_files(fragment_path, vertex_path)
-        return shader
-    
-    @classmethod
-    def FromType(cls, type: Type, source: str) -> "Shader":
-        """
-        #### Создает шейдер определенного типа из строки
-        
-        ---
-        
-        :Description:
-        - Загружает шейдер конкретного типа (вершинный, геометрический или фрагментный)
-        - Полезно для загрузки отдельных шейдеров или compute шейдеров
-        - Выводит сообщение о результате загрузки
-        
-        ---
-        
-        :Args:
-        - type (Type): Тип шейдера из перечисления Shader.Type
-        - source (str): Исходный код шейдера
-        
-        ---
-        
-        :Returns:
-        - Shader: Объект шейдера (может быть неполным)
-        
-        ---
-        
-        :Example:
-        ```python
-        compute_code = 
-
-        #version 430
-        layout(local_size_x = 1, local_size_y = 1) in;
-        void main() {
-            // compute shader logic
-        }
-        
-        
-        shader = Shader.FromType(Shader.Type.FRAGMENT, compute_code)
-        ```
-        """
-        shader = Shader()
-        if shader.load_from_type(type, source):
-            print("Shader loaded!")
+        print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.YELLOW}info{Fore.RESET} ] Loading shader from source files...')
+        if os.path.exists(vertex_path):
+            print(f'  {Fore.GREEN}+{Fore.RESET} Vertex Path: {Fore.LIGHTMAGENTA_EX}{vertex_path}{Fore.RESET}')
         else:
-            print("Shader not loaded!")
-        return shader
+            print(f'  {Fore.RED}-{Fore.RESET} Vertex Path not found: {Fore.LIGHTMAGENTA_EX}{vertex_path}{Fore.RESET}')
+        
+        if os.path.exists(fragment_path):
+            print(f'  {Fore.GREEN}+{Fore.RESET} Fragment Path: {Fore.LIGHTMAGENTA_EX}{fragment_path}{Fore.RESET}')
+        else:
+            print(f'  {Fore.RED}-{Fore.RESET} Fragment Path not found: {Fore.LIGHTMAGENTA_EX}{fragment_path}{Fore.RESET}')
+        
+        print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.YELLOW}info{Fore.RESET} ] Compiling shader...')
+
+        result = LIB_MOON._Shader_LoadFromFile(shader.get_ptr(), vertex_path.encode('utf-8'), fragment_path.encode('utf-8'))
+        if result:
+            print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.GREEN}succes{Fore.RESET} ] Shader compiled successfully')
+            return shader
+        else:
+            print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Shader compilation failed')
+            exit(-1)
+            return None
 
     def __init__(self):
         """
-        #### Инициализация объекта шейдера
-        
-        ---
-        
-        :Description:
-        - Создает пустой объект шейдера с нативным указателем
-        - Инициализирует внутренние переменные для хранения данных
-        - Шейдер готов к загрузке исходного кода
-        
-        ---
-        
-        :Note:
-        - После создания необходимо загрузить шейдерный код
-        - Используйте методы load_from_* или FromString/FromFile
-        """
-        self._ptr: ShaderPtr | None = LIB_MOON._Shader_Create()
-        self.__fragment_data: str = ""
-        self.__vertex_data: str = ""
+        #### Инициализация объекта Shader
 
-        self.__fragment_path: str | None = None
-        self.__vertex_path: str | None =  None
+        Создаёт внутренний нативный объект шейдера и инициализирует строки исходников.
 
-    def set_uniform(self, name: str, value: int | float | bool | Vector2i | Vector2f | Color | ctypes.c_void_p) -> "Shader":
-        """
-        #### Устанавливает значение uniform переменной в шейдере
-        
         ---
-        
-        :Description:
-        - Передает данные из Python кода в шейдерную программу
-        - Автоматически определяет тип данных и вызывает соответствующую функцию
-        - Поддерживает все основные типы данных OpenGL
-        
+
+        :Return:
+        - None
+
         ---
-        
-        :Args:
-        - name (str): Имя uniform переменной в шейдере
-        - value: Значение для установки (поддерживаемые типы ниже)
-        
-        ---
-        
-        :Supported Types:
-        - int: Целое число (uniform int)
-        - float: Дробное число (uniform float)
-        - bool: Логическое значение (uniform bool)
-        - Vector2i: Вектор из двух целых чисел (uniform ivec2)
-        - Vector2f: Вектор из двух дробных чисел (uniform vec2)
-        - Color: Цвет RGBA (uniform vec4)
-        - ctypes.c_void_p: Указатель на текстуру (uniform sampler2D)
-        
-        ---
-        
-        :Returns:
-        - Shader: Возвращает self для цепочки вызовов
-        
-        ---
-        
-        :Raises:
-        - TypeError: При передаче неподдерживаемого типа данных
-        
-        ---
-        
+
         :Example:
         ```python
-        # Установка различных типов uniform переменных
-        shader.set_uniform("u_time", 1.5)  # float
-        shader.set_uniform("u_resolution", Vector2f(800, 600))  # vec2
-        shader.set_uniform("u_color", Color(255, 0, 0))  # vec4
-        shader.set_uniform("u_texture", texture_ptr)  # sampler2D
-        shader.set_uniform("u_enabled", True)  # bool
+        shader = Shader()
         ```
         """
-        if isinstance(value, bool):
-            LIB_MOON._Shader_SetUniformBool(self._ptr, name.encode('utf-8'), value)
-        elif isinstance(value, int):
-            LIB_MOON._Shader_SetUniformInt(self._ptr, name.encode('utf-8'), value)
-        elif isinstance(value, float):
-            LIB_MOON._Shader_SetUniformFloat(self._ptr, name.encode('utf-8'), value)
-        elif isinstance(value, ctypes.c_void_p):
-            LIB_MOON._Shader_SetUniformTexture(self._ptr, name.encode('utf-8'), value)
-        elif isinstance(value, Vector2f):
-            LIB_MOON._Shader_SetUniformFloatVector(self._ptr, name.encode('utf-8'), float(value.x), float(value.y))
-        elif isinstance(value, Vector2i):
-            LIB_MOON._Shader_SetUniformIntVector(self._ptr, name.encode('utf-8'), int(value.x), int(value.y))
-        elif isinstance(value, Color):
-            LIB_MOON._Shader_SetUniformColor(self._ptr, name.encode('utf-8'), int(value.r), int(value.g), int(value.b), int(value.a))
-        else:
-            raise TypeError("Invalid uniform type.")
-        
-        return self
+        self.__ptr = LIB_MOON._Shader_Create()
+
+        self.__vertex_source = ""
+        self.__fragment_source = ""
+
+    def _set_source(self, source_type: SOURCE_TYPE, source: str):
+        """
+        #### Устанавливает исходный код для указанного типа шейдера
+
+        ---
+
+        :Args:
+        - source_type - SOURCE_TYPE.VERTEX или SOURCE_TYPE.FRAGMENT
+        - source - Строка с исходным кодом шейдера
+
+        ---
+
+        :Return:
+        - None
+
+        ---
+
+        :Example:
+        ```python
+        shader._set_source(Shader.SOURCE_TYPE.VERTEX, vertex_code)
+        ```
+        """
+        if source_type == Shader.SOURCE_TYPE.FRAGMENT:
+                self.__fragment_source = source
+        if source_type == Shader.SOURCE_TYPE.VERTEX:
+                self.__vertex_source = source
+
+    def _load_from_source(self):
+        """
+        #### Компилирует шейдеры из установленных строк исходников
+
+        Отправляет vertex и fragment source в нативную библиотеку для компиляции.
+
+        ---
+
+        :Return:
+        - bool - True при успешной компиляции, False при ошибке
+
+        ---
+
+        :Example:
+        ```python
+        success = shader._load_from_source()
+        ```
+        """
+        return LIB_MOON._Shader_LoadFromStrings(self.__ptr, self.__vertex_source.encode('utf-8'),
+                                                            self.__fragment_source.encode('utf-8'))
 
     def get_ptr(self) -> ShaderPtr:
         """
-        #### Возвращает указатель на нативный объект шейдера
-        
-        ---
-        
-        :Description:
-        - Предоставляет доступ к внутреннему указателю для системы рендеринга
-        - Используется методом Window.draw() для применения шейдера
-        - Не предназначен для прямого использования пользователем
-        
-        ---
-        
-        :Returns:
-        - ShaderPtr: Указатель на нативный объект шейдера
-        """
-        return self._ptr
+        #### Возвращает внутренний указатель на нативный объект шейдера
 
-    def set_ptr(self, ptr: ShaderPtr) -> "Shader":
-        """
-        #### Устанавливает указатель на нативный объект шейдера
-        
         ---
-        
-        :Description:
-        - Позволяет заменить внутренний указатель на другой
-        - Используется для продвинутых сценариев работы с шейдерами
-        - Будьте осторожны при использовании этого метода
-        
+
+        :Return:
+        - ShaderPtr - Указатель на нативный объект шейдера
+
         ---
-        
-        :Args:
-        - ptr (ShaderPtr): Новый указатель на нативный объект
-        
-        ---
-        
-        :Returns:
-        - Shader: Возвращает self для цепочки вызовов
-        
-        ---
-        
-        :Warning:
-        - Неправильное использование может привести к ошибкам
-        - Убедитесь, что указатель валиден
-        """
-        self._ptr = ptr
-        return self
-    
-    def load_from_type(self, type: Type, source: str) -> bool:
-        """
-        #### Загружает шейдер определенного типа из строки
-        
-        ---
-        
-        :Description:
-        - Компилирует шейдер указанного типа из исходного кода
-        - Полезно для загрузки отдельных компонентов шейдерной программы
-        - Возвращает результат компиляции
-        
-        ---
-        
-        :Args:
-        - type (Type): Тип шейдера (VERTEX, GEOMETRY, FRAGMENT)
-        - source (str): Исходный код шейдера на GLSL
-        
-        ---
-        
-        :Returns:
-        - bool: True если компиляция успешна, False при ошибке
-        
-        ---
-        
+
         :Example:
         ```python
-        vertex_code = 
-
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        void main() {
-            gl_Position = vec4(aPos, 1.0);
-        }
-        
-        
-        success = shader.load_from_type(Shader.Type.VERTEX, vertex_code)
-        if not success:
-            print("Ошибка компиляции вершинного шейдера")
+        ptr = shader.get_ptr()
         ```
         """
-        return LIB_MOON._Shader_LoadFromStringWithType(self._ptr, source.encode('utf-8'), type.value)
+        return self.__ptr
     
-    def load_from_strings(self, fragment: str, vertex: str) -> "Shader":
+    def __del__(self):
         """
-        #### Загружает шейдерную программу из строк с исходным кодом
-        
+        #### Уничтожение объекта Shader и освобождение нативного ресурса
+
         ---
-        
-        :Description:
-        - Компилирует и линкует полную шейдерную программу из двух строк
-        - Сохраняет исходный код во внутренних переменных для отладки
-        - Автоматически создает готовую к использованию шейдерную программу
-        
+
+        :Return:
+        - None
+
         ---
-        
-        :Args:
-        - fragment (str): Исходный код фрагментного шейдера
-        - vertex (str): Исходный код вершинного шейдера
-        
-        ---
-        
-        :Returns:
-        - Shader: Возвращает self для цепочки вызовов
-        
-        ---
-        
+
         :Example:
         ```python
-        shader = Shader()
-        shader.load_from_strings(fragment_code, vertex_code)
-        
-        # Или через цепочку вызовов
-        shader = Shader().load_from_strings(fragment_code, vertex_code)
+        del shader
         ```
         """
-        self.__fragment_data = fragment
-        self.__vertex_data = vertex
-        LIB_MOON._Shader_LoadFromStrings(self._ptr, self.__vertex_data.encode('utf-8'), self.__fragment_data.encode('utf-8'))
-        return self
-
-    def load_from_files(self, fragment_path: str, vertex_path: str) -> "Shader":
+        LIB_MOON._Shader_Delete(self.__ptr)
+    
+    def set_uniform(self, name: str, arg: Any):
         """
-        #### Загружает шейдерную программу из файлов
-        
+        #### Устанавливает uniform-переменную в шейдере по имени
+
+        Поддерживаемые типы:
+        - int
+        - float
+        - bool
+        - Texture / RenderTexture (через get_ptr)
+        - Vector2f / Vector2i
+        - Color
+
         ---
-        
-        :Description:
-        - Читает исходный код шейдеров из указанных файлов
-        - Сохраняет пути к файлам и содержимое для отладки
-        - Компилирует и линкует полную шейдерную программу
-        
-        ---
-        
+
         :Args:
-        - fragment_path (str): Путь к файлу фрагментного шейдера
-        - vertex_path (str): Путь к файлу вершинного шейдера
-        
+        - name - Имя uniform-переменной в шейдере
+        - arg - Значение или объект для установки (поддерживаемые типы см. выше)
+
         ---
-        
-        :Returns:
-        - Shader: Возвращает self для цепочки вызовов
-        
+
+        :Return:
+        - None
+
         ---
-        
+
         :Raises:
-        - FileNotFoundError: Если один из файлов не найден
-        - IOError: При ошибке чтения файлов
-        - UnicodeDecodeError: При проблемах с кодировкой файлов
-        
+        - TypeError: Если тип arg не поддерживается
+
         ---
-        
+
         :Example:
         ```python
-        shader = Shader()
-        shader.load_from_files("shaders/basic.frag", "shaders/basic.vert")
-        
-        # Проверка загруженных путей
-        print(f"Fragment: {shader._Shader__fragment_path}")
-        print(f"Vertex: {shader._Shader__vertex_path}")
+        shader.set_uniform("u_time", 1.23)
+        shader.set_uniform("u_color", Color(255,0,0))
         ```
         """
-        self.__fragment_path = fragment_path
-        self.__vertex_path = vertex_path
-        self.__fragment_data = open(self.__fragment_path, 'r').read()
-        self.__vertex_data = open(self.__vertex_path, 'r').read()
-        LIB_MOON._Shader_LoadFromFile(self._ptr, self.__vertex_path.encode('utf-8'), self.__fragment_path.encode('utf-8'))
-        return self
-    
+        if isinstance(arg, int):
+            LIB_MOON._Shader_SetUniformInt(self.__ptr, name.encode('utf-8'), arg)
+        elif isinstance(arg, float):
+            LIB_MOON._Shader_SetUniformFloat(self.__ptr, name.encode('utf-8'), arg)
+        elif isinstance(arg, bool):
+            LIB_MOON._Shader_SetUniformBool(self.__ptr, name.encode('utf-8'), arg)
+        elif arg.__class__.__name__ == 'Texture':
+            LIB_MOON._Shader_SetUniformTexture(self.__ptr, name.encode('utf-8'), arg.get_ptr())
+        elif arg.__class__.__name__ == 'RenderTexture':
+            LIB_MOON._Shader_SetUniformTexture(self.__ptr, name.encode('utf-8'), arg.get_ptr())
+        elif isinstance(arg, Vector2f):
+            LIB_MOON._Shader_SetUniformFloatVector(self.__ptr, name.encode('utf-8'), arg.x, arg.y)
+        elif isinstance(arg, Vector2i):
+            LIB_MOON._Shader_SetUniformFloatVector(self.__ptr, name.encode('utf-8'), arg.x, arg.y)
+        elif isinstance(arg, Color):
+            LIB_MOON._Shader_SetUniformFloatVector(self.__ptr, name.encode('utf-8'), arg.r, arg.g, arg.b, arg.a)
+        else:
+            raise TypeError(f'Unsupported uniform type: {type(arg)}')

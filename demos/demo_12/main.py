@@ -23,7 +23,7 @@ def create_image(resolution: int = 256, index: int = 0):
     circle.set_radius(random.randint(20, 100))
     circle.set_position(random.randint(0, resolution), random.randint(0, resolution))
 
-    render_texture = RenderTexture().create(resolution, resolution)
+    render_texture = RenderTexture().Init(resolution, resolution)
     render_texture.clear()
     render_texture.draw(circle)
     render_texture.display()
