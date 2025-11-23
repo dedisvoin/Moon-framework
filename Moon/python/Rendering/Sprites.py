@@ -65,7 +65,7 @@ LIB_MOON._RenderTexture_SetSmooth.argtypes = [RenderTexturePtr, ctypes.c_bool]
 LIB_MOON._RenderTexture_SetSmooth.restype = None
 
 
-class RenderTexture(object):
+class RenderTexture2D(object):
     def __init__(self) -> None:
         self.__ptr = LIB_MOON._RenderTexture_Init()
 
@@ -74,24 +74,24 @@ class RenderTexture(object):
     def __del__(self):
         LIB_MOON._RenderTexture_Delete(self.__ptr)
 
-    def __eq__(self, other: "object | RenderTexture") -> bool:
-        if isinstance(other, RenderTexture):
+    def __eq__(self, other: "object | RenderTexture2D") -> bool:
+        if isinstance(other, RenderTexture2D):
             return self.__ptr == other.get_ptr()
         return False
 
-    def __ne__(self, other: "object | RenderTexture") -> bool:
-        if isinstance(other, RenderTexture):
+    def __ne__(self, other: "object | RenderTexture2D") -> bool:
+        if isinstance(other, RenderTexture2D):
             return not self.__eq__(other)
         return True
 
     def set_smooth(self, smooth: bool = True) -> None:
         """
-        #### Set the smoothness of the render texture.
+        #### Устанавливает сглаживание для рендер-текстуры.
 
         ---
 
         :Args:
-            smooth (bool): Whether the render texture should be smooth.
+            smooth (bool): Включить/выключить сглаживание.
         """
         LIB_MOON._RenderTexture_SetSmooth(self.__ptr, smooth)
 
@@ -100,14 +100,14 @@ class RenderTexture(object):
 
     def Init(self, width: int, height: int, arg: None | ContextSettingsPtr = None) -> Self:
         """
-        #### Create a new render texture.
+        #### Создаёт рендер-текстуру.
 
         ---
 
         :Args:
-            width (int): The width of the render texture.
-            height (int): The height of the render texture.
-            arg (ContextSettingsPtr, optional): The context settings for the render texture. Defaults to None.
+            width (int): Ширина текстуры.
+            height (int): Высота текстуры.
+            arg (ContextSettingsPtr, optional): Контекстные настройки. По умолчанию None.
         """
         self.__size = Vector2i(width, height)
         if arg is None:
@@ -169,31 +169,31 @@ class RenderTexture(object):
 
     def get_ptr(self) -> RenderTexturePtr:
         """
-        #### Get the pointer to the render texture.
+        #### Возвращает указатель на рендер-текстуру.
 
         ---
 
         :Returns:
-            RenderTexturePtr: The pointer to the render texture.
+            RenderTexturePtr: Указатель на нативную рендер-текстуру.
         """
         return self.__ptr
 
 
     def clear(self, color: Color = COLOR_WHITE) -> None:
         """
-        #### Clear the render texture with the specified color.
+        #### Очищает рендер-текстуру указанным цветом.
 
         ---
 
         :Args:
-            color (Color, optional): The color to clear the render texture with. Defaults to COLOR_WHITE.
+            color (Color, optional): Цвет очистки. По умолчанию COLOR_WHITE.
         """
         LIB_MOON._RenderTexture_Clear(self.__ptr, color.r, color.g, color.b, color.a)
 
 
     def display(self) -> None:
         """
-        #### Display the render texture on the screen.
+        #### Отображает содержимое рендер-текстуры (завершает отрисовку).
 
         ---
 
@@ -205,42 +205,42 @@ class RenderTexture(object):
 
     def get_view_ptr(self) -> ViewPtr:
         """
-        #### Get the view of the render texture.
+        #### Возвращает текущий вид (View) рендер-текстуры.
 
         ---
 
         :Returns:
-            ViewPtr: The view of the render texture.
+            ViewPtr: Указатель на View.
         """
         return LIB_MOON._RenderTexture_GetView(self.__ptr)
 
 
     def get_default_view_ptr(self) -> ViewPtr:
         """
-        #### Get the default view of the render texture.
+        #### Возвращает дефолтный вид (Default View) рендер-текстуры.
 
         ---
 
         :Returns:
-            ViewPtr: The default view of the render texture.
+            ViewPtr: Указатель на дефолтный View.
         """
         return LIB_MOON._RenderTexture_GetDefaultView(self.__ptr)
 
 
     def get_texture_ptr(self) -> TexturePtr:
         """
-        #### Get the texture of the render texture.
+        #### Возвращает указатель на текстуру, связанную с рендер-текстурой.
 
         ---
 
         :Returns:
-            TexturePtr: The texture of the render texture.
+            TexturePtr: Указатель на Texture.
         """
         return LIB_MOON._RenderTexture_GetTexture(self.__ptr)
 
-    def get_texture(self) -> "Texture":
+    def get_texture(self) -> "Texture2D":
         texture_ptr = self.get_texture_ptr()
-        texture = Texture()
+        texture = Texture2D()
         texture.load_from_ptr(texture_ptr)
         return texture
 
@@ -279,7 +279,7 @@ LIB_MOON._Texture_Swap.restype = None
 LIB_MOON._Texture_SubTexture.argtypes = [TexturePtr, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
 LIB_MOON._Texture_SubTexture.restype = TexturePtr
 
-class Texture(object):
+class Texture2D(object):
     """
     Represents a texture resource managed by the Moon framework.
     Attributes:
@@ -296,7 +296,7 @@ class Texture(object):
 
     def __eq__(self, other: object) -> bool:
         # Compare two Texture objects for equality
-        if not isinstance(other, Texture):
+        if not isinstance(other, Texture2D):
             return False
         return self.__ptr == other.__ptr
 
@@ -314,61 +314,154 @@ class Texture(object):
         return self.__ptr
 
     def is_init(self) -> bool:
-        # Check if the texture object is initialized
+        """
+        #### Проверяет, инициализирован ли объект текстуры.
+
+        ---
+
+        :Returns:
+            bool: True, если указатель на нативную текстуру не пустой.
+        """
         if self.__ptr != 0 or self.__ptr != None: return True
         return False
 
     def get_max_size(self) -> int:
-        # Get the maximum supported texture size
+        """
+        #### Возвращает максимально поддерживаемый размер текстур.
+
+        ---
+
+        :Returns:
+            int: Максимальный размер стороны текстуры (в пикселях).
+        """
         return LIB_MOON._Texture_GetMaximumSize(self.__ptr)
 
     def get_size(self) -> Vector2i:
-        # Get the size of the texture as a Vector2i
+        """
+        #### Возвращает размер текстуры.
+
+        ---
+
+        :Returns:
+            Vector2i: Размер текстуры (ширина, высота).
+        """
         return Vector2i(
             LIB_MOON._Texture_GetSizeX(self.__ptr),
             LIB_MOON._Texture_GetSizeY(self.__ptr)
         )
 
     def set_repeat(self, value: bool = True) -> Self:
-        # Set whether the texture should repeat when drawn outside its bounds
+        """
+        #### Устанавливает режим повторения текстуры (tiling).
+
+        ---
+
+        :Args:
+            value (bool): Включить/выключить повторение. По умолчанию True.
+        """
         LIB_MOON._Texture_SetRepeated(self.__ptr, value)
         return self
 
     def set_smooth(self, value: bool = True) -> Self:
-        # Set whether the texture should use smoothing (linear filtering)
+        """
+        #### Устанавливает использование сглаживания (фильтрации) для текстуры.
+
+        ---
+
+        :Args:
+            value (bool): Включить/выключить сглаживание. По умолчанию True.
+        """
         LIB_MOON._Texture_SetSmooth(self.__ptr, value)
         return self
 
-    def swap(self, other: "Texture") -> Self:
-        # Swap the contents of this texture with another
+    def swap(self, other: "Texture2D") -> Self:
+        """
+        #### Меняет содержимое этой текстуры с другой текстурой.
+
+        ---
+
+        :Args:
+            other (Texture2D): Текстура, с которой нужно обменяться содержимым.
+        :Returns:
+            Self: self (для цепочек вызовов).
+        """
         LIB_MOON._Texture_Swap(self.__ptr, other.get_ptr())
         return self
 
     def get_sub_texture_ptr(self, rect_pos: Vector2i, rect_size: Vector2i) -> TexturePtr:
-        # Get a pointer to a sub-region of the texture
+        """
+        #### Возвращает указатель на под-текстуру (регион) текущей текстуры.
+
+        ---
+
+        :Args:
+            rect_pos (Vector2i): Позиция прямоугольника в текстуре.
+            rect_size (Vector2i): Размер прямоугольника.
+        :Returns:
+            TexturePtr: Указатель на подпоследовательность (subtexture).
+        """
         texture_ptr = LIB_MOON._Texture_SubTexture(self.__ptr, rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
         return texture_ptr
 
-    def get_sub_texture(self, rect_pos: Vector2i, rect_size: Vector2i) -> "Texture":
-        # Get a Texture object representing a sub-region of the texture
+    def get_sub_texture(self, rect_pos: Vector2i, rect_size: Vector2i) -> "Texture2D":
+        """
+        #### Возвращает объект Texture2D, представляющий под-текстуру.
+
+        ---
+
+        :Args:
+            rect_pos (Vector2i): Позиция прямоугольника в текстуре.
+            rect_size (Vector2i): Размер прямоугольника.
+        :Returns:
+            Texture2D: Новый объект текстуры, загруженный из под-региона.
+        """
         texture_ptr = self.get_sub_texture_ptr(rect_pos, rect_size)
-        texture = Texture()
+        texture = Texture2D()
         texture.load_from_ptr(texture_ptr)
         return texture
 
     def load_from_file(self, filename: str) -> tuple[bool, Self]:
-        # Load the texture from a file
+        """
+        #### Загружает текстуру из файла.
+
+        ---
+
+        :Args:
+            filename (str): Путь к файлу изображения.
+        :Returns:
+            tuple[bool, Self]: (успех загрузки, self).
+        """
         result = LIB_MOON._Texture_LoadFromFile(self.__ptr, filename.encode('utf-8'))
         return result, self
 
     def load_from_file_with_bound_rect(self, filename: str, rect_pos: Vector2i, rect_size: Vector2i) -> tuple[bool, Self]:
-        # Load the texture from a file, using a specified rectangle region
+        """
+        #### Загружает текстуру из файла, используя ограничивающий прямоугольник.
+
+        ---
+
+        :Args:
+            filename (str): Путь к файлу изображения.
+            rect_pos (Vector2i): Позиция прямоугольника для загрузки.
+            rect_size (Vector2i): Размер прямоугольника.
+        :Returns:
+            tuple[bool, Self]: (успех загрузки, self).
+        """
         result = LIB_MOON._Texture_LoadFromFileWithBoundRect(self.__ptr, filename.encode('utf-8'),
                                                     rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
         return result, self
 
     def load_from_ptr(self, ptr: TexturePtr) -> bool:
-        # Load the texture from an existing pointer
+        """
+        #### Загружает/подключает текстуру по существующему указателю.
+
+        ---
+
+        :Args:
+            ptr (TexturePtr): Указатель на нативную текстуру.
+        :Returns:
+            bool: True, если указатель был действителен и присвоен.
+        """
         if ptr is not None:
             self.__ptr = ptr
             return True
@@ -557,11 +650,11 @@ class Sprite2D(object):
             self.flip(y=True)
         return self
 
-    def link_texture(self, texture: Texture, reset_rect: bool = False) -> Self:
+    def link_texture(self, texture: Texture2D, reset_rect: bool = False) -> Self:
         LIB_MOON._Sprite_LinkTexture(self.__ptr, texture.get_ptr(), reset_rect)
         return self
 
-    def link_render_texture(self, texture: RenderTexture, reset_rect: bool = False) -> Self:
+    def link_render_texture(self, texture: RenderTexture2D, reset_rect: bool = False) -> Self:
         LIB_MOON._Sprite_LinkRenderTexture(self.__ptr, texture.get_ptr(), reset_rect)
         return self
 
@@ -679,26 +772,47 @@ class AnimatedSprite2D(Sprite2D):
         self.__is_started = False
 
     def start(self):
+        """
+        #### Запускает анимацию (без сброса индекса кадра).
+        """
         self.__is_started = True
 
     def restart(self):
+        """
+        #### Перезапускает анимацию: сбрасывает индекс кадра и время.
+        """
         self.__current_frame_index = 0
         self.__last_time = time.time()
         self.__is_started = True
 
     def stop(self):
+        """
+        #### Останавливает анимацию (замораживает текущий кадр).
+        """
         self.__is_started = False
 
     def get_frames_count(self) -> int:
+        """
+        #### Возвращает количество кадров в анимации.
+        """
         return self.__frames_count
 
     def get_texture_size(self) -> Vector2i:
+        """
+        #### Возвращает размер одного кадра в текстуре (в пикселях).
+        """
         return self.__texture_size
 
     def get_frame_time(self) -> FrameTime:
+        """
+        #### Возвращает время отображения одного кадра (в секундах).
+        """
         return self.__frame_time
 
     def update(self):
+        """
+        #### Обновляет состояние анимированного спрайта — переключает кадры в зависимости от времени.
+        """
         at_time = time.time()
         delta = at_time - self.__last_time
         if self.__is_started:
@@ -734,28 +848,78 @@ LIB_MOON._Image_Init.restype = ImagePtr
 
 class Image:
     @classmethod
-    def CopyFromTexture(cls, texture: Texture) -> "Image":
+    def CopyFromTexture(cls, texture: Texture2D) -> "Image":
+        """
+        #### Создаёт объект Image, скопировав данные из Texture2D.
+
+        ---
+
+        :Args:
+            texture (Texture2D): Текстура-источник.
+        :Returns:
+            Image: Новый объект Image с установленным указателем.
+        """
         img = Image()
         ptr = LIB_MOON._Image_TextureCopyToImage(texture.get_ptr())
         img.set_ptr(ptr)
         return img
     
     @classmethod
-    def CopyFromRenderTexture(cls, texture: RenderTexture) -> "Image":
+    def CopyFromRenderTexture(cls, texture: RenderTexture2D) -> "Image":
+        """
+        #### Создаёт объект Image, скопировав данные из RenderTexture2D.
+
+        ---
+
+        :Args:
+            texture (RenderTexture2D): Рендер-текстура-источник.
+        :Returns:
+            Image: Новый объект Image с установленным указателем.
+        """
         img = Image()
         ptr = LIB_MOON._Image_RenderTextureCopyToImage(texture.get_ptr())
         img.set_ptr(ptr)
         return img
 
     def __init__(self):
+        """
+        #### Инициализация объекта Image и выделение нативного ресурса.
+        """
         self.__ptr = LIB_MOON._Image_Init()
 
     def get_ptr(self) -> ImagePtr:
+        """
+        #### Возвращает нативный указатель Image.
+
+        :Returns:
+            ImagePtr: Указатель на нативный Image.
+        """
         return self.__ptr
     
     def set_ptr(self, ptr: ImagePtr) -> Self:
+        """
+        #### Устанавливает нативный указатель для объекта Image.
+
+        ---
+
+        :Args:
+            ptr (ImagePtr): Указатель на нативный Image.
+        :Returns:
+            Self: self (для цепочек вызовов).
+        """
         self.__ptr = ptr
+        return self
 
     def save(self, file_path: str) -> bool:
+        """
+        #### Сохраняет изображение в файл.
+
+        ---
+
+        :Args:
+            file_path (str): Путь к файлу для сохранения.
+        :Returns:
+            bool: True при успешном сохранении, иначе False.
+        """
         print(self.__ptr)
         return LIB_MOON._Image_Save(self.__ptr, file_path.encode('utf-8'))

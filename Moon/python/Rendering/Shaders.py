@@ -59,7 +59,7 @@ Copyright (c) 2025 Pavlov Ivan
 предоставляется данное Программное Обеспечение, при соблюдении следующих условий:
 
 [ Уведомление об авторском праве и данные условия должны быть включены во все копии ]
-[                 или значительные части Программного Обеспечения.                  ]
+[                 или значительные части Программного ОбеспечениЯ.                  ]
 
 ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО 
 ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ 
@@ -107,7 +107,7 @@ LIB_MOON._Shader_LoadFromStrings.restype = ctypes.c_bool
 LIB_MOON._Shader_GetCurrentTexture.argtypes = None
 LIB_MOON._Shader_GetCurrentTexture.restype = ctypes.c_void_p
 
-LIB_MOON._Shader_SetUniformInt.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+LIB_MOON._Shader_SetUniformInt.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_float]
 LIB_MOON._Shader_SetUniformFloat.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_float]
 LIB_MOON._Shader_SetUniformBool.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_bool]
 LIB_MOON._Shader_SetUniformTexture.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_void_p]
@@ -160,6 +160,16 @@ def get_current_texture() -> TexturePtr:
     return LIB_MOON._Shader_GetCurrentTexture()
 
 
+BASE_VERTEX_SOURCE = """
+#version 130
+void main()
+{
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+    gl_FrontColor = gl_Color;
+}
+"""
+
 class Shader:
     """
     #### Обёртка для работы с шейдерами через PySGL.dll
@@ -183,9 +193,9 @@ class Shader:
     """
 
     class SOURCE_TYPE(Enum):
-            """Перечисление типов источников шейдера."""
-            VERTEX = 0
-            FRAGMENT = 1
+        """Перечисление типов источников шейдера."""
+        VERTEX = 0
+        FRAGMENT = 1
 
     @classmethod
     def LoadFromSources(self, vertex: str, fragment: str) -> "Shader | None":
@@ -215,11 +225,11 @@ class Shader:
             shader._set_source(Shader.SOURCE_TYPE.FRAGMENT, fragment)
             result = shader._load_from_source()
             if result:
-                    print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.GREEN}succes{Fore.RESET} ] Shader from sources loaded')
-                    return shader
+                print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.GREEN}succes{Fore.RESET} ] Shader from sources loaded')
+                return shader
             else:
-                    print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Shader from sources not loaded')
-                    return None
+                print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Shader from sources not loaded')
+                return None
             
     @classmethod
     def LoadFromFiles(self, vertex_path: str, fragment_path: str) -> "Shader | None":
@@ -267,6 +277,44 @@ class Shader:
             exit(-1)
             return None
 
+    @classmethod
+    def LoadFragmentFromFile(self, path: str) -> "Shader | None":
+        """
+        #### Загружает фрагментный шейдер из файла, используя стандартный вершинный шейдер
+
+        Метод читает указанный файл с кодом фрагментного шейдера и создает Shader,
+        используя встроенный BASE_VERTEX_SOURCE в качестве вершинного шейдера.
+
+        ---
+
+        :Args:
+        - path - Путь к файлу фрагментного шейдера
+
+        ---
+
+        :Return:
+        - Shader | None - Экземпляр Shader при успешной загрузке/компиляции или None при ошибке
+
+        ---
+
+        :Example:
+        ```python
+        sh = Shader.LoadFragmentFromFile("fragment.glsl")
+        ```
+        """
+        print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.YELLOW}info{Fore.RESET} ] Loading shader from source files...')
+        print(f'  {Fore.GREEN}+{Fore.RESET} Fragment Path: {Fore.BLACK}used STANDART_VERTEX_SOURCE{Fore.RESET}')
+        if os.path.exists(path):
+            print(f'  {Fore.GREEN}+{Fore.RESET} Fragment Path: {Fore.LIGHTMAGENTA_EX}{path}{Fore.RESET}')
+        else:
+            print(f'  {Fore.RED}-{Fore.RESET} Fragment Path not found: {Fore.LIGHTMAGENTA_EX}{path}{Fore.RESET}')
+            exit(-1)
+        fragment_source = open(path, 'r', encoding='utf-8').read()
+        shader = Shader().LoadFromSources(BASE_VERTEX_SOURCE, fragment_source)
+        return shader
+        
+
+
     def __init__(self):
         """
         #### Инициализация объекта Shader
@@ -313,9 +361,12 @@ class Shader:
         ```
         """
         if source_type == Shader.SOURCE_TYPE.FRAGMENT:
-                self.__fragment_source = source
-        if source_type == Shader.SOURCE_TYPE.VERTEX:
-                self.__vertex_source = source
+            self.__fragment_source = source
+        elif source_type == Shader.SOURCE_TYPE.VERTEX:
+            self.__vertex_source = source
+        else:
+            raise ValueError("Invalid source type")
+        
 
     def _load_from_source(self):
         """
@@ -411,20 +462,20 @@ class Shader:
         ```
         """
         if isinstance(arg, int):
-            LIB_MOON._Shader_SetUniformInt(self.__ptr, name.encode('utf-8'), arg)
+            LIB_MOON._Shader_SetUniformInt(self.__ptr, name.encode('utf-8'), float(arg))
         elif isinstance(arg, float):
             LIB_MOON._Shader_SetUniformFloat(self.__ptr, name.encode('utf-8'), arg)
         elif isinstance(arg, bool):
             LIB_MOON._Shader_SetUniformBool(self.__ptr, name.encode('utf-8'), arg)
-        elif arg.__class__.__name__ == 'Texture':
+        elif arg.__class__.__name__ == 'Texture2D':
             LIB_MOON._Shader_SetUniformTexture(self.__ptr, name.encode('utf-8'), arg.get_ptr())
-        elif arg.__class__.__name__ == 'RenderTexture':
+        elif arg.__class__.__name__ == 'RenderTexture2D':
             LIB_MOON._Shader_SetUniformTexture(self.__ptr, name.encode('utf-8'), arg.get_ptr())
         elif isinstance(arg, Vector2f):
             LIB_MOON._Shader_SetUniformFloatVector(self.__ptr, name.encode('utf-8'), arg.x, arg.y)
         elif isinstance(arg, Vector2i):
             LIB_MOON._Shader_SetUniformFloatVector(self.__ptr, name.encode('utf-8'), arg.x, arg.y)
         elif isinstance(arg, Color):
-            LIB_MOON._Shader_SetUniformFloatVector(self.__ptr, name.encode('utf-8'), arg.r, arg.g, arg.b, arg.a)
+            LIB_MOON._Shader_SetUniformColor(self.__ptr, name.encode('utf-8'), arg.r, arg.g, arg.b, arg.a)
         else:
             raise TypeError(f'Unsupported uniform type: {type(arg)}')

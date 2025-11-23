@@ -8,8 +8,8 @@ import random
 
 import math
 
-def CREATE_CIRCLE_TEXTURE(resolution: int = 100, approximation: int = 60) -> RenderTexture:
-    texture = RenderTexture().Init(resolution, resolution)
+def CREATE_CIRCLE_TEXTURE(resolution: int = 100, approximation: int = 60) -> RenderTexture2D:
+    texture = RenderTexture2D().Init(resolution, resolution)
     texture.clear(COLOR_TRANSPARENT)
     circle = CircleShape(approximation)
 
@@ -21,8 +21,8 @@ def CREATE_CIRCLE_TEXTURE(resolution: int = 100, approximation: int = 60) -> Ren
     texture.display()
     return texture
 
-def CREATE_RECTANGLE_TEXTURE(resolution: int = 100) -> RenderTexture:
-    texture = RenderTexture().Init(resolution, resolution)
+def CREATE_RECTANGLE_TEXTURE(resolution: int = 100) -> RenderTexture2D:
+    texture = RenderTexture2D().Init(resolution, resolution)
     texture.clear(COLOR_TRANSPARENT)
     rect = RectangleShape(resolution, resolution)
     rect.set_position(0, 0)
@@ -31,8 +31,8 @@ def CREATE_RECTANGLE_TEXTURE(resolution: int = 100) -> RenderTexture:
     texture.display()
     return texture
 
-def CREATE_LIGHT_TEXTURE(resolution: int = 100, layers: int = 20, approximation: int = 30) -> RenderTexture:
-    texture = RenderTexture().Init(resolution, resolution)
+def CREATE_LIGHT_TEXTURE(resolution: int = 100, layers: int = 20, approximation: int = 30) -> RenderTexture2D:
+    texture = RenderTexture2D().Init(resolution, resolution)
     texture.clear(COLOR_TRANSPARENT)
     
     center = resolution / 2
@@ -59,7 +59,7 @@ TEXTURE_LIGHT_CIRCLE = CREATE_LIGHT_TEXTURE(approximation=30, resolution=100, la
 
 class ParticleTextureAtlas:
     def __init__(self):
-        self.__texture = RenderTexture().Init(1, 1)
+        self.__texture = RenderTexture2D().Init(1, 1)
         self.__height = 0
         self.__width = 0
         self.__first_init = True
@@ -68,7 +68,7 @@ class ParticleTextureAtlas:
         
         
 
-    def add_texture(self, texture: Texture, identifier: str | int):
+    def add_texture(self, texture: Texture2D, identifier: str | int):
         texture_size = texture.get_size().xy
         
         # Сохраняем старый атлас
@@ -78,7 +78,7 @@ class ParticleTextureAtlas:
         self.__width += texture_size[0]
 
         # Создаем новый атлас
-        self.__texture = RenderTexture().Init(self.__width, self.__height)
+        self.__texture = RenderTexture2D().Init(self.__width, self.__height)
         self.__texture.clear(COLOR_TRANSPARENT)
         
         # Перерисовываем старый атлас на новый
@@ -98,7 +98,7 @@ class ParticleTextureAtlas:
     def get_poses(self):
         return self.__poses
     
-    def get_render_texture(self) -> RenderTexture:
+    def get_render_texture(self) -> RenderTexture2D:
         print(self.__texture.get_size())
         return self.__texture
     

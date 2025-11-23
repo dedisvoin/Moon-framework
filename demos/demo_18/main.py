@@ -30,7 +30,7 @@ print(get_cpu_percent(1))
 # Этому шейдеру нужен только "холст" (Sprite2D), на котором он будет рисоваться.
 # Создаем простой спрайт, который будет растягиваться на весь экран.
 
-texture = RenderTexture().Init(1000, 1000)
+texture = RenderTexture2D().Init(1000, 1000)
 fullscreen_quad = Sprite2D().link_render_texture(texture)
 
 
@@ -57,7 +57,7 @@ while window.update(events):
 
     if window.get_resized():
         # Обновляем размер нашего "холста"
-        texture = RenderTexture().Init(*window.get_size())
+        texture = RenderTexture2D().Init(*window.get_size())
         fullscreen_quad.link_render_texture(texture, True)
 
     # Считаем текущее время

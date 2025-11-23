@@ -204,7 +204,7 @@ extern "C" {
     }
 
     // Установка целочисленной униформы
-    MOON_API void _Shader_SetUniformInt(ShaderPtr shader, char* name, int value) {
+    MOON_API void _Shader_SetUniformInt(ShaderPtr shader, char* name, float value) {
         shader->setUniform(name, value);
     }
 

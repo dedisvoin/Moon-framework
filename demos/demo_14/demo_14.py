@@ -14,15 +14,15 @@ window_events = WindowEvents()
 ls = LineShape().init_points()
 ls.set_start_point(Vector2f(200, 200))
 ls.set_end_point(Vector2f(400, 400))
-ls.set_color(COLOR_RED)
-ls.get_start_point().color = COLOR_BLUE
-ls.get_start_point().position = Vector2f(400, 100)
+ls.set_color(COLOR_GREEN)
+ls.get_end_point().position = Vector2f.zero()
+ls.get_end_point().color = COLOR_ORANGE
 
 while window.update(window_events):
     window.clear()
 
     window.draw(ls)
-    window.view_info()
+    #window.view_info()
 
 
     window.display()

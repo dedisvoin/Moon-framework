@@ -59,7 +59,7 @@ def convert_tile_type_to_type_literal(type: TileTypes) ->  TileTypeLiteral:
 class TileSet:
     def __init__(self, path: str, tile_size: TwoIntegerList, tile_scale: Number = 1) -> None:
         self.__path = path
-        self.__texture = Texture.LoadFromFile(path)
+        self.__texture = Texture2D.LoadFromFile(path)
         self.__texture_atlas = TextureAtlas(self.__texture)
         self.__tile_size = tile_size
         self.__tile_scale = tile_scale
@@ -67,7 +67,7 @@ class TileSet:
     def get_path(self) -> str:
         return self.__path
     
-    def get_texture(self) -> Texture:
+    def get_texture(self) -> Texture2D:
         return self.__texture
     
     def get_texture_atlas(self) -> TextureAtlas:
@@ -112,7 +112,7 @@ class TileSheet4x4(TileSet):
                 sprite.set_scale(scale)
             self.__tile_sprites[convert_tile_type_to_type_literal(tile_type)] = sprite
 
-    def get_texture(self, type: TileTypeLiteral) -> Texture:
+    def get_texture(self, type: TileTypeLiteral) -> Texture2D:
         """
         ##### Возвращает определенную текстуру тайла из атласа текстур по типу поддерживаемого тайла
 
@@ -259,7 +259,7 @@ def generate_tile_map_sprite(map: TileMap, accordance: TileSheetAccordances, til
 
     
     # Создаем текстуру рендеринга для всей карты
-    render_texture = RenderTexture()
+    render_texture = RenderTexture2D()
     if not render_texture.Init(map_width * tile_size[0], map_height * tile_size[1]):
         raise RuntimeError("Failed to create render texture for tile map")
     

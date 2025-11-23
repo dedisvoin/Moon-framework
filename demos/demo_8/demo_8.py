@@ -10,7 +10,7 @@ from Moon.python.Vectors import *
 
 
 
-result, texture = Texture().load_from_file(r"demos\texture2.png")
+result, texture = Texture2D().load_from_file(r"demos\texture2.png")
 
 sprite = Sprite2D().link_texture(texture)
 sprite.set_scale(10, 10)

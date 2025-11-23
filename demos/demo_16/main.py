@@ -10,5 +10,6 @@ print(vec_1)
 
 
 vec_1 = Vector2i(5, 4)
-vec_1 *= Vector2f(1, 2.6).to_int()  # Vector2i(5, 8)
+vec_1 *= Vector2f(1, 2.6)  # Vector2i(5, 8)
 print(vec_1)
+print(*vec_1)

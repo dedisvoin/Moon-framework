@@ -205,6 +205,22 @@ LIB_MOON._VertexArray_SetColor.restype = None
 class Vertex2d:
     @classmethod
     def FromPosition(cls, pos: Vector2Type) -> "Vertex2d":
+        """
+        #### Создает `Vertex2d` из позиции
+
+        ---
+
+        :Args:
+        - pos - Позиция в виде `Vector2Type` (обычно `Vector2f`/`Vector2i`)
+
+        :Return:
+        - `Vertex2d` - Новый объект вершины, инициализированный заданной позицией
+
+        :Example:
+        ```python
+        v = Vertex2d.FromPosition(Vector2f(10, 20))
+        ```
+        """
         vertex = cls()
         ptr = LIB_MOON._Vertex_InitFromCoords(float(pos.x), float(pos.y))
         vertex.set_ptr(ptr)
@@ -212,6 +228,23 @@ class Vertex2d:
 
     @classmethod
     def FromPositionAndColor(cls, pos: Vector2Type, color: Color) -> "Vertex2d":
+        """
+        #### Создает `Vertex2d` из позиции и цвета
+
+        ---
+
+        :Args:
+        - pos - Позиция в виде `Vector2Type`
+        - color - Экземпляр `Color` для установки цвета вершины
+
+        :Return:
+        - `Vertex2d` - Новый объект вершины с позицией и цветом
+
+        :Example:
+        ```python
+        v = Vertex2d.FromPositionAndColor(Vector2f(10,20), COLOR_RED)
+        ```
+        """
         vertex = cls()
         r, g, b, a = color.rgba
         ptr = LIB_MOON._Vertex_InitFromCoordsAndColor(float(pos.x), float(pos.y), r, g, b, a)
@@ -220,6 +253,24 @@ class Vertex2d:
 
     @classmethod
     def FromPositionColorAndTexCoords(cls, pos: Vector2Type, color: Color, tex_coords: Vector2i) -> "Vertex2d":
+        """
+        #### Создает `Vertex2d` с позицией, цветом и текстурными координатами
+
+        ---
+
+        :Args:
+        - pos - Позиция в виде `Vector2Type`
+        - color - Экземпляр `Color`
+        - tex_coords - Текстурные координаты в виде `Vector2i`
+
+        :Return:
+        - `Vertex2d` - Новый объект вершины со всеми атрибутами
+
+        :Example:
+        ```python
+        v = Vertex2d.FromPositionColorAndTexCoords(Vector2f(0,0), COLOR_WHITE, Vector2i(0,0))
+        ```
+        """
         vertex = cls()
         r, g, b, a = color.rgba
         ptr = LIB_MOON._Vertex_InitFromCoordsAndColorAndTexCoords(
@@ -230,11 +281,34 @@ class Vertex2d:
 
     @classmethod
     def FromPtr(cls, ptr: VertexPtr) -> "Vertex2d":
+        """
+        #### Создает `Vertex2d` из нативного указателя
+
+        ---
+
+        :Args:
+        - ptr - Нативный указатель на структуру вершины (`VertexPtr`)
+
+        :Return:
+        - `Vertex2d` - Обертка над существующей нативной вершиной (владение указателем передается вызову)
+
+        :Example:
+        ```python
+        v = Vertex2d.FromPtr(native_ptr)
+        ```
+        """
         vertex = cls()
         vertex.set_ptr(ptr)
         return vertex
 
     def __init__(self):
+        """
+        #### Инициализация нового `Vertex2d`
+
+        ---
+
+        Создает новую нативную вершину через DLL и помечает объект как владельца указателя.
+        """
         self.__ptr = LIB_MOON._Vertex_Init()
         self._owner = True
 
@@ -249,9 +323,27 @@ class Vertex2d:
             LIB_MOON._Vertex_Delete(self.__ptr)
 
     def get_ptr(self) -> VertexPtr:
+        """
+        #### Возвращает нативный указатель вершины
+
+        :Return:
+        - `VertexPtr` - Указатель на нативную структуру вершины
+        """
         return self.__ptr
 
     def set_ptr(self, ptr: VertexPtr) -> Self:
+        """
+        #### Устанавливает нативный указатель для этой обертки
+
+        :Args:
+        - ptr - Новый нативный указатель (`VertexPtr`).
+
+        :Return:
+        - `Vertex2d` - Текущий объект (для цепочки вызовов).
+
+        :Note:
+        - При замене указателя предыдущий нативный объект удаляется, если он принадлежал этой обертке.
+        """
         if self.__ptr is not None:
             LIB_MOON._Vertex_Delete(self.__ptr)
         self.__ptr = ptr
@@ -266,6 +358,7 @@ class Vertex2d:
     @position.setter
     def position(self, value: Vector2Type) -> None:
         LIB_MOON._Vertex_SetPosition(self.__ptr, float(value.x), float(value.y))
+        
 
     @property
     def color(self) -> Color:
@@ -291,39 +384,91 @@ class Vertex2d:
         LIB_MOON._Vertex_SetTexCoords(self.__ptr, value.x, value.y)
 
     def get_position_x(self) -> float:
-        """Получить X координату позиции"""
+        """
+        #### Получить X координату позиции вершины
+
+        :Return:
+        - float - X координата в мировых/локальных единицах (зависит от использования)
+        """
         return LIB_MOON._Vertex_GetPositionX(self.__ptr)
 
     def get_position_y(self) -> float:
-        """Получить Y координату позиции"""
+        """
+        #### Получить Y координату позиции вершины
+
+        :Return:
+        - float - Y координата в мировых/локальных единицах
+        """
         return LIB_MOON._Vertex_GetPositionY(self.__ptr)
 
     def get_color_r(self) -> int:
-        """Получить красную компоненту цвета"""
+        """
+        #### Получить красную компоненту цвета вершины
+
+        :Return:
+        - int - Значение R в диапазоне 0-255
+        """
         return LIB_MOON._Vertex_GetColorR(self.__ptr)
 
     def get_color_g(self) -> int:
-        """Получить зеленую компоненту цвета"""
+        """
+        #### Получить зеленую компоненту цвета вершины
+
+        :Return:
+        - int - Значение G в диапазоне 0-255
+        """
         return LIB_MOON._Vertex_GetColorG(self.__ptr)
 
     def get_color_b(self) -> int:
-        """Получить синюю компоненту цвета"""
+        """
+        #### Получить синюю компоненту цвета вершины
+
+        :Return:
+        - int - Значение B в диапазоне 0-255
+        """
         return LIB_MOON._Vertex_GetColorB(self.__ptr)
 
     def get_color_a(self) -> int:
-        """Получить альфа компоненту цвета"""
+        """
+        #### Получить альфа-компоненту цвета вершины
+
+        :Return:
+        - int - Значение A в диапазоне 0-255
+        """
         return LIB_MOON._Vertex_GetColorA(self.__ptr)
 
     def get_tex_coord_x(self) -> float:
-        """Получить X координату текстурных координат"""
+        """
+        #### Получить X текстурной координаты вершины
+
+        :Return:
+        - float - Значение текстурной координаты X
+        """
         return LIB_MOON._Vertex_GetTexCoordX(self.__ptr)
 
     def get_tex_coord_y(self) -> float:
-        """Получить Y координату текстурных координат"""
+        """
+        #### Получить Y текстурной координаты вершины
+
+        :Return:
+        - float - Значение текстурной координаты Y
+        """
         return LIB_MOON._Vertex_GetTexCoordY(self.__ptr)
 
     def copy(self) -> "Vertex2d":
-        """Создать копию вершины"""
+        """
+        #### Создает полную копию вершины
+
+        ---
+
+        :Return:
+        - `Vertex2d` - Новый объект вершины с теми же позициями, цветом и текстурными координатами
+
+        :Example:
+        ```python
+        v2 = v1.copy()
+        ```
+        """
 
         return Vertex2d.FromPositionColorAndTexCoords(
             self.position,
@@ -332,7 +477,17 @@ class Vertex2d:
         )
 
     def __eq__(self, other: object) -> bool:
-        """Проверка на равенство двух вершин"""
+        """
+        #### Сравнение двух вершин на эквивалентность
+
+        ---
+
+        :Args:
+        - other - Объект для сравнения
+
+        :Return:
+        - bool - True, если позиции, цвета и текстурные координаты равны
+        """
         if not isinstance(other, Vertex2d):
             return False
         return (self.position == other.position and
@@ -355,62 +510,170 @@ class VertexListTypes(Enum):
 
 class VertexList:
     def __init__(self, points_count: int = 0):
+        """
+        #### Инициализация `VertexList`
+
+        ---
+
+        :Args:
+        - points_count - Начальное количество вершин (по умолчанию 0). Список будет сразу выделен под это количество.
+
+        :Example:
+        ```python
+        vlist = VertexList(10)
+        ```
+        """
         self.__ptr = LIB_MOON._VertexArray_Init()
         LIB_MOON._VertexArray_Resize(self.__ptr, points_count)
 
     def resize(self, new_size: int):
+        """
+        #### Изменяет размер массива вершин
+
+        :Args:
+        - new_size - Новое количество вершин в массиве
+        """
         LIB_MOON._VertexArray_Resize(self.__ptr, new_size)
 
     def get_ptr(self) -> VertexArrayPtr:
+        """
+        #### Возвращает нативный указатель на массив вершин
+
+        :Return:
+        - `VertexArrayPtr` - Указатель на внутреннюю нативную структуру массива вершин
+        """
         return self.__ptr
 
     def __del__(self):
         LIB_MOON._VertexArray_Delete(self.__ptr)
 
     def set_primitive_type(self, primitive_type: VertexListTypes):
-        """Установить тип примитива"""
+        """
+        #### Устанавливает тип примитива для отрисовки
+
+        ---
+
+        :Args:
+        - primitive_type - Значение `VertexListTypes`, определяющее, как будут интерпретироваться вершины (точки, линии, треугольники и т.д.)
+        """
         LIB_MOON._VertexArray_SetPrimitiveType(self.__ptr, primitive_type.value)
 
     def clear(self):
+        """
+        #### Очищает массив вершин
+
+        :Note:
+        - После вызова массив будет пуст и его размер может быть сброшен нативной реализацией.
+        """
         LIB_MOON._VertexArray_Clear(self.__ptr)
 
     def length(self) -> int:
+        """
+        #### Возвращает текущее количество вершин в массиве
+
+        :Return:
+        - int - Число вершин
+        """
         return LIB_MOON._VertexArray_GetVertexCount(self.__ptr)
 
     def get_local_bound(self) -> tuple[Vector2f, Vector2f]:
+        """
+        #### Возвращает локальные границы массива вершин
+
+        :Return:
+        - tuple[Vector2f, Vector2f] - Кортеж `(position, size)`, где `position` — левый верхний угол, `size` — ширина/высота
+        """
         return (
             Vector2f(LIB_MOON._VertexArray_GetBoundsPosX(self.__ptr), LIB_MOON._VertexArray_GetBoundsPosY(self.__ptr)),
             Vector2f(LIB_MOON._VertexArray_GetBoundsSizeW(self.__ptr), LIB_MOON._VertexArray_GetBoundsSizeH(self.__ptr))
         )
 
     def is_empty(self) -> bool:
+        """
+        #### Проверяет, пуст ли массив вершин
+
+        :Return:
+        - bool - True, если массив не содержит вершин
+        """
         return LIB_MOON._VertexArray_IsEmpty(self.__ptr)
 
     def get(self, index: int) -> Vertex2d:
+        """
+        #### Получает вершину по индексу
+
+        :Args:
+        - index - Индекс вершины в массиве
+
+        :Return:
+        - `Vertex2d` - Обертка над нативной вершиной. Владелец указателя не передается (объект не удалит нативную память при сборке).
+        """
         ptr = LIB_MOON._VertexArray_GetVertex(self.__ptr, index)
         vertex = Vertex2d.FromPtr(ptr)
         vertex._owner = False
         return vertex
 
     def remove(self, index: int):
+        """
+        #### Удаляет вершину по указанному индексу
+
+        :Args:
+        - index - Индекс удаляемой вершины
+        """
         LIB_MOON._VertexArray_RemoveVertex(self.__ptr, index)
 
     def append(self, vertex: Vertex2d):
+        """
+        #### Добавляет вершину в конец массива
+
+        :Args:
+        - vertex - Экземпляр `Vertex2d` для добавления
+        """
         LIB_MOON._VertexArray_AppendVertex(self.__ptr, vertex.get_ptr())
 
     def prepend(self, vertex: Vertex2d):
+        """
+        #### Вставляет вершину в начало массива
+
+        :Args:
+        - vertex - Экземпляр `Vertex2d` для вставки
+        """
         LIB_MOON._VertexArray_PrependVertex(self.__ptr, vertex.get_ptr())
 
     def insert(self, index: int, vertex: Vertex2d):
+        """
+        #### Вставляет вершину в указанную позицию
+
+        :Args:
+        - index - Позиция для вставки
+        - vertex - Экземпляр `Vertex2d` для вставки
+        """
         LIB_MOON._VertexArray_InsertVertex(self.__ptr, index, vertex.get_ptr())
 
     def auto_prepend(self, vertex: Vertex2d):
+        """
+        #### Вставляет вершину в начало и автоматически подгоняет размер массива
+
+        :Args:
+        - vertex - Экземпляр `Vertex2d` для вставки
+        """
         self.prepend(vertex)
         self.resize(self.length())
 
     def auto_append(self, vertex: Vertex2d):
+        """
+        #### Добавляет вершину в конец и автоматически подгоняет размер массива
+
+        :Args:
+        - vertex - Экземпляр `Vertex2d` для добавления
+        """
         self.append(vertex)
         self.resize(self.length())
 
     def set_color(self, color: Color):
+        """
+        #### Устанавливает цвет для всех вершин массива
+
+        :Args:
+        - color - Экземпляр `Color`, который будет применен ко всем вершинам
+        """
         LIB_MOON._VertexArray_SetColor(self.__ptr, color.r, color.g, color.b, color.a)

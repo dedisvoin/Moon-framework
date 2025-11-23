@@ -684,7 +684,7 @@ extern "C" {
     }
 
     // Установка целочисленной униформы
-    MOON_API void _Shader_SetUniformInt(ShaderPtr shader, char* name, int value) {
+    MOON_API void _Shader_SetUniformInt(ShaderPtr shader, char* name, float value) {
         shader->setUniform(name, value);
     }
 
@@ -1509,7 +1509,9 @@ extern "C" {
     }
 
     MOON_API VertexPtr _VertexArray_GetVertex(VertexArrayPtr array, int index) {
-        return new sf::Vertex((*array)[index]);
+        // Return pointer to the vertex inside the array instead of allocating a new copy.
+        // This allows Python code to modify the actual vertex stored in the array.
+        return &((*array)[index]);
     }
 
     MOON_API void _VertexArray_RemoveVertex(VertexArrayPtr array, int index) {

@@ -948,6 +948,8 @@ class Window:
 
         self.__style = style
 
+        self.__is_open = True
+
         # Используем переданные настройки или создаем новые по умолчанию
         temp_context_settings: ctypes.c_void_p | None = None
         if context_settings is None:
@@ -2942,6 +2944,7 @@ class Window:
 
         # Проверка условий закрытия окна
         if self.__should_close_window(event_type, events):
+            self.__is_open = False
             return False
 
         # Обработка изменения размера окна
@@ -3249,6 +3252,32 @@ class Window:
         ```
         """
         return self.__clear_color
+    
+    @final
+    def is_shutting_down(self) -> bool:
+        """
+        #### Проверяет, находится ли окно в процессе закрытия
+
+        ---
+
+        :Description:
+        - Возвращает True, если окно начало процесс закрытия
+        - False означает, что окно активно и работает
+
+        ---
+
+        :Returns:
+        - bool: Состояние процесса закрытия окна
+
+        ---
+
+        :Example:
+        ```python
+        if window.is_shutting_down():
+            print("Окно закрывается...")
+        ```
+        """
+        return not self.__is_open
 
     @final
     def is_open(self) -> bool:

@@ -20,14 +20,14 @@ OCCLUSION_POWER = 0.5
 
 
 # --- Загрузка Ресурсов ---
-result, texture = Texture().load_from_file(r"demos\demo_11\slices.png")
-result, texture2 = Texture().load_from_file(r"demos\demo_11\slices2.png")
-result, texture3 = Texture().load_from_file(r"demos\demo_11\slices3-1.png")
-result, texture4 = Texture().load_from_file(r"demos\demo_11\slices3-0.png")
-result, texture5 = Texture().load_from_file(r"demos\demo_11\slices4.png")
-result, texture6 = Texture().load_from_file(r"demos\demo_11\slices5.png")
-result, texture7 = Texture().load_from_file(r"demos\demo_11\T-Rex.png")
-result, texture8 = Texture().load_from_file(r"demos\demo_11\slices6.png")
+result, texture = Texture2D().load_from_file(r"demos\demo_11\slices.png")
+result, texture2 = Texture2D().load_from_file(r"demos\demo_11\slices2.png")
+result, texture3 = Texture2D().load_from_file(r"demos\demo_11\slices3-1.png")
+result, texture4 = Texture2D().load_from_file(r"demos\demo_11\slices3-0.png")
+result, texture5 = Texture2D().load_from_file(r"demos\demo_11\slices4.png")
+result, texture6 = Texture2D().load_from_file(r"demos\demo_11\slices5.png")
+result, texture7 = Texture2D().load_from_file(r"demos\demo_11\T-Rex.png")
+result, texture8 = Texture2D().load_from_file(r"demos\demo_11\slices6.png")
 
 
 # (Текстура, Ширина, Высота Слайса, Количество Слайсов)

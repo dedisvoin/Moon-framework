@@ -81,7 +81,7 @@ class RectangleShape:
     """
 
     @final
-    def __init__(self, width: Number, height: Number):
+    def __init__(self, width: Number = 1, height: Number = 1):
         """
         #### Создает новый прямоугольник
 
@@ -132,6 +132,68 @@ class RectangleShape:
         self.__origin: Vector2f = Vector2f(0, 0)   # Точка преобразований
         self.__angle: float = 0                    # Угол поворота (градусы)
         self.__scale: Vector2f = Vector2f.one()    # Масштаб по осям
+
+    @property
+    def position(self) -> Vector2Type:
+        return Vector2f(
+            LIB_MOON._Rectangle_GetPositionX(self._ptr),
+            LIB_MOON._Rectangle_GetPositionY(self._ptr)
+        )
+
+    @position.setter
+    def position(self, position: Vector2Type) -> None:
+        self.set_position(position)
+
+    @property
+    def color(self) -> Color | None:
+        return self.get_color()
+    
+    @color.setter
+    def color(self, color: Color) -> None:
+        self.set_color(color)
+
+    @property
+    def size(self) -> Vector2Type:
+        return Vector2f(
+            LIB_MOON._Rectangle_GetWidth(self._ptr),
+            LIB_MOON._Rectangle_GetHeight(self._ptr)
+        )
+    
+    @size.setter
+    def size(self, size: Vector2Type) -> None:
+        self.set_size(size)
+
+    @property
+    def origin(self) -> Vector2Type:
+        return self.get_origin()
+    
+    @origin.setter
+    def origin(self, origin: Vector2Type) -> None:
+        self.set_origin(origin)
+    
+    @property
+    def angle(self) -> Number:
+        return self.__angle
+    
+    @angle.setter
+    def angle(self, angle: Number) -> None:
+        self.set_angle(angle)
+
+    @property
+    def outline_color(self) -> Color | None:
+        return self.get_outline_color()
+    
+    @outline_color.setter
+    def outline_color(self, color: Color) -> None:
+        self.set_outline_color(color)
+
+    @property
+    def outline_thickness(self) -> Number:
+        return self.__outline_thickness
+    
+    @outline_thickness.setter
+    def outline_thickness(self, thickness: Number) -> None:
+        self.set_outline_thickness(thickness)
 
     @final
     def get_ptr(self) -> RectanglePtrType | None:
@@ -2265,7 +2327,7 @@ POLYLINE_SHAPE:         Final[Polyline]         = Polyline()
 class LineShape:
     def __init__(self):
         self.__vertex_array = VertexList()
-        self.__vertex_array.set_primitive_type(VertexListTypes.LineStrip)
+        self.__vertex_array.set_primitive_type(VertexListTypes.Lines)
         self.__color = None
 
     def clear(self):
