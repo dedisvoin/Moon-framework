@@ -4,7 +4,7 @@ sys.path.append('./')
 
 from Moon.python.Inputs import *
 from Moon.python.Window import * # pyright: ignore
-from Moon.python.Rendering.Shapes import * # pyright: ignore
+from Moon.python.Rendering.CShapes import * # pyright: ignore
 from Moon.python.Audio import *  # pyright: ignore
 
 

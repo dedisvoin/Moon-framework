@@ -93,9 +93,9 @@ from Moon.python.Vectors import Vector2i, Vector2f
 from Moon.python.Inputs import MouseInterface, KeyBoardInterface
 
 from Moon.python.Rendering.Text import *                                                                                # pyright: ignore [ reportGeneralTypeIssues ]
-from Moon.python.Rendering.Shapes import *                                                                              # pyright: ignore [ reportGeneralTypeIssues ]
+from Moon.python.Rendering.Shapes.Rectangle import *                                                                    # pyright: ignore [ reportGeneralTypeIssues ]
 from Moon.python.Rendering.Shaders import Shader
-from Moon.python.Rendering.Drawable import *
+from Moon.python.Rendering.Drawable import *                                                                            # pyright: ignore [ reportGeneralTypeIssues ]
 from Moon.python.Rendering.RenderStates import RenderStates
 
 from Moon.python.utils import find_library, find_module_installation_path
@@ -1022,9 +1022,11 @@ class Window:
         self.__info_text_fps_color = Color(0, 0, 0, 180)
 
         self.__info_fps_line = Polyline()
+        self.__info_fps_smooth_line = Polyline()
         self.__info_fps_grid_line = Polyline()
 
-
+        self.__smooth_fps_history: list[float] = []
+        self.__smooth_fps: float = FPS_VSYNC_CONST
 
         #////////////////////////////////////////////////////////////////////////////////
 
@@ -2400,6 +2402,8 @@ class Window:
             self.__info_fps_grid_line.set_color(Color(180, 180, 180, self.__info_alpha))
             self.draw(self.__info_fps_grid_line)
 
+        
+
         if self.__fps_history != []:
             graph_step = graph_width / self.__max_history
 
@@ -2408,12 +2412,21 @@ class Window:
 
 
             self.__info_fps_line.clear()
-            for fps in self.__fps_history:
+            self.__info_fps_smooth_line.clear()
+            
+            
+            for i, fps in enumerate(self.__fps_history):
                 self.__info_fps_line.prepend_point(Vector2f(pos, graph_y + graph_height - (fps / max_fps * graph_height)))
+                self.__info_fps_smooth_line.prepend_point(Vector2f(pos, graph_y + graph_height - (self.__smooth_fps_history[i] / max_fps * graph_height)))
                 pos -= graph_step
+
+            
             self.__info_fps_line.set_color(Color(0, 0, 0, self.__info_alpha))
+            self.__info_fps_smooth_line.set_color(COLOR_GREEN)
+            
 
             self.draw(self.__info_fps_line)
+            self.draw(self.__info_fps_smooth_line)
 
 
 
@@ -2981,8 +2994,12 @@ class Window:
             # Ограничение размера истории
             if len(self.__fps_history) > self.__max_history:
                 self.__fps_history.pop(0)
+                self.__smooth_fps_history.pop(0)
 
             self.__fps_update_timer = 0
+
+            self.__smooth_fps += ( self.get_fps() - self.__smooth_fps) * 0.2
+            self.__smooth_fps_history.append(self.__smooth_fps)
 
     def __should_close_window(self, event_type: int, events: WindowEvents) -> bool:
         """

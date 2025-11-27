@@ -1,9 +1,11 @@
 from typing import TypeAlias, TypeVar
 from Moon.python.Rendering.Text import Text, BaseText
-from Moon.python.Rendering.Shapes import (
-    CircleShape, RectangleShape, Polyline
+from Moon.python.Rendering.CShapes import (
+    Polyline
     #BaseLineShape, LineShape, PolygoneShape, LineThinShape, LinesThinShape
 )
+from Moon.python.Rendering.Shapes.Rectangle import *
+from Moon.python.Rendering.Shapes.Circle import *
 
 from Moon.python.Rendering.Vertexes import VertexList
 

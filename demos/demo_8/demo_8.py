@@ -5,7 +5,7 @@ sys.path.append('./')
 
 from Moon.python.Window import *
 from Moon.python.Rendering.Sprites import *
-from Moon.python.Rendering.Shapes import *
+from Moon.python.Rendering.CShapes import *
 from Moon.python.Vectors import *
 
 

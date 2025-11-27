@@ -18,4 +18,4 @@ elif sys.platform == 'linux':
 
 if os.name != 'nt':  # Only for Windows
     from colorama import Fore
-    print(f"[ {Fore.RED}Err{Fore.RESET} ] Moon framework is not support ({os.name}) system.")
+    print(f"[ {Fore.RED}Error{Fore.RESET} ] Moon framework is not support ({os.name}) system.")

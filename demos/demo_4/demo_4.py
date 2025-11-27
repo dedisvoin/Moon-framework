@@ -4,7 +4,7 @@ sys.path.append('./')
 
 from Moon.python.Inputs import *
 from Moon.python.Window import * # pyright: ignore
-from Moon.python.Rendering.Shapes import * # pyright: ignore
+from Moon.python.Rendering.CShapes import * # pyright: ignore
 from Moon.python.Math import distance
 
 window = Window(1920, 1080, "Moon Framework Demo", context_settings=ContextSettings().set_antialiasing_level(8))

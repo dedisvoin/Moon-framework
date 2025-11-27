@@ -105,7 +105,6 @@ type RGBColorsArrayType = list[RGBColorAsArrayType] | tuple[RGBColorAsArrayType,
 
 
 # Класс для хранения и манипуляции с цветами `RGBA`
-@final
 class Color:
     __slots__ = ('r', 'g', 'b', 'a')
 

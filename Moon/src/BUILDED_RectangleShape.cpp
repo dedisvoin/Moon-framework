@@ -82,5 +82,13 @@ extern "C" {
     MOON_API void _Rectangle_Delete(RectanglePtr rectangle) {
         delete rectangle;
     }
+
+    MOON_API double _Rectangle_GetOriginX(RectanglePtr rectangle) {
+        return rectangle->getOrigin().x;
+    }
+
+    MOON_API double _Rectangle_GetOriginY(RectanglePtr rectangle) {
+        return rectangle->getOrigin().y;
+    }
 }
 // ===============================================================================

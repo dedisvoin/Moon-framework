@@ -89,7 +89,7 @@ from typing import Any, Literal, Final, final, Optional, Union, Set, Dict
 
 
 from Moon.python.Types import AutoIdentifier, Self
-from Moon.python.Vectors import Vector2f, Vector2i  # Векторные операции для позиций
+from Moon.python.Vectors import Vector2f, Vector2i, Vector2Type  # Векторные операции для позиций
 from Moon.python.utils import find_library, LibraryLoadError
 
 
@@ -362,16 +362,16 @@ class Key(Enum):
 def get_key_number(key_identifier: str) -> int:
     """
     Возвращает номер клавиши по переданному идентификатору
-    
+
     Args:
         key_identifier: Символ или название специальной клавиши
-        
+
     Returns:
         int: Номер клавиши или -1 (Key.Unknown) если клавиша не найдена
     """
     if not key_identifier:
         return Key.Unknown.value
-    
+
     # Словарь для специальных клавиш (названия)
     special_keys = {
         # Функциональные клавиши
@@ -379,7 +379,7 @@ def get_key_number(key_identifier: str) -> int:
         'f5': Key.F5, 'f6': Key.F6, 'f7': Key.F7, 'f8': Key.F8,
         'f9': Key.F9, 'f10': Key.F10, 'f11': Key.F11, 'f12': Key.F12,
         'f13': Key.F13, 'f14': Key.F14, 'f15': Key.F15,
-        
+
         # Навигационные клавиши
         'escape': Key.Escape, 'esc': Key.Escape,
         'tab': Key.Tab,
@@ -393,7 +393,7 @@ def get_key_number(key_identifier: str) -> int:
         'pageup': Key.PageUp, 'pgup': Key.PageUp,
         'pagedown': Key.PageDown, 'pgdn': Key.PageDown,
         'pause': Key.Pause, 'break': Key.Pause,
-        
+
         # Модификаторы
         'lctrl': Key.LControl, 'leftctrl': Key.LControl, 'leftcontrol': Key.LControl,
         'rctrl': Key.RControl, 'rightctrl': Key.RControl, 'rightcontrol': Key.RControl,
@@ -404,13 +404,13 @@ def get_key_number(key_identifier: str) -> int:
         'lsystem': Key.LSystem, 'leftsystem': Key.LSystem, 'leftwin': Key.LSystem, 'lwin': Key.LSystem,
         'rsystem': Key.RSystem, 'rightsystem': Key.RSystem, 'rightwin': Key.RSystem, 'rwin': Key.RSystem,
         'menu': Key.Menu, 'app': Key.Menu,
-        
+
         # Стрелки
         'left': Key.Left, 'leftarrow': Key.Left, 'arrowleft': Key.Left,
         'right': Key.Right, 'rightarrow': Key.Right, 'arrowright': Key.Right,
         'up': Key.Up, 'uparrow': Key.Up, 'arrowup': Key.Up,
         'down': Key.Down, 'downarrow': Key.Down, 'arrowdown': Key.Down,
-        
+
         # Цифровая клавиатура
         'numpad0': Key.Numpad0, 'np0': Key.Numpad0,
         'numpad1': Key.Numpad1, 'np1': Key.Numpad1,
@@ -426,13 +426,13 @@ def get_key_number(key_identifier: str) -> int:
         'numpadsubtract': Key.Subtract, 'npsubtract': Key.Subtract, 'numpad-': Key.Subtract,
         'numpadmultiply': Key.Multiply, 'npmultiply': Key.Multiply, 'numpad*': Key.Multiply,
         'numpaddivide': Key.Divide, 'npdivide': Key.Divide, 'numpad/': Key.Divide,
-        
+
         # Другие специальные клавиши
         'capslock': Key.Unknown,  # Не представлено в оригинальном enum
         'scrolllock': Key.Unknown,  # Не представлено в оригинальном enum
         'printscreen': Key.Unknown,  # Не представлено в оригинальном enum
     }
-    
+
     # Словарь для символов
     char_to_key = {
         # Буквы (учитываем регистр)
@@ -445,12 +445,12 @@ def get_key_number(key_identifier: str) -> int:
         's': Key.S, 'S': Key.S, 't': Key.T, 'T': Key.T, 'u': Key.U, 'U': Key.U,
         'v': Key.V, 'V': Key.V, 'w': Key.W, 'W': Key.W, 'x': Key.X, 'X': Key.X,
         'y': Key.Y, 'Y': Key.Y, 'z': Key.Z, 'Z': Key.Z,
-        
+
         # Цифры
         '0': Key.Num0, '1': Key.Num1, '2': Key.Num2, '3': Key.Num3,
         '4': Key.Num4, '5': Key.Num5, '6': Key.Num6, '7': Key.Num7,
         '8': Key.Num8, '9': Key.Num9,
-        
+
         # Специальные символы
         '[': Key.LBracket, ']': Key.RBracket, ';': Key.Semicolon,
         ',': Key.Comma, '.': Key.Period, "'": Key.Apostrophe,
@@ -458,18 +458,18 @@ def get_key_number(key_identifier: str) -> int:
         '=': Key.Equal, '-': Key.Hyphen, ' ': Key.Space,
         '+': Key.Add, '*': Key.Multiply,
     }
-    
+
     # Приводим к нижнему регистру для поиска в special_keys
     key_lower = key_identifier.lower().strip()
-    
+
     # Сначала проверяем специальные клавиши
     if key_lower in special_keys:
         return special_keys[key_lower].value
-    
+
     # Если это одиночный символ, проверяем в char_to_key
     if len(key_identifier) == 1:
         return char_to_key.get(key_identifier, Key.Unknown).value
-    
+
     # Пробуем найти прямое соответствие с именами enum (регистронезависимо)
     try:
         # Ищем по имени enum (регистронезависимо)
@@ -478,7 +478,7 @@ def get_key_number(key_identifier: str) -> int:
                 return key_enum.value
     except:
         pass
-    
+
     return Key.Unknown.value
 
 def is_key_pressed(key: str) -> bool:
@@ -502,7 +502,7 @@ def is_key_pressed(key: str) -> bool:
         InputError: Ошибка при проверке состояния
     """
     # Конвертация строки в код символа
-    
+
     try:
         # Настройка и вызов нативной функции
         _lib._Keyboard_IsKeyPressed.restype = ctypes.c_bool
@@ -848,7 +848,7 @@ class Mouse:
         """
         return get_mouse_position_in_window(window)
 
-    def get_speed(self) -> Vector2i:
+    def get_speed(self) -> Vector2Type:
         """
         #### Рассчитывает скорость движения мыши (пикселей/кадр)
 
@@ -980,7 +980,7 @@ class Mouse:
 # ////////////////////////////////////////////////////////////////////////////
 # Глобальный экземпляр интерфейса мыши
 # Используется для удобства, чтобы не создавать экземпляр класса каждый раз
-MouseInterface: Final[Mouse] = Mouse()
+MouseInterface: Mouse = Mouse()
 # ////////////////////////////////////////////////////////////////////////////
 
 
@@ -1314,7 +1314,7 @@ class Keyboard:
 # ////////////////////////////////////////////////////////////////////////////
 # Глобальный экземпляр интерфейса клавиатуры
 # Используется для удобства, чтобы не создавать экземпляр класса каждый раз
-KeyBoardInterface: Final[Keyboard] = Keyboard()
+KeyBoardInterface: Keyboard = Keyboard()
 # ////////////////////////////////////////////////////////////////////////////
 
 

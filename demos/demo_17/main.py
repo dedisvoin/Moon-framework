@@ -3,7 +3,7 @@ sys.path.append('./')
 
 from Moon.python.Vectors import *
 from Moon.python.Window import *
-from Moon.python.Rendering.Shapes import *
+from Moon.python.Rendering.CShapes import *
 from Moon.python import Threader
 from Moon.python.Inputs import *
 

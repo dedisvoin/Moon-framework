@@ -68,7 +68,7 @@ extern "C" MOON_API float _Circle_GetRotation(CirclePtr circle) {
 
 // Colors
 extern "C" MOON_API void
-_Circle_SetFillColor(CirclePtr circle, int r, int g, int b, int a) {
+_Circle_SetColor(CirclePtr circle, int r, int g, int b, int a) {
   circle->setFillColor(sf::Color(r, g, b, a));
 }
 
@@ -109,4 +109,5 @@ extern "C" MOON_API float _Circle_GetOriginX(CirclePtr circle) {
 extern "C" MOON_API float _Circle_GetOriginY(CirclePtr circle) {
   return circle->getOrigin().y;
 }
+
 // ===============================================================================

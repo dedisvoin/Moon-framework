@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from Moon.python.Vectors import Vector2f
-from Moon.python.Rendering.Shapes import *
+from Moon.python.Rendering.CShapes import *
 from Moon.python.Rendering.Sprites import *
 from Moon.python.Rendering.Vertexes import *
 from Moon.python.Rendering.RenderStates import RenderStates, BlendMode

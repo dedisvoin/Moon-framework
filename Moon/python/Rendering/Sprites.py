@@ -14,7 +14,7 @@ import ctypes
 
 # Загружаем DLL библиотеку
 try:
-    LIB_MOON = ctypes.CDLL(find_library())
+    LIB_MOON = ctypes.CDLL(find_library())   # pyright: ignore
 except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
@@ -863,7 +863,7 @@ class Image:
         ptr = LIB_MOON._Image_TextureCopyToImage(texture.get_ptr())
         img.set_ptr(ptr)
         return img
-    
+
     @classmethod
     def CopyFromRenderTexture(cls, texture: RenderTexture2D) -> "Image":
         """
@@ -895,7 +895,7 @@ class Image:
             ImagePtr: Указатель на нативный Image.
         """
         return self.__ptr
-    
+
     def set_ptr(self, ptr: ImagePtr) -> Self:
         """
         #### Устанавливает нативный указатель для объекта Image.

@@ -8,7 +8,7 @@
 *Автор: Павлов Иван (Pavlov Ivan)*
 
 *Лицензия: MIT*
-##### Реализованно на 95% 
+##### Реализованно на 95%
 
 ---
 
@@ -51,22 +51,22 @@
 [MIT License]
 Copyright (c) 2025 Pavlov Ivan
 
-Данная лицензия разрешает лицам, получившим копию данного программного обеспечения 
-и сопутствующей документации (в дальнейшем именуемыми «Программное Обеспечение»), 
-безвозмездно использовать Программное Обеспечение без ограничений, включая неограниченное 
-право на использование, копирование, изменение, слияние, публикацию, распространение, 
-сублицензирование и/или продажу копий Программного Обеспечения, а также лицам, которым 
+Данная лицензия разрешает лицам, получившим копию данного программного обеспечения
+и сопутствующей документации (в дальнейшем именуемыми «Программное Обеспечение»),
+безвозмездно использовать Программное Обеспечение без ограничений, включая неограниченное
+право на использование, копирование, изменение, слияние, публикацию, распространение,
+сублицензирование и/или продажу копий Программного Обеспечения, а также лицам, которым
 предоставляется данное Программное Обеспечение, при соблюдении следующих условий:
 
 [ Уведомление об авторском праве и данные условия должны быть включены во все копии ]
 [                 или значительные части Программного ОбеспечениЯ.                  ]
 
-ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО 
-ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ 
-ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ ПРАВ. 
-НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО ИСКАМ О 
-ВОЗМЕЩЕНИИ УЩЕРБА, УБЫТКОВ ИЛИ ДРУГИХ ТРЕБОВАНИЙ ПО ДЕЙСТВУЮЩЕМУ ПРАВУ ИЛИ ИНОМУ, 
-ВОЗНИКШИМ ИЗ, ИМЕЮЩИМ ПРИЧИНОЙ ИЛИ СВЯЗАННЫМ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ 
+ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНО
+ВЫРАЖЕННЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ
+ПРИГОДНОСТИ, СООТВЕТСТВИЯ ПО ЕГО КОНКРЕТНОМУ НАЗНАЧЕНИЮ И ОТСУТСТВИЯ НАРУШЕНИЙ ПРАВ.
+НИ В КАКОМ СЛУЧАЕ АВТОРЫ ИЛИ ПРАВООБЛАДАТЕЛИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ПО ИСКАМ О
+ВОЗМЕЩЕНИИ УЩЕРБА, УБЫТКОВ ИЛИ ДРУГИХ ТРЕБОВАНИЙ ПО ДЕЙСТВУЮЩЕМУ ПРАВУ ИЛИ ИНОМУ,
+ВОЗНИКШИМ ИЗ, ИМЕЮЩИМ ПРИЧИНОЙ ИЛИ СВЯЗАННЫМ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ
 ИСПОЛЬЗОВАНИЕМ ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫМИ ДЕЙСТВИЯМИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ.
 """
 
@@ -94,17 +94,17 @@ except Exception as e:
         raise ImportError(f"Failed to load PySGL library: {e}")
 
 # Определения сигнатур функций из библиотеки PySGL
-LIB_MOON._Shader_Create.argtypes = None
+LIB_MOON._Shader_Create.argtypes = []
 LIB_MOON._Shader_Create.restype = ctypes.c_void_p
 LIB_MOON._Shader_Delete.argtypes = [ctypes.c_void_p]
 LIB_MOON._Shader_Delete.restype = None
-LIB_MOON._Shader_IsAvailable.argtypes = None
+LIB_MOON._Shader_IsAvailable.argtypes = []
 LIB_MOON._Shader_IsAvailable.restype = ctypes.c_bool
 LIB_MOON._Shader_LoadFromFile.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p]
 LIB_MOON._Shader_LoadFromFile.restype = ctypes.c_bool
 LIB_MOON._Shader_LoadFromStrings.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p]
 LIB_MOON._Shader_LoadFromStrings.restype = ctypes.c_bool
-LIB_MOON._Shader_GetCurrentTexture.argtypes = None
+LIB_MOON._Shader_GetCurrentTexture.argtypes = []
 LIB_MOON._Shader_GetCurrentTexture.restype = ctypes.c_void_p
 
 LIB_MOON._Shader_SetUniformInt.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_float]
@@ -230,7 +230,7 @@ class Shader:
             else:
                 print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.RED}error{Fore.RESET} ] Shader from sources not loaded')
                 return None
-            
+
     @classmethod
     def LoadFromFiles(self, vertex_path: str, fragment_path: str) -> "Shader | None":
         """
@@ -260,12 +260,12 @@ class Shader:
             print(f'  {Fore.GREEN}+{Fore.RESET} Vertex Path: {Fore.LIGHTMAGENTA_EX}{vertex_path}{Fore.RESET}')
         else:
             print(f'  {Fore.RED}-{Fore.RESET} Vertex Path not found: {Fore.LIGHTMAGENTA_EX}{vertex_path}{Fore.RESET}')
-        
+
         if os.path.exists(fragment_path):
             print(f'  {Fore.GREEN}+{Fore.RESET} Fragment Path: {Fore.LIGHTMAGENTA_EX}{fragment_path}{Fore.RESET}')
         else:
             print(f'  {Fore.RED}-{Fore.RESET} Fragment Path not found: {Fore.LIGHTMAGENTA_EX}{fragment_path}{Fore.RESET}')
-        
+
         print(f'[ {Fore.LIGHTBLUE_EX}ShaderLoader{Fore.RESET} ] [ {Fore.YELLOW}info{Fore.RESET} ] Compiling shader...')
 
         result = LIB_MOON._Shader_LoadFromFile(shader.get_ptr(), vertex_path.encode('utf-8'), fragment_path.encode('utf-8'))
@@ -312,7 +312,7 @@ class Shader:
         fragment_source = open(path, 'r', encoding='utf-8').read()
         shader = Shader().LoadFromSources(BASE_VERTEX_SOURCE, fragment_source)
         return shader
-        
+
 
 
     def __init__(self):
@@ -366,7 +366,7 @@ class Shader:
             self.__vertex_source = source
         else:
             raise ValueError("Invalid source type")
-        
+
 
     def _load_from_source(self):
         """
@@ -406,7 +406,7 @@ class Shader:
         ```
         """
         return self.__ptr
-    
+
     def __del__(self):
         """
         #### Уничтожение объекта Shader и освобождение нативного ресурса
@@ -424,7 +424,7 @@ class Shader:
         ```
         """
         LIB_MOON._Shader_Delete(self.__ptr)
-    
+
     def set_uniform(self, name: str, arg: Any):
         """
         #### Устанавливает uniform-переменную в шейдере по имени

@@ -3,7 +3,7 @@ sys.path.append('./')
 
 from Moon.python.Inputs import *
 from Moon.python.Window import *
-from Moon.python.Rendering.Shapes import *
+from Moon.python.Rendering.CShapes import *
 
 window = Window(title="Test")
 window.set_wait_fps(FPS_VSYNC_CONST)

@@ -3,7 +3,7 @@ sys.path.append('./')
 
 from Moon.python.Window import *
 from Moon.python.Rendering.Sprites import *
-from Moon.python.Rendering.Shapes import *
+from Moon.python.Rendering.CShapes import *
 from Moon.python.Vectors import *
 
 result, texture = Texture2D().load_from_file(r"demos\demo_9\texture.png")
