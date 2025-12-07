@@ -5,7 +5,7 @@ sys.path.append('./')
 
 from Moon.python.Window import *
 from Moon.python.Rendering.Sprites import *
-from Moon.python.Rendering.CShapes import *
+from Moon.python.Rendering.Shapes import *
 from Moon.python.Vectors import *
 
 
@@ -45,10 +45,10 @@ while window.update(window_events):
     window.view_info()
 
     mouse_vector = Vector2f.between(MouseInterface.get_position_in_window(window).xy, position.xy)
-    
+
     sprite.set_rotation(-mouse_vector.get_angle())
     bounds = sprite.get_global_bounds()
     rectangle.set_position(position - bounds[1] / 2)
     rectangle.set_size(*bounds[1])
-    
+
     window.display()

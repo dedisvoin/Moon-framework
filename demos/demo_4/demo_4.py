@@ -4,7 +4,7 @@ sys.path.append('./')
 
 from Moon.python.Inputs import *
 from Moon.python.Window import * # pyright: ignore
-from Moon.python.Rendering.CShapes import * # pyright: ignore
+from Moon.python.Rendering.Shapes import * # pyright: ignore
 from Moon.python.Math import distance
 
 window = Window(1920, 1080, "Moon Framework Demo", context_settings=ContextSettings().set_antialiasing_level(8))
@@ -17,8 +17,9 @@ point_2 = Vector2f(800, 500)
 radius = 50
 
 
-line = BaseLineShape()
-line.set_points(point_1, point_2)
+line = LineShape()
+line.init_points(point_1, point_2)
+line.set_global_color(COLOR_RED)
 
 circle = CircleShape()
 circle.set_outline_thickness(2)
@@ -59,7 +60,8 @@ while window.update(window_events):
             point_2 += ms
 
 
-    line.set_points(point_1, point_2)
+    line.set_start_position(point_1)
+    line.set_end_position(point_2)
     window.draw(line)
 
     if draw_circle:

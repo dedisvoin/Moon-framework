@@ -4,7 +4,7 @@ sys.path.append('./')
 from Moon.python.Inputs import *
 from Moon.python.Window import *
 from Moon.python.Rendering.Vertexes import *
-from Moon.python.Rendering.CShapes import *
+from Moon.python.Rendering.Shapes import *
 from Moon.python.Threader import CycleWorker
 
 window = Window(title="Test")
@@ -30,7 +30,7 @@ def print_count(worker: CycleWorker):
         worker.stop() # Останавливаем воркер
         return
     print("Vertex count:", array.length())
-    
+
 
 
 worker = CycleWorker()

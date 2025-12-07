@@ -846,7 +846,7 @@ DEFAULT_WINDOW_TITLE_COLOR:  Final[Color] = Color(255, 255, 255)
 DEFAULT_WINDOW_ICON_PATH:       Final[str] = "Moon/data/icons/default_app_icon.png"
 DEFAULT_WINDOW_ICON_LOCAL_PATH: Final[str] = "./icons/default_app_icon.png"
 
-
+DEFAULI_WINDOW_FONT_LOCAL_PATH: Final[str] = "./fonts/GNF.ttf"
 
 class Window:
     """
@@ -1006,7 +1006,10 @@ class Window:
         self.__max_history = 40 # Максимальное количество точек в истории FPS
 
         # Настройка шрифта и текстовых элементов для отображения отладочной информации
-        self.__info_font = Font("Moon/data/fonts/GNF.ttf")
+        try:
+            self.__info_font = Font("Moon/data/fonts/GNF.ttf")
+        except:
+            self.__info_font = Font(DEFAULI_WINDOW_FONT_LOCAL_PATH)
         self.__info_text = BaseText(self.__info_font).\
             set_outline_thickness(2).set_outline_color(COLOR_GHOST_WHITE)
         self.__info_text_color_ghost_white = Color(248, 248, 255, 100)
@@ -1094,7 +1097,7 @@ class Window:
                         raise RuntimeError("App Icon path not found")
                 except:
                     raise RuntimeError("App Icon path not found")
-                
+
         if sys.platform == 'win32':
             print(f'[ {Fore.CYAN}WindowAPI{Fore.RESET} ] [ {Fore.GREEN}succes{Fore.RESET} ] Window created')
             print(f'    descriptor addr: {Fore.BLACK}{self.__window_descriptor}{Fore.RESET}')
@@ -1102,7 +1105,7 @@ class Window:
             print(f"    size: {Fore.BLACK}{self.__width}x{self.__height}{Fore.RESET}")
             print(f'    style: {Fore.BLACK}{self.__style}{Fore.RESET}')
             print()
-            
+
 
     def get_handle(self) -> int:
         """
@@ -2399,10 +2402,10 @@ class Window:
             self.__info_fps_grid_line.clear()
             self.__info_fps_grid_line.append_point(Vector2f(graph_x + step * i , graph_y))
             self.__info_fps_grid_line.append_point(Vector2f(graph_x + step * i, graph_y + graph_height))
-            self.__info_fps_grid_line.set_color(Color(180, 180, 180, self.__info_alpha))
+            self.__info_fps_grid_line.set_global_color(Color(180, 180, 180, self.__info_alpha))
             self.draw(self.__info_fps_grid_line)
 
-        
+
 
         if self.__fps_history != []:
             graph_step = graph_width / self.__max_history
@@ -2413,17 +2416,17 @@ class Window:
 
             self.__info_fps_line.clear()
             self.__info_fps_smooth_line.clear()
-            
-            
+
+
             for i, fps in enumerate(self.__fps_history):
                 self.__info_fps_line.prepend_point(Vector2f(pos, graph_y + graph_height - (fps / max_fps * graph_height)))
                 self.__info_fps_smooth_line.prepend_point(Vector2f(pos, graph_y + graph_height - (self.__smooth_fps_history[i] / max_fps * graph_height)))
                 pos -= graph_step
 
-            
-            self.__info_fps_line.set_color(Color(0, 0, 0, self.__info_alpha))
-            self.__info_fps_smooth_line.set_color(COLOR_GREEN)
-            
+
+            self.__info_fps_line.set_global_color(Color(0, 0, 0, self.__info_alpha))
+            self.__info_fps_smooth_line.set_global_color(COLOR_GREEN)
+
 
             self.draw(self.__info_fps_line)
             self.draw(self.__info_fps_smooth_line)
@@ -3269,7 +3272,7 @@ class Window:
         ```
         """
         return self.__clear_color
-    
+
     @final
     def is_shutting_down(self) -> bool:
         """

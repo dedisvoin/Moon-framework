@@ -3,7 +3,7 @@ sys.path.append('./')
 
 from Moon.python.Vectors import *
 from Moon.python.Window import *
-from Moon.python.Rendering.CShapes import *
+from Moon.python.Rendering.Shapes import *
 from Moon.python import Threader
 from Moon.python.Inputs import *
 
@@ -22,7 +22,7 @@ def AppOne(worker: Threader.Worker):
 
 
     while win_1.update(window_events):
-        circle_shape.set_angle(win_1.get_global_timer(180))
+        circle_shape.angle = win_1.get_global_timer(180)
         win_1.clear()
         with semaphore:
             circle_shape.set_position(win_1.get_center(False))

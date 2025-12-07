@@ -5,7 +5,7 @@ sys.path.append('./')
 # Предполагаемые импорты из вашей библиотеки Moon
 from Moon.python.Window import *
 from Moon.python.Rendering.Sprites import *
-from Moon.python.Rendering.CShapes import *
+from Moon.python.Rendering.Shapes import *
 from Moon.python.Vectors import *
 from Moon.python.Inputs import KeyBoardInterface
 
@@ -18,16 +18,24 @@ MIN_LIGHT_ROTATION = 0.4
 # Степень для нелинейного затенения. < 1.0 (например, 0.5) делает основание темнее.
 OCCLUSION_POWER = 0.5
 
+BASE_DIR = os.getcwd()
+print(BASE_DIR)
+def get_resource_path(filename):
+    """Создает надежный путь к файлу в папке 'data'"""
+    # os.path.join автоматически выбирает правильный разделитель (\ или /)
+    return os.path.join(BASE_DIR, "data", filename)
+
+
 
 # --- Загрузка Ресурсов ---
-result, texture = Texture2D().load_from_file(r"demos\demo_11\slices.png")
-result, texture2 = Texture2D().load_from_file(r"demos\demo_11\slices2.png")
-result, texture3 = Texture2D().load_from_file(r"demos\demo_11\slices3-1.png")
-result, texture4 = Texture2D().load_from_file(r"demos\demo_11\slices3-0.png")
-result, texture5 = Texture2D().load_from_file(r"demos\demo_11\slices4.png")
-result, texture6 = Texture2D().load_from_file(r"demos\demo_11\slices5.png")
-result, texture7 = Texture2D().load_from_file(r"demos\demo_11\T-Rex.png")
-result, texture8 = Texture2D().load_from_file(r"demos\demo_11\slices6.png")
+result, texture = Texture2D().load_from_file(get_resource_path("slices.png"))
+result, texture2 = Texture2D().load_from_file(get_resource_path("slices2.png"))
+result, texture3 = Texture2D().load_from_file(get_resource_path("slices3-1.png"))
+result, texture4 = Texture2D().load_from_file(get_resource_path("slices3-0.png"))
+result, texture5 = Texture2D().load_from_file(get_resource_path("slices4.png"))
+result, texture6 = Texture2D().load_from_file(get_resource_path("slices5.png"))
+result, texture7 = Texture2D().load_from_file(get_resource_path("T-Rex.png"))
+result, texture8 = Texture2D().load_from_file(get_resource_path("slices6.png"))
 
 
 # (Текстура, Ширина, Высота Слайса, Количество Слайсов)

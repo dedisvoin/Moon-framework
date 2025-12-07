@@ -3,6 +3,20 @@ import platform
 from colorama import Fore
 import ctypes
 import psutil
+import os
+import sys
+
+# Базовая директория
+def get_base_dir():
+    return sys.path[0]
+
+def get_resource_path(base_dir: str, filename: str, foldername: str):
+    """Создает надежный путь к файлу в папке 'data'"""
+    # os.path.join автоматически выбирает правильный разделитель (\ или /)
+    print(base_dir)
+    path = os.path.join(base_dir, foldername, filename)
+    print(path)
+    return path
 
 # Загружаем DLL библиотеку
 try:

@@ -23,7 +23,7 @@ rect.position = Vector2f(400, 400)
 rect.color.r = 255
 rect.color.g = 0
 rect.color.b = 0
-print(rect.color)
+
 
 circle = CircleShape()
 circle.color = COLOR_RED

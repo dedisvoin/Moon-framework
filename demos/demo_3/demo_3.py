@@ -4,7 +4,7 @@ sys.path.append('./')
 from Moon.python.Window import *
 
 from Moon.python.Vectors import Vector2f
-from Moon.python.Rendering.CShapes import CircleShape
+from Moon.python.Rendering.Shapes import CircleShape
 
 
 window = Window( title="Moon Framework Demo", style=Window.Style.FullScreenDesktop)

@@ -5,7 +5,7 @@ sys.path.append('./')
 # Предполагаемые импорты из вашей библиотеки Moon
 from Moon.python.Window import *
 from Moon.python.Rendering.Sprites import *
-from Moon.python.Rendering.CShapes import *
+from Moon.python.Rendering.Shapes import *
 from Moon.python.Vectors import *
 from Moon.python.Inputs import KeyBoardInterface
 
@@ -37,6 +37,5 @@ def create_image(resolution: int = 256, index: int = 0):
 
 
 
-for i in range(3):
+for i in range(5):
     create_image(256, i)
-

@@ -4,7 +4,7 @@ sys.path.append('./')
 
 from Moon.python.Inputs import *
 from Moon.python.Window import * # pyright: ignore
-from Moon.python.Rendering.CShapes import * # pyright: ignore
+from Moon.python.Rendering.Shapes import * # pyright: ignore
 from Moon.python.Audio import *  # pyright: ignore
 from Moon.python.Vectors import *
 from Moon.python.Microphone import *
@@ -40,13 +40,13 @@ while window.update(window_events):
     speed += gravity
     pos += speed
 
-    if pos.y + 100 >= window.get_height(): 
+    if pos.y + 100 >= window.get_height():
         speed.y *= -0.6
         pos.y = window.get_height() - 100
         speed.x *= 0.9
 
-    
-        
+
+
     if pos.x - 100 <= 0:
         pos.x = 100
         speed.x *= -0.8
@@ -57,7 +57,7 @@ while window.update(window_events):
     if mic.is_volume_increased(0.01):
         speed = Vector2f(random.randint(-5, 5), -mic.get_volume_difference() * 10 * 50)
 
-    
+
 
     volumes.append(mic.get_pitch())
     if len(volumes) > 300: volumes.pop(0)
