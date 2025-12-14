@@ -664,3 +664,551 @@ class LineShape:
         """
         return self.__vertex_array.get_ptr()
 
+
+@final 
+class WidelineShape:
+    """
+    #### Класс для работы с толстыми линиями с закругленными концами
+
+    ---
+
+    :Description:
+    - Представляет собой линию с изменяемой толщиной (радиусом)
+    - Поддерживает как прямоугольные, так и закругленные концы
+    - Использует примитив TriangleFan для заполнения геометрии
+    - Автоматически генерирует меш (сетку) для отображения линии
+
+    ---
+
+    :Features:
+    - Настройка радиуса (толщины) линии
+    - Включение/отключение закругления концов
+    - Управление качеством аппроксимации закруглений
+    - Автоматическое обновление геометрии при изменении параметров
+    - Цветовое оформление всей линии
+    """
+
+    def __init__(self):
+        """
+        #### Инициализирует новую толстую линию
+
+        ---
+
+        :Description:
+        - Создает пустой список вершин с типом примитива TriangleFan
+        - Устанавливает начальные параметры линии
+        - Подготавливает структуру для генерации меша
+
+        ---
+
+        :Initial State:
+        - Пустой список вершин
+        - Тип примитива: TriangleFan (веер треугольников)
+        - Радиус по умолчанию: 10 единиц
+        - Закругление включено
+        - Качество аппроксимации: 10 сегментов
+        - Цвет по умолчанию: черный
+        - Автоматическое обновление отключено
+        """
+        self.__vertex_list = VertexList()
+        self.__vertex_list.set_primitive_type(VertexListTypes.TriangleFan)
+
+        self.__start_point:     Optional[Vector2Type] = None
+        self.__end_point:       Optional[Vector2Type] = None
+        self.__radius:          Number = 10
+        self.__rounded:         bool = True
+        self.__approximation:   int = 10
+        self.__color:           Color = COLOR_BLACK
+
+        self.__auto_rematch:    bool = False
+
+    def __str__(self) -> str:
+        return f'WidelineShape(start:{self.__start_point}, end:{self.__end_point})'
+
+    def set_auto_rematch(self, flag: bool) -> Self:
+        """
+        #### Включает или выключает автоматическое обновление геометрии
+
+        ---
+
+        :Description:
+        - При включении геометрия автоматически пересчитывается при каждом рендеринге
+        - При выключении требуется явный вызов rematch_mesh()
+        - Удобно для статичных линий для повышения производительности
+
+        ---
+
+        :Args:
+        - flag (bool): True - включить автообновление, False - выключить
+
+        ---
+
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        wideline.set_auto_rematch(True)  # Автоматическое обновление включено
+        ```
+
+        :Note:
+        - При частом изменении параметров линии рекомендуется включать автообновление
+        - Для статичных линий лучше выключить для оптимизации производительности
+        """
+        self.__auto_rematch = flag
+        return self
+    
+    def get_auto_rematch(self) -> bool:
+        """
+        #### Возвращает статус автоматического обновления геометрии
+
+        ---
+
+        :Description:
+        - Позволяет проверить, включено ли автоматическое обновление меша
+        - Полезно для отладки и оптимизации
+
+        ---
+
+        :Returns:
+        - bool: True если автообновление включено, иначе False
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        auto_update = wideline.get_auto_rematch()  # False (по умолчанию)
+        ```
+        """
+        return self.__auto_rematch
+
+    def set_rounded(self, flag: bool) -> Self:
+        """
+        #### Включает или выключает закругление концов линии
+
+        ---
+
+        :Description:
+        - При включении концы линии будут закругленными
+        - При выключении концы будут прямоугольными
+        - Влияет на внешний вид и количество вершин в меше
+
+        ---
+
+        :Args:
+        - flag (bool): True - закругленные концы, False - прямоугольные
+
+        ---
+
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        wideline.set_rounded(True)    # Концы закругленные (по умолчанию)
+        wideline.set_rounded(False)   # Концы прямоугольные
+        ```
+
+        :Note:
+        - Закругленные концы требуют больше вершин для отображения
+        - Прямоугольные концы более производительны
+        """
+        self.__rounded = flag
+        return self
+    
+    def get_rounded(self) -> bool:
+        """
+        #### Возвращает статус закругления концов
+
+        ---
+
+        :Description:
+        - Позволяет проверить, включено ли закругление концов линии
+        - Полезно для условной логики рендеринга
+
+        ---
+
+        :Returns:
+        - bool: True если концы закругленные, иначе False
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        is_rounded = wideline.get_rounded()  # True (по умолчанию)
+        ```
+        """
+        return self.__rounded
+
+    def set_radius(self, radius: Number) -> Self:
+        """
+        #### Устанавливает радиус (толщину) линии
+
+        ---
+
+        :Description:
+        - Определяет толщину отображаемой линии
+        - Влияет на размер генерируемого меша
+        - Применяется ко всей длине линии
+
+        ---
+
+        :Args:
+        - radius (Number): Новое значение радиуса (толщины) в пикселях
+
+        ---
+
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        wideline.set_radius(5)   # Тонкая линия
+        wideline.set_radius(20)  # Толстая линия
+        ```
+
+        :Note:
+        - Радиус применяется равномерно с обеих сторон центральной оси
+        - Слишком большой радиус может вызвать визуальные артефакты
+        """
+        self.__radius = radius
+        return self
+    
+    def get_radius(self) -> Number:
+        """
+        #### Возвращает текущий радиус линии
+
+        ---
+
+        :Description:
+        - Возвращает установленное значение толщины линии
+        - Полезно для вычислений связанных с геометрией
+
+        ---
+
+        :Returns:
+        - Number: Текущее значение радиуса
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        thickness = wideline.get_radius()  # 10 (по умолчанию)
+        ```
+        """
+        return self.__radius
+
+    def set_color(self, color: Color) -> Self:
+        """
+        #### Устанавливает цвет всей линии
+
+        ---
+
+        :Description:
+        - Применяет указанный цвет ко всем вершинам линии
+        - Немедленно обновляет цвет существующих вершин
+        - Поддерживает fluent-интерфейс
+
+        ---
+
+        :Args:
+        - color (Color): Новый цвет линии
+
+        ---
+
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        wideline.set_color(Color.RED)     # Красная линия
+        wideline.set_color(Color.BLUE)    # Синяя линия
+        ```
+
+        :Note:
+        - Цвет применяется равномерно по всей линии
+        - Градиенты не поддерживаются данным методом
+        """
+        self.__color = color
+        self.__vertex_list.set_color(color)
+        return self
+    
+    def get_color(self) -> Color:
+        """
+        #### Возвращает текущий цвет линии
+
+        ---
+
+        :Description:
+        - Возвращает цвет, установленный через set_color()
+        - Используется системой рендеринга для отображения
+
+        ---
+
+        :Returns:
+        - Color: Текущий цвет линии
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        wideline.set_color(Color.GREEN)
+        current_color = wideline.get_color()  # Color.GREEN
+        ```
+        """
+        return self.__color
+    
+    def set_approximation(self, number: int) -> Self:
+        """
+        #### Устанавливает качество аппроксимации закруглений
+
+        ---
+
+        :Description:
+        - Определяет количество сегментов для аппроксимации окружности
+        - Влияет на гладкость закругленных концов
+        - Большие значения дают более гладкие кривые, но требуют больше вершин
+
+        ---
+
+        :Args:
+        - number (int): Количество сегментов аппроксимации (минимум 3)
+
+        ---
+
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        wideline.set_approximation(5)   # Низкое качество, высокая производительность
+        wideline.set_approximation(20)  # Высокое качество, больше вершин
+        ```
+
+        :Note:
+        - Влияет только на закругленные концы (при rounded=True)
+        - Рекомендуемое значение: 10-20 для баланса качества и производительности
+        """
+        self.__approximation = number
+        return self
+
+    def get_approximation(self) -> int:
+        """
+        #### Возвращает текущее качество аппроксимации
+
+        ---
+
+        :Description:
+        - Возвращает количество сегментов для аппроксимации окружности
+        - Полезно для настройки уровня детализации
+
+        ---
+
+        :Returns:
+        - int: Текущее количество сегментов аппроксимации
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        quality = wideline.get_approximation()  # 10 (по умолчанию)
+        ```
+        """
+        return self.__approximation
+
+    def set_start_position(self, pos: Vector2Type) -> Self:
+        """
+        #### Устанавливает позицию начальной точки линии
+
+        ---
+
+        :Description:
+        - Определяет начальную координату толстой линии
+        - Влияет на направление и длину линии
+        - Требует установки конечной точки для формирования линии
+
+        ---
+
+        :Args:
+        - pos (Vector2Type): Координаты начальной точки
+
+        ---
+
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        wideline.set_start_position(Vector2f(0, 0))
+        wideline.set_end_position(Vector2f(100, 100))
+        ```
+
+        :Note:
+        - Линия не будет отображаться пока не установлены обе точки
+        - Требуется вызов rematch_mesh() для обновления геометрии (если auto_rematch=False)
+        """
+        self.__start_point = pos
+        return self
+
+    def set_end_position(self, pos: Vector2Type) -> Self:
+        """
+        #### Устанавливает позицию конечной точки линии
+
+        ---
+
+        :Description:
+        - Определяет конечную координату толстой линии
+        - Вместе с начальной точкой формирует ось линии
+        - Влияет на направление и длину линии
+
+        ---
+
+        :Args:
+        - pos (Vector2Type): Координаты конечной точки
+
+        ---
+
+        :Returns:
+        - Self: Текущий объект для цепочки вызовов
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        wideline.set_start_position(Vector2f(0, 0))
+        wideline.set_end_position(Vector2f(100, 100))
+        # Создана диагональная линия из (0,0) в (100,100)
+        ```
+
+        :Note:
+        - Линия не будет отображаться пока не установлены обе точки
+        - Требуется вызов rematch_mesh() для обновления геометрии (если auto_rematch=False)
+        """
+        self.__end_point = pos
+        return self
+
+    def rematch_mesh(self):
+        """
+        #### Пересчитывает и обновляет геометрию линии
+
+        ---
+
+        :Description:
+        - Генерирует новый меш (сетку) на основе текущих параметров
+        - Создает геометрию с учетом радиуса и закругления концов
+        - Заполняет список вершин для рендеринга
+
+        ---
+
+        :Algorithm:
+        1. Вычисляет нормализованный вектор направления линии
+        2. Создает перпендикулярный вектор для толщины
+        3. Генерирует вершины в зависимости от типа концов:
+           - Прямоугольные: 4 вершины по углам прямоугольника
+           - Закругленные: множественные вершины для аппроксимации окружностей
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        wideline.set_start_position(Vector2f(0, 0))
+        wideline.set_end_position(Vector2f(100, 0))
+        wideline.set_radius(5)
+        wideline.rematch_mesh()  # Генерирует геометрию линии
+        ```
+
+        :Note:
+        - Должен быть вызван после изменения любых параметров линии (если auto_rematch=False)
+        - Требует установки обеих точек (start и end)
+        - Очищает существующий список вершин перед генерацией
+        """
+        # Вычисляем нормализованный вектор направления линии
+        normal = (self.__end_point - self.__start_point).normalize_at()
+        # Создаем перпендикулярный вектор для толщины
+        dummy_ = normal.rotate(90) * self.__radius
+        # Очищаем существующие вершины
+        self.__vertex_list.clear()
+
+        if not self.__rounded:
+            # Генерация прямоугольных концов - 4 вершины
+            self.__vertex_list.auto_append(Vertex2d.FromPosition(self.__start_point + dummy_))
+            self.__vertex_list.auto_append(Vertex2d.FromPosition(self.__end_point + dummy_))
+            dummy_.rotate_at(180)
+            self.__vertex_list.auto_append(Vertex2d.FromPosition(self.__end_point + dummy_))
+            self.__vertex_list.auto_append(Vertex2d.FromPosition(self.__start_point + dummy_))
+            self.__vertex_list.set_color(self.__color)
+        else:
+            # Генерация закругленных концов
+            approximation_angle = 180 / self.__approximation
+            # Вершины для начального закругления
+            for i in range(self.__approximation + 1):
+                if i != 0: dummy_.rotate_at(approximation_angle)
+                self.__vertex_list.auto_append(Vertex2d.FromPosition(self.__start_point + dummy_))
+
+            # Вершины для конечного закругления
+            for i in range(self.__approximation + 1):
+                if i != 0: dummy_.rotate_at(approximation_angle)
+                self.__vertex_list.auto_append(Vertex2d.FromPosition(self.__end_point + dummy_))
+            
+            self.__vertex_list.set_color(self.__color)
+
+
+    def get_ptr(self) -> ctypes.c_void_p:
+        """
+        #### Возвращает указатель на нативный объект вершин
+
+        ---
+
+        :Description:
+        - Предоставляет доступ к низкоуровневому объекту вершин для рендеринга
+        - При включенном auto_rematch автоматически обновляет геометрию
+        - Для внутреннего использования в системе рендеринга
+
+        ---
+
+        :Returns:
+        - ctypes.c_void_p: Указатель на нативный VertexList
+
+        ---
+
+        :Example:
+        ```python
+        wideline = WidelineShape()
+        # ... настройка параметров линии ...
+        vertex_ptr = wideline.get_ptr()  # Получаем указатель для рендеринга
+        ```
+
+        :Note:
+        - Если auto_rematch=True, вызывает rematch_mesh() перед возвратом указателя
+        - Изменение указателя может привести к неопределенному поведению
+        - Используется системой рендеринга для отображения линии
+        """
+        if self.__auto_rematch: 
+            self.rematch_mesh()
+        return self.__vertex_list.get_ptr()
+    

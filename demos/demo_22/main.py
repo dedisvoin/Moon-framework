@@ -29,6 +29,18 @@ polygone.add_vertex(Vector2f(600, 600))
 polygone.set_all_vertices_colors([COLOR_RED, COLOR_GREEN, COLOR_BLUE])
 
 
+
+line_2 = WidelineShape()
+line_2.set_start_position(Vector2f(100, 500))
+line_2.set_end_position(Vector2f(700, 350))
+line_2.set_color(COLOR_GRAY)
+line_2.set_radius(30)
+line_2.set_rounded(True)
+line_2.set_approximation(5)
+line_2.rematch_mesh()
+
+
+
 print(circle)
 print(line)
 print(rect)
@@ -40,7 +52,7 @@ while window.update(events):
     window.draw(circle)
     window.draw(line)
     window.draw(polygone)
-
+    window.draw(line_2)
 
 
     window.view_info()

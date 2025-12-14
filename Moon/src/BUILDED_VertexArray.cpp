@@ -3,6 +3,7 @@
 #include "SFML/Graphics/VertexArray.hpp"
 #include "SFML/Graphics/Vertex.hpp"
 #include "SFML/System/Vector2.hpp"
+#include "SFML/Graphics/ConvexShape.hpp"
 
 
 #ifdef _WIN32
@@ -13,6 +14,7 @@
 
 typedef sf::VertexArray* VertexArrayPtr;
 typedef sf::Vertex* VertexPtr;
+typedef sf::ConvexShape* ConvexShapePtr;
 
 extern "C" {
     MOON_API VertexPtr _Vertex_Init() {
@@ -173,5 +175,29 @@ extern "C" {
         for (int i = 0; i < vertexCount; ++i) {
             (*array)[i].color = sf::Color(r, g, b, a);
         }
+    }
+}
+
+extern "C" {
+    MOON_API ConvexShapePtr _ConvexShape_Init() {
+        return new sf::ConvexShape();
+    }
+
+    MOON_API void _ConvexShape_SetPointsCount(ConvexShapePtr shape, int count) {
+        shape->setPointCount(count);
+    }
+
+    MOON_API void _ConvexShape_SetPoint(const ConvexShapePtr shape, const int index, 
+                                                              const double x, 
+                                                              const double y) {
+        shape->setPoint(index, sf::Vector2f(x, y));
+    }
+
+    MOON_API double _ConvexShape_GetPointX(const ConvexShapePtr shape, const int index) {
+        return shape->getPoint(index).x;
+    }
+
+    MOON_API double _ConvexShape_GetPointY(const ConvexShapePtr shape, const int index) {
+        return shape->getPoint(index).y;
     }
 }
