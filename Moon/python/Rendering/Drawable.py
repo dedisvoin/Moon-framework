@@ -9,9 +9,9 @@ from Moon.python.Rendering.Vertexes import VertexList
 Sprite2D = TypeVar('Sprite2D')
 AnimatedSprite2D = TypeVar('AnimatedSprite2D')
 
-type Drawable = CircleShape | RectangleShape | Text | BaseText | VertexList | Polyline | LineShape
+type Drawable = CircleShape | RectangleShape | Text | BaseText | VertexList | PolylineShape | LineShape
              #LineShape | BaseLineShape | PolygoneShape | LineThinShape | LinesThinShape
 
-DrawableTuple = (CircleShape | RectangleShape | Text | BaseText | VertexList | Polyline | LineShape | \
+DrawableTuple = (CircleShape | RectangleShape | Text | BaseText | VertexList | PolylineShape | LineShape | \
             #LineShape | BaseLineShape | PolygoneShape | LineThinShape | LinesThinShape | \
              Sprite2D | AnimatedSprite2D)

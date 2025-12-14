@@ -10,7 +10,7 @@ LINUX_COMPILER_PATH = "g++"
 
 SFML_PATH = "D:/SFML-2.6.2"
 
-OUTPUT_PATH = "Moon/dlls"
+OUTPUT_PATH = "Moon/data/dlls"
 SOURCE_PATH = "Moon/src"
 
 COMPILE_TARGET = "window"   # 'window' or 'linux'

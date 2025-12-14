@@ -6,12 +6,12 @@ if not os.path.exists(r"Moon\dlls\PySGL.dll") or not os.path.exists(r"Moon\src\P
 
 
 if sys.platform == 'win32':
-    DLL_OUTPUT_PATH = r"dll\Moon.dll"
-    DLL_FOUND_PATH = r"Moon/dlls/Moon.dll"
-    DLL_LOCAL_FOUND_PATH = r"./dlls/Moon.dll"
-    DLL_MODULE_FOUND_PATH = r"../dlls/Moon.dll"
+    DLL_OUTPUT_PATH = r"Moon\libs\Moon.dll"
+    DLL_FOUND_PATH = r"Moon\libs\Moon.dll"
+    DLL_LOCAL_FOUND_PATH = r"./libs/Moon.dll"
+    DLL_MODULE_FOUND_PATH = r"../libs/Moon.dll"
 elif sys.platform == 'linux':
-    DLL_OUTPUT_PATH = r"dll\Moon.so"
+    DLL_OUTPUT_PATH = r"dlls/Moon.so"
     DLL_FOUND_PATH = r"Moon/dlls/Moon.so"
     DLL_LOCAL_FOUND_PATH = r"./dlls/Moon.so"
     DLL_MODULE_FOUND_PATH = r"../dlls/Moon.so"

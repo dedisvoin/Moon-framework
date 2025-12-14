@@ -85,6 +85,8 @@ if sys.platform == 'win32':
 from time import time
 from typing import overload, Final, final, Self, Any
 
+
+
 from Moon.python.Colors import *
 from Moon.python.Time import Clock
 from Moon.python.Views import View
@@ -99,6 +101,8 @@ from Moon.python.Rendering.Drawable import *                                    
 from Moon.python.Rendering.RenderStates import RenderStates
 
 from Moon.python.utils import find_library, find_module_installation_path
+
+from Moon.python.System import *   # pyright: ignore
 
 
 # Загружаем DLL библиотеку
@@ -843,10 +847,12 @@ DEFAULT_WINDOW_BORDER_COLOR: Final[Color] = Color(100, 100, 148).lighten(0.2)  #
 DEFAULT_WINDOW_TITLE_COLOR:  Final[Color] = Color(255, 255, 255)
 
 # Путь к стандартной иконке приложения, используемой если не задана пользовательская
-DEFAULT_WINDOW_ICON_PATH:       Final[str] = "Moon/data/icons/default_app_icon.png"
+DEFAULT_WINDOW_ICON_PATH:       Final[str] = "Moon/icons/default_app_icon.png"
 DEFAULT_WINDOW_ICON_LOCAL_PATH: Final[str] = "./icons/default_app_icon.png"
-
 DEFAULI_WINDOW_FONT_LOCAL_PATH: Final[str] = "./fonts/GNF.ttf"
+
+SYSTEM_ICON_PATH = get_resource_path(get_base_path(), "default_app_icon.png", "icons")
+SYSTEM_FONT_PATH = get_resource_path(get_base_path(), "GNF.ttf", "fonts")
 
 class Window:
     """
@@ -1007,9 +1013,12 @@ class Window:
 
         # Настройка шрифта и текстовых элементов для отображения отладочной информации
         try:
-            self.__info_font = Font("Moon/data/fonts/GNF.ttf")
+            self.__info_font = Font("Moon/fonts/GNF.ttf")
         except:
-            self.__info_font = Font(DEFAULI_WINDOW_FONT_LOCAL_PATH)
+            try:
+                self.__info_font = Font(DEFAULI_WINDOW_FONT_LOCAL_PATH)
+            except:
+                self.__info_font = Font(SYSTEM_FONT_PATH)
         self.__info_text = BaseText(self.__info_font).\
             set_outline_thickness(2).set_outline_color(COLOR_GHOST_WHITE)
         self.__info_text_color_ghost_white = Color(248, 248, 255, 100)
@@ -1024,9 +1033,9 @@ class Window:
         self.__fps_line_color_green = Color(0, 200, 0, 100)
         self.__info_text_fps_color = Color(0, 0, 0, 180)
 
-        self.__info_fps_line = Polyline()
-        self.__info_fps_smooth_line = Polyline()
-        self.__info_fps_grid_line = Polyline()
+        self.__info_fps_line = PolylineShape()
+        self.__info_fps_smooth_line = PolylineShape()
+        self.__info_fps_grid_line = PolylineShape()
 
         self.__smooth_fps_history: list[float] = []
         self.__smooth_fps: float = FPS_VSYNC_CONST
@@ -1089,14 +1098,17 @@ class Window:
                 _ = self.set_icon_from_path(DEFAULT_WINDOW_ICON_LOCAL_PATH)
             except:
                 try:
-                    path = find_module_installation_path('Moon')
-                    if path:
-                        path += "/data/icons/default_app_icon.png"
-                        _ = self.set_icon_from_path(path)
-                    else:
-                        raise RuntimeError("App Icon path not found")
+                    _ = self.set_icon_from_path(SYSTEM_ICON_PATH)
                 except:
-                    raise RuntimeError("App Icon path not found")
+                    try:
+                        path = find_module_installation_path('Moon')
+                        if path:
+                            path += "/data/icons/default_app_icon.png"
+                            _ = self.set_icon_from_path(path)
+                        else:
+                            raise RuntimeError("App Icon path not found")
+                    except:
+                        raise RuntimeError("App Icon path not found")
 
         if sys.platform == 'win32':
             print(f'[ {Fore.CYAN}WindowAPI{Fore.RESET} ] [ {Fore.GREEN}succes{Fore.RESET} ] Window created')

@@ -514,7 +514,7 @@ extern "C" {
 
 #include <cstddef>
 #include <gl/GL.h>
-#include <variant>
+
 
 
 #include "string"
@@ -659,7 +659,6 @@ extern "C" {
 
     // Создание нового объекта шейдера
     MOON_API ShaderPtr _Shader_Create() {
-        
         return new sf::Shader();
     }
 

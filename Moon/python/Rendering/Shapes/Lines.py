@@ -16,7 +16,7 @@ except Exception as e:
     raise ImportError(f"Failed to load PySGL library: {e}")
 
 @final
-class Polyline:
+class PolylineShape:
     """
     #### Класс для работы с ломаными линиями
 
@@ -60,6 +60,9 @@ class Polyline:
 
         self.__color = COLOR_BLACK
         self.__vertex_list.set_color(self.__color)
+
+    def __str__(self) -> str:
+        return f"PolylineShape(vertices:{self.get_points_count()})"
 
     def clear(self):
         """
@@ -368,6 +371,9 @@ class LineShape:
         self.__color = COLOR_BLACK
         self.__vertex_array.set_color(self.__color)
 
+    def __str__(self) -> str:
+        return f"LineShape(start:{self.get_start_point().position}, end:{self.get_end_point().position})"
+
     def clear(self):
         """
         #### Очищает отрезок (удаляет все вершины)
@@ -657,3 +663,4 @@ class LineShape:
         - Изменение указателя может привести к неопределенному поведению
         """
         return self.__vertex_array.get_ptr()
+

@@ -6,6 +6,16 @@ from typing import List
 from Moon import DLL_FOUND_PATH, DLL_LOCAL_FOUND_PATH, DLL_MODULE_FOUND_PATH
 from colorama import Fore
 
+def get_base_path():
+    d = os.path.dirname(__file__)
+    d = os.path.dirname(d)
+    d = os.path.dirname(d)
+    d = os.path.dirname(d)
+    return d
+
+DLL_SYSTEM_PATH = get_base_path() + "/dlls"
+
+
 class LibraryLoadError(Exception):
     """Ошибка загрузки нативной библиотеки"""
     pass
@@ -32,6 +42,7 @@ def find_library() -> str:
     # Список возможных путей к библиотеке, в порядке приоритета
     possible_paths: List[str] = [
         DLL_FOUND_PATH,
+        DLL_SYSTEM_PATH,
         DLL_LOCAL_FOUND_PATH,
         DLL_MODULE_FOUND_PATH,
     ]

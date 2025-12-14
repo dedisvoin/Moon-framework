@@ -6,16 +6,28 @@ import psutil
 import os
 import sys
 
+def is_compiler_with_nuitka() -> bool:
+    return "__compiled__" in globals()
+
 # Базовая директория
-def get_base_dir():
+def get_base_dir() -> str:
     return sys.path[0]
+
+def get_base_path():
+    if is_compiler_with_nuitka():
+        # В Nuitka __file__ указывает на правильное место
+        d = os.path.dirname(__file__)
+        d = os.path.dirname(d)
+        d = os.path.dirname(d)
+        return d
+    else:
+        # При обычном запуске Python
+        return os.path.dirname(os.path.abspath(sys.argv[0]))
 
 def get_resource_path(base_dir: str, filename: str, foldername: str):
     """Создает надежный путь к файлу в папке 'data'"""
     # os.path.join автоматически выбирает правильный разделитель (\ или /)
-    print(base_dir)
     path = os.path.join(base_dir, foldername, filename)
-    print(path)
     return path
 
 # Загружаем DLL библиотеку

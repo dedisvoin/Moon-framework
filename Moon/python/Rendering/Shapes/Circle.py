@@ -281,6 +281,9 @@ class CircleShape:
         self.__color: Color | None = COLOR_GRAY
         self.__angle: float = 0.0
 
+    def __str__(self) -> str:
+        return f"CircleShape({self.radius})"
+
     def __del__(self):
         """
         #### Освобождает ресурсы круга

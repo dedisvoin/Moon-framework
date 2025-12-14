@@ -8,6 +8,7 @@ from Moon.python.Rendering.Sprites import *
 from Moon.python.Rendering.Shapes import *
 from Moon.python.Vectors import *
 from Moon.python.Inputs import KeyBoardInterface
+from Moon.python.System import *
 
 # --- Константы Освещения ---
 # Угол источника света в градусах (135° = Сверху-Слева)
@@ -18,8 +19,8 @@ MIN_LIGHT_ROTATION = 0.4
 # Степень для нелинейного затенения. < 1.0 (например, 0.5) делает основание темнее.
 OCCLUSION_POWER = 0.5
 
-BASE_DIR = os.getcwd()
-print(BASE_DIR)
+BASE_DIR = get_base_path()
+
 def get_resource_path(filename):
     """Создает надежный путь к файлу в папке 'data'"""
     # os.path.join автоматически выбирает правильный разделитель (\ или /)

@@ -9,9 +9,9 @@ os.system('cls')
 
 # --- Константы путей ---
 # (Предполагается, что эти пути существуют относительно места запуска скрипта)
-ICON_PATH = "Moon/data/icons/default_app_icon.png"
-FONT_PATH = "Moon/data/fonts/GNF.ttf"
-DLLS_SRC_DIR = "Moon/dlls"
+ICON_PATH = "Moon/moon_data/icons/default_app_icon.png"
+FONT_PATH = "Moon/moon_data/fonts/GNF.ttf"
+DLLS_SRC_DIR = "Moon/moon_data/dlls"
 
 # --- Настройка Colorama ---
 try:
@@ -252,7 +252,9 @@ def build_project(args):
         f'--show-progress', # Показать прогресс
         f'--show-scons',    # Показать команду Scons, чтобы лучше понять ошибки
         f'--output-filename={output_name}.exe',
-        f'--windows-icon-from-ico={ICON_PATH}' # Применяем иконку
+        f'--windows-icon-from-ico={ICON_PATH}', # Применяем иконку
+        f'--include-data-dir=./{args.data_dir}=data',
+        f'--include-data-dir=./Moon/moon_data=moon_data',
     ]
 
     # Убираем флаг --remove-output если нужно сохранить временные файлы
@@ -285,6 +287,7 @@ def build_project(args):
 
     print_header("ЗАПУСК NUITKA")
     print_info(f"Выполняемая команда: {build_command}")
+    input("Нажмите Enter.")
     print_step(f"Запуск компиляции {source_file} в {output_name}.exe...")
 
     start_time = time.time()
