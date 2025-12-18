@@ -42,7 +42,6 @@
     #define MOON_API
 #endif
 
-#define COLOR_RGBA const int r, const int g, const int b, const int a
 
 using namespace std;
 
@@ -54,14 +53,15 @@ using namespace std;
 typedef sf::RenderWindow* WindowPtr;        // Указатель на окно рендеринга
 typedef sf::Event* EventPtr;                // Указатель на событие
 typedef sf::View* ViewPtr;                  // Указатель на вид (камеру)
+
 typedef sf::ContextSettings* ContextSettingsPtr;
-typedef sf::Drawable* DrawablePtr;
 typedef sf::RenderStates* RenderStatesPtr;
+typedef sf::Drawable* DrawablePtr;
 typedef sf::Shader* ShaderPtr;
 
 
-
 #define CONST_CONTEX_SETTINGS_PTR const ContextSettingsPtr contextSettings
+#define CONST_COLOR_RGBA const int r, const int g, const int b, const int a
 #define CONST_WINDOW_PTR const WindowPtr window
 // ================================================================================
 //                        НАСТРОЙКИ КОНТЕКСТА OPENGL
@@ -271,7 +271,7 @@ extern "C" {
     // Основные функции для отрисовки графики
 
     // Очистка окна указанным цветом
-    MOON_API void _Window_Clear(CONST_WINDOW_PTR, COLOR_RGBA) {
+    MOON_API void _Window_Clear(CONST_WINDOW_PTR, CONST_COLOR_RGBA) {
         window->clear(sf::Color(r, g, b, a));
     }
 

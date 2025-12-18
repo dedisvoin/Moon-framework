@@ -8,7 +8,7 @@ from Moon.python.Rendering.Shapes import *
 
 
 # Инициализируем окно
-window = Window(1000, 1000)
+window = Window(1000, 1000, dynamic_update=True)
 window.set_view_info()
 window.set_wait_fps(160)
 window.set_max_fps_history(40)

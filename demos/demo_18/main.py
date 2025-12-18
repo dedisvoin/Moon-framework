@@ -10,7 +10,7 @@ from Moon.python.Inputs import *
 from Moon.python.System import *
 
 # Инициализируем окно
-window = Window(1000, 1000)
+window = Window(1000, 1000, dynamic_update=True)
 window.set_view_info()
 window.set_wait_fps(FPS_VSYNC_CONST)
 events = WindowEvents()

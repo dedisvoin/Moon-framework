@@ -92,7 +92,7 @@ from Moon.python.Time import Clock
 from Moon.python.Views import View
 from Moon.python.Types import TwoIntegerList
 from Moon.python.Vectors import Vector2i, Vector2f
-from Moon.python.Inputs import MouseInterface, KeyBoardInterface
+from Moon.python.Inputs import MouseInterface, KeyBoardInterface, Mouse
 
 from Moon.python.Rendering.Text import *                                                                                # pyright: ignore [ reportGeneralTypeIssues ]
 from Moon.python.Rendering.Shapes.Rectangle import *                                                                    # pyright: ignore [ reportGeneralTypeIssues ]
@@ -598,7 +598,7 @@ def get_max_displays_refresh_rate() -> int:
         return 60
 
 # Константа для обозначения неограниченного FPS (представляется большим числом) = +
-FPS_UNLIMIT_CONST: Final[int] = 1000000                                           #
+FPS_UNLIMIT_CONST: Final[int] = 10**10                                            #
 # =============================================================================== +
 
 
@@ -908,7 +908,8 @@ class Window:
     def __init__(self, width: int = 800, height: int = 600,
                     title: str = "Moon Window", style: int = Style.Default,
                     vsync: bool = False, alpha: int = 255,
-                    context_settings: ContextSettings | None = None):
+                    context_settings: ContextSettings | None = None,
+                    dynamic_update: bool = False):
         """
         #### Инициализация нового окна приложения
 
@@ -953,7 +954,7 @@ class Window:
             style = Window.Style.No # Переключаем на режим без ничего
 
         self.__style = style
-
+        self.__dynamic_update = dynamic_update
         self.__is_open = True
 
         # Используем переданные настройки или создаем новые по умолчанию
@@ -977,10 +978,12 @@ class Window:
         if sys.platform == 'win32':
             self.__window_descriptor = self.get_handle()
         else:
+            # TODO Доделать для unix систем
             self.__window_descriptor = None                               # pyright: ignore [ reportAny ]
-        self.__window_alpha: int | float = alpha
 
-        #self.set_alpha(self.__window_alpha)
+        self.__window_alpha: int | float = alpha
+        if self.__dynamic_update: self._disable_standart_window_resizing()
+       
         # Получаем стандартную область отображения (View) и сохраняем указатель на нее
         self.__view = self.get_default_view()
 
@@ -1089,8 +1092,6 @@ class Window:
             _ = self.set_header_color(DEFAULT_WINDOW_HEADER_COLOR)
             _ = self.set_border_color(DEFAULT_WINDOW_BORDER_COLOR)
 
-
-
         try:
             _ = self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
         except:
@@ -1118,6 +1119,92 @@ class Window:
             print(f'    style: {Fore.BLACK}{self.__style}{Fore.RESET}')
             print()
 
+        # dynamic update =========================
+        self.__DA_WIDTH = False
+        self.__DA_HAIGHT = False
+        self.__DA_ALL = False
+        self.__DA_MOUSE_INTERFACE = Mouse()
+
+    def _disable_standart_window_resizing(self):
+        hwnd = self.get_handle()
+        style = ctypes.windll.user32.GetWindowLongW(hwnd,ctypes.c_int(-16))
+        style &= ~0x00040000
+        ctypes.windll.user32.SetWindowLongW(hwnd, ctypes.c_int(-16), style)
+
+    def dynamic_resize(self):
+        """
+        #### Реализует динамическое изменение размера окна через перетаскивание границ
+
+        ---
+
+        :Description:
+        - Позволяет изменять размер окна путем перетаскивания его границ мышью
+        - Автоматически меняет курсор мыши в зависимости от положения
+        - Работает при включенном режиме динамического обновления
+        - `главная фича` Не блокирует поток отрисовки
+
+        :Workflow:
+        1. Определяет положение курсора мыши относительно границ окна
+        2. Изменяет системный курсор в зависимости от зоны (горизонтальная/вертикальная/угловая граница)
+        3. При зажатой левой кнопке мыши изменяет размер окна
+
+        :Features:
+        - Поддержка изменения ширины, высоты и обоих размеров одновременно
+        - Визуальная обратная связь через изменение курсора
+        - Плавное изменение размера в реальном времени
+        
+
+        :Note:
+        - Требует предварительного вызова _disable_standart_window_resizing()
+        - Работает только в оконном режиме (не в полноэкранном)
+        - Может конфликтовать с системным управлением окнами
+        """
+        mp = self.__DA_MOUSE_INTERFACE.get_position_in_window(self)
+        mc = self.__DA_MOUSE_INTERFACE.get_click('left')
+        
+        dx = abs(mp.x - self.get_width())
+        dy = abs(mp.y - self.get_height())
+
+        mp += self.get_position()
+        
+        cursor = SystemCursors.Arrow
+
+        
+        if (dx <= 2 or dx == 0) and dy >= 10 :
+            cursor = SystemCursors.SizeHorizontal
+            if mc:
+                self.__DA_WIDTH = True
+
+        if not self.__DA_MOUSE_INTERFACE.get_press('left'):
+            self.__DA_WIDTH = False
+
+        if self.__DA_WIDTH:
+            self.set_size(max(int(abs(self.get_position().x - mp.x)), 1), self.get_height())
+
+        if dy <= 5 and dx >= 10:
+            cursor = SystemCursors.SizeVertical
+            if mc:
+                self.__DA_HAIGHT = True
+
+        if not self.__DA_MOUSE_INTERFACE.get_press('left'):
+            self.__DA_HAIGHT  = False
+
+        if self.__DA_HAIGHT:
+            self.set_size(self.get_width(), max(int(abs(self.get_position().y - mp.y)), 1))
+
+        if dy <= 5 and dx <= 5:
+            cursor = SystemCursors.SizeBottomRight
+            if mc:
+                self.__DA_ALL = True
+
+        if not self.__DA_MOUSE_INTERFACE.get_press('left'):
+            self.__DA_ALL = False
+
+        if self.__DA_ALL:
+            self.set_size(max(int(abs(self.get_position().x - mp.x)), 1), max(int(abs(self.get_position().y - mp.y)), 1))
+        
+        self.set_system_cursor(cursor)
+
 
     def get_handle(self) -> int:
         """
@@ -1129,6 +1216,8 @@ class Window:
             int: Хэндл окна
         """
         return LIB_MOON._Window_GetHandle(self.__window_ptr)                                                         # pyright: ignore [ reportAny ]
+
+
 
     def get_width(self) -> int:
         """
@@ -2988,6 +3077,9 @@ class Window:
             self.__cached_window_size = Vector2i(*size)
             self.__cached_window_center = Vector2f(size.x / 2, size.y / 2)
 
+        if self.__dynamic_update:
+            self.dynamic_resize()
+
         return True
 
     def __update_fps_history(self):
@@ -3044,8 +3136,9 @@ class Window:
         self.__height = events.get_size_height()
 
         # Обновление стандартного View под новый размер
-        self.__view.set_size(self.__width, self.__height)
         self.__view.set_center(self.__width / 2, self.__height / 2)
+        self.__view.set_size(self.__width, self.__height)
+        
         self.set_view(self.__view)
 
     def __update_resize_status(self):
@@ -3484,5 +3577,3 @@ class Window:
                     arg.get_ptr(),
                     shape.get_ptr()
                 )
-
-# CUSTOM WINDOW IS NOT IMPLEMENTED YET

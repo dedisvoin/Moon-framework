@@ -550,17 +550,12 @@ def get_mouse_position() -> Vector2i:
     :Returns:
         Vector2i: Позиция (x, y) в пикселях
 
-    ---
-
-    :Raises:
-        InputError: Ошибка при получении позиции
     """
-    try:
-        _lib._Mouse_GetPositionX.restype = ctypes.c_int
-        _lib._Mouse_GetPositionY.restype = ctypes.c_int
-        return Vector2i(_lib._Mouse_GetPositionX(), _lib._Mouse_GetPositionY())
-    except Exception as e:
-        raise InputError(f"Failed to get mouse position: {e}")
+    
+    _lib._Mouse_GetPositionX.restype = ctypes.c_int
+    _lib._Mouse_GetPositionY.restype = ctypes.c_int
+    return Vector2i(_lib._Mouse_GetPositionX(), _lib._Mouse_GetPositionY())
+    
 
 def get_mouse_position_in_window(window: Any) -> Vector2i:
     """

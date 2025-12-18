@@ -16,6 +16,8 @@ typedef sf::VertexArray* VertexArrayPtr;
 typedef sf::Vertex* VertexPtr;
 typedef sf::ConvexShape* ConvexShapePtr;
 
+#define CONST_COLOR_RGBA const int r, const int g, const int b, const int a
+
 extern "C" {
     MOON_API VertexPtr _Vertex_Init() {
         return new sf::Vertex();
@@ -183,8 +185,16 @@ extern "C" {
         return new sf::ConvexShape();
     }
 
+    MOON_API void _ConvexShape_Delete(ConvexShapePtr shape) {
+        delete shape;
+    }
+
     MOON_API void _ConvexShape_SetPointsCount(ConvexShapePtr shape, int count) {
         shape->setPointCount(count);
+    }
+
+    MOON_API int _ConvexShape_GetPointsCount(ConvexShapePtr shape) {
+        return shape->getPointCount();
     }
 
     MOON_API void _ConvexShape_SetPoint(const ConvexShapePtr shape, const int index, 
@@ -193,11 +203,78 @@ extern "C" {
         shape->setPoint(index, sf::Vector2f(x, y));
     }
 
-    MOON_API double _ConvexShape_GetPointX(const ConvexShapePtr shape, const int index) {
+    MOON_API double _ConvexShape_GetPointX( const ConvexShapePtr shape, const int index ) {
         return shape->getPoint(index).x;
     }
 
-    MOON_API double _ConvexShape_GetPointY(const ConvexShapePtr shape, const int index) {
+    MOON_API double _ConvexShape_GetPointY( const ConvexShapePtr shape, const int index ) {
         return shape->getPoint(index).y;
     }
+
+    MOON_API void _ConvexShape( const ConvexShapePtr shape) {}
+
+    // Для удобства и экномии вызовов цвет сохраняется в python обьекте
+    MOON_API sf::Color* _ConvexShape_GetColor( ConvexShapePtr shape ) {return nullptr;}
+
+    MOON_API void _ConvexShape_SetColor( const ConvexShapePtr shape, CONST_COLOR_RGBA ) {
+        shape->setFillColor(sf::Color(r, g, b, a));
+    }
+
+    // Для удобства и экномии вызовов цвет сохраняется в python обьекте
+    MOON_API sf::Color* _ConvexShape_GetOutlineColor( ConvexShapePtr shape ) { return nullptr; }
+
+    MOON_API void _ConvexShape_SetOutlineColor( const ConvexShapePtr shape, CONST_COLOR_RGBA ) {
+        shape->setOutlineColor(sf::Color(r, g, b, a));
+    }
+
+    MOON_API void _ConvexShape_SetOutlineThickness( const ConvexShapePtr shape, double size) {
+        shape->setOutlineThickness(size);
+    }
+
+    MOON_API int _ConvexShape_GetOutineThickness( const ConvexShapePtr shape) { return 0; }
+
+    // Origin 
+    /////////////////////////////////////////////////////////////////////////////
+    MOON_API double _ConvexShape_GetOriginX( const ConvexShapePtr shape) {
+        return shape->getOrigin().x;
+    }
+
+    MOON_API double _ConvexShape_GetOriginY( const ConvexShapePtr shape) {
+        return shape->getOrigin().y;
+    }
+    /////////////////////////////////////////////////////////////////////////////
+
+    MOON_API void _ConvexShape_SetAngle( const ConvexShapePtr shape, double angle) {
+        shape->setRotation(angle);
+    }
+
+    MOON_API void _ConvexShape_Rotate( const ConvexShapePtr shape, double angle) {
+        shape->rotate(angle);
+    }
+
+    MOON_API double _ConvexShape_GetAngle( const ConvexShapePtr shape) {
+        return shape->getRotation();
+    }
+
+    MOON_API double _ConvexShape_GetTransformPointX( const ConvexShapePtr shape, const double x, const double y) {
+        return shape->getTransform().transformPoint(sf::Vector2f(x, y)).x;
+    }
+
+    MOON_API double _ConvexShape_GetTransformPointY( const ConvexShapePtr shape, const double x, const double y) {
+        return shape->getTransform().transformPoint(sf::Vector2f(x, y)).y;
+    }
+
+    MOON_API double _ConvexShape_GetInverseTransformPointX( const ConvexShapePtr shape, const double x, const double y) {
+        return shape->getTransform().getInverse().transformPoint(sf::Vector2f(x, y)).x;
+    }
+
+    MOON_API double _ConvexShape_GetInverseTransformPointY( const ConvexShapePtr shape, const double x, const double y) {
+        return shape->getTransform().getInverse().transformPoint(sf::Vector2f(x, y)).y;
+    }    
+    
+    /*
+
+    TODO dsfdfd
+    
+    */
 }
