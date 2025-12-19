@@ -693,21 +693,21 @@ class Sprite2D(object):
         if origin_type == OriginTypes.TOP_LEFT:
             self.set_origin(Vector2f(0, 0))
         elif origin_type == OriginTypes.TOP_CENTER:
-            self.set_origin(Vector2f(-bounds[1].x / 2 / scale.x, 0))
+            self.set_origin(Vector2f(bounds[1].x / 2 / scale.x, 0))
         elif origin_type == OriginTypes.TOP_RIGHT:
-            self.set_origin(Vector2f(-bounds[1].x / scale.x, 0))
+            self.set_origin(Vector2f(bounds[1].x / scale.x, 0))
         elif origin_type == OriginTypes.LEFT_CENTER:
-            self.set_origin(Vector2f(0, -bounds[1].y / 2 / scale.y))
+            self.set_origin(Vector2f(0, bounds[1].y / 2 / scale.y))
         elif origin_type == OriginTypes.CENTER:
-            self.set_origin(Vector2f(-bounds[1].x / 2 / scale.x, -bounds[1].y / 2 / scale.y))
+            self.set_origin(Vector2f(bounds[1].x / 2 / scale.x, bounds[1].y / 2 / scale.y))
         elif origin_type == OriginTypes.RIGHT_CENTER:
-            self.set_origin(Vector2f(-bounds[1].x / scale.x, -bounds[1].y / 2 / scale.y))
+            self.set_origin(Vector2f(bounds[1].x / scale.x, bounds[1].y / 2 / scale.y))
         elif origin_type == OriginTypes.DOWN_LEFT:
-            self.set_origin(Vector2f(0, -bounds[1].y / scale.y))
+            self.set_origin(Vector2f(0, bounds[1].y / scale.y))
         elif origin_type == OriginTypes.DOWN_CENTER:
-            self.set_origin(Vector2f(-bounds[1].x / 2 / scale.x, -bounds[1].y / scale.y))
+            self.set_origin(Vector2f(bounds[1].x / 2 / scale.x, bounds[1].y / scale.y))
         elif origin_type == OriginTypes.DOWN_RIGHT:
-            self.set_origin(Vector2f(-bounds[1].x / scale.x, -bounds[1].y / scale.y))
+            self.set_origin(Vector2f(bounds[1].x / scale.x, bounds[1].y / scale.y))
         return self
 
     def set_color(self, color: Color) -> Self:

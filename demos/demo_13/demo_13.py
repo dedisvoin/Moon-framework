@@ -7,7 +7,7 @@ from Moon.python.Rendering.Vertexes import *
 from Moon.python.Rendering.Shapes import *
 from Moon.python.Threader import CycleWorker
 
-window = Window(title="Test")
+window = Window(title="Test", dynamic_update=True)
 window.set_wait_fps(FPS_VSYNC_CONST)
 window.set_view_info()
 window_events = WindowEvents()

@@ -506,7 +506,7 @@ class MeshViewerApp:
     """Приложение для просмотра 3D мешей"""
 
     def __init__(self):
-        self.window = Window(1200, 800, "3D Mesh Viewer - OBJ Loader")
+        self.window = Window(1200, 800, "3D Mesh Viewer - OBJ Loader", dynamic_update=True)
         self.events = WindowEvents()
         self.window.set_wait_fps(180)
 

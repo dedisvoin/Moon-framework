@@ -48,7 +48,8 @@ textures = [(texture, 97, 97, 79), (texture2, 72, 72, 128), (texture3, 15, 32, 1
 SCR = get_screen_resolution()
 
 # --- Инициализация Окна ---
-window = Window(title="Привeт",style=Window.Style.Resize | Window.Style.Close, context_settings=ContextSettings().set_depth_bits(24).set_stencil_bits(8).set_antialiasing_level(4).set_opengl_version(3, 2))
+window = Window(title="Привeт",style=Window.Style.Resize | Window.Style.Close, context_settings=ContextSettings().set_depth_bits(24).set_stencil_bits(8).set_antialiasing_level(4).set_opengl_version(3, 2), 
+                dynamic_update=True)
 window.set_wait_fps(FPS_VSYNC_CONST)
 window_events = WindowEvents()
 window.set_view_info()

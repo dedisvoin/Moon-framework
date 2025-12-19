@@ -10,7 +10,7 @@ from Moon.python.Vectors import *
 
 
 
-result, texture = Texture2D().load_from_file(r"demos\texture2.png")
+result, texture = Texture2D().load_from_file(r"demos\demo_8\texture2.png")
 
 sprite = Sprite2D().link_texture(texture)
 sprite.set_scale(10, 10)
@@ -32,7 +32,7 @@ circle = CircleShape().set_color(COLOR_RED).set_origin_radius(10).set_position(p
 rectangle = RectangleShape(*bounds[1]).set_outline_color(COLOR_RED).set_outline_thickness(2).set_color(COLOR_TRANSPARENT)
 rectangle.set_position(position)
 
-window = Window(title="Привeт", context_settings=ContextSettings().set_depth_bits(24).set_stencil_bits(8).set_antialiasing_level(4).set_opengl_version(3, 2))
+window = Window(title="Привeт",dynamic_update=True, context_settings=ContextSettings().set_depth_bits(24).set_stencil_bits(8).set_antialiasing_level(4).set_opengl_version(3, 2))
 window.set_wait_fps(180)
 window_events = WindowEvents()
 window.set_view_info()

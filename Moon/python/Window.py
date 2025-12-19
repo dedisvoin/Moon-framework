@@ -1165,26 +1165,25 @@ class Window:
         dx = abs(mp.x - self.get_width())
         dy = abs(mp.y - self.get_height())
 
+
         mp += self.get_position()
         
         cursor = SystemCursors.Arrow
 
         
-        if (dx <= 2 or dx == 0) and dy >= 10 :
+        if dx <= 5 and dy >= 10:
             cursor = SystemCursors.SizeHorizontal
-            if mc:
-                self.__DA_WIDTH = True
+            if mc: self.__DA_WIDTH = True
 
         if not self.__DA_MOUSE_INTERFACE.get_press('left'):
             self.__DA_WIDTH = False
 
         if self.__DA_WIDTH:
-            self.set_size(max(int(abs(self.get_position().x - mp.x)), 1), self.get_height())
+            self.set_size(max(int(abs(self.get_position().x - mp.x)), 180), self.get_height())
 
         if dy <= 5 and dx >= 10:
             cursor = SystemCursors.SizeVertical
-            if mc:
-                self.__DA_HAIGHT = True
+            if mc: self.__DA_HAIGHT = True
 
         if not self.__DA_MOUSE_INTERFACE.get_press('left'):
             self.__DA_HAIGHT  = False
@@ -1192,16 +1191,16 @@ class Window:
         if self.__DA_HAIGHT:
             self.set_size(self.get_width(), max(int(abs(self.get_position().y - mp.y)), 1))
 
-        if dy <= 5 and dx <= 5:
+        if dy <= 8 and dx <= 8:
             cursor = SystemCursors.SizeBottomRight
-            if mc:
-                self.__DA_ALL = True
+            if mc: self.__DA_ALL = True
 
         if not self.__DA_MOUSE_INTERFACE.get_press('left'):
             self.__DA_ALL = False
 
         if self.__DA_ALL:
-            self.set_size(max(int(abs(self.get_position().x - mp.x)), 1), max(int(abs(self.get_position().y - mp.y)), 1))
+            self.set_size(max(int(abs(self.get_position().x - mp.x)), 180), 
+                          max(int(abs(self.get_position().y - mp.y)), 1))
         
         self.set_system_cursor(cursor)
 

@@ -9,7 +9,7 @@ from Moon.python.System import *
 
 window = Window(1000, 1000, style=Window.Style.Default, dynamic_update=True)
 window.set_view_info()
-window.set_wait_fps(FPS_UNLIMIT_CONST)
+window.set_wait_fps(FPS_VSYNC_CONST)
 
 events = WindowEvents()
 

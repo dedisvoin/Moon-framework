@@ -156,6 +156,14 @@ class Color:
             random.randint(0, 255),
             random.randint(0, 255)
         )
+    
+    @classmethod
+    def from_hex(cls, hex: str) -> 'Color':
+        hex = hex.lstrip('#')
+        r = int(hex[0:2], 16)
+        g = int(hex[2:4], 16)
+        b = int(hex[4:6], 16)
+        return Color(r, g, b)
 
     def __init__(self, r: Number, g: Number, b: Number, a: Number = 255):
         """
