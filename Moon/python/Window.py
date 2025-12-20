@@ -904,6 +904,15 @@ class Window:
         FullScreenDesktop = 1 << 4    # Полноэкранный режим с разрешением рабочего стола
         Default = Titlebar | Resize | Close  # Стандартный набор стилей окон
 
+    def __load_info_font(self):
+        try:
+            self.__info_font = Font("Moon/fonts/GNF.ttf")
+        except:
+            try:
+                self.__info_font = Font(DEFAULI_WINDOW_FONT_LOCAL_PATH)
+            except:
+                self.__info_font = Font(SYSTEM_FONT_PATH)
+
 
     def __init__(self, width: int = 800, height: int = 600,
                     title: str = "Moon Window", style: int = Style.Default,
@@ -947,43 +956,108 @@ class Window:
         ```
         """
 
+        # /////////////////////////////////////////////////////////////////////////////////////////////////
         # Обработка кастомного стиля FullScreenDesktop:
         # Если стиль FullScreenDesktop, ширина и высота окна будут равны разрешению экрана.
         if style == Window.Style.FullScreenDesktop:
-            width, height = get_screen_resolution() # Получаем максимальное разрешение экрана монитора
-            style = Window.Style.No # Переключаем на режим без ничего
-
+            width, height = get_screen_resolution()      # Получаем максимальное разрешение экрана монитора
+            style = Window.Style.No                                       # Переключаем на режим без ничего
         self.__style = style
-        self.__dynamic_update = dynamic_update
-        self.__is_open = True
+        # /////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
+        # /////////////////////////////////////////////////////////
+        # Свойства динамического обновления окна
+        self.__DA_WIDTH = False
+        self.__DA_HAIGHT = False
+        self.__DA_ALL = False
+        self.__DA_MOUSE_INTERFACE = Mouse()
+        self.__DYNAMIC_UPDATE = dynamic_update
+        # /////////////////////////////////////////////////////////
+
+
+
+        # ///////////////////////////////////////////////////////////////////////////////////
+        # Флаг показываюший что окно в открытом состоянии если
+        # Truе. Если равен False означает что окно ожидает закрытия
+        # Возможно что окно закрыто но поток все еще не заверщен в этом случае тоже False
+        self.__is_open = True
+        # ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+        # ///////////////////////////////////////////////////////////////////////////////////
+        # Локальная переменная для хранения названия окна
+        self.__title = title
+        # ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+        # ///////////////////////////////////////////////////////////////////////////////////
+        # Время начала инициализации окна (для get_global_timer)
+        self.__start_time = time()             
+        # ///////////////////////////////////////////////////////////////////////////////////
+
+
+        # ///////////////////////////////////////////////////////////////////////////////////
+        # Флаг видимости курсора в области окна
+        self.__cursor_visibility: bool = True  
+        # ///////////////////////////////////////////////////////////////////////////////////
+
+
+        # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        # Настройка контекста окна
         # Используем переданные настройки или создаем новые по умолчанию
         temp_context_settings: ctypes.c_void_p | None = None
         if context_settings is None:
-            temp_context_settings = LIB_MOON._WindowContextSettings_Create()                                           # pyright: ignore [ reportAny ]
+            temp_context_settings = LIB_MOON._WindowContextSettings_Create()                             # pyright: ignore [ reportAny ]
             context_ptr = temp_context_settings
             should_delete_context = True
         else:
             context_ptr = context_settings.get_ptr()
             should_delete_context = False
 
+        # Ради безопасности указатель на контекст окна мы не сохранянем !
         # Создаем окно через нативную библиотеку и сохраняем указатель на него
         self.__window_ptr: WindowPtr = LIB_MOON._Window_Create(width, height, title.encode('utf-8'), style, context_ptr)
 
         # Освобождаем временные настройки контекста (только если мы их создали)
         if should_delete_context and temp_context_settings is not None:
             LIB_MOON._WindowContextSettings_Delete(temp_context_settings)
-        self.__title = title
+        # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
+        # ///////////////////////////////////////////////////////////////////////////////////////////////
+        # Получаем дескриптор для ситем на базе window s
         if sys.platform == 'win32':
             self.__window_descriptor = self.get_handle()
         else:
             # TODO Доделать для unix систем
             self.__window_descriptor = None                               # pyright: ignore [ reportAny ]
+        # ///////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
+        # ///////////////////////////////////////////////////////////////////////////////
+        # Локальная переменная для прозрачности окна
+        # Поддерживается лишь на стсемах на базе windows
         self.__window_alpha: int | float = alpha
-        if self.__dynamic_update: self._disable_standart_window_resizing()
-       
+        # ///////////////////////////////////////////////////////////////////////////////
+
+
+
+        # ///////////////////////////////////////////////////////////////////////////////
+        # Если установлена тестовая функция динамического обновления окна, 
+        # выключаем стандартное изменение размера
+        if self.__DYNAMIC_UPDATE: self._disable_standart_window_resizing()
+        # ///////////////////////////////////////////////////////////////////////////////
+        
+
+
+        # ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        # Настройка частот обновления приложения
         # Получаем стандартную область отображения (View) и сохраняем указатель на нее
         self.__view = self.get_default_view()
 
@@ -1003,25 +1077,23 @@ class Window:
         # Инициализация переменных для отслеживания FPS (максимальное и минимальное значения)
         self.__min_fps_in_fps_history: float = 0
         self.__max_fps_in_fps_history: float = 0
-        LIB_MOON._Window_SetWaitFps(self.__window_ptr, int(self.__wait_fps))
+        LIB_MOON._Window_SetWaitFps(self.__window_ptr, int(self.__wait_fps))      # Устанавливаем ожидаемое количество fps
+        # ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        #/////////////////////////////////////////////////////////////////////////////////////
-        # (             Переменные, необходимые для генерации графика фрейм-тайма            )
-        #/////////////////////////////////////////////////////////////////////////////////////
+
+
+        # /////////////////////////////////////////////////////////////////////////////////////
+        # //            Переменные, необходимые для генерации графика фрейм-тайма            //
+        # /////////////////////////////////////////////////////////////////////////////////////
         self.__info_alpha = 0
         self.__target_info_alpha = 100
         self.__fps_update_timer = 0.0
-        self.__fps_history: list[float | int] = [] # История значений FPS для построения графика
-        self.__max_history = 40 # Максимальное количество точек в истории FPS
+        self.__fps_history: list[float | int] = []   # История значений FPS для построения графика
+        self.__max_history = 40                      # Максимальное количество точек в истории FPS
 
         # Настройка шрифта и текстовых элементов для отображения отладочной информации
-        try:
-            self.__info_font = Font("Moon/fonts/GNF.ttf")
-        except:
-            try:
-                self.__info_font = Font(DEFAULI_WINDOW_FONT_LOCAL_PATH)
-            except:
-                self.__info_font = Font(SYSTEM_FONT_PATH)
+        self.__load_info_font() # Попытка загрузки стандартного шрифта
+
         self.__info_text = BaseText(self.__info_font).\
             set_outline_thickness(2).set_outline_color(COLOR_GHOST_WHITE)
         self.__info_text_color_ghost_white = Color(248, 248, 255, 100)
@@ -1042,31 +1114,39 @@ class Window:
 
         self.__smooth_fps_history: list[float] = []
         self.__smooth_fps: float = FPS_VSYNC_CONST
+        # /////////////////////////////////////////////////////////////////////////////////////
 
-        #////////////////////////////////////////////////////////////////////////////////
 
+
+        # /////////////////////////////////////////////////////////////////////////////////////
         # Внутренняя переменная для вычисления FPS, render_time, delta-time и т.д.
         self.__clock = Clock()
+        # /////////////////////////////////////////////////////////////////////////////////////
 
+
+        # //////////////////////////////////////////////////////////////////////////////////////////////////////
         # Флаги и константы состояния окна
         self.__view_info = False            # Флаг отображения информации о рендере (FPS, дельта и т.д.)
         self.__exit_key = "esc"             # Клавиша для закрытия окна (по умолчанию Esc)
         self.__vsync = vsync                # Флаг вертикальной синхронизации
         self.__clear_color = COLOR_WHITE    # Цвет по умолчанию для очистки окна
+        # //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
+        # //////////////////////////////////////////////////////////////////////////////////////////////////////
         # Текущий размер окна и флаг для отслеживания изменения размера
         self.__width = width                # Ширина окна в текущем кадре
         self.__height = height              # Высота окна в текущем кадре
         self.__end_width = width            # Ширина окна в прошлом кадре (для отслеживания изменений)
         self.__end_height = height          # Высота окна в прошлом кадре (для отслеживания изменений)
         self.__resized: bool = False        # Флаг, указывающий, был ли изменен размер окна в текущем кадре
+        # //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        self.__start_time = time()              # Время открытия окна (для get_global_timer)
 
-        self.__cursor_visibility: bool = True   # Флаг видимости курсора мыши
+        self.set_vertical_sync(vsync)       # Устанавливает вертикальную синхронизацию при инициализации
 
-        _ = self.set_vertical_sync(vsync)       # Устанавливает вертикальную синхронизацию при инициализации
-
+    
         self.__ghosting: bool = False
         self.__ghosting_min_value: int = 30
         # Константа для максимального значения прозрачности при использовании ghosting
@@ -1119,11 +1199,7 @@ class Window:
             print(f'    style: {Fore.BLACK}{self.__style}{Fore.RESET}')
             print()
 
-        # dynamic update =========================
-        self.__DA_WIDTH = False
-        self.__DA_HAIGHT = False
-        self.__DA_ALL = False
-        self.__DA_MOUSE_INTERFACE = Mouse()
+        
 
     def _disable_standart_window_resizing(self):
         hwnd = self.get_handle()
@@ -3076,7 +3152,7 @@ class Window:
             self.__cached_window_size = Vector2i(*size)
             self.__cached_window_center = Vector2f(size.x / 2, size.y / 2)
 
-        if self.__dynamic_update:
+        if self.__DYNAMIC_UPDATE:
             self.dynamic_resize()
 
         return True

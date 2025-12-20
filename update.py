@@ -2,8 +2,6 @@ import os
 import shutil
 from time import sleep, time
 
-
-
 def next_version():
     # сделай чтобы открывался файл pyproject.toml и версия менялась не следующую
     with open('pyproject.toml', 'r') as f:
