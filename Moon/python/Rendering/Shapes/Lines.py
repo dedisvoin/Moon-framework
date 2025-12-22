@@ -3,7 +3,7 @@ from typing import Self, Final, final
 
 from Moon.python.Types import *
 from Moon.python.Colors import *
-from Moon.python.Vectors import Vector2f, Vector2i, Vector2Type, Vector2TypeTuple
+from Moon.python.Vectors import Vec2f, Vec2T, Vec2TT
 from Moon.python.Rendering.Vertexes import Vertex2d, VertexList, VertexListTypes, NativeVertex2dPtr
 
 from Moon.python.utils import find_library
@@ -90,7 +90,7 @@ class PolylineShape:
         """
         self.__vertex_list.clear()
 
-    def append_point(self, point: Vector2f):
+    def append_point(self, point: Vec2f):
         """
         #### Добавляет точку в конец ломаной
 
@@ -122,7 +122,7 @@ class PolylineShape:
         """
         self.__vertex_list.append(Vertex2d().FromPosition(point))
 
-    def prepend_point(self, point: Vector2f):
+    def prepend_point(self, point: Vec2f):
         """
         #### Добавляет точку в начало ломаной
 
@@ -460,7 +460,7 @@ class LineShape:
         """
         return self.__color
 
-    def init_points(self, point_1: Vector2Type = Vector2f.zero(), point_2: Vector2Type = Vector2f.zero()) -> Self:
+    def init_points(self, point_1: Vec2T = Vec2f.zero(), point_2: Vec2T = Vec2f.zero()) -> Self:
         """
         #### Инициализирует начальную и конечную точки отрезка
 
@@ -500,7 +500,7 @@ class LineShape:
         self.__vertex_array.auto_append(Vertex2d().FromPosition(point_2))
         return self
 
-    def set_start_position(self, point: Vector2Type) -> Self:
+    def set_start_position(self, point: Vec2T) -> Self:
         """
         #### Устанавливает позицию начальной точки отрезка
 
@@ -538,7 +538,7 @@ class LineShape:
         self.__vertex_array.get(0).position = point
         return self
 
-    def set_end_position(self, point: Vector2Type) -> Self:
+    def set_end_position(self, point: Vec2T) -> Self:
         """
         #### Устанавливает позицию конечной точки отрезка
 
@@ -713,8 +713,8 @@ class WidelineShape:
         self.__vertex_list = VertexList()
         self.__vertex_list.set_primitive_type(VertexListTypes.TriangleFan)
 
-        self.__start_point:     Optional[Vector2Type] = None
-        self.__end_point:       Optional[Vector2Type] = None
+        self.__start_point:     Optional[Vec2T] = None
+        self.__end_point:       Optional[Vec2T] = None
         self.__radius:          Number = 10
         self.__rounded:         bool = True
         self.__approximation:   int = 10
@@ -1036,7 +1036,7 @@ class WidelineShape:
         """
         return self.__approximation
 
-    def set_start_position(self, pos: Vector2Type) -> Self:
+    def set_start_position(self, pos: Vec2T) -> Self:
         """
         #### Устанавливает позицию начальной точки линии
 
@@ -1073,7 +1073,7 @@ class WidelineShape:
         self.__start_point = pos
         return self
 
-    def set_end_position(self, pos: Vector2Type) -> Self:
+    def set_end_position(self, pos: Vec2T) -> Self:
         """
         #### Устанавливает позицию конечной точки линии
 

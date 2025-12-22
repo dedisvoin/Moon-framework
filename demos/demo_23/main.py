@@ -5,6 +5,7 @@ from Moon.python.Window import *
 from Moon.python.Inputs import *
 from Moon.python.Rendering.Shapes import *
 from Moon.python.Rendering.Sprites import *
+from Moon.python.Threader import CycleWorker
 
 
 # Инициализируем окно
@@ -18,9 +19,9 @@ circle = CircleShape().set_color(COLOR_RED).set_origin_radius(5)
 
 
 grass_textures = [
-    Texture2D().load_from_file(r"demos\demo_23\data\grass_1.png")[-1],
-    Texture2D().load_from_file(r"demos\demo_23\data\grass_2.png")[-1],
-    Texture2D().load_from_file(r"demos\demo_23\data\grass_3.png")[-1]
+    Texture2D().load_from_file(r"demos\demo_23\data\grass_1.png")[-1].set_smooth(False),
+    Texture2D().load_from_file(r"demos\demo_23\data\grass_2.png")[-1].set_smooth(False),
+    Texture2D().load_from_file(r"demos\demo_23\data\grass_3.png")[-1].set_smooth(False)
 ]
 
 class MySprite(Sprite2D):
@@ -54,7 +55,7 @@ def draw_grass(grid_size, offset):
                     sprite = MySprite(pos).link_texture(random.choice(grass_textures), True)
                     sprite.set_typed_origin(OriginTypes.DOWN_CENTER)
                     sprite.set_scale(10)
-                    sprite.set_position(Vector2f.from_array(pos)+Vector2f.random()*offset*2)
+                    sprite.set_position(Vec2f.from_array(pos)+Vec2f.random()*offset*2)
                     
                     sprites_array.append(sprite)
 
@@ -62,7 +63,7 @@ def draw_grass(grid_size, offset):
 
 radius = 100
 
-def draw_sprites_array():
+def update_sprite_array(worker: CycleWorker):
     global sprites_array
     press = False
     if MouseInterface.get_press('right'):
@@ -81,10 +82,21 @@ def draw_sprites_array():
         sprite.saved_angle = this_angle
         sprite.angle += (sprite.saved_angle - sprite.angle) / 10
         sprite.set_rotation(sprite.angle)
-        window.draw(sprite)
+        
 
         if MouseInterface.get_press("middle") and (sprite.get_position_x() - mp.x)**2 + (sprite.get_position_y() - mp.y)**2 < radius**2:
             sprites_array.remove(sprite)
+
+worker = CycleWorker()
+worker.set_delay(1/180)
+worker.set_daemon(True)
+worker.start(update_sprite_array)
+
+def draw_sprites_array():
+    global sprites_array
+    
+    for sprite in sprites_array:
+        window.draw(sprite)
 
 while window.update(events):
     window.clear(Color.from_hex("847e87"))

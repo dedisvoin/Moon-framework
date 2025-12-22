@@ -19,9 +19,9 @@ print(sprite.get_flips())
 
 
 
-position = Vector2f(400, 300)
+position = Vec2f(400, 300)
 sprite.set_position(position)
-sprite.set_texture_rect(Vector2i(5, 8), Vector2i(16, 18))
+sprite.set_texture_rect(Vec2i(5, 8), Vec2i(16, 18))
 sprite.set_typed_origin(OriginTypes.CENTER)
 sprite.set_flip_x(True)
 
@@ -44,7 +44,7 @@ while window.update(window_events):
     window.draw(rectangle)
     window.view_info()
 
-    mouse_vector = Vector2f.between(MouseInterface.get_position_in_window(window).xy, position.xy)
+    mouse_vector = Vec2f.between(MouseInterface.get_position_in_window(window).xy, position.xy)
 
     sprite.set_rotation(-mouse_vector.get_angle())
     bounds = sprite.get_global_bounds()

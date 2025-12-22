@@ -79,7 +79,7 @@ import ctypes
 from enum import Enum
 from typing import Self
 from Moon.python.utils import find_library
-from Moon.python.Vectors import Vector2f, Vector2i, Vector2Type
+from Moon.python.Vectors import Vec2f, Vec2i, Vec2T
 from Moon.python.Colors import *
 
 # Загружаем DLL библиотеку
@@ -204,7 +204,7 @@ LIB_MOON._VertexArray_SetColor.restype = None
 
 class Vertex2d:
     @classmethod
-    def FromPosition(cls, pos: Vector2Type) -> "Vertex2d":
+    def FromPosition(cls, pos: Vec2T) -> "Vertex2d":
         """
         #### Создает `Vertex2d` из позиции
 
@@ -227,7 +227,7 @@ class Vertex2d:
         return vertex
 
     @classmethod
-    def FromPositionAndColor(cls, pos: Vector2Type, color: Color) -> "Vertex2d":
+    def FromPositionAndColor(cls, pos: Vec2T, color: Color) -> "Vertex2d":
         """
         #### Создает `Vertex2d` из позиции и цвета
 
@@ -252,7 +252,7 @@ class Vertex2d:
         return vertex
 
     @classmethod
-    def FromPositionColorAndTexCoords(cls, pos: Vector2Type, color: Color, tex_coords: Vector2i) -> "Vertex2d":
+    def FromPositionColorAndTexCoords(cls, pos: Vec2T, color: Color, tex_coords: Vec2i) -> "Vertex2d":
         """
         #### Создает `Vertex2d` с позицией, цветом и текстурными координатами
 
@@ -350,13 +350,13 @@ class Vertex2d:
         return self
 
     @property
-    def position(self) -> Vector2f:
+    def position(self) -> Vec2f:
         x = LIB_MOON._Vertex_GetPositionX(self.__ptr)
         y = LIB_MOON._Vertex_GetPositionY(self.__ptr)
-        return Vector2f(x, y)
+        return Vec2f(x, y)
 
     @position.setter
-    def position(self, value: Vector2Type) -> None:
+    def position(self, value: Vec2T) -> None:
         LIB_MOON._Vertex_SetPosition(self.__ptr, float(value.x), float(value.y))
         
 
@@ -374,13 +374,13 @@ class Vertex2d:
         LIB_MOON._Vertex_SetColor(self.__ptr, r, g, b, a)
 
     @property
-    def tex_coords(self) -> Vector2i:
+    def tex_coords(self) -> Vec2i:
         x = LIB_MOON._Vertex_GetTexCoordX(self.__ptr)
         y = LIB_MOON._Vertex_GetTexCoordY(self.__ptr)
-        return Vector2i(x, y)
+        return Vec2i(x, y)
 
     @tex_coords.setter
-    def tex_coords(self, value: Vector2i) -> None:
+    def tex_coords(self, value: Vec2i) -> None:
         LIB_MOON._Vertex_SetTexCoords(self.__ptr, value.x, value.y)
 
     def get_position_x(self) -> float:
@@ -576,7 +576,7 @@ class VertexList:
         """
         return LIB_MOON._VertexArray_GetVertexCount(self.__ptr)
 
-    def get_local_bound(self) -> tuple[Vector2f, Vector2f]:
+    def get_local_bound(self) -> tuple[Vec2f, Vec2f]:
         """
         #### Возвращает локальные границы массива вершин
 
@@ -584,8 +584,8 @@ class VertexList:
         - tuple[Vector2f, Vector2f] - Кортеж `(position, size)`, где `position` — левый верхний угол, `size` — ширина/высота
         """
         return (
-            Vector2f(LIB_MOON._VertexArray_GetBoundsPosX(self.__ptr), LIB_MOON._VertexArray_GetBoundsPosY(self.__ptr)),
-            Vector2f(LIB_MOON._VertexArray_GetBoundsSizeW(self.__ptr), LIB_MOON._VertexArray_GetBoundsSizeH(self.__ptr))
+            Vec2f(LIB_MOON._VertexArray_GetBoundsPosX(self.__ptr), LIB_MOON._VertexArray_GetBoundsPosY(self.__ptr)),
+            Vec2f(LIB_MOON._VertexArray_GetBoundsSizeW(self.__ptr), LIB_MOON._VertexArray_GetBoundsSizeH(self.__ptr))
         )
 
     def is_empty(self) -> bool:

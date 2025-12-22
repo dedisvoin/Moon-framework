@@ -58,12 +58,12 @@ sprite = Sprite2D()
 at_texture = textures[0]
 
 # --- Функция Рендеринга с Динамическим Освещением и Самозатенением ---
-def render_obj(pos: Vector2Type):
+def render_obj(pos: Vec2T):
     global at_texture
     sprite.link_texture(at_texture[0])
 
     # Вращение объекта
-    sprite.rotate(3 * window.get_delta())
+    sprite.rotate(-MouseInterface.get_speed().x / 7)
     current_rotation = sprite.get_rotation() # Получаем текущий угол для расчета света
 
     slices = 5
@@ -104,8 +104,8 @@ def render_obj(pos: Vector2Type):
         # ----------------------------------------
 
         # --- Логика Spritestacking ---
-        sprite.set_texture_rect(Vector2i(0, (i // slices) * at_texture[2]), Vector2i(at_texture[1], at_texture[2]))
-        sprite.set_origin(Vector2f(at_texture[1]/2, at_texture[2]/2))
+        sprite.set_texture_rect(Vec2i(0, (i // slices) * at_texture[2]), Vec2i(at_texture[1], at_texture[2]))
+        sprite.set_origin(Vec2f(at_texture[1]/2, at_texture[2]/2))
 
         s = max(40 * math.sin(window.get_global_timer(0.5)), 0)
 
@@ -113,7 +113,7 @@ def render_obj(pos: Vector2Type):
         sprite.set_scale(7 + s/2, 7 + s/2)
 
         # Смещение для имитации глубины
-        sprite.set_position(pos - Vector2f(0, -(7 + s/2) * i / slices) - Vector2f(0, ((7 + s/2) * at_texture[3]) / 2))
+        sprite.set_position(pos - Vec2f(0, -(7 + s/2) * i / slices) - Vec2f(0, ((7 + s) * at_texture[3]) / 2))
 
         window.draw(sprite)
 

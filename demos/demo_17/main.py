@@ -8,7 +8,7 @@ from Moon.python import Threader
 from Moon.python.Inputs import *
 
 circle_shape = CircleShape(3)
-circle_shape.set_position(Vector2f(300, 300))
+circle_shape.set_position(Vec2f(300, 300))
 circle_shape.set_origin_radius(120)
 circle_shape.set_color(COLOR_ORANGE)
 

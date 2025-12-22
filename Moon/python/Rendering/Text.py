@@ -79,7 +79,7 @@ from enum import Enum
 
 
 from Moon.python.Colors import *
-from Moon.python.Vectors import Vector2f
+from Moon.python.Vectors import Vec2f
 from Moon.python.Types import OriginTypes
 
 
@@ -576,7 +576,7 @@ class BaseText:
         self.__text_ptr: BaseTextPtr = LIB_MOON.createText(self.__font.get_ptr())
         self.__text: str = ""
         self.__scale: list[float] = [1, 1]
-        self.__origin: Vector2f = Vector2f(0, 0)
+        self.__origin: Vec2f = Vec2f(0, 0)
         self.__angle: float = 0
         self.__outline_color: Color | None = None
         self.__outline_thickness: float = 0
@@ -828,7 +828,7 @@ class BaseText:
         self.__origin.y = y
         return self
 
-    def get_origin(self) -> Vector2f:
+    def get_origin(self) -> Vec2f:
         """
         #### Возвращает текущую точку привязки
 
@@ -1235,7 +1235,7 @@ class Text(BaseText):
         super().__init__(font)
 
         self.__typed_origin: OriginTypes = OriginTypes.TOP_LEFT
-        self.__origin_padding: Vector2f = Vector2f.zero()
+        self.__origin_padding: Vec2f = Vec2f.zero()
         self.set_origin(0, 0)
 
     def get_ptr(self) -> TextPtr | BaseTextPtr:
@@ -1290,7 +1290,7 @@ class Text(BaseText):
         """
         self.__origin_padding.x = padding
 
-    def get_origin_padding(self) -> Vector2f:
+    def get_origin_padding(self) -> Vec2f:
         """
         #### Возвращает текущие отступы точки привязки
 

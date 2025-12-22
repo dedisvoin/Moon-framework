@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from Moon.python.Vectors import Vector2f
+from Moon.python.Vectors import Vec2f
 from Moon.python.Rendering.CShapes import *
 from Moon.python.Rendering.Sprites import *
 from Moon.python.Rendering.Vertexes import *
@@ -118,8 +118,8 @@ class ParticleShapes:
     Sprite = 3
 
 class CPU_Particle:
-    def __init__(self, pos: Vector2f = Vector2f(0, 0), 
-                      speed: Vector2f = Vector2f(0, 0), 
+    def __init__(self, pos: Vec2f = Vec2f(0, 0), 
+                      speed: Vec2f = Vec2f(0, 0), 
                       color: Color = COLOR_WHITE, 
                       size: float = 10,
                       resize: float = -1,
@@ -162,8 +162,8 @@ class CPU_Particle:
             self.texture = TEXTURE_LIGHT_CIRCLE
 
     def copy(self):
-        np = CPU_Particle(Vector2f(self.position.x, self.position.y), 
-                       Vector2f(self.speed.x, self.speed.y), 
+        np = CPU_Particle(Vec2f(self.position.x, self.position.y), 
+                       Vec2f(self.speed.x, self.speed.y), 
                        self.color, self.size, self.resize, self.shape)
         np.max_speed = self.max_speed
         np.min_speed = self.min_speed
@@ -185,17 +185,17 @@ class CPU_Particle:
 
 class CPU_ParticleEmitters:
     class Point:
-        def __init__(self, position: Vector2f):
+        def __init__(self, position: Vec2f):
             self.position = position
 
     class Rect:
-        def __init__(self, position: Vector2f, width: float = 1, height: float = 1):
+        def __init__(self, position: Vec2f, width: float = 1, height: float = 1):
             self.position = position
             self.width = width
             self.height = height
 
     class Circle:
-        def __init__(self, positiom: Vector2f, radius: float = 1):
+        def __init__(self, positiom: Vec2f, radius: float = 1):
             self.position = positiom
             self.radius = radius
 
@@ -222,13 +222,13 @@ class CPU_ParticleSystem:
     def _construct_particle(self, particle: CPU_Particle, emitter: CPU_ParticleEmitters) -> CPU_Particle:
         p = particle.copy()
         if isinstance(emitter, CPU_ParticleEmitters.Point):
-            p.position = Vector2f(emitter.position.x, emitter.position.y)
+            p.position = Vec2f(emitter.position.x, emitter.position.y)
         if isinstance(emitter, CPU_ParticleEmitters.Rect):
-            p.position = Vector2f(emitter.position.x + random.uniform(0, emitter.width), emitter.position.y + random.uniform(0, emitter.height))
+            p.position = Vec2f(emitter.position.x + random.uniform(0, emitter.width), emitter.position.y + random.uniform(0, emitter.height))
         if isinstance(emitter, CPU_ParticleEmitters.Circle):
-            p.position = emitter.position + Vector2f(0, random.uniform(0, emitter.radius)).rotate_at(random.uniform(0, 360))
+            p.position = emitter.position + Vec2f(0, random.uniform(0, emitter.radius)).rotate_at(random.uniform(0, 360))
             
-        p.speed = Vector2f(0, random.uniform(p.min_speed, p.max_speed)).set_angle(p.spreading_angle + random.uniform(-p.angular_distribution_area / 2, p.angular_distribution_area / 2))
+        p.speed = Vec2f(0, random.uniform(p.min_speed, p.max_speed)).set_angle(p.spreading_angle + random.uniform(-p.angular_distribution_area / 2, p.angular_distribution_area / 2))
         p.rotation_speed = random.uniform(p.min_rotation_speed, p.max_rotation_speed)
         p.size = random.uniform(p.min_size, p.max_size)
         p.velocity_rotation_speed = random.uniform(p.min_velocity_rotation_speed, p.max_velocity_rotation_speed)
@@ -291,13 +291,13 @@ class CPU_ParticleSystem:
                 
                 # Координаты текстуры
                 tex_coords = [
-                    Vector2f(coords[0], coords[1]),
-                    Vector2f(coords[0] + coords[2], coords[1]),
-                    Vector2f(coords[0] + coords[2], coords[1] + coords[3]),
-                    Vector2f(coords[0], coords[1] + coords[3])
+                    Vec2f(coords[0], coords[1]),
+                    Vec2f(coords[0] + coords[2], coords[1]),
+                    Vec2f(coords[0] + coords[2], coords[1] + coords[3]),
+                    Vec2f(coords[0], coords[1] + coords[3])
                 ]
                 
-                self.vertices.append(Vertex(Vector2f(world_x, world_y), p.color, tex_coords[i]))
+                self.vertices.append(Vertex(Vec2f(world_x, world_y), p.color, tex_coords[i]))
         
         self.particles = alive_particles
     

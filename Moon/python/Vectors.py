@@ -68,10 +68,11 @@ import math
 
 from typing import Self
 from random import uniform
-from typing_extensions import Iterator
+from typing import Iterator, Sequence
 from Moon.python.Types import Number
 
-class Vector2f:
+
+class Vec2f:
     """
     #### Класс двумерного вектора с плавающей точкой
 
@@ -94,7 +95,7 @@ class Vector2f:
     __slots__ = ("x", "y")
 
     @classmethod
-    def one(cls) -> "Vector2f":
+    def one(cls) -> "Vec2f":
         """
         #### Создает единичный вектор (1, 1)
 
@@ -111,10 +112,10 @@ class Vector2f:
         print(unit)  # Vector2f(1.0, 1.0)
         ```
         """
-        return Vector2f(1, 1)
+        return Vec2f(1, 1)
 
     @classmethod
-    def zero(cls) -> "Vector2f":
+    def zero(cls) -> "Vec2f":
         """
         #### Создает нулевой вектор (0, 0)
 
@@ -131,11 +132,30 @@ class Vector2f:
         print(origin)  # Vector2f(0.0, 0.0)
         ```
         """
-        return Vector2f(0, 0)
+        return Vec2f(0, 0)
 
     @classmethod
-    def between(cls, point1: "list[int | float] | tuple[int | float, int | float] | Vector2f | Vector2i",
-                     point2: "list[int | float] | tuple[int | float, int | float] | Vector2f | Vector2i") -> "Vector2f":
+    def half(cls) -> "Vec2f":
+        """
+        #### Создает вектор (0.5, 0.5)
+
+        ---
+        :Returns:
+        - Vector2f: Вектор с координатами (0.5, 0.5)
+
+        ---
+
+        :Example:
+        ```python
+        half_vec = Vector2f.half()
+        print(half_vec)  # Vector2f(0.5, 0.5)
+        ```
+        """
+        return Vec2f(0.5, 0.5)
+
+    @classmethod
+    def between(cls, point1: "Sequence[Number] | tuple[Number, Number] | Vec2f | Vec2i",
+                     point2: "list[Number] | tuple[Number, Number] | Vec2f | Vec2i") -> "Vec2f":
         """
         #### Создает вектор направления между двумя точками
 
@@ -158,14 +178,14 @@ class Vector2f:
         print(direction)  # Vector2f(3.0, 4.0)
         ```
         """
-        if isinstance(point1, Vector2TypeTuple):
+        if isinstance(point1, Vec2TT):
             point1 = point1.xy
-        if isinstance(point2, Vector2TypeTuple):
+        if isinstance(point2, Vec2TT):
             point2 = point2.xy
-        return Vector2f(point2[0] - point1[0], point2[1] - point1[1])
+        return Vec2f(point2[0] - point1[0], point2[1] - point1[1])
 
     @classmethod
-    def normal(cls, vector: "Vector2f") -> "NormalizedVector":
+    def normal(cls, vector: "Vec2f") -> "NormVec2":
         """
         #### Создает нормальный (перпендикулярный) вектор
 
@@ -186,18 +206,18 @@ class Vector2f:
         vec = Vector2f(3, 4)
         normal = Vector2f.normal(vec)  # Перпендикулярный вектор
         """
-        if vector.get_lenght() == 0:
-            return Vector2f.zero()
+        if vector.get_length() == 0:
+            return Vec2f.zero()
 
         return vector.normalize().rotate(90)
 
     @classmethod
-    def random(cls) -> "NormalizedVector":
-        vector = Vector2f(1, 0).rotate_at(uniform(0, 360))
+    def random(cls) -> "NormVec2":
+        vector = Vec2f(1, 0).rotate_at(uniform(0, 360))
         return vector
 
     @classmethod
-    def from_angle(cls, angle: float | int, lenght: float | int = 1) -> "Vector2f":
+    def from_angle(cls, angle: Number, length: Number = 1) -> "Vec2f":
         """
         #### Создает вектор из угла и длины
 
@@ -205,7 +225,7 @@ class Vector2f:
 
         :Args:
         - angle (float | int): Угол в градусах
-        - lenght (float | int): Длина вектора (по умолчанию 1)
+        - length (float | int): Длина вектора (по умолчанию 1)
 
         ---
 
@@ -220,12 +240,12 @@ class Vector2f:
         ```
         """
         angle = -angle
-        x = math.cos(angle * math.pi / 180) * lenght
-        y = math.sin(angle * math.pi / 180) * lenght
-        return Vector2f(x, y)
+        x = math.cos(angle * math.pi / 180) * length
+        y = math.sin(angle * math.pi / 180) * length
+        return Vec2f(x, y)
 
     @classmethod
-    def from_array(cls, arr: "list[int | float] | tuple[int | float, int | float]") -> "Vector2f":
+    def from_array(cls, arr: "Sequence[Number] | tuple[Number, Number]") -> "Vec2f":
         """
         #### Создает вектор из массива или кортежа
 
@@ -247,7 +267,7 @@ class Vector2f:
         print(vec)  # Vector2f(3.5, -2.1)
         ```
         """
-        return Vector2f(float(arr[0]), float(arr[1]))
+        return Vec2f(float(arr[0]), float(arr[1]))
 
     def __init__(self, x: Number, y: Number) -> None:
         """
@@ -269,7 +289,7 @@ class Vector2f:
         self.x = float(x)
         self.y = float(y)
 
-    def to_int(self) -> "Vector2i":
+    def to_int(self) -> "Vec2i":
         """
         #### Преобразует в целочисленный вектор
 
@@ -291,15 +311,31 @@ class Vector2f:
         int_vec = vec.to_int()  # Vector2i(3, -2)
         ```
         """
-        return Vector2i(int(self.x), int(self.y))
+        return Vec2i(int(self.x), int(self.y))
 
     def as_tuple(self) -> tuple[float, float]:
+        """
+        #### Возвращает координаты как кортеж
+
+        ---
+
+        :Returns:
+        - tuple[float, float]: Кортеж (x, y)
+        """
         return (self.x, self.y)
 
     def as_list(self) -> list[float]:
+        """
+        #### Возвращает координаты как список
+
+        ---
+
+        :Returns:
+        - list[float]: Список [x, y]
+        """
         return [self.x, self.y]
 
-    def scale(self, factor: float | int) -> Self:
+    def scale(self, factor: Number) -> Self:
         """
         #### Масштабирует вектор на заданный коэффициент
 
@@ -325,7 +361,7 @@ class Vector2f:
         self.y *= factor
         return self
 
-    def set_scale(self, factor: float | int) -> Self:
+    def set_scale(self, factor: Number) -> Self:
         """
         #### Устанавливает масштаб вектора на заданный коэффициент
 
@@ -347,7 +383,7 @@ class Vector2f:
         vec.set_scale(2)      # теперь (1.2, 1.6) длина 2
         ```
         """
-        length = self.get_lenght()
+        length = self.get_length()
         if length != 0:
             self.x = self.x / length * factor
             self.y = self.y / length * factor
@@ -366,7 +402,7 @@ class Vector2f:
         return (self.x, self.y)
 
     @xy.setter
-    def xy(self, value: tuple[Number, Number]) -> None:
+    def xy(self, value: tuple[Number, Number] | Sequence[Number]) -> None:
         """
         #### Устанавливает координаты из кортежа
 
@@ -378,7 +414,7 @@ class Vector2f:
         self.x = float(value[0])
         self.y = float(value[1])
 
-    def copy(self) -> "Vector2f":
+    def copy(self) -> "Vec2f":
         """
         #### Создает копию вектора
 
@@ -395,9 +431,9 @@ class Vector2f:
         copy = original.copy()
         ```
         """
-        return Vector2f(self.x, self.y)
+        return Vec2f(self.x, self.y)
 
-    def reflect(self, normal: "Vector2f") -> "Vector2f":
+    def reflect(self, normal: "Vec2f") -> "Vec2f":
         """
         #### Отражает вектор относительно нормали
 
@@ -421,7 +457,7 @@ class Vector2f:
         ```
         """
         dot_product = self.x * normal.x + self.y * normal.y
-        return Vector2f(self.x - 2 * dot_product * normal.x,
+        return Vec2f(self.x - 2 * dot_product * normal.x,
                         self.y - 2 * dot_product * normal.y)
 
     def reflect_at_x(self) -> Self:
@@ -440,7 +476,7 @@ class Vector2f:
         reflected = vec.reflect_x()  # Vector2f(3, -4)
         ```
         """
-        self.x = -self.x
+        self.y = -self.y
         return self
 
     def reflect_at_y(self) -> Self:
@@ -463,7 +499,7 @@ class Vector2f:
         self.x = -self.x
         return self
 
-    def get_lenght(self) -> float:
+    def get_length(self) -> float:
         """
         #### Вычисляет длину (модуль) вектора
 
@@ -481,6 +517,25 @@ class Vector2f:
         ```
         """
         return math.sqrt(self.x * self.x + self.y * self.y)
+    
+    def get_length_squared(self) -> float:
+        """
+        #### Вычисляет квадрат длины вектора
+
+        ---
+
+        :Returns:
+        - float: Квадрат длины вектора (x² + y²)
+
+        ---
+
+        :Example:
+        ```python
+        vec = Vector2f(3, 4)
+        length_sq = vec.get_length_squared()  # 25.0
+        ```
+        """
+        return self.x ** 2 + self.y ** 2
 
     def normalize_at(self) -> Self:
         """
@@ -505,13 +560,13 @@ class Vector2f:
         vec.normalize_at()  # vec теперь (0.6, 0.8)
         ```
         """
-        length = self.get_lenght()
+        length = self.get_length()
         if length != 0:
             self.x /= length
             self.y /= length
         return self
 
-    def normalize(self) -> "Vector2f":
+    def normalize(self) -> "Vec2f":
         """
         #### Возвращает нормализованную копию вектора
 
@@ -535,10 +590,10 @@ class Vector2f:
         # vec остается (3, 4)
         ```
         """
-        length = self.get_lenght()
+        length = self.get_length()
         if length != 0:
-            return Vector2f(self.x / length, self.y / length)
-        return Vector2f(self.x, self.y)
+            return Vec2f(self.x / length, self.y / length)
+        return Vec2f(self.x, self.y)
 
     def rotate_at(self, angle: float | int) -> Self:
         """
@@ -571,7 +626,7 @@ class Vector2f:
         self.y = y
         return self
 
-    def rotate(self, angle: float | int) -> "Vector2f":
+    def rotate(self, angle: float | int) -> "Vec2f":
         """
         #### Возвращает повернутую копию вектора
 
@@ -599,7 +654,7 @@ class Vector2f:
         sin = math.sin(angle)
         x = self.x * cos - self.y * sin
         y = self.x * sin + self.y * cos
-        return Vector2f(x, y)
+        return Vec2f(x, y)
 
     def get_angle(self) -> float:
         """
@@ -643,13 +698,13 @@ class Vector2f:
         vec.set_angle(90)  # vec теперь (0, 5)
         ```
         """
-        length = self.get_lenght()
+        length = self.get_length()
         angle = -angle
         self.x = math.cos(angle * math.pi / 180) * length
         self.y = math.sin(angle * math.pi / 180) * length
         return self
 
-    def set_lenght(self, lenght: float | int) -> Self:
+    def set_length(self, lenght: float | int) -> Self:
         """
         #### Устанавливает длину вектора, сохраняя направление
 
@@ -671,7 +726,7 @@ class Vector2f:
         vec.set_lenght(10)    # теперь (6, 8)
         ```
         """
-        length = self.get_lenght()
+        length = self.get_length()
         if length != 0:
             self.x *= lenght / length
             self.y *= lenght / length
@@ -694,7 +749,7 @@ class Vector2f:
         print(vec.is_normalized())  # True
         ```
         """
-        return self.get_lenght() == 1
+        return self.get_length() == 1
 
     def is_zero(self) -> bool:
         """
@@ -718,63 +773,68 @@ class Vector2f:
     def __iter__(self):
         return iter((self.x, self.y))
 
-    def __copy__(self) -> "Vector2f":
+    def __copy__(self) -> "Vec2f":
         return self.copy()
 
     def __repr__(self) -> str:
-        return f"Vector2f({self.x}, {self.y})"
+        return f"Vec2f({self.x}, {self.y})"
 
     def __str__(self) -> str:
         return self.__repr__()
 
-    def __eq__(self, other: "Vector2Type | object") -> bool:
-        if isinstance(other, Vector2TypeTuple):
+    def __eq__(self, other: "Vec2T | object") -> bool:
+        if isinstance(other, Vec2TT):
             return self.x == other.x and self.y == other.y
         else:
             return False
 
-    def __ne__(self, other: "Vector2Type | object") -> bool:
+    def __ne__(self, other: "Vec2T | object") -> bool:
         return not self.__eq__(other)
 
-    def __neg__(self) -> 'Vector2f':
-        return Vector2f(-self.x, -self.y)
+    def __neg__(self) -> 'Vec2f':
+        return Vec2f(-self.x, -self.y)
 
-    def __abs__(self) -> 'Vector2f':
-        return Vector2f(abs(self.x), abs(self.y))
+    def __abs__(self) -> 'Vec2f':
+        return Vec2f(abs(self.x), abs(self.y))
 
-    def __add__(self, other: "Vector2f | Vector2i") -> 'Vector2f':
-        return Vector2f(self.x + other.x, self.y + other.y)
+    def __add__(self, other: "Vec2f | Vec2i") -> 'Vec2f':
+        return Vec2f(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other: "Vector2f | Vector2i") -> 'Vector2f':
-        return Vector2f(self.x - other.x, self.y - other.y)
+    def __sub__(self, other: "Vec2f | Vec2i") -> 'Vec2f':
+        return Vec2f(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, scalar: "float | int | Vector2Type") -> 'Vector2f':
-        if isinstance(scalar, Vector2TypeTuple):
-            return Vector2f(self.x * scalar.x, self.y * scalar.y)
-        return Vector2f(self.x * scalar, self.y * scalar)
+    def __mul__(self, scalar: "Number | Vec2T") -> 'Vec2f':
+        if isinstance(scalar, Vec2TT):
+            return Vec2f(self.x * scalar.x, self.y * scalar.y)
+        return Vec2f(self.x * scalar, self.y * scalar)
 
-    def __pow__(self, scalar: "float | int | Vector2Type") -> 'Vector2f':
-        if isinstance(scalar, Vector2TypeTuple):
-            return Vector2f(self.x ** scalar.x, self.y ** scalar.y)
-        return Vector2f(self.x ** scalar, self.y ** scalar)
+    def __pow__(self, scalar: "Number | Vec2T") -> 'Vec2f':
+        if isinstance(scalar, Vec2TT):
+            return Vec2f(self.x ** scalar.x, self.y ** scalar.y)
+        return Vec2f(self.x ** scalar, self.y ** scalar)
 
-    def __truediv__(self, scalar: "float | int | Vector2Type") -> 'Vector2f':
-        if isinstance(scalar, Vector2TypeTuple):
-            return Vector2f(self.x / scalar.x, self.y / scalar.y)
-        return Vector2f(self.x / scalar, self.y / scalar)
+    def __truediv__(self, scalar: "Number | Vec2T") -> 'Vec2f':
+        if isinstance(scalar, Vec2TT):
+            return Vec2f(self.x / scalar.x, self.y / scalar.y)
+        return Vec2f(self.x / scalar, self.y / scalar)
+    
+    def __div__(self, scalar: "Number | Vec2T") -> 'Vec2i':
+        if isinstance(scalar, Vec2TT):
+            return Vec2i(self.x // scalar.x, self.y // scalar.y)
+        return Vec2i(self.x // scalar, self.y // scalar)
 
-    def __iadd__(self, other: "Vector2f | Vector2i") -> Self:
+    def __iadd__(self, other: "Vec2T") -> Self:
         self.x += other.x
         self.y += other.y
         return self
 
-    def __isub__(self, other: "Vector2f | Vector2i") -> Self:
+    def __isub__(self, other: "Vec2T") -> Self:
         self.x -= other.x
         self.y -= other.y
         return self
 
-    def __imul__(self, scalar: "float | int | Vector2Type") -> Self:
-        if isinstance(scalar, Vector2TypeTuple):
+    def __imul__(self, scalar: "Number | Vec2T") -> Self:
+        if isinstance(scalar, Vec2TT):
             self.x *= scalar.x
             self.y *= scalar.y
         else:
@@ -782,20 +842,29 @@ class Vector2f:
             self.y *= scalar
         return self
 
-    def __itruediv__(self, scalar: "float | int | Vector2Type") -> Self:
-        if isinstance(scalar, Vector2TypeTuple):
+    def __itruediv__(self, scalar: "Number | Vec2T") -> Self:
+        if isinstance(scalar, Vec2TT):
             self.x /= scalar.x
             self.y /= scalar.y
         else:
             self.x /= scalar
             self.y /= scalar
         return self
+    
+    def __idiv__(self, scalar: "Number | Vec2T") -> Self:
+        if isinstance(scalar, Vec2TT):
+            self.x //= scalar.x
+            self.y //= scalar.y
+        else:
+            self.x //= scalar
+            self.y //= scalar
+        return self
 
 # Тип нормализованного вектора == +
-NormalizedVector = Vector2f       #
+NormVec2 = Vec2f                  #
 # =============================== +
 
-class Vector2i(object):
+class Vec2i(object):
     """
     #### Класс двумерного вектора с целочисленными координатами
 
@@ -837,12 +906,12 @@ class Vector2i(object):
         self.__y = int(y)
 
     @classmethod
-    def zero(cls) -> "Vector2i":
-        return Vector2i(0, 0)
+    def zero(cls) -> "Vec2i":
+        return Vec2i(0, 0)
 
     @classmethod
-    def one(cls) -> "Vector2i":
-        return Vector2i(1, 1)
+    def one(cls) -> "Vec2i":
+        return Vec2i(1, 1)
 
     def as_tuple(self) -> tuple[int, int]:
         return (self.x, self.y)
@@ -850,7 +919,7 @@ class Vector2i(object):
     def as_list(self) -> list[int]:
         return [self.x, self.y]
 
-    def to_float(self) -> Vector2f:
+    def to_float(self) -> Vec2f:
         """
         #### Преобразует в вектор с плавающей точкой
 
@@ -867,7 +936,7 @@ class Vector2i(object):
         float_vec = int_vec.to_float()  # Vector2f(3.0, -2.0)
         ```
         """
-        return Vector2f(float(self.__x), float(self.__y))
+        return Vec2f(float(self.__x), float(self.__y))
 
     def get_angle(self) -> float:
         """
@@ -889,7 +958,7 @@ class Vector2i(object):
         angle = -math.atan2(self.y, self.x) * 180 / math.pi
         return angle if angle >= 0 else angle + 360
 
-    def get_lenght(self) -> float:
+    def get_length(self) -> float:
         """
         #### Вычисляет длину вектора
 
@@ -943,119 +1012,119 @@ class Vector2i(object):
         return self.__repr__()
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Vector2i):
+        if not isinstance(other, Vec2i):
             return False
         return self.__x == other.x and self.__y == other.y
 
     def __ne__(self, other: object) -> bool:
-        if not isinstance(other, Vector2i):
+        if not isinstance(other, Vec2i):
             return True
         return not self.__eq__(other)
 
-    def __neg__(self) -> "Vector2i":
-        return Vector2i(-self.__x, -self.__y)
+    def __neg__(self) -> "Vec2i":
+        return Vec2i(-self.__x, -self.__y)
 
-    def __abs__(self) -> "Vector2i":
-        return Vector2i(abs(self.__x), abs(self.__y))
+    def __abs__(self) -> "Vec2i":
+        return Vec2i(abs(self.__x), abs(self.__y))
 
-    def __add__(self, other: "Vector2Type") -> "Vector2Type":
-        if isinstance(other, Vector2f):
-            return Vector2f(self.__x + other.x, self.__y + other.y)
-        return Vector2i(self.__x + other.x, self.__y + other.y)
+    def __add__(self, other: "Vec2T") -> "Vec2T":
+        if isinstance(other, Vec2f):
+            return Vec2f(self.__x + other.x, self.__y + other.y)
+        return Vec2i(self.__x + other.x, self.__y + other.y)
 
-    def __sub__(self, other: "Vector2Type") -> "Vector2Type":
-        if isinstance(other, Vector2f):
-            return Vector2f(self.__x - other.x, self.__y - other.y)
-        return Vector2i(self.__x - other.x, self.__y - other.y)
+    def __sub__(self, other: "Vec2T") -> "Vec2T":
+        if isinstance(other, Vec2f):
+            return Vec2f(self.__x - other.x, self.__y - other.y)
+        return Vec2i(self.__x - other.x, self.__y - other.y)
 
-    def __mul__(self, scalar: "int | float | Vector2Type") -> "Vector2Type":
-        if isinstance(scalar, Vector2i):
-            return Vector2i(self.__x * scalar.x, self.__y * scalar.y)
-        if isinstance(scalar, Vector2f):
-            return Vector2f(self.__x * scalar.x, self.__y * scalar.y)
+    def __mul__(self, scalar: "int | float | Vec2T") -> "Vec2T":
+        if isinstance(scalar, Vec2i):
+            return Vec2i(self.__x * scalar.x, self.__y * scalar.y)
+        if isinstance(scalar, Vec2f):
+            return Vec2f(self.__x * scalar.x, self.__y * scalar.y)
         if isinstance(scalar, int):
-            return Vector2i(self.__x * scalar, self.__y * scalar)
+            return Vec2i(self.__x * scalar, self.__y * scalar)
         if isinstance(scalar, float):
-            return Vector2f(self.__x * scalar, self.__y * scalar)
+            return Vec2f(self.__x * scalar, self.__y * scalar)
 
-    def __truediv__(self, scalar: "int | float | Vector2Type") -> "Vector2Type":
-        if isinstance(scalar, Vector2i):
-            return Vector2i(self.__x / scalar.x, self.__y / scalar.y)
-        if isinstance(scalar, Vector2f):
-            return Vector2f(self.__x / scalar.x, self.__y / scalar.y)
+    def __truediv__(self, scalar: "int | float | Vec2T") -> "Vec2T":
+        if isinstance(scalar, Vec2i):
+            return Vec2i(self.__x / scalar.x, self.__y / scalar.y)
+        if isinstance(scalar, Vec2f):
+            return Vec2f(self.__x / scalar.x, self.__y / scalar.y)
         if isinstance(scalar, int):
-            return Vector2i(self.__x / scalar, self.__y / scalar)
+            return Vec2i(self.__x / scalar, self.__y / scalar)
         if isinstance(scalar, float):
-            return Vector2f(self.__x / scalar, self.__y / scalar)
+            return Vec2f(self.__x / scalar, self.__y / scalar)
 
-    def __iadd__(self, other: "Vector2Type") -> "Vector2Type":
-        if isinstance(other, Vector2f):
-            return Vector2f(self.__x + other.x, self.__y + other.y)
+    def __iadd__(self, other: "Vec2T") -> "Vec2T":
+        if isinstance(other, Vec2f):
+            return Vec2f(self.__x + other.x, self.__y + other.y)
         self.__x += other.x
         self.__y += other.y
         return self
 
-    def __isub__(self, other: "Vector2Type") -> "Vector2Type":
-        if isinstance(other, Vector2f):
-            return Vector2f(self.__x - other.x, self.__y - other.y)
+    def __isub__(self, other: "Vec2T") -> "Vec2T":
+        if isinstance(other, Vec2f):
+            return Vec2f(self.__x - other.x, self.__y - other.y)
         self.__x -= other.x
         self.__y -= other.y
         return self
 
-    def __imul__(self, scalar: "int | float | Vector2Type") -> "Vector2Type":
-        if isinstance(scalar, Vector2i):
+    def __imul__(self, scalar: "int | float | Vec2T") -> "Vec2T":
+        if isinstance(scalar, Vec2i):
             self.__x *= scalar.x
             self.__y *= scalar.y
-        elif isinstance(scalar, Vector2f):
-            return Vector2f(self.__x * scalar.x, self.__y * scalar.y)
+        elif isinstance(scalar, Vec2f):
+            return Vec2f(self.__x * scalar.x, self.__y * scalar.y)
         elif isinstance(scalar, int):
             self.__x *= scalar
             self.__y *= scalar
         elif isinstance(scalar, float):
-            return Vector2f(self.__x * scalar, self.__y * scalar)
+            return Vec2f(self.__x * scalar, self.__y * scalar)
         return self
 
-    def __itruediv__(self, scalar: "int | float | Vector2Type") -> "Vector2Type":
-        if isinstance(scalar, Vector2i):
+    def __itruediv__(self, scalar: "int | float | Vec2T") -> "Vec2T":
+        if isinstance(scalar, Vec2i):
             self.__x /= scalar.x
             self.__y /= scalar.y
             self.__x = int(self.__x)
             self.__y = int(self.__y)
-        elif isinstance(scalar, Vector2f):
-            return Vector2f(self.__x / scalar.x, self.__y / scalar.y)
+        elif isinstance(scalar, Vec2f):
+            return Vec2f(self.__x / scalar.x, self.__y / scalar.y)
         elif isinstance(scalar, int):
             self.__x //= scalar
             self.__y //= scalar
             self.__x = int(self.__x)
             self.__y = int(self.__y)
         elif isinstance(scalar, float):
-            return Vector2f(self.__x / scalar, self.__y / scalar)
+            return Vec2f(self.__x / scalar, self.__y / scalar)
         return self
 
-
-def to_vector_2f(data: tuple[Number, Number] | list[Number]) -> Vector2f:
+    
+def to_vector_2f(data: tuple[Number, Number] | list[Number]) -> Vec2f:
     """
     Преобразует данные в вектор 2D с плавающей точкой.
     """
     if isinstance(data, tuple):
-        return Vector2f(data[0], data[1])
+        return Vec2f(data[0], data[1])
     elif isinstance(data, list):
-        return Vector2f(data[0], data[1])
+        return Vec2f(data[0], data[1])
     else:
         raise TypeError("Invalid data type")
 
-def to_vector_2i(data: tuple[Number, Number] | list[Number]) -> Vector2i:
+def to_vector_2i(data: tuple[Number, Number] | list[Number]) -> Vec2i:
     """
     Преобразует данные в вектор 2D с целочисленными координатами.
     """
     if isinstance(data, tuple):
-        return Vector2i(data[0], data[1])
+        return Vec2i(data[0], data[1])
     elif isinstance(data, list):
-        return Vector2i(data[0], data[1])
+        return Vec2i(data[0], data[1])
     else:
         raise TypeError("Invalid data type")
 
-def is_parallel(v1: "Vector2Type", v2: "Vector2Type") -> bool:
+def is_parallel(v1: "Vec2T", v2: "Vec2T") -> bool:
     """
     #### Проверяет параллельность двух векторов
 
@@ -1081,7 +1150,7 @@ def is_parallel(v1: "Vector2Type", v2: "Vector2Type") -> bool:
     """
     return v1.x * v2.y == v1.y * v2.x
 
-def is_perpendicular(v1: "Vector2Type", v2: "Vector2Type") -> bool:
+def is_perpendicular(v1: "Vec2T", v2: "Vec2T") -> bool:
     """
     #### Проверяет перпендикулярность двух векторов
 
@@ -1107,7 +1176,7 @@ def is_perpendicular(v1: "Vector2Type", v2: "Vector2Type") -> bool:
     """
     return v1.x * v2.x + v1.y * v2.y == 0
 
-def angle_between(v1: "Vector2Type", v2: "Vector2Type") -> float:
+def angle_between(v1: "Vec2T", v2: "Vec2T") -> float:
     """
     #### Вычисляет угол между двумя векторами
 
@@ -1131,9 +1200,9 @@ def angle_between(v1: "Vector2Type", v2: "Vector2Type") -> float:
     angle = angle_between(v1, v2)  # 90.0
     ```
     """
-    return math.degrees(math.acos((v1.x * v2.x + v1.y * v2.y) / (v1.get_lenght() * v2.get_lenght())))
+    return math.degrees(math.acos((v1.x * v2.x + v1.y * v2.y) / (v1.get_length() * v2.get_length())))
 
-def cross(v1: "Vector2Type", v2: "Vector2Type") -> float:
+def cross(v1: "Vec2T", v2: "Vec2T") -> float:
     """
     #### Вычисляет векторное произведение (в 2D - скаляр)
 
@@ -1179,7 +1248,7 @@ def cross(v1: "Vector2Type", v2: "Vector2Type") -> float:
     """
     return v1.x * v2.y - v1.y * v2.x
 
-def dot(v1: "Vector2Type", v2: "Vector2Type") -> float:
+def dot(v1: "Vec2T", v2: "Vec2T") -> float:
     """
     #### Вычисляет скалярное произведение векторов
 
@@ -1232,14 +1301,14 @@ def dot(v1: "Vector2Type", v2: "Vector2Type") -> float:
 
 
 # Union подобный веткорый тип ========= +
-type Vector2Type = Vector2f | Vector2i  #
+type Vec2T = Vec2f | Vec2i              #
 # ===================================== +
 
-# Кортеж из двух типов векторов ======= +
-Vector2TypeTuple = (Vector2f, Vector2i) #
-# ===================================== +
+# Кортеж из двух типов векторов =================== +
+Vec2TT: tuple[Vec2f, Vec2i] = (Vec2f, Vec2i)   #
+# ================================================= +
 
-class Vector3f(object):
+class Vec3f(object):
     def __init__(self, x: Number, y: Number, z: Number):
         self.__x = x
         self.__y = y
@@ -1292,21 +1361,21 @@ class Vector3f(object):
     def length(self) -> float:
         return math.sqrt(self.__x**2 + self.__y**2 + self.__z**2)
 
-    def dot(self, other: "Vector3f"):
+    def dot(self, other: "Vec3f"):
         """Вычисляет скалярное произведение двух векторов"""
         return (self.__x * other.__x + self.__y * other.__y + self.__z * other.__z)
 
-    def cross(self, other: "Vector3f"):
+    def cross(self, other: "Vec3f"):
         """Вычисляет векторное произведение двух векторов"""
-        return Vector3f(self.__y * other.__z - self.__z * other.__y,
+        return Vec3f(self.__y * other.__z - self.__z * other.__y,
                         self.__z * other.__x - self.__x * other.__z,
                         self.__x * other.__y - self.__y * other.__x)
 
-    def normalize(self) -> "Vector3f":
+    def normalize(self) -> "Vec3f":
         length = self.length()
         if length == 0:
-            return Vector3f(0, 0, 0)
-        return Vector3f(self.__x / length, self.__y / length, self.__z / length)
+            return Vec3f(0, 0, 0)
+        return Vec3f(self.__x / length, self.__y / length, self.__z / length)
 
     def normalize_at(self) -> Self:
         length = self.length()
@@ -1315,7 +1384,7 @@ class Vector3f(object):
         self.__z = self.__z / length
         return self
 
-    def rotate(self, angle_vector: "Vector3f") -> "Vector3f":
+    def rotate(self, angle_vector: "Vec3f") -> "Vec3f":
         """
         Вращает вектор по осям x, y, z
         """
@@ -1327,9 +1396,9 @@ class Vector3f(object):
         x = x * cos_a * cos_b - y * sin_a * cos_b + z * sin_b
         y = x * cos_a * sin_b + y * sin_a * sin_b + z * cos_b
         z = -x * sin_a + y * cos_a
-        return Vector3f(x, y, z)
+        return Vec3f(x, y, z)
 
-    def rotate_at(self, angle_vector: "Vector3f") -> Self:
+    def rotate_at(self, angle_vector: "Vec3f") -> Self:
         """
         Вращает вектор по осям x, y, z
         """
@@ -1352,23 +1421,23 @@ class Vector3f(object):
     def __repr__(self):
         return f"Vector3f({self.__x}, {self.__y}, {self.__z})"
 
-    def __add__(self, other: "Vector3f") -> "Vector3f":
-        return Vector3f(self.__x + other.__x, self.__y + other.__y, self.__z + other.__z)
+    def __add__(self, other: "Vec3f") -> "Vec3f":
+        return Vec3f(self.__x + other.__x, self.__y + other.__y, self.__z + other.__z)
 
-    def __sub__(self, other: "Vector3f") -> "Vector3f":
-        return Vector3f(self.__x - other.__x, self.__y - other.__y, self.__z - other.__z)
+    def __sub__(self, other: "Vec3f") -> "Vec3f":
+        return Vec3f(self.__x - other.__x, self.__y - other.__y, self.__z - other.__z)
 
-    def __mul__(self, other: float) -> "Vector3f":
-        return Vector3f(self.__x * other, self.__y * other, self.__z * other)
+    def __mul__(self, other: float) -> "Vec3f":
+        return Vec3f(self.__x * other, self.__y * other, self.__z * other)
 
-    def __truediv__(self, other: float) -> "Vector3f":
-        return Vector3f(self.__x / other, self.__y / other, self.__z / other)
+    def __truediv__(self, other: float) -> "Vec3f":
+        return Vec3f(self.__x / other, self.__y / other, self.__z / other)
 
-    def __floordiv__(self, other: float) -> "Vector3f":
-        return Vector3f(self.__x // other, self.__y // other, self.__z // other)
+    def __floordiv__(self, other: float) -> "Vec3f":
+        return Vec3f(self.__x // other, self.__y // other, self.__z // other)
 
-    def __mod__(self, other: float) -> "Vector3f":
-        return Vector3f(self.__x % other, self.__y % other, self.__z % other)
+    def __mod__(self, other: float) -> "Vec3f":
+        return Vec3f(self.__x % other, self.__y % other, self.__z % other)
 
-    def __abs__(self) -> "Vector3f":
-        return Vector3f(abs(self.__x), abs(self.__y), abs(self.__z))
+    def __abs__(self) -> "Vec3f":
+        return Vec3f(abs(self.__x), abs(self.__y), abs(self.__z))

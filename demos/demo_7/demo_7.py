@@ -15,9 +15,9 @@ window_events = WindowEvents()
 
 
 pos = window.get_center()
-speed = Vector2f(0, 0)
+speed = Vec2f(0, 0)
 
-gravity = Vector2f(0, 2)
+gravity = Vec2f(0, 2)
 
 
 circle = CircleShape()
@@ -55,7 +55,7 @@ while window.update(window_events):
         speed.x *= -0.8
 
     if mic.is_volume_increased(0.01):
-        speed = Vector2f(random.randint(-5, 5), -mic.get_volume_difference() * 10 * 50)
+        speed = Vec2f(random.randint(-5, 5), -mic.get_volume_difference() * 10 * 50)
 
 
 

@@ -91,7 +91,7 @@ from Moon.python.Colors import *
 from Moon.python.Time import Clock
 from Moon.python.Views import View
 from Moon.python.Types import TwoIntegerList
-from Moon.python.Vectors import Vector2i, Vector2f
+from Moon.python.Vectors import Vec2i, Vec2f
 from Moon.python.Inputs import MouseInterface, KeyBoardInterface, Mouse
 
 from Moon.python.Rendering.Text import *                                                                                # pyright: ignore [ reportGeneralTypeIssues ]
@@ -1159,8 +1159,8 @@ class Window:
         self.__fps_monitor_opened: bool = True
 
         # Значения вычисляющиеся с кешированием
-        self.__cached_window_center: Vector2f = Vector2f(width / 2, height / 2)
-        self.__cached_window_size: Vector2i = Vector2i(width, height)
+        self.__cached_window_center: Vec2f = Vec2f(width / 2, height / 2)
+        self.__cached_window_size: Vec2i = Vec2i(width, height)
 
         self.__title_color: Color | None = None
         self.__header_color: Color | None = None
@@ -1168,9 +1168,9 @@ class Window:
         self.__icon_path: str | None = None
 
         if sys.platform == 'win32':
-            _ = self.set_title_color(DEFAULT_WINDOW_TITLE_COLOR)
-            _ = self.set_header_color(DEFAULT_WINDOW_HEADER_COLOR)
-            _ = self.set_border_color(DEFAULT_WINDOW_BORDER_COLOR)
+            self.set_title_color(DEFAULT_WINDOW_TITLE_COLOR)
+            self.set_header_color(DEFAULT_WINDOW_HEADER_COLOR)
+            self.set_border_color(DEFAULT_WINDOW_BORDER_COLOR)
 
         try:
             _ = self.set_icon_from_path(DEFAULT_WINDOW_ICON_PATH)
@@ -1201,7 +1201,17 @@ class Window:
 
         
 
-    def _disable_standart_window_resizing(self):
+    def _disable_standart_window_resizing(self) -> None:
+        """
+        #### Выключает стандартное изменение размера окна
+
+        ---
+
+        Не рекомендуется использовать не опытным пользователям.
+
+        После использования этого метода вернуть окно в прежнее состояние невозможно
+        """
+
         hwnd = self.get_handle()
         style = ctypes.windll.user32.GetWindowLongW(hwnd,ctypes.c_int(-16))
         style &= ~0x00040000
@@ -1283,7 +1293,7 @@ class Window:
 
     def get_handle(self) -> int:
         """
-        Получить хэндл окна
+        #### Получить хэндл окна
 
         ---
 
@@ -1292,11 +1302,9 @@ class Window:
         """
         return LIB_MOON._Window_GetHandle(self.__window_ptr)                                                         # pyright: ignore [ reportAny ]
 
-
-
     def get_width(self) -> int:
         """
-        Получить ширину окна
+        #### Получить ширину окна  напрямую через нативный обьект
 
         ---
 
@@ -1307,7 +1315,7 @@ class Window:
 
     def get_height(self) -> int:
         """
-        Получить высоту окна
+        #### Получить высоту окна напрямую через нативный обьект
 
         ---
 
@@ -1319,7 +1327,7 @@ class Window:
 
     def has_focus(self) -> bool:
         """
-        Проверить, имеет ли окно фокус
+        #### Проверить, имеет ли окно фокус
 
         ---
 
@@ -1330,7 +1338,7 @@ class Window:
 
     def get_fps_history(self) -> list[Number]:
         """
-        Получить историю FPS
+        #### Получить историю FPS
 
         ---
 
@@ -1341,7 +1349,7 @@ class Window:
 
     def get_fps_history_max(self) -> Number:
         """
-        Получить максимальное значение FPS в истории
+        #### Получить максимальное значение FPS в истории
 
         ---
 
@@ -1354,7 +1362,7 @@ class Window:
 
     def get_fps_history_min(self) -> Number:
         """
-        Получить минимальное значение FPS в истории
+        #### Получить минимальное значение FPS в истории
 
         ---
 
@@ -1366,9 +1374,9 @@ class Window:
         except: return self.__target_fps
 
     if sys.platform == 'win32':
-        def set_fullscreen(self) -> Self | None:
+        def set_fullscreen(self) -> Self:
             """
-            Переключить окно в полноэкранный режим на весь экран
+            #### Переключить окно в полноэкранный режим на весь экран
 
             ---
 
@@ -1381,7 +1389,7 @@ class Window:
 
     def set_fps_monitor_opened(self, value: bool) -> Self:
         """
-        Открыть/закрыть FPS монитор
+        #### Открыть/закрыть FPS монитор
 
         ---
 
@@ -2143,7 +2151,7 @@ class Window:
         return self.__max_history
 
     @final
-    def convert_window_coords_to_view_coords(self, x: float, y: float, view: View) -> Vector2f:
+    def convert_window_coords_to_view_coords(self, x: float, y: float, view: View) -> Vec2f:
         """
         #### Преобразует экранные координаты в мировые относительно камеры
 
@@ -2175,13 +2183,13 @@ class Window:
         print(f"Клик в мире игры: {mouse_pos.x}, {mouse_pos.y}")
         ```
         """
-        return Vector2f(
+        return Vec2f(
             LIB_MOON._Window_MapPixelToCoordsX(self.__window_ptr, x, y, view.get_ptr()),
             LIB_MOON._Window_MapPixelToCoordsY(self.__window_ptr, x, y, view.get_ptr()),
         )
 
     @final
-    def convert_view_coords_to_window_coords(self, x: float, y: float, view: View) -> Vector2f:
+    def convert_view_coords_to_window_coords(self, x: float, y: float, view: View) -> Vec2f:
         """
         #### Преобразует мировые координаты в экранные относительно камеры
 
@@ -2213,7 +2221,7 @@ class Window:
         print(f"Объект на экране: {screen_pos.x}, {screen_pos.y}")
         ```
         """
-        return Vector2f(
+        return Vec2f(
             LIB_MOON._Window_MapCoordsToPixelX(self.__window_ptr, x, y, view.get_ptr()),
             LIB_MOON._Window_MapCoordsToPixelY(self.__window_ptr, x, y, view.get_ptr()),
         )
@@ -2317,7 +2325,7 @@ class Window:
         """
         if width <= 0 or height <= 0:
             raise ValueError("Window dimensions must be positive")
-        self.__cached_window_size = Vector2i(width, height)
+        self.__cached_window_size = Vec2i(width, height)
         LIB_MOON._Window_SetSize(self.__window_ptr, width, height)
         return self
 
@@ -2354,7 +2362,7 @@ class Window:
         return self.__window_ptr
 
     @final
-    def get_size(self, use_cache: bool = True) -> Vector2i:
+    def get_size(self, use_cache: bool = True) -> Vec2i:
         """
         #### Возвращает текущий размер клиентской области окна
 
@@ -2381,13 +2389,13 @@ class Window:
         """
         if use_cache:
             return self.__cached_window_size
-        return Vector2i(
+        return Vec2i(
             LIB_MOON._Window_GetSizeWidth(self.__window_ptr),
             LIB_MOON._Window_GetSizeHeight(self.__window_ptr)
         )
 
     @final
-    def get_center(self, use_cache: bool = True) -> Vector2f:
+    def get_center(self, use_cache: bool = True) -> Vec2f:
         """
         #### Возвращает координаты центра окна
 
@@ -2419,13 +2427,13 @@ class Window:
         if use_cache:
             return self.__cached_window_center
         size = self.get_size()
-        return Vector2f(
+        return Vec2f(
             size.x / 2,
             size.y / 2
         )
 
     @final
-    def get_position(self) -> Vector2i:
+    def get_position(self) -> Vec2i:
         """
         #### Возвращает позицию окна на экране
 
@@ -2450,7 +2458,7 @@ class Window:
         print(f"Окно расположено в ({pos.x}, {pos.y})")
         ```
         """
-        return Vector2i(
+        return Vec2i(
             LIB_MOON._Window_GetPositionX(self.__window_ptr),
             LIB_MOON._Window_GetPositionY(self.__window_ptr)
         )
@@ -2576,8 +2584,8 @@ class Window:
         step = 20
         for i in range(graph_width // step + 1):
             self.__info_fps_grid_line.clear()
-            self.__info_fps_grid_line.append_point(Vector2f(graph_x + step * i , graph_y))
-            self.__info_fps_grid_line.append_point(Vector2f(graph_x + step * i, graph_y + graph_height))
+            self.__info_fps_grid_line.append_point(Vec2f(graph_x + step * i , graph_y))
+            self.__info_fps_grid_line.append_point(Vec2f(graph_x + step * i, graph_y + graph_height))
             self.__info_fps_grid_line.set_global_color(Color(180, 180, 180, self.__info_alpha))
             self.draw(self.__info_fps_grid_line)
 
@@ -2595,8 +2603,8 @@ class Window:
 
 
             for i, fps in enumerate(self.__fps_history):
-                self.__info_fps_line.prepend_point(Vector2f(pos, graph_y + graph_height - (fps / max_fps * graph_height)))
-                self.__info_fps_smooth_line.prepend_point(Vector2f(pos, graph_y + graph_height - (self.__smooth_fps_history[i] / max_fps * graph_height)))
+                self.__info_fps_line.prepend_point(Vec2f(pos, graph_y + graph_height - (fps / max_fps * graph_height)))
+                self.__info_fps_smooth_line.prepend_point(Vec2f(pos, graph_y + graph_height - (self.__smooth_fps_history[i] / max_fps * graph_height)))
                 pos -= graph_step
 
 
@@ -3149,8 +3157,8 @@ class Window:
 
         if self.get_resized():
             size = self.get_size(False)
-            self.__cached_window_size = Vector2i(*size)
-            self.__cached_window_center = Vector2f(size.x / 2, size.y / 2)
+            self.__cached_window_size = Vec2i(*size)
+            self.__cached_window_center = Vec2f(size.x / 2, size.y / 2)
 
         if self.__DYNAMIC_UPDATE:
             self.dynamic_resize()

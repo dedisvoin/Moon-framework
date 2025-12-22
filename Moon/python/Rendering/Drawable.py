@@ -1,4 +1,4 @@
-from typing import TypeAlias, TypeVar
+from typing import TypeVar
 from Moon.python.Rendering.Text import Text, BaseText
 from Moon.python.Rendering.Shapes import *
 from Moon.python.Rendering.Shapes.Rectangle import *

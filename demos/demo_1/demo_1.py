@@ -29,12 +29,12 @@ while window.update(window_events):
         print("Pressed right mouse button")
 
     if KeyBoardInterface.get_click('s'):
-        set_mouse_position_in_window(window, Vector2i(100, 100))
+        set_mouse_position_in_window(window, Vec2i(100, 100))
 
 
     if KeyBoardInterface.get_click('m'):
-        MouseInterface.daemon_move(Vector2i(100, 100), 1)
+        MouseInterface.daemon_move(Vec2i(100, 100), 1)
     if KeyBoardInterface.get_click('n'):
-        MouseInterface.daemon_move(Vector2i(1920 - 100, 100), 1)
+        MouseInterface.daemon_move(Vec2i(1920 - 100, 100), 1)
 
     window.display()

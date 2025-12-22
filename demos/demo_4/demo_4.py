@@ -11,8 +11,8 @@ window = Window(1920, 1080, "Moon Framework Demo", context_settings=ContextSetti
 window_events = WindowEvents()
 
 
-point_1 = Vector2f(200, 200)
-point_2 = Vector2f(800, 500)
+point_1 = Vec2f(200, 200)
+point_2 = Vec2f(800, 500)
 
 radius = 50
 

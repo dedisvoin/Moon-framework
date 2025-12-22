@@ -62,7 +62,7 @@ def distance(arg1: Vector2Type, arg2: Vector2Type) -> float:
     ...
 
 def distance(arg1: Vector2Type | Number, arg2: Vector2Type | Number, arg3: Optional[Number] = None, arg4: Optional[Number] = None):
-    if isinstance(arg1, Vector2TypeTuple) and isinstance(arg2, Vector2TypeTuple):
+    if isinstance(arg1, Vec2TT) and isinstance(arg2, Vec2TT):
         return math.hypot(arg1.x - arg2.x, arg1.y - arg2.y)
     elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)) and isinstance(arg3, (int, float)) and isinstance(arg4, (int, float)):
         return math.hypot(arg3 - arg1, arg4 - arg2)
@@ -102,7 +102,7 @@ def distance_squared(arg1: Vector2Type, arg2: Vector2Type) -> float:
     ...
 
 def distance_squared(arg1: Vector2Type | Number, arg2: Vector2Type | Number, arg3: Optional[Number] = None, arg4: Optional[Number] = None):
-    if isinstance(arg1, Vector2TypeTuple) and isinstance(arg2, Vector2TypeTuple):
+    if isinstance(arg1, Vec2TT) and isinstance(arg2, Vec2TT):
         dx, dy = arg2.x - arg1.x, arg2.y - arg1.y
     elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)) and isinstance(arg3, (int, float)) and isinstance(arg4, (int, float)):
         dx, dy = arg3 - arg1, arg4 - arg2
@@ -152,7 +152,7 @@ def circles_collision(arg1: Vector2Type, arg2: float, arg3: Vector2Type, arg4: f
     ...
 
 def circles_collision(arg1, arg2, arg3, arg4, arg5=None, arg6=None) -> bool:
-    if isinstance(arg1, Vector2TypeTuple) and isinstance(arg3, Vector2TypeTuple):
+    if isinstance(arg1, Vec2TT) and isinstance(arg3, Vec2TT):
         # Формат: circles_collision(v1, r1, v2, r2)
         return distance_squared(arg1, arg3) <= (arg2 + arg4)**2
     elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)) and isinstance(arg3, (int, float))\
@@ -205,7 +205,7 @@ def rects_collision(arg1: Vector2Type, arg2: Vector2Type,
     ...
 
 def rects_collision(arg1, arg2, arg3, arg4, arg5=None, arg6=None, arg7=None, arg8=None) -> bool:
-    if isinstance(arg1, Vector2TypeTuple) and isinstance(arg2, Vector2TypeTuple) and isinstance(arg3, Vector2TypeTuple) and isinstance(arg4, Vector2TypeTuple):
+    if isinstance(arg1, Vec2TT) and isinstance(arg2, Vec2TT) and isinstance(arg3, Vec2TT) and isinstance(arg4, Vec2TT):
         # Формат: rects_collision(pos1, size1, pos2, size2)
         pos1, size1, pos2, size2 = arg1, arg2, arg3, arg4
         return (pos1.x <= pos2.x + size2.x and

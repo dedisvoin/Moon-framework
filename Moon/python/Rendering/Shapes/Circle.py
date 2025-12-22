@@ -99,7 +99,7 @@ from Moon.python.Types import *
 from Moon.python.Colors import *
 from Moon.python.Rendering.Shapes.Proxys import *            # pyright: ignore
 
-from Moon.python.Vectors import Vector2f, Vector2i, Vector2Type
+from Moon.python.Vectors import Vec2f, Vec2i, Vec2T
 
 from Moon.python.utils import find_library
 
@@ -365,7 +365,7 @@ class CircleShape:
         return ShapePositionProxy(self)
 
     @position.setter
-    def position(self, position: Vector2Type) -> None:
+    def position(self, position: Vec2T) -> None:
         """
         #### Устанавливает позицию круга через вектор
 
@@ -542,7 +542,7 @@ class CircleShape:
         return ShapeOriginProxy(self)
 
     @origin.setter
-    def origin(self, origin: Vector2Type) -> None:
+    def origin(self, origin: Vec2T) -> None:
         """
         #### Устанавливает точку отсчета круга
 
@@ -947,7 +947,7 @@ class CircleShape:
         ...
 
     @overload
-    def set_position(self, arg1: Vector2f, arg2: None = None) -> Self:
+    def set_position(self, arg1: Vec2f, arg2: None = None) -> Self:
         """
         #### Устанавливает позицию круга через вектор
 
@@ -979,7 +979,7 @@ class CircleShape:
         """
         ...
 
-    def set_position(self, arg1: Union[float, Vector2f], arg2: Optional[float] = None) -> Self:
+    def set_position(self, arg1: Union[float, Vec2f], arg2: Optional[float] = None) -> Self:
         """
         #### Основная реализация установки позиции
 
@@ -1013,7 +1013,7 @@ class CircleShape:
         - Учитывает текущую точку отсчета
         - Немедленно применяет изменения к отображению
         """
-        if isinstance(arg1, (Vector2f, Vector2i)) and arg2 is None:
+        if isinstance(arg1, (Vec2f, Vec2i)) and arg2 is None:
             x, y = float(arg1.x), float(arg1.y)
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             x, y = float(arg1), float(arg2)
@@ -1027,7 +1027,7 @@ class CircleShape:
         LIB_MOON._Circle_SetPosition(self._ptr, x, y)
         return self
 
-    def get_position(self) -> Vector2f:
+    def get_position(self) -> Vec2f:
         """
         #### Возвращает текущую позицию центра круга
 
@@ -1056,7 +1056,7 @@ class CircleShape:
         """
         x = LIB_MOON._Circle_GetPositionX(self._ptr)
         y = LIB_MOON._Circle_GetPositionY(self._ptr)
-        return Vector2f(x, y)
+        return Vec2f(x, y)
 
     def set_radius(self, radius: float) -> Self:
         """
@@ -1520,7 +1520,7 @@ class CircleShape:
         LIB_MOON._Circle_SetScale(self._ptr, scale_x, scale_y)
         return self
 
-    def get_scale(self) -> Vector2f:
+    def get_scale(self) -> Vec2f:
         """
         #### Возвращает текущий масштаб круга
 
@@ -1545,13 +1545,13 @@ class CircleShape:
             print("Круг искажен в эллипс")
         ```
         """
-        return Vector2f(
+        return Vec2f(
             LIB_MOON._Circle_GetScaleX(self._ptr),
             LIB_MOON._Circle_GetScaleY(self._ptr)
         )
 
     @overload
-    def set_origin(self, arg1: Vector2Type, arg2: None = None) -> Self:
+    def set_origin(self, arg1: Vec2T, arg2: None = None) -> Self:
         """
         #### Устанавливает точку отсчета через вектор
 
@@ -1613,7 +1613,7 @@ class CircleShape:
         """
         ...
 
-    def set_origin(self, arg1: Union[Vector2Type, float], arg2: Optional[float] = None) -> Self:
+    def set_origin(self, arg1: Union[Vec2T, float], arg2: Optional[float] = None) -> Self:
         """
         #### Основная реализация установки точки отсчета
 
@@ -1647,7 +1647,7 @@ class CircleShape:
         - Отрицательные значения допустимы
         - Точка отсчета влияет на все преобразования (поворот, масштаб)
         """
-        if isinstance(arg1, Vector2f):
+        if isinstance(arg1, Vec2f):
             x, y = arg1.x, arg1.y
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             x, y = float(arg1), float(arg2)
@@ -1657,7 +1657,7 @@ class CircleShape:
         LIB_MOON._Circle_SetOrigin(self._ptr, x, y)
         return self
 
-    def get_origin(self) -> Vector2f:
+    def get_origin(self) -> Vec2f:
         """
         #### Возвращает текущую точку отсчета
 
@@ -1683,14 +1683,14 @@ class CircleShape:
         """
         x = LIB_MOON._Circle_GetOriginX(self._ptr)
         y = LIB_MOON._Circle_GetOriginY(self._ptr)
-        return Vector2f(x, y)
+        return Vec2f(x, y)
 
     # =================================================================================
     # МЕТОДЫ ПЕРЕМЕЩЕНИЯ И ТРАНСФОРМАЦИЙ
     # =================================================================================
 
     @final
-    def move(self, offset: Vector2f) -> Self:
+    def move(self, offset: Vec2f) -> Self:
         """
         #### Перемещает круг на заданный вектор
 

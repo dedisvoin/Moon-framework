@@ -4,7 +4,7 @@ from Moon.python.Rendering.Drawable import *
 from Moon.python.Rendering.RenderStates import RenderStates
 from Moon.python.Rendering.Shaders import *
 
-from Moon.python.Vectors import Vector2Type
+from Moon.python.Vectors import Vec2T
 from Moon.python.Views import ViewPtr
 from Moon.python.Types import *
 from Moon.python.Colors import *
@@ -69,7 +69,7 @@ class RenderTexture2D(object):
     def __init__(self) -> None:
         self.__ptr = LIB_MOON._RenderTexture_Init()
 
-        self.__size: None | Vector2i = None
+        self.__size: None | Vec2i = None
 
     def __del__(self):
         LIB_MOON._RenderTexture_Delete(self.__ptr)
@@ -95,7 +95,7 @@ class RenderTexture2D(object):
         """
         LIB_MOON._RenderTexture_SetSmooth(self.__ptr, smooth)
 
-    def get_size(self) -> Vector2i | None:
+    def get_size(self) -> Vec2i | None:
         return self.__size
 
     def Init(self, width: int, height: int, arg: None | ContextSettingsPtr = None) -> Self:
@@ -109,7 +109,7 @@ class RenderTexture2D(object):
             height (int): Высота текстуры.
             arg (ContextSettingsPtr, optional): Контекстные настройки. По умолчанию None.
         """
-        self.__size = Vector2i(width, height)
+        self.__size = Vec2i(width, height)
         if arg is None:
             LIB_MOON._RenderTexture_Create(self.__ptr, width, height)
         else:
@@ -336,7 +336,7 @@ class Texture2D(object):
         """
         return LIB_MOON._Texture_GetMaximumSize(self.__ptr)
 
-    def get_size(self) -> Vector2i:
+    def get_size(self) -> Vec2i:
         """
         #### Возвращает размер текстуры.
 
@@ -345,7 +345,7 @@ class Texture2D(object):
         :Returns:
             Vector2i: Размер текстуры (ширина, высота).
         """
-        return Vector2i(
+        return Vec2i(
             LIB_MOON._Texture_GetSizeX(self.__ptr),
             LIB_MOON._Texture_GetSizeY(self.__ptr)
         )
@@ -388,7 +388,7 @@ class Texture2D(object):
         LIB_MOON._Texture_Swap(self.__ptr, other.get_ptr())
         return self
 
-    def get_sub_texture_ptr(self, rect_pos: Vector2i, rect_size: Vector2i) -> TexturePtr:
+    def get_sub_texture_ptr(self, rect_pos: Vec2i, rect_size: Vec2i) -> TexturePtr:
         """
         #### Возвращает указатель на под-текстуру (регион) текущей текстуры.
 
@@ -403,7 +403,7 @@ class Texture2D(object):
         texture_ptr = LIB_MOON._Texture_SubTexture(self.__ptr, rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
         return texture_ptr
 
-    def get_sub_texture(self, rect_pos: Vector2i, rect_size: Vector2i) -> "Texture2D":
+    def get_sub_texture(self, rect_pos: Vec2i, rect_size: Vec2i) -> "Texture2D":
         """
         #### Возвращает объект Texture2D, представляющий под-текстуру.
 
@@ -434,7 +434,7 @@ class Texture2D(object):
         result = LIB_MOON._Texture_LoadFromFile(self.__ptr, filename.encode('utf-8'))
         return result, self
 
-    def load_from_file_with_bound_rect(self, filename: str, rect_pos: Vector2i, rect_size: Vector2i) -> tuple[bool, Self]:
+    def load_from_file_with_bound_rect(self, filename: str, rect_pos: Vec2i, rect_size: Vec2i) -> tuple[bool, Self]:
         """
         #### Загружает текстуру из файла, используя ограничивающий прямоугольник.
 
@@ -569,48 +569,48 @@ class Sprite2D(object):
 
     def __init__(self):
         self.__ptr = LIB_MOON._Sprite_Init()
-        self.__flip_vector = Vector2i(1, 1)
-        self.__size = Vector2f.zero()
+        self.__flip_vector = Vec2i(1, 1)
+        self.__size = Vec2f.zero()
 
     def __del__(self):
         LIB_MOON._Sprite_Delete(self.__ptr)
 
-    def get_global_bounds(self) -> tuple[Vector2f, Vector2f]:
+    def get_global_bounds(self) -> tuple[Vec2f, Vec2f]:
         return (
-            Vector2f(LIB_MOON._Sprite_GetGlobalBoundRectX(self.__ptr),
+            Vec2f(LIB_MOON._Sprite_GetGlobalBoundRectX(self.__ptr),
                      LIB_MOON._Sprite_GetGlobalBoundRectY(self.__ptr)),
-            Vector2f(abs(LIB_MOON._Sprite_GetGlobalBoundRectW(self.__ptr)),
+            Vec2f(abs(LIB_MOON._Sprite_GetGlobalBoundRectW(self.__ptr)),
                      abs(LIB_MOON._Sprite_GetGlobalBoundRectH(self.__ptr)))
         )
 
-    def get_global_bounds_size(self) -> Vector2f:
-        return Vector2f(
+    def get_global_bounds_size(self) -> Vec2f:
+        return Vec2f(
             abs(LIB_MOON._Sprite_GetGlobalBoundRectW(self.__ptr)),
             abs(LIB_MOON._Sprite_GetGlobalBoundRectH(self.__ptr))
         )
 
 
-    def get_size(self, use_cache: bool = True) -> Vector2f:
+    def get_size(self, use_cache: bool = True) -> Vec2f:
         if use_cache:
             return self.__size
         self.__size = self.get_global_bounds_size()
         return self.__size
 
-    def get_local_bounds(self) -> tuple[Vector2f, Vector2f]:
+    def get_local_bounds(self) -> tuple[Vec2f, Vec2f]:
         return (
-            Vector2f(LIB_MOON._Sprite_GetLocalBoundRectX(self.__ptr),
+            Vec2f(LIB_MOON._Sprite_GetLocalBoundRectX(self.__ptr),
                      LIB_MOON._Sprite_GetLocalBoundRectY(self.__ptr)),
-            Vector2f(abs(LIB_MOON._Sprite_GetLocalBoundRectW(self.__ptr)),
+            Vec2f(abs(LIB_MOON._Sprite_GetLocalBoundRectW(self.__ptr)),
                      abs(LIB_MOON._Sprite_GetLocalBoundRectH(self.__ptr)))
         )
 
-    def get_local_bounds_size(self) -> Vector2f:
-        return Vector2f(
+    def get_local_bounds_size(self) -> Vec2f:
+        return Vec2f(
             abs(LIB_MOON._Sprite_GetLocalBoundRectW(self.__ptr)),
             abs(LIB_MOON._Sprite_GetLocalBoundRectH(self.__ptr))
         )
 
-    def get_flips(self) -> Vector2i:
+    def get_flips(self) -> Vec2i:
         return self.__flip_vector
 
     def rotate(self, angle: Number) -> Self:
@@ -658,7 +658,7 @@ class Sprite2D(object):
         LIB_MOON._Sprite_LinkRenderTexture(self.__ptr, texture.get_ptr(), reset_rect)
         return self
 
-    def set_texture_rect(self, rect_pos: Vector2i, rect_size: Vector2i) -> Self:
+    def set_texture_rect(self, rect_pos: Vec2i, rect_size: Vec2i) -> Self:
         LIB_MOON._Sprite_SetTextureRect(self.__ptr, rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
         return self
 
@@ -676,12 +676,12 @@ class Sprite2D(object):
         self.__size = self.get_global_bounds_size()
         return self
 
-    def set_position(self, position: Vector2Type) -> Self:
+    def set_position(self, position: Vec2T) -> Self:
         """Устанавливает позицию спрайта из Vector2f"""
         LIB_MOON._Sprite_SetPosition(self.__ptr, position.x, position.y)
         return self
 
-    def set_origin(self, origin: Vector2Type) -> Self:
+    def set_origin(self, origin: Vec2T) -> Self:
         """Устанавливает точку отсчета (origin) спрайта из Vector2f"""
         LIB_MOON._Sprite_SetOrigin(self.__ptr, origin.x, origin.y)
         return self
@@ -691,23 +691,23 @@ class Sprite2D(object):
         bounds = self.get_global_bounds()
         scale = self.get_scale()
         if origin_type == OriginTypes.TOP_LEFT:
-            self.set_origin(Vector2f(0, 0))
+            self.set_origin(Vec2f(0, 0))
         elif origin_type == OriginTypes.TOP_CENTER:
-            self.set_origin(Vector2f(bounds[1].x / 2 / scale.x, 0))
+            self.set_origin(Vec2f(bounds[1].x / 2 / scale.x, 0))
         elif origin_type == OriginTypes.TOP_RIGHT:
-            self.set_origin(Vector2f(bounds[1].x / scale.x, 0))
+            self.set_origin(Vec2f(bounds[1].x / scale.x, 0))
         elif origin_type == OriginTypes.LEFT_CENTER:
-            self.set_origin(Vector2f(0, bounds[1].y / 2 / scale.y))
+            self.set_origin(Vec2f(0, bounds[1].y / 2 / scale.y))
         elif origin_type == OriginTypes.CENTER:
-            self.set_origin(Vector2f(bounds[1].x / 2 / scale.x, bounds[1].y / 2 / scale.y))
+            self.set_origin(Vec2f(bounds[1].x / 2 / scale.x, bounds[1].y / 2 / scale.y))
         elif origin_type == OriginTypes.RIGHT_CENTER:
-            self.set_origin(Vector2f(bounds[1].x / scale.x, bounds[1].y / 2 / scale.y))
+            self.set_origin(Vec2f(bounds[1].x / scale.x, bounds[1].y / 2 / scale.y))
         elif origin_type == OriginTypes.DOWN_LEFT:
-            self.set_origin(Vector2f(0, bounds[1].y / scale.y))
+            self.set_origin(Vec2f(0, bounds[1].y / scale.y))
         elif origin_type == OriginTypes.DOWN_CENTER:
-            self.set_origin(Vector2f(bounds[1].x / 2 / scale.x, bounds[1].y / scale.y))
+            self.set_origin(Vec2f(bounds[1].x / 2 / scale.x, bounds[1].y / scale.y))
         elif origin_type == OriginTypes.DOWN_RIGHT:
-            self.set_origin(Vector2f(bounds[1].x / scale.x, bounds[1].y / scale.y))
+            self.set_origin(Vec2f(bounds[1].x / scale.x, bounds[1].y / scale.y))
         return self
 
     def set_color(self, color: Color) -> Self:
@@ -728,16 +728,16 @@ class Sprite2D(object):
         """Возвращает угол поворота спрайта в градусах"""
         return LIB_MOON._Sprite_GetRotation(self.__ptr)
 
-    def get_scale(self) -> Vector2f:
+    def get_scale(self) -> Vec2f:
         """Возвращает масштаб спрайта"""
-        return Vector2f(
+        return Vec2f(
             LIB_MOON._Sprite_GetScaleX(self.__ptr),
             LIB_MOON._Sprite_GetScaleY(self.__ptr)
         )
 
-    def get_position(self) -> Vector2f:
+    def get_position(self) -> Vec2f:
         """Возвращает позицию спрайта"""
-        return Vector2f(
+        return Vec2f(
             LIB_MOON._Sprite_GetPositionX(self.__ptr),
             LIB_MOON._Sprite_GetPositionY(self.__ptr)
         )
@@ -758,12 +758,12 @@ class AnimatedSprite2D(Sprite2D):
     __slots__ = ("__frames_count", "__frame_time", "__texture_size", "__ptr", "__is_started",
                 '__flip_vector', '__size', '__current_frame_index', '__last_time', '__cycle')
 
-    def __init__(self, texture_size: Vector2i, frames_count: int, frame_time: FrameTime):
+    def __init__(self, texture_size: Vec2i, frames_count: int, frame_time: FrameTime):
         super().__init__()
         self.__frames_count = frames_count
         self.__frame_time = frame_time
         self.__texture_size = texture_size
-        self.set_texture_rect(Vector2i.zero(), self.__texture_size)
+        self.set_texture_rect(Vec2i.zero(), self.__texture_size)
 
         self.__current_frame_index = 0
         self.__last_time = 0
@@ -797,7 +797,7 @@ class AnimatedSprite2D(Sprite2D):
         """
         return self.__frames_count
 
-    def get_texture_size(self) -> Vector2i:
+    def get_texture_size(self) -> Vec2i:
         """
         #### Возвращает размер одного кадра в текстуре (в пикселях).
         """
@@ -825,7 +825,7 @@ class AnimatedSprite2D(Sprite2D):
             else:
                 self.__current_frame_index -= 1
                 self.stop()
-        super().set_texture_rect(Vector2i(self.__current_frame_index * self.__texture_size.x, 0), self.__texture_size)
+        super().set_texture_rect(Vec2i(self.__current_frame_index * self.__texture_size.x, 0), self.__texture_size)
 
     def get_ptr(self) -> SpritePtr:
         return super().get_ptr()

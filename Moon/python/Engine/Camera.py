@@ -130,8 +130,8 @@ class Camera2D:
         # =============================================
         # Система позиционирования
         # =============================================
-        self.__target_center: Vector2f = Vector2f(0, 0)    # Целевая позиция центра камеры
-        self.__current_center: Vector2f = Vector2f(0, 0)   # Текущая позиция центра камеры
+        self.__target_center: Vec2f = Vec2f(0, 0)    # Целевая позиция центра камеры
+        self.__current_center: Vec2f = Vec2f(0, 0)   # Текущая позиция центра камеры
         self.__lerp_movement: float = 0.1                  # Скорость интерполяции движения (0-1)
 
         # =============================================
@@ -147,9 +147,9 @@ class Camera2D:
         # =============================================
         # Система тряски камеры
         # =============================================
-        self.__target_shake = Vector2f(0, 0)    # Целевая амплитуда тряски
-        self.__current_shake = Vector2f(0, 0)   # Текущее смещение от тряски
-        self.__shake_lerp = Vector2f(0.9, 0.9)  # Скорость затухания тряски по осям
+        self.__target_shake = Vec2f(0, 0)    # Целевая амплитуда тряски
+        self.__current_shake = Vec2f(0, 0)   # Текущее смещение от тряски
+        self.__shake_lerp = Vec2f(0.9, 0.9)  # Скорость затухания тряски по осям
         self.__shake_only_x = False             # Флаг тряски только по оси X
         self.__shake_only_y = False             # Флаг тряски только по оси Y
         self.__shake_intensity: float = 1.0     # Общая интенсивность тряски
@@ -164,8 +164,8 @@ class Camera2D:
         # =============================================
         # Система следования за двумя объектами
         # =============================================
-        self.__first_target: Vector2i | Vector2f | Vector2f | None = None   # Первый объект слежения
-        self.__second_target: Vector2i | Vector2f | Vector2f | None = None  # Второй объект слежения
+        self.__first_target: Vec2i | Vec2f | Vec2f | None = None   # Первый объект слежения
+        self.__second_target: Vec2i | Vec2f | Vec2f | None = None  # Второй объект слежения
         self.__two_target_factor: float = 0.5                                  # Коэффициент позиции между объектами (0-1)
         self.__use_two_target: bool = False                                    # Флаг использования двойного слежения
         self.__auto_scale_padding: float = 0                                   # Отступ для автомасштабирования
@@ -449,8 +449,8 @@ class Camera2D:
         camera.shake(15, 2.0)
         ```
         """
-        self.__target_shake = Vector2f(amplitude * self.__shake_intensity, amplitude * self.__shake_intensity)
-        self.__shake_lerp = Vector2f(0.95 - (duration * 0.1), 0.95 - (duration * 0.1))
+        self.__target_shake = Vec2f(amplitude * self.__shake_intensity, amplitude * self.__shake_intensity)
+        self.__shake_lerp = Vec2f(0.95 - (duration * 0.1), 0.95 - (duration * 0.1))
         self.__shake_only_x = False
         self.__shake_only_y = False
         return self
@@ -486,7 +486,7 @@ class Camera2D:
         camera.shake_x(10, 3.0)
         ```
         """
-        self.__target_shake = Vector2f(amplitude * self.__shake_intensity, 0)
+        self.__target_shake = Vec2f(amplitude * self.__shake_intensity, 0)
         self.__shake_lerp.x = 0.95 - (duration * 0.1)
         self.__shake_only_x = True
         self.__shake_only_y = False
@@ -523,7 +523,7 @@ class Camera2D:
         camera.shake_y(8, 0.5)
         ```
         """
-        self.__target_shake = Vector2f(0, amplitude * self.__shake_intensity)
+        self.__target_shake = Vec2f(0, amplitude * self.__shake_intensity)
         self.__shake_lerp.y = 0.95 - (duration * 0.1)
         self.__shake_only_x = False
         self.__shake_only_y = True
@@ -952,7 +952,7 @@ class Camera2D:
         return self
 
     @final
-    def follow(self, position_1: Vector2f, position_2: Vector2f | None = None) -> Self:
+    def follow(self, position_1: Vec2f, position_2: Vec2f | None = None) -> Self:
         """
         #### Устанавливает объект(ы) для слежения камеры
 
@@ -1076,7 +1076,7 @@ class Camera2D:
         return self
 
     @final
-    def get_center_position(self) -> Vector2f:
+    def get_center_position(self) -> Vec2f:
         """
         #### Возвращает текущую позицию центра камеры
 
@@ -1100,10 +1100,10 @@ class Camera2D:
         print(f"Камера находится в ({center.x}, {center.y})")
         ```
         """
-        return Vector2f(*self.__view.get_center())
+        return Vec2f(*self.__view.get_center())
 
     @final
-    def get_size(self) -> Vector2f:
+    def get_size(self) -> Vec2f:
         """
         #### Возвращает текущий размер области просмотра камеры
 
@@ -1128,10 +1128,10 @@ class Camera2D:
         ```
         """
         size = self.__view.get_float_rect().get_size()
-        return Vector2f(*size) * self.__zoom
+        return Vec2f(*size) * self.__zoom
 
     @final
-    def get_position(self) -> Vector2f:
+    def get_position(self) -> Vec2f:
         """
         #### Возвращает текущую позицию камеры
 
@@ -1155,7 +1155,7 @@ class Camera2D:
         """
         return self.__current_center
 
-    def set_center(self, position: Vector2f):
+    def set_center(self, position: Vec2f):
         self.__current_center = position
         self.__view.set_center(*position.as_tuple())
 
@@ -1210,13 +1210,13 @@ class Camera2D:
             # Вычисляем позицию между двумя объектами
             pos_1 = self.__first_target.as_tuple()
             pos_2 = self.__second_target.as_tuple()
-            normal = Vector2f(pos_1[0] - pos_2[0], pos_1[1] - pos_2[1])
+            normal = Vec2f(pos_1[0] - pos_2[0], pos_1[1] - pos_2[1])
             self.__target_center = self.__second_target + normal * self.__two_target_factor
 
         # =============================================
         # Интерполяция позиции камеры
         # =============================================
-        self.__current_center = Vector2f(*self.__view.get_center())
+        self.__current_center = Vec2f(*self.__view.get_center())
         self.__current_center += (self.__target_center - self.__current_center) * self.__lerp_movement * delta
         self.__view.set_center(*self.__current_center.xy)
 
@@ -1382,7 +1382,7 @@ class CameraMachine2D(Camera2D):
         ```
         """
         super().__init__(width, height)
-        self.__manual_position = Vector2f(0, 0)  # Позиция для ручного управления
+        self.__manual_position = Vec2f(0, 0)  # Позиция для ручного управления
         self.__movement_speed = 300.0            # Скорость движения в пикселях/секунду
 
     @final
@@ -1419,11 +1419,11 @@ class CameraMachine2D(Camera2D):
         if keyboard.is_pressed('d'): camera.move(5, 0)
         ```
         """
-        self.__manual_position += Vector2f(x, y)
+        self.__manual_position += Vec2f(x, y)
         return self
 
     @final
-    def get_position(self) -> Vector2f:
+    def get_position(self) -> Vec2f:
         """
         #### Возвращает текущую позицию ручного управления
 
@@ -1449,7 +1449,7 @@ class CameraMachine2D(Camera2D):
         return self.__manual_position
 
     @final
-    def set_position(self, position: Vector2f) -> Self:
+    def set_position(self, position: Vec2f) -> Self:
         """
         #### Устанавливает позицию камеры для ручного управления
 

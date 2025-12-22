@@ -67,7 +67,7 @@ while window.update(events):
     mouse_pos = MouseInterface.get_position_in_window(window).to_float()
 
     # --- Передаем данные в шейдер ---
-    cairo_shader.set_uniform("resolution", Vector2f(window_width, window_height))
+    cairo_shader.set_uniform("resolution", Vec2f(window_width, window_height))
     cairo_shader.set_uniform("time", current_time * 20)
     cairo_shader.set_uniform("mouse", mouse_pos * 200) # Передаем как Vector2i
 

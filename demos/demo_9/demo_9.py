@@ -15,8 +15,8 @@ SCR = get_screen_resolution()
 
 class Obj(object):
     def __init__(self):
-        self.pos = Vector2f(1000, 800)
-        self.speed = Vector2f.random() * random.uniform(0, 10)
+        self.pos = Vec2f(1000, 800)
+        self.speed = Vec2f.random() * random.uniform(0, 10)
         self.sprite = Sprite2D().link_texture(texture)
         self.sprite.set_scale(10).set_color(Color.random())
 

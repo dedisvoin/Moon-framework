@@ -7,7 +7,7 @@ from numba import jit, float32, int32, njit
 import numpy as np
 from Moon.python.Window import Window, WindowEvents
 from Moon.python.Colors import *
-from Moon.python.Vectors import Vector3f, Vector2f
+from Moon.python.Vectors import Vec3f, Vec2f
 from Moon.python.Rendering.Vertexes import *
 
 class OBJLoader:
@@ -44,18 +44,18 @@ class OBJLoader:
 
                 # Вершины
                 if parts[0] == 'v':
-                    vertex = Vector3f(float(parts[1]), float(parts[2]), float(parts[3]))
+                    vertex = Vec3f(float(parts[1]), float(parts[2]), float(parts[3]))
                     vertices.append(vertex)
 
                 # Текстурные координаты
                 elif parts[0] == 'vt':
                     if len(parts) >= 3:
-                        tex_coord = Vector2f(float(parts[1]), float(parts[2]))
+                        tex_coord = Vec2f(float(parts[1]), float(parts[2]))
                         texture_coords.append(tex_coord)
 
                 # Нормали
                 elif parts[0] == 'vn':
-                    normal = Vector3f(float(parts[1]), float(parts[2]), float(parts[3]))
+                    normal = Vec3f(float(parts[1]), float(parts[2]), float(parts[3]))
                     normals.append(normal)
 
                 # Полигоны (грани)
@@ -236,15 +236,15 @@ class OptimizedMesh3D:
     с отсечением невидимых граней и затенением
     """
 
-    def __init__(self, position: Vector3f = Vector3f(0, 0, 0), scale: float = 1.0):
+    def __init__(self, position: Vec3f = Vec3f(0, 0, 0), scale: float = 1.0):
         self.position = position
         self.scale = scale
-        self.rotation = Vector3f(0, 0, 0)
-        self.rotation_speed = Vector3f(0, 1, 0)
+        self.rotation = Vec3f(0, 0, 0)
+        self.rotation_speed = Vec3f(0, 1, 0)
 
         # Предварительно вычисленные значения
-        self.camera_direction = Vector3f(0, 0, 1)
-        self.light_direction = Vector3f(0.5, 0.5, -1).normalize()
+        self.camera_direction = Vec3f(0, 0, 1)
+        self.light_direction = Vec3f(0.5, 0.5, -1).normalize()
 
         # VertexArray для рендера
         self.vertex_array = VertexList()
@@ -298,11 +298,11 @@ class OptimizedMesh3D:
             v2 = self.base_vertices[vertex_indices[2]]
 
             # Векторы сторон треугольника
-            edge1 = Vector3f(v1.x - v0.x, v1.y - v0.y, v1.z - v0.z)
-            edge2 = Vector3f(v2.x - v0.x, v2.y - v0.y, v2.z - v0.z)
+            edge1 = Vec3f(v1.x - v0.x, v1.y - v0.y, v1.z - v0.z)
+            edge2 = Vec3f(v2.x - v0.x, v2.y - v0.y, v2.z - v0.z)
 
             # Векторное произведение для получения нормали
-            normal = Vector3f(
+            normal = Vec3f(
                 edge1.y * edge2.z - edge1.z * edge2.y,
                 edge1.z * edge2.x - edge1.x * edge2.z,
                 edge1.x * edge2.y - edge1.y * edge2.x
@@ -352,7 +352,7 @@ class OptimizedMesh3D:
                 y = radius * sin_lat * sin_lon
                 z = radius * cos_lat
 
-                vertex = Vector3f(x, y, z)
+                vertex = Vec3f(x, y, z)
                 self.base_vertices.append(vertex)
                 vertices_list.append([x, y, z])
 
@@ -403,13 +403,13 @@ class OptimizedMesh3D:
         self._normals_np = np.array(normals_list, dtype=np.float32)
         self._face_indices_np = np.array(face_indices_list, dtype=np.int32)
 
-    def set_position(self, pos: Vector3f):
+    def set_position(self, pos: Vec3f):
         self.position = pos
 
     def set_scale(self, scale: float):
         self.scale = scale
 
-    def set_rotation_speed(self, speed: Vector3f):
+    def set_rotation_speed(self, speed: Vec3f):
         self.rotation_speed = speed
 
     def update(self):
@@ -494,7 +494,7 @@ class OptimizedMesh3D:
                     screen_y = v[1] * scale + self.position.y
 
                     self.vertex_array.auto_append(
-                        Vertex2d.FromPositionAndColor(Vector2f(screen_x, screen_y), shaded_color)
+                        Vertex2d.FromPositionAndColor(Vec2f(screen_x, screen_y), shaded_color)
                     )
 
     def draw(self, window: Window):
@@ -511,7 +511,7 @@ class MeshViewerApp:
         self.window.set_wait_fps(180)
 
         # Создаем меш
-        self.mesh = OptimizedMesh3D(position=Vector3f(600, 400, 0), scale=8.0)
+        self.mesh = OptimizedMesh3D(position=Vec3f(600, 400, 0), scale=8.0)
 
         # Попытка загрузить OBJ файл или создать сферу по умолчанию
         obj_files = [

@@ -1,111 +1,415 @@
-# 🌙 Moon Framework - Ключевые особенности реализации
+# 🌙 Moon Framework
 
-**Подробный технический обзор архитектуры и реализации игрового фреймворка Moon**
+**A powerful hybrid framework for creating 2D games in Python with C++ performance**
+
+[![Version](https://img.shields.io/badge/version-0.1.21-blue.svg)](https://github.com/your-repo)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
+
+Moon Framework is a modern game framework that combines Python API simplicity with high C++ core performance. Perfect for creating 2D games, prototyping, and educational projects.
+
+## ✨ Key Advantages
+
+### 🚀 High Performance
+- **Hybrid Architecture**: Python for logic, C++ for graphics and computations
+- **Optimized Operations**: Mass vertex and color changes in native code
+- **Minimal Overhead**: Using `__slots__` and RAII patterns
+- **60-80% performance boost** compared to pure Python
+
+### 🎮 Ease of Use
+- **Intuitive Python API**: Create games without deep C++ knowledge
+- **Fluent Interface**: Method chaining for convenient code
+- **Automatic Memory Management**: No need to manually free resources
+- **Rich Documentation**: Detailed examples and guides
+
+### 🎨 Full-Featured Graphics
+- **2D Rendering**: Sprites, shapes, text, particles
+- **Shaders**: GLSL shader support for effects
+- **Animations**: Sprite animation system
+- **Camera and Views**: Viewport and transformation management
+
+### 🔊 Audio and Input
+- **Audio System**: Sound and music playback with 3D positioning
+- **Input Processing**: Keyboard, mouse, gamepads
+- **Events**: Complete window event handling system
+
+### 🛠️ Development and Build
+- **Cross-Platform**: Windows and Linux support
+- **Automatic Build**: C++ module build system
+- **Modular Architecture**: Easily extensible code
+- **Modern Practices**: Type hints, documentation, tests
+
+## 📦 Installation
+
+### System Requirements
+- **Python**: 3.8 or higher
+- **Compiler**: GCC (Linux) or MinGW (Windows)
+- **Libraries**: SFML 2.6+, OpenAL
+
+### Install via pip
+```bash
+pip install MoonFramework
+```
+
+### Manual Installation
+```bash
+git clone https://github.com/your-repo/Moon-framework.git
+cd Moon-framework
+pip install -r requirements.txt
+python build.py  # Build C++ modules
+```
+
+### Dependencies
+- `requests` - for network operations
+- `colorama` - for colored output
+- `keyboard` - for extended input
+- `pywin32` - for Windows integration
+- `tripy` - for triangulation
+
+## 🚀 Quick Start
+
+### Creating Your First Window
+```python
+from Moon.python.Window import Window
+from Moon.python.Inputs import KeyBoardInterface
+
+# Create window
+window = Window(title="My First Game", width=800, height=600)
+
+# Main game loop
+while window.update():
+    window.clear()  # Clear screen
+    
+    # Input handling
+    if KeyBoardInterface.get_press("escape"):
+        break
+    
+    # Your game logic here
+    
+    window.display()  # Display frame
+```
+
+### Drawing Shapes
+```python
+from Moon.python.Window import Window
+from Moon.python.Rendering.Shapes.Rectangle import RectangleShape
+from Moon.python.Colors import Color
+
+window = Window("Shapes", 800, 600)
+
+# Create rectangle
+rect = RectangleShape(100, 100)
+rect.set_color(Color.RED)
+rect.set_position(350, 250)
+
+while window.update():
+    window.clear(Color.BLACK)
+    
+    # Draw
+    window.draw(rect)
+    
+    window.display()
+```
+
+### Working with Sprites
+```python
+from Moon.python.Window import Window
+from Moon.python.Rendering.Sprites import Sprite
+from Moon.python.Rendering.Textures import Texture2D
+
+window = Window("Sprites", 800, 600)
+
+# Load texture
+texture = Texture2D()
+texture.load_from_file("player.png")
+
+# Create sprite
+sprite = Sprite(texture)
+sprite.set_position(400, 300)
+
+while window.update():
+    window.clear()
+    
+    # Animation (move sprite)
+    sprite.move(1, 0)  # Move right
+    
+    window.draw(sprite)
+    window.display()
+```
+
+### Input Handling
+```python
+from Moon.python.Window import Window
+from Moon.python.Inputs import KeyBoardInterface, MouseInterface
+from Moon.python.Vectors import Vec2i
+
+window = Window("Input", 800, 600)
+
+while window.update():
+    window.clear()
+    
+    # Keyboard
+    if KeyBoardInterface.get_press("space"):
+        print("Space pressed")
+    
+    # Mouse
+    if MouseInterface.get_click("left"):
+        pos = MouseInterface.get_position(window)
+        print(f"Click at position: {pos.x}, {pos.y}")
+    
+    # Key combinations
+    if KeyBoardInterface.get_press("ctrl+s"):
+        print("Saving...")
+    
+    window.display()
+```
+
+### Audio
+```python
+from Moon.python.Audio import SoundBuffer, Sound
+
+# Load sound
+buffer = SoundBuffer()
+buffer.load_from_file("sound.wav")
+
+# Create and play
+sound = Sound(buffer)
+sound.play()
+
+# Control
+sound.set_volume(50)
+sound.set_pitch(1.2)  # Speed up
+```
+
+## 📚 API Overview
+
+### Core Modules
+
+#### Window (Window Management)
+```python
+window = Window(title="Game", width=800, height=600)
+window.set_framerate_limit(60)
+window.set_vertical_sync_enabled(True)
+```
+
+#### Rendering (Graphics Rendering)
+- **Shapes**: RectangleShape, CircleShape, LineShape, Polygone
+- **Sprites**: Sprite, AnimatedSprite
+- **Text**: Text, Font
+- **Shaders**: Shader, GLSL support
+
+#### Engine (Game Engine)
+- **Camera**: Camera management
+- **ParticleSystem**: Particle systems
+- **Tilesets**: Tile maps
+
+#### Audio (Sound)
+- **Sound**: Short sounds
+- **Music**: Background music
+- **SoundBuffer**: Audio file loading
+
+#### Math (Mathematics)
+- **Vectors**: Vector2f, Vector2i
+- **Colors**: Color with HSV/RGB conversion
+- **Utils**: Mathematical functions
+
+### Complete Game Example
+```python
+import sys
+sys.path.append('./')
+
+from Moon.python.Window import Window
+from Moon.python.Rendering.Shapes.Rectangle import RectangleShape
+from Moon.python.Colors import Color
+from Moon.python.Inputs import KeyBoardInterface
+from Moon.python.Vectors import Vec2f
+
+class Player:
+    def __init__(self):
+        self.shape = RectangleShape(50, 50)
+        self.shape.set_color(Color.BLUE)
+        self.position = Vec2f(400, 300)
+        self.speed = 5
+    
+    def update(self):
+        # Movement
+        if KeyBoardInterface.get_press("left"):
+            self.position.x -= self.speed
+        if KeyBoardInterface.get_press("right"):
+            self.position.x += self.speed
+        if KeyBoardInterface.get_press("up"):
+            self.position.y -= self.speed
+        if KeyBoardInterface.get_press("down"):
+            self.position.y += self.speed
+        
+        self.shape.set_position(self.position.x, self.position.y)
+    
+    def draw(self, window):
+        window.draw(self.shape)
+
+# Initialize
+window = Window("Simple Game", 800, 600)
+player = Player()
+
+# Game loop
+while window.update():
+    window.clear(Color.BLACK)
+    
+    player.update()
+    player.draw(window)
+    
+    if KeyBoardInterface.get_press("escape"):
+        break
+    
+    window.display()
+```
+
+## 🎮 Demo Projects
+
+The framework includes numerous examples:
+
+- **demo_1**: Input and window basics
+- **demo_2**: Shape drawing
+- **demo_3**: Text work
+- **demo_4**: Sprites and textures
+- **demo_5**: Animations
+- **demo_6**: Shaders
+- **demo_7**: Particles
+- **demo_8**: Audio
+- **demo_9**: Camera
+- **demo_10**: Tile maps
+- **demo_11**: Lighting and effects
+- **demo_12-23**: Advanced examples
+
+Run a demo:
+```bash
+cd demos/demo_1
+python demo_1.py
+```
+
+## 🏗️ Architecture
+
+```
+Moon Framework
+├── Python API Layer     # Developer-friendly interface
+├── Python Wrapper Layer # Resource management wrappers
+├── C++ Binding Layer    # ctypes bindings
+└── Native C++ Core      # SFML + Custom C++
+```
+
+### Key Principles
+- **Performance First**: Critical operations in C++
+- **Memory Safe**: RAII and automatic cleanup
+- **Developer Friendly**: Simple and intuitive API
+- **Extensible**: Easy to add new features
+
+## 📖 Documentation
+
+Detailed documentation is available in the `documentations/` folder:
+
+- [MOON_FRAMEWORK_DOCUMENTATION.md](documentations/MOON_FRAMEWORK_DOCUMENTATION.md) - Main documentation
+- [Shaders_Documentation.md](documentations/Shaders_Documentation.md) - Shader work
+- [Audio_Documentation.md](documentations/Audio_Documentation.md) - Audio system
+- [Colors_Documentation.md](documentations/Colors_Documentation.md) - Color system
+- [IMPLEMENTATION_FEATURES.md](documentations/IMPLEMENTATION_FEATURES.md) - Implementation features
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+1. **Fork** the repository
+2. Create a **feature branch** (`git checkout -b feature/AmazingFeature`)
+3. **Commit** changes (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** to branch (`git push origin feature/AmazingFeature`)
+5. Open a **Pull Request**
+
+### Code Requirements
+- Follow PEP 8
+- Add type hints
+- Write tests for new features
+- Update documentation
+
+## 📄 License
+
+This project is distributed under the MIT License. Details in the [LICENSE](LICENSE) file.
+
+## 🙏 Acknowledgments
+
+- **SFML** - Graphics library
+- **OpenAL** - Audio library
+- **Python** - Programming language
+- **All contributors** - For their contribution to development
 
 ---
 
-## 📋 Содержание
-
-1. [Архитектурный обзор](#архитектурный-обзор)
-2. [Гибридная архитектура Python + C++](#гибридная-архитектура-python--c)
-3. [Система управления памятью](#система-управления-памятью)
-4. [Оптимизации производительности](#оптимизации-производительности)
-5. [Система рендеринга](#система-рендеринга)
-6. [Обработка событий](#обработка-событий)
-7. [Математические вычисления](#математические-вычисления)
-8. [Система цветов и градиентов](#система-цветов-и-градиентов)
-9. [Аудиосистема](#аудиосистема)
-10. [Система сборки](#система-сборки)
-11. [Безопасность и стабильность](#безопасность-и-стабильность)
+**Create games with pleasure!** 🎮✨
 
 ---
 
-## 🏗️ Архитектурный обзор
+## 🏗️ Architectural Overview
 
-### Многослойная архитектура
+### Multi-Layer Architecture
 
-Moon построен по принципу многослойной архитектуры:
+Moon is built on a multi-layer architecture principle:
 
 ```
 ┌─────────────────────────────────────┐
-│        Python API Layer          │  ← Удобный интерфейс для разработчиков
+│        Python API Layer          │  ← Developer-friendly interface
 ├─────────────────────────────────────┤
-│      Python Wrapper Layer        │  ← Обертки и управление ресурсами
+│      Python Wrapper Layer        │  ← Resource management
 ├─────────────────────────────────────┤
-│       C++ Binding Layer          │  ← ctypes биндинги
+│       C++ Binding Layer          │  ← ctypes bindings
 ├─────────────────────────────────────┤
-│      Native C++ Core (SFML)      │  ← Высокопроизводительное ядро
+│      Native C++ Core (SFML)      │  ← High-performance core
 └─────────────────────────────────────┘
 ```
 
-### Принципы дизайна
+### Design Principles
 
-1. **Performance First** - критические операции выполняются в C++
-2. **Developer Friendly** - простой и интуитивный Python API
-3. **Memory Safe** - автоматическое управление ресурсами
-4. **Fluent Interface** - поддержка цепочек вызовов методов
+1. **Performance First** - critical operations performed in C++
+2. **Developer Friendly** - simple and intuitive Python API
+3. **Memory Safe** - automatic resource management
+4. **Fluent Interface** - method chaining support
 
----
-
-## 🔗 Гибридная архитектура Python + C++
-
-### Разделение ответственности
-
-**Python слой отвечает за:**
-- Высокоуровневую логику игры
-- Управление жизненным циклом объектов
-- Валидацию параметров
-- Удобный API для разработчиков
-
-**C++ слой отвечает за:**
-- Критичные к производительности операции
-- Прямую работу с OpenGL/SFML
-- Управление памятью на низком уровне
-- Математические вычисления
-
-### Пример реализации RectangleShape
+### RectangleShape Implementation Example
 
 ```python
 @final
 class RectangleShape:
     def __init__(self, width: float, height: float):
-        # Создание нативного объекта в C++
+        # Create native object in C++
         self._ptr = LIB_PYSGL._Rectangle_Create(float(width), float(height))
         
-        # Python-атрибуты для кэширования состояния
+        # Python attributes for state caching
         self.__color: Color | None = None
         self.__angle: float = 0
         
     def set_color(self, color: Color) -> Self:
-        # Валидация в Python
+        # Validation in Python
         if not isinstance(color, Color):
             raise TypeError("Expected Color object")
             
-        # Вызов нативной функции
+        # Call native function
         LIB_PYSGL._Rectangle_SetColor(self._ptr, color.r, color.g, color.b, color.a)
         
-        # Кэширование состояния
+        # Cache state
         self.__color = color
         return self  # Fluent interface
 ```
 
-### Биндинги через ctypes
+### Bindings via ctypes
 
 ```python
-# Определение сигнатур C++ функций
+# Define C++ function signatures
 LIB_PYSGL._Rectangle_Create.argtypes = [ctypes.c_float, ctypes.c_float]
 LIB_PYSGL._Rectangle_Create.restype = ctypes.c_void_p
 LIB_PYSGL._Rectangle_SetColor.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
 LIB_PYSGL._Rectangle_SetColor.restype = None
 ```
 
----
+### Memory Management with RAII
 
-## 🧠 Система управления памятью
-
-### RAII в Python
-
-Moon использует принцип RAII (Resource Acquisition Is Initialization) для автоматического управления ресурсами:
+Moon uses RAII (Resource Acquisition Is Initialization) principle for automatic resource management:
 
 ```python
 class RectangleShape:
@@ -113,147 +417,135 @@ class RectangleShape:
         self._ptr = LIB_PYSGL._Rectangle_Create(width, height)
         
     def __del__(self):
-        # Автоматическое освобождение ресурсов
+        # Automatic resource cleanup
         if hasattr(self, '_ptr') and self._ptr:
             LIB_PYSGL._Rectangle_Delete(self._ptr)
             self._ptr = None
 ```
 
-### Защита от утечек памяти
-
-1. **Автоматические деструкторы** - каждый объект освобождает свои ресурсы
-2. **Проверка валидности указателей** - защита от двойного освобождения
-3. **Исключения с гарантиями** - корректная очистка при ошибках
-
-### Оптимизация памяти с __slots__
+### Memory Optimization with __slots__
 
 ```python
 @final
 class Color:
-    __slots__ = ('r', 'g', 'b', 'a')  # Экономия ~40% памяти
+    __slots__ = ('r', 'g', 'b', 'a')  # ~40% memory savings
     
 @final
 class Vertex:
-    __slots__ = ('position', 'color', 'tex_coords')  # Компактное хранение
+    __slots__ = ('position', 'color', 'tex_coords')  # Compact storage
 ```
 
----
+### Performance Optimizations
 
-## ⚡ Оптимизации производительности
-
-### Массовые операции в C++
+#### Mass Operations in C++
 
 ```python
-# Медленно: цикл в Python
+# Slow: loop in Python
 for vertex in vertices:
     vertex.set_color(red_color)
 
-# Быстро: одна операция в C++
-vertex_array.set_color(red_color)  # Все вершины сразу
+# Fast: single operation in C++
+vertex_array.set_color(red_color)  # All vertices at once
 ```
 
-### Кэширование состояния
+#### State Caching
 
 ```python
 class RectangleShape:
     def get_angle(self) -> float:
-        return self.__angle  # Возврат из кэша, без вызова C++
+        return self.__angle  # Return from cache, no C++ call
         
     def set_angle(self, angle: float) -> Self:
         LIB_PYSGL._Rectangle_SetRotation(self._ptr, angle)
-        self.__angle = angle % 360  # Обновление кэша
+        self.__angle = angle % 360  # Update cache
         return self
 ```
 
-### Оптимизированные структуры данных
+#### Optimized Data Structures
 
 ```python
-# Специализированные классы для разных задач
-class LineThinShape:      # Для простых линий - минимальные накладные расходы
-class LineShape:          # Для линий с контуром - дополнительная функциональность
-class LinesThinShape:     # Для полилиний - массовые операции
+# Specialized classes for different tasks
+class LineThinShape:      # For simple lines - minimal overhead
+class LineShape:          # For lines with outline - additional functionality
+class LinesThinShape:     # For polylines - mass operations
 ```
 
-### Ленивые вычисления
+#### Lazy Evaluation
 
 ```python
 class BaseLineShape:
     def update(self):
-        # Пересчет геометрии только при необходимости
+        # Recalculate geometry only when needed
         vector = Vector2f.between(self.__start_pos, self.__end_pos)
         length = vector.get_lenght()
-        # ... сложные вычисления
+        # ... complex calculations
         
     def special_draw(self, window):
-        self.update()  # Обновление только перед отрисовкой
+        self.update()  # Update only before drawing
         window.draw(self.__rectangle_shape)
 ```
 
----
+### Rendering System
 
-## 🎨 Система рендеринга
-
-### Многоуровневая система отрисовки
+#### Multi-Level Rendering System
 
 ```python
-# Уровень 1: Простая отрисовка
+# Level 1: Simple rendering
 window.draw(shape)
 
-# Уровень 2: С состояниями рендеринга
+# Level 2: With render states
 window.draw(shape, render_states)
 
-# Уровень 3: С шейдерами
+# Level 3: With shaders
 window.draw(shape, shader)
 ```
 
-### Оптимизированные примитивы
+#### Optimized Primitives
 
 ```python
-# Нативные фигуры (максимальная производительность)
-rect = RectangleShape(100, 100)  # Прямой вызов SFML
-circle = CircleShape(50)         # Оптимизированная отрисовка
+# Native shapes (maximum performance)
+rect = RectangleShape(100, 100)  # Direct SFML call
+circle = CircleShape(50)         # Optimized rendering
 
-# Композитные фигуры (гибкость)
-line = LineShape()  # Состоит из прямоугольника + кругов
+# Composite shapes (flexibility)
+line = LineShape()  # Consists of rectangle + circles
 ```
 
-### Система вершинных массивов
+#### Vertex Array System
 
 ```python
 class VertexArray:
     def set_color(self, color: Color) -> None:
-        # Массовое изменение цвета всех вершин в C++
+        # Mass color change for all vertices in C++
         LIB_PYSGL._VertexArray_SetAllVerticesColor(
             self._ptr, color.r, color.g, color.b, color.a
         )
     
     def set_vertex_color(self, index: int, color: Color) -> None:
-        # Точечное изменение одной вершины
+        # Point change of single vertex
         LIB_PYSGL._VertexArray_SetVertexColor(
             self._ptr, index, color.r, color.g, color.b, color.a
         )
 ```
 
----
+### Event Handling
 
-## 🎮 Обработка событий
-
-### Эффективная система событий
+#### Efficient Event System
 
 ```python
 class WindowEvents:
     def poll(self, window) -> bool:
-        # Получение события из нативной очереди
+        # Get event from native queue
         return LIB_PYSGL._Window_GetCurrentEventType(
             window.get_ptr(), self.__event_ptr
         )
     
     def get_type(self) -> int:
-        # Быстрое получение типа без копирования данных
+        # Fast type retrieval without data copying
         return LIB_PYSGL._Events_GetType(self.__event_ptr)
 ```
 
-### Типизированные события
+#### Typed Events
 
 ```python
 class WindowEvents:
@@ -262,28 +554,26 @@ class WindowEvents:
         Resized = 1
         KeyPressed = 5
         MouseButtonPressed = 9
-        # ... полный набор событий SFML
+        # ... full SFML event set
 ```
 
-### Интеграция с системными API
+#### System API Integration
 
 ```python
 def update(self, events: WindowEvents) -> bool:
-    # Обработка нативных событий SFML
+    # Process native SFML events
     event_type = events.poll(self)
     
-    # Интеграция с keyboard библиотекой для расширенного ввода
+    # Integration with keyboard library for extended input
     if keyboard.is_pressed(self.__exit_key):
         return False
         
     return True
 ```
 
----
+### Mathematical Computations
 
-## 🧮 Математические вычисления
-
-### Векторная математика
+#### Vector Mathematics
 
 ```python
 @final
@@ -304,33 +594,31 @@ class Vector2f:
         return Vector2f(end[0] - start[0], end[1] - start[1])
 ```
 
-### Оптимизированные коллизии
+#### Optimized Collisions
 
 ```python
 def circles_collision(x1, y1, r1, x2, y2, r2) -> bool:
-    # Использование квадрата расстояния для избежания sqrt()
+    # Use squared distance to avoid sqrt()
     return distance_squared(x1, y1, x2, y2) <= (r1 + r2)**2
 
 def distance_squared(x1, y1, x2, y2):
     dx, dy = x2 - x1, y2 - y1
-    return dx * dx + dy * dy  # Без sqrt() - в 3-5 раз быстрее
+    return dx * dx + dy * dy  # No sqrt() - 3-5x faster
 ```
 
-### Шум Перлина
+#### Perlin Noise
 
 ```python
 def perlin_noise(x: float, y: float, octaves: int = 1, 
                 persistance: float = 0.5, lacunarity: float = 2.0) -> float:
-    # Интеграция с библиотекой noise для процедурной генерации
+    # Integration with noise library for procedural generation
     return pnoise2(x, y, octaves=octaves, 
                   persistence=persistance, lacunarity=lacunarity)
 ```
 
----
+### Color and Gradient System
 
-## 🎨 Система цветов и градиентов
-
-### Продвинутая работа с цветами
+#### Advanced Color Work
 
 ```python
 @final
@@ -338,54 +626,52 @@ class Color:
     __slots__ = ('r', 'g', 'b', 'a')
     
     def lighten_hsv(self, factor: float) -> "Color":
-        # Конвертация в HSV для точного управления яркостью
+        # Convert to HSV for accurate brightness control
         h, s, v = colorsys.rgb_to_hsv(self.r/255, self.g/255, self.b/255)
         new_v = min(1.0, v + (1 - v) * factor)
         r, g, b = colorsys.hsv_to_rgb(h, s, new_v)
         return Color(int(r*255), int(g*255), int(b*255), self.a)
 ```
 
-### Генерация цветовых палитр
+#### Color Palette Generation
 
 ```python
 def generate_palette(color: Color, scheme: str = "complementary", 
                     num_colors: int = 5) -> list[Color]:
-    # Алгоритмы теории цвета для гармоничных палитр
+    # Color theory algorithms for harmonious palettes
     h, s, v = colorsys.rgb_to_hsv(color.r/255, color.g/255, color.b/255)
     
     if scheme == "triadic":
-        # Три равноудаленных цвета (через 120°)
+        # Three equally spaced colors (120° apart)
         for i in range(3):
             new_h = (h + i/3) % 1.0
             r, g, b = colorsys.hsv_to_rgb(new_h, s, v)
             colors.append(Color(int(r*255), int(g*255), int(b*255)))
 ```
 
-### Сложные градиенты
+#### Complex Gradients
 
 ```python
 class ColorGradientEx:
     def __init__(self, colors: list[Color], lengths: list[float]):
-        # Градиенты с неравномерным распределением цветов
+        # Gradients with non-uniform color distribution
         if not math.isclose(sum(lengths), 1.0, rel_tol=1e-9):
             raise ValueError("Sum of lengths must equal 1.0")
     
     def get(self, amount: float) -> Color:
-        # Эффективный поиск нужного сегмента градиента
+        # Efficient segment search for gradient
         for gradient, start, end in self.__gradients:
             if start <= amount <= end:
                 relative = (amount - start) / (end - start)
                 return gradient.get(relative)
 ```
 
----
+### Audio System
 
-## 🔊 Аудиосистема
-
-### Интеграция с SFML Audio
+#### SFML Audio Integration
 
 ```cpp
-// C++ биндинги для аудио
+// C++ bindings for audio
 extern "C" {
     __declspec(dllexport) SoundPtr _Sound_Create(SoundBufferPtr buffer) {
         SoundPtr sound = new sf::Sound();
@@ -395,12 +681,12 @@ extern "C" {
     
     __declspec(dllexport) void _Sound_SetPosition(SoundPtr sound, 
                                                  float x, float y, float z) {
-        sound->setPosition(x, y, z);  // 3D позиционирование
+        sound->setPosition(x, y, z);  // 3D positioning
     }
 }
 ```
 
-### Python обертки
+#### Python Wrappers
 
 ```python
 class Sound:
@@ -412,31 +698,29 @@ class Sound:
         return self
 ```
 
----
+### Build System
 
-## 🔧 Система сборки
-
-### Автоматическая сборка C++ модулей
+#### Automatic C++ Module Building
 
 ```python
 def build():
-    # Поиск всех файлов для сборки
+    # Find all files to build
     builded_files = list(filter(lambda x: x[0:7] == "BUILDED", all_files))
     
-    # Объединение всех C++ файлов в один
+    # Combine all C++ files into one
     with open("PySGL.cpp", 'w') as output:
         for bf in builded_files:
             with open(bf, 'r') as input_file:
                 output.write(input_file.read())
     
-    # Компиляция с оптимизациями
+    # Compile with optimizations
     os.system(f"""g++ -shared -o PySGL.dll PySGL.cpp 
                  -static -static-libstdc++ -static-libgcc 
                  -DSFML_STATIC -O3 -march=native
                  -lsfml-graphics-s -lsfml-window-s -lsfml-system-s""")
 ```
 
-### Конфигурация через properties файл
+#### Configuration via Properties File
 
 ```properties
 # build.properties
@@ -447,11 +731,9 @@ BUILD_FILES_PATH="Moon/src"
 DLLS_FILES_PATH="Moon/dlls"
 ```
 
----
+### Security and Stability
 
-## 🛡️ Безопасность и стабильность
-
-### Валидация параметров
+#### Parameter Validation
 
 ```python
 def set_size(self, width: float, height: float) -> Self:
@@ -462,25 +744,25 @@ def set_size(self, width: float, height: float) -> Self:
     return self
 ```
 
-### Защита от некорректных индексов
+#### Index Bounds Protection
 
 ```python
 def __getitem__(self, index: int) -> Vertex:
     if not (0 <= index < len(self)):
         raise IndexError(f"Vertex index {index} out of bounds")
     
-    # Безопасное обращение к нативному массиву
+    # Safe access to native array
     return self.__vertex_array.get_vertex(index)
 ```
 
-### Обработка ошибок загрузки библиотек
+#### Library Loading Error Handling
 
 ```python
 def _find_library() -> str:
     try:
         lib_path = DLL_FOUND_PATH
         if not os.path.exists(lib_path):
-            # Поиск в альтернативных местах
+            # Search in alternative locations
             lib_path = "./dlls/PySGL.dll"
             if not os.path.exists(lib_path):
                 raise FileNotFoundError(f"Library not found at {lib_path}")
@@ -489,48 +771,44 @@ def _find_library() -> str:
         raise LibraryLoadError(f"Library search failed: {e}")
 ```
 
-### Graceful degradation
+#### Graceful Degradation
 
 ```python
 def set_alpha(self, alpha: int):
     try:
-        # Попытка установить прозрачность через WinAPI
+        # Try to set transparency via WinAPI
         ctypes.windll.user32.SetLayeredWindowAttributes(
             self.__window_descriptor, 0, int(alpha), 2
         )
     except:
-        # Тихий откат при ошибке (например, на Linux)
+        # Silent fallback on error (e.g., on Linux)
         pass
 ```
 
----
-
-## 📊 Метрики производительности
-
-### Встроенный профайлер
+### Built-in Profiler
 
 ```python
 class Window:
     def update(self, events: WindowEvents) -> bool:
-        # Замер времени рендеринга
+        # Measure rendering time
         self.__render_time = self.__clock.get_elapsed_time()
         self.__clock.restart()
         
-        # Расчет FPS
+        # Calculate FPS
         self.__fps = 1 / self.__render_time if self.__render_time > 0 else 0
         
-        # Обновление истории для графика
+        # Update history for graph
         self.__update_fps_history()
 ```
 
-### Визуализация производительности
+### Performance Visualization
 
 ```python
 def view_info(self) -> None:
     if not self.__view_info:
         return
         
-    # Динамический график FPS
+    # Dynamic FPS graph
     for i, fps in enumerate(self.__fps_history):
         x = graph_x + (i * graph_width / (self.__max_history - 1))
         y = graph_y + graph_height - (fps * graph_height / max_fps)
@@ -538,28 +816,26 @@ def view_info(self) -> None:
         self.__fps_line.append_point_to_end(x, y, color)
 ```
 
----
+### Conclusion
 
-## 🎯 Заключение
+Moon Framework demonstrates effective combination of Python convenience and C++ performance. Key achievements:
 
-Moon Framework демонстрирует эффективное сочетание удобства Python и производительности C++. Ключевые достижения:
+### Performance
+- **60-80% improvement** compared to pure Python
+- **Mass operations** in native code
+- **Optimized data structures** with __slots__
+- **Lazy evaluation** and caching
 
-### Производительность
-- **60-80% улучшение** по сравнению с чистым Python
-- **Массовые операции** в нативном коде
-- **Оптимизированные структуры данных** с __slots__
-- **Ленивые вычисления** и кэширование
+### Development Convenience
+- **Fluent Interface** for method chaining
+- **Automatic memory management**
+- **Rich type system** with type hints
+- **Comprehensive documentation** and examples
 
-### Удобство разработки
-- **Fluent Interface** для цепочек вызовов
-- **Автоматическое управление памятью**
-- **Богатая система типов** с type hints
-- **Подробная документация** и примеры
+### Architectural Flexibility
+- **Modular structure** with clear layer separation
+- **Extensibility** through Python and C++
+- **Cross-platform** thanks to SFML
+- **Modern development practices**
 
-### Архитектурная гибкость
-- **Модульная структура** с четким разделением слоев
-- **Расширяемость** через Python и C++
-- **Кроссплатформенность** благодаря SFML
-- **Современные практики** разработки
-
-Moon представляет собой пример того, как можно создать высокопроизводительный игровой фреймворк, сохранив при этом простоту и удобство использования Python.
+Moon represents an example of how to create a high-performance game framework while maintaining Python's simplicity and ease of use.

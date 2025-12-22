@@ -94,7 +94,7 @@ from typing import Final
 
 from Moon.python.Types import *
 from Moon.python.Colors import *
-from Moon.python.Vectors import Vector2f
+from Moon.python.Vectors import Vec2f
 
 from Moon.python.utils import find_library
 
@@ -180,7 +180,7 @@ LIB_MOON._Circle_GetOriginY.restype = ctypes.c_float
 # КЛАСС ShapePositionProxy - УПРАВЛЕНИЕ ПОЗИЦИЕЙ ФИГУРЫ
 # =====================================================================================
 
-class ShapePositionProxy(Vector2f):
+class ShapePositionProxy(Vec2f):
     """
     #### Прокси-объект для управления позицией фигуры
     Реализовывает связанный вектор над базовым двумерным вектором с плавающей точкой для точности
@@ -308,7 +308,7 @@ class ShapePositionProxy(Vector2f):
 # КЛАСС ShapeSizeProxy - УПРАВЛЕНИЕ РАЗМЕРАМИ ФИГУРЫ
 # =====================================================================================
 
-class ShapeSizeProxy(Vector2f):
+class ShapeSizeProxy(Vec2f):
     """
     #### Прокси-объект для управления размерами фигуры (ширина/высота)
     Реализовывает связанный вектор над базовым двумерным вектором с плавающей точкой для точности
@@ -490,7 +490,7 @@ class ShapeSizeProxy(Vector2f):
 # КЛАСС ShapeOriginProxy - УПРАВЛЕНИЕ ТОЧКОЙ ОТСЧЕТА ФИГУРЫ
 # =====================================================================================
 
-class ShapeOriginProxy(Vector2f):
+class ShapeOriginProxy(Vec2f):
     """
     #### Прокси-объект для управления точкой отсчета (Origin) фигуры
     Реализовывает связанный вектор над базовым двумерным вектором с плавающей точкой для точности

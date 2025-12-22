@@ -21,7 +21,7 @@ window_events = WindowEvents()
 cm = CameraMachine2D(*window.get_size().xy)
 cm_zoom = 1
 
-GRAVITY = Vector2f(0, 0.8)
+GRAVITY = Vec2f(0, 0.8)
 SIM = True
 FRICTION_GROUND = 0.9
 SLOUMO = True
@@ -39,14 +39,14 @@ class BoxTypes(Enum):
     DYNAMIC = 1
 
 class Box:
-    def __init__(self, pos: Vector2f, size: Vector2f, type: BoxTypes):
+    def __init__(self, pos: Vec2f, size: Vec2f, type: BoxTypes):
         self.pos = pos
         self.size = size
         self.type = type
 
-        self.speed = Vector2f(0, 0)
+        self.speed = Vec2f(0, 0)
 
-    def set_speed(self, speed: Vector2f):
+    def set_speed(self, speed: Vec2f):
         self.speed = speed
         return self
 
@@ -71,8 +71,8 @@ class Box:
                 BoxLine.set_end_point(self.pos + self.size)
                 BoxLine.set_color(Color(200, 200, 200))
                 window.draw(BoxLine)
-                BoxLine.set_start_point(Vector2f(self.pos.x + self.size.x, self.pos.y))
-                BoxLine.set_end_point(Vector2f(self.pos.x, self.pos.y + self.size.y))
+                BoxLine.set_start_point(Vec2f(self.pos.x + self.size.x, self.pos.y))
+                BoxLine.set_end_point(Vec2f(self.pos.x, self.pos.y + self.size.y))
                 window.draw(BoxLine)
                 
                 window.draw(BoxRect)
@@ -325,7 +325,7 @@ while window.update(window_events):
     if SIM: ENGINE.update(window.get_delta() / (1 if SLOUMO else 10))
     if KeyBoardInterface.get_press("m"):
         ENGINE.add_box(Box(window.convert_window_coords_to_view_coords(*MouseInterface.get_position_in_window(window).xy, cm.get_view()), 
-                           Vector2f(20, 20), BoxTypes.DYNAMIC).set_speed(Vector2f.random() * 20))
+                           Vec2f(20, 20), BoxTypes.DYNAMIC).set_speed(Vec2f.random() * 20))
     
     cm.reapply(window)
     if DEBUG: ENGINE.render_debug()

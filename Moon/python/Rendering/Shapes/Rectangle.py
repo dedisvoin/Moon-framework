@@ -5,7 +5,7 @@ from Moon.python.Types import *
 from Moon.python.Colors import *
 from Moon.python.Rendering.Shapes.Proxys import *        # pyright: ignore
 
-from Moon.python.Vectors import Vector2f, Vector2i, Vector2Type, Vector2TypeTuple
+from Moon.python.Vectors import Vec2f, Vec2i, Vec2T, Vec2TT
 
 from Moon.python.utils import find_library
 
@@ -136,7 +136,7 @@ class RectangleShape:
         self.__outline_color: Color | None = None  # Цвет контура
         self.__outline_thickness: float = 0        # Толщина контура
         self.__angle: float = 0                    # Угол поворота (градусы)
-        self.__scale: Vector2f = Vector2f.one()    # Масштаб по осям
+        self.__scale: Vec2f = Vec2f.one()    # Масштаб по осям
 
     # //////////////////////////////////////////////////////////////////////
     # Проксируемый параметр : POSITION
@@ -146,7 +146,7 @@ class RectangleShape:
         return ShapePositionProxy(self)
 
     @position.setter
-    def position(self, value: Union[Vector2Type, "ShapePositionProxy"]) -> None:
+    def position(self, value: Union[Vec2T, "ShapePositionProxy"]) -> None:
         self.set_position(value.x, value.y)
 
     # //////////////////////////////////////////////////////////////////////
@@ -168,7 +168,7 @@ class RectangleShape:
         return ShapeSizeProxy(self)
 
     @size.setter
-    def size(self, size: Union[Vector2Type, "ShapeSizeProxy"]) -> None:
+    def size(self, size: Union[Vec2T, "ShapeSizeProxy"]) -> None:
         self.set_size(size)
 
     # //////////////////////////////////////////////////////////////////////
@@ -179,7 +179,7 @@ class RectangleShape:
         return ShapeOriginProxy(self)
 
     @origin.setter
-    def origin(self, origin: Vector2Type) -> None:
+    def origin(self, origin: Vec2T) -> None:
         self.set_origin(origin)
 
     @property
@@ -359,7 +359,7 @@ class RectangleShape:
 
 
     @overload
-    def set_position(self, arg1: Vector2f | Vector2i) -> Self:
+    def set_position(self, arg1: Vec2f | Vec2i) -> Self:
         """
         #### Устанавливает позицию прямоугольника через вектор
 
@@ -392,7 +392,7 @@ class RectangleShape:
         ...
 
 
-    def set_position(self, arg1: Union[Number, Vector2f | Vector2i], arg2: Optional[Number] = None) -> Self:
+    def set_position(self, arg1: Union[Number, Vec2f | Vec2i], arg2: Optional[Number] = None) -> Self:
         """
         #### Основная реализация установки позиции
 
@@ -413,7 +413,7 @@ class RectangleShape:
         :Note:
         - Внутренний метод - используйте перегруженные версии
         """
-        if isinstance(arg1, (Vector2f, Vector2i)) and arg2 is None:
+        if isinstance(arg1, (Vec2f, Vec2i)) and arg2 is None:
             LIB_MOON._Rectangle_SetPosition(self._ptr, float(arg1.x), float(arg1.y))
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             LIB_MOON._Rectangle_SetPosition(self._ptr, float(arg1), float(arg2))
@@ -426,7 +426,7 @@ class RectangleShape:
         return self
 
     @final
-    def get_position(self) -> Vector2f:
+    def get_position(self) -> Vec2f:
         """
         #### Возвращает текущую позицию прямоугольника
 
@@ -452,7 +452,7 @@ class RectangleShape:
         """
         x = LIB_MOON._Rectangle_GetPositionX(self._ptr)
         y = LIB_MOON._Rectangle_GetPositionY(self._ptr)
-        return Vector2f(x, y)
+        return Vec2f(x, y)
 
     @final
     def set_color(self, color: Color | None) -> Self:
@@ -553,7 +553,7 @@ class RectangleShape:
 
 
     @overload
-    def set_origin(self, arg1: Vector2Type) -> Self:
+    def set_origin(self, arg1: Vec2T) -> Self:
         """
         #### Устанавливает точку отсчета через вектор
 
@@ -586,7 +586,7 @@ class RectangleShape:
         ...
 
     @final
-    def set_origin(self, arg1: Union[Number, Vector2Type], arg2: Optional[Number] = None) -> Self:
+    def set_origin(self, arg1: Union[Number, Vec2T], arg2: Optional[Number] = None) -> Self:
         """
         #### Основная реализация установки точки отсчета
 
@@ -607,7 +607,7 @@ class RectangleShape:
         :Note:
         - Координаты относительно левого верхнего угла фигуры
         """
-        if isinstance(arg1, Vector2f) and arg2 is None:
+        if isinstance(arg1, Vec2f) and arg2 is None:
             x, y = float(arg1.x), float(arg1.y)
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             x, y = float(arg1), float(arg2)
@@ -622,7 +622,7 @@ class RectangleShape:
         return self
 
     @final
-    def get_origin(self) -> Vector2f:
+    def get_origin(self) -> Vec2f:
         """
         #### Возвращает текущую точку отсчета
 
@@ -646,7 +646,7 @@ class RectangleShape:
         print(f"Точка отсчета: ({origin.x}, {origin.y})")
         ```
         """
-        return Vector2f(
+        return Vec2f(
             LIB_MOON._Rectangle_GetOriginX(self._ptr),
             LIB_MOON._Rectangle_GetOriginY(self._ptr),
         )
@@ -686,7 +686,7 @@ class RectangleShape:
 
 
     @overload
-    def set_size(self, arg1: Vector2f | Vector2i) -> Self:
+    def set_size(self, arg1: Vec2f | Vec2i) -> Self:
         """
         #### Устанавливает размер прямоугольника через вектор
 
@@ -718,7 +718,7 @@ class RectangleShape:
         ...
 
     @final
-    def set_size(self, arg1: Union[Number, Vector2Type], arg2: Optional[Number] = None) -> Self:
+    def set_size(self, arg1: Union[Number, Vec2T], arg2: Optional[Number] = None) -> Self:
         """
         #### Основная реализация изменения размера
 
@@ -733,7 +733,7 @@ class RectangleShape:
         - Минимальный размер 1x1 пиксель
         """
 
-        if isinstance(arg1, Vector2TypeTuple) and arg2 is None:
+        if isinstance(arg1, Vec2TT) and arg2 is None:
             width, height = float(arg1.x), float(arg1.y)
         elif isinstance(arg1, (int, float)) and isinstance(arg2, (int, float)):
             width, height = float(arg1), float(arg2)
@@ -751,7 +751,7 @@ class RectangleShape:
         return self
 
     @final
-    def get_size(self) -> Vector2f:
+    def get_size(self) -> Vec2f:
         """
         #### Возвращает текущие размеры прямоугольника
 
@@ -777,7 +777,7 @@ class RectangleShape:
         """
         width = LIB_MOON._Rectangle_GetWidth(self._ptr)
         height = LIB_MOON._Rectangle_GetHeight(self._ptr)
-        return Vector2f(width, height)
+        return Vec2f(width, height)
 
     @final
     def set_angle(self, angle: Number) -> Self:
@@ -1080,7 +1080,7 @@ class RectangleShape:
         return self
 
     @final
-    def get_scale(self) -> Vector2f:
+    def get_scale(self) -> Vec2f:
         """
         #### Возвращает текущий масштаб прямоугольника
 
@@ -1107,7 +1107,7 @@ class RectangleShape:
         return self.__scale.copy()  # Возвращаем копию для безопасности
 
     @final
-    def move(self, offset: Vector2f) -> Self:
+    def move(self, offset: Vec2f) -> Self:
         """
         #### Перемещает прямоугольник на заданный вектор
 

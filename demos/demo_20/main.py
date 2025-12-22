@@ -15,15 +15,15 @@ events = WindowEvents()
 
 rect = RectangleShape()
 rect.color = COLOR_EMERALD
-rect.size = Vector2f(200, 200)
+rect.size = Vec2f(200, 200)
 rect.outline_color = COLOR_BLACK
 rect.origin = rect.size / 2
 
 
 circle = CircleShape(5)
-circle.position = Vector2f(300, 300)
+circle.position = Vec2f(300, 300)
 circle.color = COLOR_RED
-circle.origin = Vector2f(100, 100)
+circle.origin = Vec2f(100, 100)
 circle.radius = 100
 
 

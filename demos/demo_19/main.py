@@ -35,7 +35,7 @@ def render_bloom():
     # ПРОХОД 1: Создаем bloom эффект
     bloom_texture.clear(COLOR_BLACK)
     
-    shader.set_uniform('textureSize', Vector2f(1000, 1000))
+    shader.set_uniform('textureSize', Vec2f(1000, 1000))
     shader.set_uniform('intensity', 10)    # Сила свечения
     shader.set_uniform('radius', 100)       # Радиус размытия
     
@@ -55,7 +55,7 @@ while window.update(events):
     # Рендерим сцену
     surface.clear(COLOR_BLACK)
     surface.draw(circle.set_position(MouseInterface.get_position_in_window(window)).set_color(COLOR_ORANGE).set_origin_radius(100))
-    surface.draw(circle.set_position(Vector2f(500, 500)).set_color(COLOR_GREEN).set_origin_radius(50))
+    surface.draw(circle.set_position(Vec2f(500, 500)).set_color(COLOR_GREEN).set_origin_radius(50))
     surface.draw(rect)
     surface.display()
 

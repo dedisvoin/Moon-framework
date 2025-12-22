@@ -3,7 +3,7 @@ sys.path.append('./')
 
 from Moon.python.Window import *
 
-from Moon.python.Vectors import Vector2f
+from Moon.python.Vectors import Vec2f
 from Moon.python.Rendering.Shapes import CircleShape
 
 
@@ -17,7 +17,7 @@ window_events = WindowEvents()
 
 
 pos = window.get_center(True)
-speed = Vector2f.random() * 100
+speed = Vec2f.random() * 100
 
 circle = CircleShape()
 circle.set_origin_radius(50)

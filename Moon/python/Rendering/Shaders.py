@@ -76,7 +76,7 @@ import os
 from typing import Any
 from colorama import Fore
 
-from Moon.python.Vectors import Vector2f, Vector2i
+from Moon.python.Vectors import Vec2f, Vec2i
 from Moon.python.Colors import Color
 
 from Moon.python.utils import find_library
@@ -471,9 +471,9 @@ class Shader:
             LIB_MOON._Shader_SetUniformTexture(self.__ptr, name.encode('utf-8'), arg.get_ptr())
         elif arg.__class__.__name__ == 'RenderTexture2D':
             LIB_MOON._Shader_SetUniformTexture(self.__ptr, name.encode('utf-8'), arg.get_ptr())
-        elif isinstance(arg, Vector2f):
+        elif isinstance(arg, Vec2f):
             LIB_MOON._Shader_SetUniformFloatVector(self.__ptr, name.encode('utf-8'), arg.x, arg.y)
-        elif isinstance(arg, Vector2i):
+        elif isinstance(arg, Vec2i):
             LIB_MOON._Shader_SetUniformFloatVector(self.__ptr, name.encode('utf-8'), arg.x, arg.y)
         elif isinstance(arg, Color):
             LIB_MOON._Shader_SetUniformColor(self.__ptr, name.encode('utf-8'), arg.r, arg.g, arg.b, arg.a)

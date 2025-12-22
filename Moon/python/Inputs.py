@@ -89,7 +89,7 @@ from typing import Any, Literal, Final, final, Optional, Union, Set, Dict
 
 
 from Moon.python.Types import AutoIdentifier, Self
-from Moon.python.Vectors import Vector2f, Vector2i, Vector2Type  # Векторные операции для позиций
+from Moon.python.Vectors import Vec2f, Vec2i, Vec2T  # Векторные операции для позиций
 from Moon.python.utils import find_library, LibraryLoadError
 
 
@@ -541,7 +541,7 @@ def is_mouse_button_pressed(button: int) -> bool:
     except Exception as e:
         raise InputError(f"Mouse button check failed: {e}")
 
-def get_mouse_position() -> Vector2i:
+def get_mouse_position() -> Vec2i:
     """
     #### Получает текущую позицию курсора на экране
 
@@ -554,10 +554,10 @@ def get_mouse_position() -> Vector2i:
     
     _lib._Mouse_GetPositionX.restype = ctypes.c_int
     _lib._Mouse_GetPositionY.restype = ctypes.c_int
-    return Vector2i(_lib._Mouse_GetPositionX(), _lib._Mouse_GetPositionY())
+    return Vec2i(_lib._Mouse_GetPositionX(), _lib._Mouse_GetPositionY())
     
 
-def get_mouse_position_in_window(window: Any) -> Vector2i:
+def get_mouse_position_in_window(window: Any) -> Vec2i:
     """
     #### Получает позицию курсора относительно окна
 
@@ -592,11 +592,11 @@ def get_mouse_position_in_window(window: Any) -> Vector2i:
 
         x = _lib._Mouse_GetPositionXWindow(window_ptr)
         y = _lib._Mouse_GetPositionYWindow(window_ptr)
-        return Vector2i(x, y)
+        return Vec2i(x, y)
     except Exception as e:
         raise InputError(f"Failed to get window mouse position: {e}")
 
-def set_mouse_position(position: Vector2i | Vector2f) -> None:
+def set_mouse_position(position: Vec2i | Vec2f) -> None:
     """
     #### Устанавливает позицию курсора мыши на экране
 
@@ -620,7 +620,7 @@ def set_mouse_position(position: Vector2i | Vector2f) -> None:
     except Exception as e:
         raise InputError(f"Failed to set mouse position: {e}")
 
-def set_mouse_position_in_window(window: Any, position: Vector2i | Vector2f) -> None:
+def set_mouse_position_in_window(window: Any, position: Vec2i | Vec2f) -> None:
     """
     #### Устанавливает позицию курсора мыши относительно окна
 
@@ -827,7 +827,7 @@ class Mouse:
             raise InputError(f"Failed to get mouse release: {e}")
 
     @classmethod
-    def get_position_in_window(cls, window: Any) -> Vector2i:
+    def get_position_in_window(cls, window: Any) -> Vec2i:
         """
         #### Получает позицию курсора относительно окна
 
@@ -843,7 +843,7 @@ class Mouse:
         """
         return get_mouse_position_in_window(window)
 
-    def get_speed(self) -> Vector2Type:
+    def get_speed(self) -> Vec2T:
         """
         #### Рассчитывает скорость движения мыши (пикселей/кадр)
 
@@ -866,7 +866,7 @@ class Mouse:
             raise InputError(f"Failed to calculate mouse speed: {e}")
 
     @classmethod
-    def get_position(cls) -> Vector2i:
+    def get_position(cls) -> Vec2i:
         """
         #### Получает абсолютную позицию курсора на экране
 
@@ -878,7 +878,7 @@ class Mouse:
         return get_mouse_position()
 
     @classmethod
-    def set_position(cls, position: Vector2i | Vector2f) -> None:
+    def set_position(cls, position: Vec2i | Vec2f) -> None:
         """
         #### Устанавливает абсолютную позицию курсора на экране
 
@@ -891,7 +891,7 @@ class Mouse:
         set_mouse_position(position)
 
     @classmethod
-    def set_position_in_window(cls, window: Any,  position: Vector2i | Vector2f) -> None:
+    def set_position_in_window(cls, window: Any,  position: Vec2i | Vec2f) -> None:
         """
         #### Устанавливает абсолютную позицию курсора в окне
 
@@ -912,7 +912,7 @@ class Mouse:
         mouse.double_click(str(button))
 
     @classmethod
-    def move(cls, position: Vector2i | Vector2f, duration: float | int = 0) -> None:
+    def move(cls, position: Vec2i | Vec2f, duration: float | int = 0) -> None:
         """
         Перемещает курсор в указанную позицию с заданным временем перемещения.
 
@@ -930,11 +930,11 @@ class Mouse:
         mouse.move(position.x, position.y, True, duration) # pyright: ignore
 
     @classmethod
-    def _move_thread(cls, position: Vector2i | Vector2f, duration: float | int):
+    def _move_thread(cls, position: Vec2i | Vec2f, duration: float | int):
         mouse.move(position.x, position.y, True, duration) # pyright: ignore
 
     @classmethod
-    def daemon_move(cls, position: Vector2i | Vector2f, duration: float | int):
+    def daemon_move(cls, position: Vec2i | Vec2f, duration: float | int):
         """
         #### Демонизированный метод для перемещения курсора
 

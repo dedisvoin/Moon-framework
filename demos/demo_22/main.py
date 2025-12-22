@@ -19,20 +19,20 @@ rect = RectangleShape(100, 100).set_color(COLOR_RED).set_position(200, 200).set_
 
 circle = CircleShape(10).set_origin_radius(100).set_color(COLOR_GREEN).set_position(200, 600)
 
-line = LineShape().init_points().set_start_position(Vector2f(400, 400)).set_end_position(Vector2f(500, 800)).set_global_color(COLOR_CORAL)
+line = LineShape().init_points().set_start_position(Vec2f(400, 400)).set_end_position(Vec2f(500, 800)).set_global_color(COLOR_CORAL)
 
 polygone = PolygonShape()
 polygone.set_global_color(COLOR_ORANGE)
-polygone.add_vertex(Vector2f(400, 400))
-polygone.add_vertex(Vector2f(800, 400))
-polygone.add_vertex(Vector2f(600, 600))
+polygone.add_vertex(Vec2f(400, 400))
+polygone.add_vertex(Vec2f(800, 400))
+polygone.add_vertex(Vec2f(600, 600))
 polygone.set_all_vertices_colors([COLOR_RED, COLOR_GREEN, COLOR_BLUE])
 
 
 
 line_2 = WidelineShape()
-line_2.set_start_position(Vector2f(100, 500))
-line_2.set_end_position(Vector2f(700, 350))
+line_2.set_start_position(Vec2f(100, 500))
+line_2.set_end_position(Vec2f(700, 350))
 line_2.set_color(COLOR_GRAY)
 line_2.set_radius(30)
 line_2.set_rounded(True)
